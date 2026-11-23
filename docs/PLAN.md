@@ -151,8 +151,16 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
   focal with the stored ratio, so widened angles passed by the `GLI_xSetCameraAspectAndRatio`
   callers would not survive. The camera keeps its 4:3 angles; the perspective projection divides
   tan(xAlphaX / 2) by k.
-- **Not covered yet:** windowed/fullscreen toggle and window resize are not tested; 21:9 needs
-  windowed mode (no such monitor mode here).
+- **2D.** Percent and pixel sprites map into the band (full-width ones keep the full width);
+  the loading vignette is squeezed into the band of its own bitmap; superimposed objects map
+  their screen position into the band and scale to its width (DEVIATIONS 7-9).
+- **Verified (screenshots, 2026-11-23):** at 1920x1080 and 1680x1050 the menu text, Murfy
+  cursor, HUD (head, health bar, lum/cage counters and icons), pause menu (text, counters,
+  masks; swirl background full width) and the loading vignette and bar keep 4:3 proportions
+  in the band; the 3D view is Hor+. 1280x960 is unchanged.
+- **Not verified yet:** the logo path (`AGO_vDisplayLogo`) and script text
+  (`fn_p_stCode4TextAffiche`) were not on screen in the test runs; windowed/fullscreen toggle
+  and window resize are not tested; 21:9 needs windowed mode (no such monitor mode here).
 
 ### Phase 4: make the codebase solid
 - Clean warnings at a high level (`/W4`, `-Wall -Wextra`), static analysis, and AddressSanitizer
