@@ -1256,7 +1256,12 @@ int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
     wc.hInstance     = hInstance;
+#ifdef RAYMAN2_WINDOW_ICON
+    /* the exe's icon group 1 (taskbar, title bar) instead of the system one; DEVIATIONS 12 */
+    wc.hIcon         = LoadIconA(hInstance, (LPCSTR)1);
+#else
     wc.hIcon         = LoadIconA(NULL, (LPCSTR)0x7F00);
+#endif /* RAYMAN2_WINDOW_ICON */
     wc.hCursor       = LoadCursorA(NULL, (LPCSTR)0x7F00);
     wc.hbrBackground = (HBRUSH)6;
     wc.lpszMenuName  = NULL;
