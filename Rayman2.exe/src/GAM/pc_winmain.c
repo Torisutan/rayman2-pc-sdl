@@ -704,6 +704,16 @@ void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
     typedef void (__stdcall *pfn_iat_t)(void *);
 
     unsigned int *p_ulMMGTable = g_p_ulMMGTable;   /* 0x00510BA4 */
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#6) */
+    /* the PSAPI handle was read from the table after it was freed (or through NULL) */
+    if (p_ulMMGTable != NULL)
+    {
+        if (MMG_pc_g_ulPsapiLoaded != 0)
+            FreeLibrary((HMODULE)(void *)(unsigned int)p_ulMMGTable[2]);
+        free(p_ulMMGTable);
+    }
+#else
     if (p_ulMMGTable != NULL)
     {
         free(p_ulMMGTable);
@@ -713,6 +723,7 @@ void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
 
         FreeLibrary((HMODULE)(void *)(unsigned int)g_p_ulMMGTable[2]);
     }
+#endif /* RAYMAN2_FIX_BUGS */
 }
 
 /* 0x00401D40 */
