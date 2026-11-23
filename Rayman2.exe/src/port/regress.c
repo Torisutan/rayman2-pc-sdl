@@ -13,7 +13,8 @@
  *
  * Output (R2_REGRESS_OUT): one line per frame, "frame hash field=value ...", the state the previous
  * frame left: engine structure fields (no pointers, handles or real-time counts), main actor
- * global matrix, MMG LCG state, random indices and table. tools/regress.py compares two files.
+ * global matrix, random indices and table (not the MMG LCG: protection state only).
+ * tools/regress.py compares two files.
  *
  * Input script: lines "FIRST LAST KEY[,KEY...]", frames counted from the level start (frame 0 =
  * first frame the level plays), KEY a DirectInput scan code (0x1E) or a name from s_a_stKeyName.
@@ -345,7 +346,6 @@ static void REGRESS_fn_vHashFrame(void)
     } else {
         REGRESS_fn_vAddText("actor.matrix", "-");
     }
-    REGRESS_M_Field("mmg.lcg", MMG_g_ulLCGState);
     REGRESS_M_Field("rnd.index", RND_g_stRandomStructure.a_ulIndex);
     REGRESS_M_Field("rnd.max", RND_g_stRandomStructure.ulMaxValueInTable);
     if (RND_g_stRandomStructure.p_ulTable != NULL) {
