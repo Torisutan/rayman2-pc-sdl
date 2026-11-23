@@ -572,6 +572,21 @@ extern void __cdecl GLI_FatalExitOrSleep(void);   /* 0x004011C0 */
     __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 \
     __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90
 
+#ifdef RAYMAN2_NO_PROTECTION
+/* Only the protection gate needs the naked body below (label addresses, room for a decrypted
+   body); without it the function is plain C. */
+void __cdecl GAM_pc_fn_vLoadGliDll(void)
+{
+    g_cIsLevelOk = 0;
+    FUN_0044f500(0);
+    if ( !GLI_fnl_InitDll() )
+    {
+        Erm_fn_iMessageBox((char *)GAM_pc_c_szGliLoadErrMsg, (char *)GAM_pc_c_szGliLoadErrTitle, 0x40010);
+        GLI_FatalExitOrSleep();
+    }
+    FUN_00404ba0();
+}
+#else
 __declspec(naked) void __cdecl GAM_pc_fn_vLoadGliDll(void)
 {
     __asm {
@@ -619,6 +634,7 @@ L_ok:
         ret
     }
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
 /* 0x004468d0 */
 void __cdecl GAM_pc_fn_vSetParticuleRate(float xRate)
