@@ -750,7 +750,8 @@ void __cdecl GLI_pc_fn_vOpenFileWithCdFallback(char *path);            /* 0x0045
 void __cdecl GLI_fn_vCloseBigFileTextures(void);                         /* 0x004251B0 */
 void __cdecl GLI_fn_vOpenBigFileTextures(char *p_szArchivePath);       /* 0x004250D0 */
 void __cdecl IPT_pc_fn_vCreateMouseDevice(long _lParam);               /* 0x0042E040 */
-short __cdecl INO_fn_wActivateDevice(void *hDev);                      /* 0x004950F0 */
+
+#include "INO/INO.h"
 
 #include "GLI/GLI_globals.h"
 
@@ -912,7 +913,7 @@ void __cdecl GAM_pc_fn_vReadExternalCtrlInputDevices(void)
             uDevice = GAM_pc_fn_ulReadExternalCtrlDword();
             if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + uDevice] == IPT_C_ValideDevice)
             {
-                INO_fn_wActivateDevice((void *)IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + uDevice]);
+                INO_fn_wActivateDevice(IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + uDevice]);
                 IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + uDevice] = IPT_C_ActivatePadDevice;
                 IPT_g_hInputStructure.ucOnePadActivate = IPT_C_ActivateDevice;
             }
@@ -921,7 +922,7 @@ void __cdecl GAM_pc_fn_vReadExternalCtrlInputDevices(void)
             uDevice = GAM_pc_fn_ulReadExternalCtrlDword();
             if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + uDevice] == IPT_C_ValideDevice)
             {
-                INO_fn_wActivateDevice((void *)IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + uDevice]);
+                INO_fn_wActivateDevice(IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + uDevice]);
                 IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + uDevice] = IPT_C_ActivateJoystickDevice;
                 IPT_g_hInputStructure.ucOnePadActivate = IPT_C_ActivateDevice;
             }
@@ -1010,7 +1011,6 @@ void __cdecl GAM_pc_fn_vLoadExternalCtrlSoundBanks(void)
     SND_fn_bEndLoadBanks();
 }
 
-#include "INO/INO.h"
 extern void *__cdecl GLI_pc_fn_p_vAlloc(unsigned long ulSize);                         /* 0x0045DC60 */
 
 /* 0x0042DEC0 */
