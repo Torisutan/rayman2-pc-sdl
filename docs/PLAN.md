@@ -127,6 +127,33 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   path.
 - One fix per commit, each marked `/* FIX(BUGS.md#n) */` at the site.
 
+### Display: widescreen with 4:3 UI (`RAYMAN2_WIDESCREEN`)
+CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define RAYMAN2_WIDESCREEN`.
+- **Goal.** At a mode wider than 4:3 the 3D view widens (Hor+) and every UI element keeps its 4:3
+  proportions inside a centred 4:3 band. At 4:3, and taller (5:4), nothing changes (k = 1).
+- **Ratio.** Computed from the resolution, never configured: k = (height / width) / 0.75 in
+  physical units (device pixel dimensions), clamped to 1; band offset (1 - k) / 2. Recomputed
+  whenever the engine adjusts a camera to a viewport (device creation, mode switch, viewport ratio
+  change), in `GLI/GLI_ratio.c`.
+- **Inventory at 16:9 (2026-11-23), draw path per element:**
+
+  | Element | Path |
+  |---|---|
+  | 3D view (game, cinematics) | `GLI_xAdjustCameraToViewport2`, perspective camera |
+  | Loading vignette and progress bar | 16-bit bitmap to the back buffer (`GLI_pc_fn_vWrite16bBitmapToBackBuffer`), rect = overlay viewport clip |
+  | Text (menus, pause, dialogues), health bar, 2D icons | `GLI_vDraw2DSpriteWithPercent` (JFFTXT, gauges, `AGO_vDisplayIcones`) |
+  | Logos | `GLI_vDraw2DSpritePixels` |
+  | Murfy cursor, HUD head/lum/cage icons, pause masks | superimposed objects, AI procedures 409/410: `GLI_vGet3DVertexFromScreenPos` + scale fix viewport width / 640 |
+  | Script text (`fn_p_stCode4TextAffiche`) | same, scale width / 640 and height / 480 |
+  | Cinematic letterbox | viewport clip + black polygons; the viewport stays full size, nothing to do |
+
+- **Camera.** The camera AI (`CAM_fn_vCameraManagement`) rewrites `xAlphaX` from the camera's
+  focal with the stored ratio, so widened angles passed by the `GLI_xSetCameraAspectAndRatio`
+  callers would not survive. The camera keeps its 4:3 angles; the perspective projection divides
+  tan(xAlphaX / 2) by k.
+- **Not covered yet:** windowed/fullscreen toggle and window resize are not tested; 21:9 needs
+  windowed mode (no such monitor mode here).
+
 ### Phase 4: make the codebase solid
 - Clean warnings at a high level (`/W4`, `-Wall -Wextra`), static analysis, and AddressSanitizer
   runs of the regression sequence.

@@ -4,6 +4,9 @@
 #include "MTH/MTH_flt.h"
 
 #include "GLI/Camera.h"
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 struct GLD_tdstDeviceAttributes_
 {
@@ -21,6 +24,9 @@ void __cdecl GLI_xAdjustCameraToViewport2(void *_p_stDev, void *_p_stVpt, struct
     MTH_tdxReal xScaleX, xScaleY, xTanX, xTanY, xHalf, xAlpha;
     MTH_tdxReal xD, xE, xE2, xI, xInv, xSin, xCos;
     unsigned long ulHalf;
+#ifdef RAYMAN2_WIDESCREEN
+    MTH_tdxReal xSafeAreaRatio;
+#endif /* RAYMAN2_WIDESCREEN */
 
     p_stDev = (struct GLD_tdstDeviceAttributes_ *)_p_stDev;
     p_stVpt = (struct GLD_tdstViewportAttributes_ *)_p_stVpt;
@@ -29,6 +35,13 @@ void __cdecl GLI_xAdjustCameraToViewport2(void *_p_stDev, void *_p_stVpt, struct
     xWidthScaled  = p_stDev->xInvPixelDimensionX * xWidth;
     xHeight       = MTH_M_xLongToReal(p_stVpt->dwHeight);
     xHeightScaled = p_stDev->xInvPixelDimensionY * xHeight;
+
+#ifdef RAYMAN2_WIDESCREEN
+    /* screen ratio for the 2D safe area */
+    GLI_g_xSafeAreaRatio = GLI_fn_xComputeSafeAreaRatio(
+        MTH_M_xMul( p_stDev->xInvPixelDimensionX, MTH_M_xLongToReal(p_stDev->dwWidth) ),
+        MTH_M_xMul( p_stDev->xInvPixelDimensionY, MTH_M_xLongToReal(p_stDev->dwHeight) ) );
+#endif /* RAYMAN2_WIDESCREEN */
 
     xHalf = xWidth * 0.5f;
     p_stCam->stTrans.xX = xHalf + p_stVpt->iOffsetPosX;
@@ -90,6 +103,12 @@ void __cdecl GLI_xAdjustCameraToViewport2(void *_p_stDev, void *_p_stVpt, struct
 
     case GLI_C_lPersCamWithoutDistorsion:
         xTanX = MTH_M_xTan(p_stCam->xAlphaX * 0.5f);
+#ifdef RAYMAN2_WIDESCREEN
+        /* Hor+ : the camera keeps its 4:3 angles, a wider viewport sees more on the sides */
+        xSafeAreaRatio = GLI_fn_xComputeSafeAreaRatio(xWidthScaled, xHeightScaled);
+        if ( xSafeAreaRatio < MTH_C_ONE )
+            xTanX = MTH_M_xDiv(xTanX, xSafeAreaRatio);
+#endif /* RAYMAN2_WIDESCREEN */
         p_stCam->xScreen = (MTH_tdxReal)(1.0 / xTanX)
                          * (p_stDev->xInvPixelDimensionX * MTH_M_xLongToReal(p_stVpt->dwWidth) * 0.5f);
         p_stCam->stScale.xX = (xWidth / MTH_M_xLongToReal(p_stVpt->dwWidth))
