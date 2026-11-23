@@ -30,10 +30,11 @@ decompilation and reach this fork through upstream merges.
 | `GLI_pc_vTransformPointsByObject`, 0x0042CA40 | Looked like overlapping output vectors and a read of an unwritten frame slot. It is neither: the axes are fetched 12 bytes apart and transposed in place, and the slot is written by the callee. The result is defined and equals this source. |
 | `fn_uiEngineMainLoop`, 0x00401540 | No return value, but it ends in `GAM_pc_fn_vEngineThreadExit`, which never returns (`Sleep(INFINITE)`). |
 | Compiler leads (C4701/C4703, 2026-11-23) in `GEO/Element.c`, `GEO/GeoObj.c`, `GMT/GMT.c`, `HIE/HIE.c`, `HIE/HieMtStk.c`, `SCT/Sector.c`, `MMG/MMG_alloc.c`, `COL/COL.c`, `HIE/HieDraw.c`, `MEC/MEC.c`, `MEC/MECBhv.c`, `MEC/MECCol.c`, `MEC/MECTools.c`, `INT/Inters.c`, `INO/INO.c`, `AI/Procedure.c`, `GEO/GEO.c` (box culling) | False positives. The allocation macro always assigns for a non-zero size. Paired tests use the same predicate for the write and the read. The switches only ever see the handled values. |
+| clang-cl leads (`-Wuninitialized -Wsometimes-uninitialized -Wconditional-uninitialized -Warray-bounds`, 2026-11-23, the 198 TUs clang-cl compiles): 28 hits, no array-bounds hit | 24 are in the files of the row above, same causes. New: `stElement` in `IPT_fn_vActualizeHistoric` (`IPT/IPT_Hist.c`): every branch that sets `ucFound` writes it first. `delta` in the LZSS matcher (`SAI/SAI_Codec.c`): `LOOK_AHEAD_SIZE` is a positive constant, so the loop always sets it. `SNA_pc_bOpenFile` (`MMG/SNA.c`), 0x00450A80: the default case is a deliberate `int 3`; every caller passes mode 1 or 2. The remaining hit, `dfPosition` in `IPT/IPT_Kwan.c`, is the open lead below. |
 
 ## Open
 
 | Function, retail address | Lead | Needed |
 |---|---|---|
 | `IPT_fn_bIsKeyWordValid_JoystickAxeValue` (`IPT/IPT_Kwan.c`) | `dfPosition` is uninitialised if the entry's action number is not an axis (X..V). | Check whether the input data or its parser can produce a non-axis action. |
-| clang-cl `-Wuninitialized -Wsometimes-uninitialized -Warray-bounds`; a `/RTC1` run of the regression | Not run yet. | Further leads. |
+| A `/RTC1` run of the regression | Not run yet (needs a debug configuration). | Further leads. |
