@@ -79,8 +79,8 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
 - **Measured (Morb_00, 1860 frames).** VC5 + define against VC5 cracked: every hashed field is
   identical except `rnd.index` from frame 708, because the protection actors no longer draw from
   the shared random generator. Reading copy 0 instead of random copies changes nothing.
-  Modern MSVC + define against VC5 + define: only `actor.matrix` differs, from frame 64, with the
-  same values for `/arch:SSE2` and `/arch:IA32` (so not x87 against SSE). See open questions.
+  Modern MSVC + define against VC5 + define: only `actor.matrix` differs, from frame 64: float
+  intermediate precision, not a bug. See open decisions.
 - **Decided: regression reference.** With the protection actors inert, `rnd.index` no longer
   follows the original from the first draw they would have made. From now on the reference is
   VC5 + define (`tools/build_ref.py --define RAYMAN2_NO_PROTECTION --define
@@ -144,7 +144,19 @@ streams (ADPCM, used for music and voices).
 
 ## Open decisions
 - Backend library: SDL3, SDL2 or native code.
-- Modern build regression: `actor.matrix` differs from VC5 from Morb_00 frame 64 (not x87 against
-  SSE). Being investigated: find the cause, then fix it or accept a tolerance.
+- Modern build regression reference. **Measured cause** of the `actor.matrix` difference (Morb_00
+  frame 64): `POS_fn_vNormalizeMatrix` (from `MEC_fn_vCorrectMatrix`) gets bit-identical input in
+  both exes. VC5 keeps the sum of squares, the square root and `inv_norm` on the x87 stack (control
+  word 0x027F, 53-bit precision) and rounds to float only at the stores; modern MSVC
+  (`/fp:precise`, SSE2 and x87 alike) rounds each intermediate to float. A model of each
+  reproduces both results bit for bit (first element `bcbb18ef` against `bcbb18f0`). Not CRT
+  math, not an asm helper, not an engine bug. The 1-ulp start feeds back through the dynamics: by
+  frame ~980 a rotation element is off by 1.54 and the translation by 0.39 (heading about 70
+  degrees apart); no other hashed field differs in 1860 frames. x87 with `/fp:fast` diverges too
+  (from frame 63): VC5's rounding follows its own register allocation, no modern setting
+  reproduces it, and a tolerance cannot cover a difference that grows. **Proposal:** the modern
+  build is checked bit-exact against a modern baseline (same compiler and flags, last green
+  commit); VC5 + define stays the reference for the other hashed fields and for `actor.matrix`
+  up to its first difference, reported, not gating. Each later target gets its own baseline.
 - Big-endian data: swap at load time or convert offline.
 - License: none so far, same as upstream.
