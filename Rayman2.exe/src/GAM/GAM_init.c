@@ -175,6 +175,12 @@ static void FUN_00492860(void)
 
     GetTempPathA(0x104, szTemp);
 
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#5) */
+    /* an empty path (GetTempPathA failed) indexed the byte before the buffer */
+    if (szTemp[0] == '\0')
+        return;
+#endif /* RAYMAN2_FIX_BUGS */
     if (szTemp[strlen(szTemp) - 1] == '\\' || szTemp[strlen(szTemp) - 1] == '/')
         szTemp[strlen(szTemp) - 1] = '\0';
 }
