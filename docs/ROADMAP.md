@@ -14,6 +14,7 @@ say so.
 | v0.6 | Frame rate decoupled from game logic | planned |
 | v1.0 | Windows, Linux and macOS | planned |
 | later | Homebrew ports (PSP, Wii U) | open |
+| later | Reading the Dreamcast level files | open |
 
 ## v0.1: modern build (done)
 CMake build with current MSVC, copy protection removed at the source, `ubi.ini` from the game
@@ -63,6 +64,12 @@ any refresh rate, drawing positions interpolated between the last two logic step
 
 ## v1.0: desktop platforms
 Windows, Linux and macOS from one source, each checked against its own regression baseline.
+
+## Later: Dreamcast level files
+The engine reads the PC release's level files. Goal: also load the levels of the Dreamcast
+release, beside the PC ones. Inventory first: which files and structures differ from the PC
+format (container, relocation, textures, sound banks), and whether each difference is read at
+load time or converted offline. Nothing about the format is assumed until measured.
 
 ## Later: homebrew ports
 PSP (memory budget to measure first) and Wii U (big-endian data: swap at load time or convert
