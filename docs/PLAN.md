@@ -121,7 +121,8 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   equality). Target selection belongs in one MTH target block (Phase 5): x64 and other targets take
   `OPTIMIZED_FOR_PC_FLOATS` without `_WITH_ASM` (the original C branch), as U64 did.
 - `ubi.ini` is read from the working directory (`RAYMAN2_LOCAL_UBIINI`, DEVIATIONS 1), as the
-  current installs ship it. Moving it to a per-user config location is still to do.
+  current installs ship it. A per-user location comes later, chosen by an ini setting (ROADMAP,
+  advanced settings menu).
 - **Unreferenced leftovers excluded (2026-11-23):** the resolver, code pool, kernel32 search and
   process enumeration in `MMG/MMG_init.c` (all but `MMG_fn_vInit`), `MMG_pc_fn_vNopGate`, the
   import tables in `MMG/pc_protect.c`, and the `SNA_g_lProtectionGate` gates of live functions

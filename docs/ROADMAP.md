@@ -13,6 +13,7 @@ say so.
 | v0.5 | Platform layer and own renderer (no retail DLLs at all) | planned |
 | v0.6 | Frame rate decoupled from game logic | planned |
 | v1.0 | Windows, Linux and macOS | planned |
+| later | Advanced settings menu (replaces the website entry) | open |
 | later | Homebrew ports (PSP, Wii U) | open |
 | later | Reading the Dreamcast level files | open |
 
@@ -27,10 +28,9 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 - clang-cl builds every file (inline asm it rejects, prototype mismatches).
   224 of 225 today; the last one is a prototype fix in the decompilation. With it, the clang-cl exe runs the regression (PLAN Phase 1).
 - Original engine bugs catalogued in `docs/BUGS.md` and fixed one per commit (`RAYMAN2_FIX_BUGS`).
-  First pass done (2026-11-23): 6 fixed; open leads listed there.
+  First pass done (2026-11-23): 6 fixed, the uninitialised-read leads settled; open leads listed there.
 - Faster loading: the loading screen waited for a synchronised screen flip at every progress step.
   Done (2026-11-23, `RAYMAN2_FAST_LOADING`): level loads 0.8-1.4 s -> 0.4 s.
-- `ubi.ini` in a per-user location.
 - Widescreen: test the windowed/fullscreen switch, window resizing and 21:9.
 
 ## v0.3: solid codebase (PLAN Phase 4)
@@ -64,6 +64,14 @@ any refresh rate, drawing positions interpolated between the last two logic step
 
 ## v1.0: desktop platforms
 Windows, Linux and macOS from one source, each checked against its own regression baseline.
+
+## Later: advanced settings menu
+The main menu's entry that opens the Rayman 2 website is replaced by an "Advanced settings" page
+for the fork's own options, so they can be changed in game instead of only in `ubi.ini`. Candidates,
+as they arrive: widescreen, fast loading, bug fixes on/off, and the `ubi.ini` location (game folder
+or a per-user folder, chosen by an ini setting).
+Inventory first: where the menu pages and the website entry are defined (exe or level data), and
+how a new page stores its values.
 
 ## Later: Dreamcast level files
 The engine reads the PC release's level files. Goal: also load the levels of the Dreamcast
