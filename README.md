@@ -1,3 +1,8 @@
+> **rayman2-pc-sdl** is a fork of [rayman2-pc-decomp](https://github.com/Torisutan/rayman2-pc-decomp).
+> It turns the decompilation into a portable engine (modern compilers, no copy protection, fixed
+> original bugs, later multiplatform), keeping the original engine structure. See
+> [docs/PLAN.md](docs/PLAN.md). The rest of this README is upstream's.
+
 # rayman2-pc-decomp
 
 A decompilation of the PC version of **Rayman 2: The Great Escape** (`Rayman2.exe`, GOG release,
