@@ -29,6 +29,7 @@ __declspec(dllimport) DWORD WINAPI timeGetTime(void);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "port/regress.h"
 
 /* 0x0049f07c */
 HINSTANCE g_hInstance_storage = (HINSTANCE)-1;
@@ -544,6 +545,9 @@ void FUN_00401160(void)
         fn_vResetEngineFromPaused();
         ResetEvent(*g_hEngineEventIsPaused);
     }
+#ifdef RAYMAN2_REGRESS
+    REGRESS_fn_vBeforeFrame();
+#endif
     fn_vOneTrame();             /* 0x004049E0 */
 }
 

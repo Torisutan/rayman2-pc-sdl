@@ -68,12 +68,20 @@ foreach(e ${R2_EXPORTS})
   endif()
 endforeach()
 
+# ---- fork-only code (Rayman2.exe/src/port), each part behind its own define ----------------------
+option(R2_REGRESS "Compile in the regression harness (src/port/regress.c; inactive unless R2_REGRESS_OUT is set)" ON)
+set(R2_FORK_DEFINES)
+if(R2_REGRESS)
+  list(APPEND R2_SOURCES ${R2_DIR}/src/port/regress.c)
+  list(APPEND R2_FORK_DEFINES RAYMAN2_REGRESS)
+endif()
+
 add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RES})
 set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
 target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include)
 # NO_STRICT: VC5-era windows.h typed handles as void * (STRICT was opt-in); the sources declare
 # Win32 APIs that way.
-target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT)
+target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT ${R2_FORK_DEFINES})
 target_compile_options(Rayman2 PRIVATE /O2 /Gy)
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # Same policy as MSVC, which only warns on these (C4133, C4013, C4047): Phase 4 cleans them.

@@ -6,6 +6,7 @@
 #include "MMG/MMG_globals.h"
 
 #include "GAM/GAM_globals.h"
+#include "port/regress.h"
 
 #define g_ulLCGState   MMG_g_ulLCGState
 
@@ -950,6 +951,10 @@ L_body:
     if (!qpcOk) {
         uSeed = 0x12345678u;
     }
+#ifdef RAYMAN2_REGRESS
+    if (REGRESS_fn_bActive())
+        uSeed = REGRESS_C_ulLcgSeed;
+#endif
     pTable = MMG_pc_g_uLcgPool.a_ulWord;
 
     for (i = 0x119; i != 0; i--) {

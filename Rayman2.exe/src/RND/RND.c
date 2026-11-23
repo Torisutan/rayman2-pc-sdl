@@ -6,6 +6,7 @@
 #include "ERM/CpaError.h"
 #include "MTH/MTH_flt.h"
 #include "MMG/MMG_alloc.h"
+#include "port/regress.h"
 
 extern void __cdecl Mmg_fn_cCheckAlignmentValidity(void);
 
@@ -19,7 +20,11 @@ void __cdecl RND_fn_vComputeRandomTable(void)
     if (FUN_0044f4e0() == 2)
         srand(0xDEADBEEFu);
     else
+#ifdef RAYMAN2_REGRESS
+        srand(REGRESS_fn_bActive() ? REGRESS_C_ulRandSeed : GetTickCount());
+#else
         srand(GetTickCount());
+#endif
 
     RND_g_stRandomStructure.ulMaxValueInTable = 0;
     for (i = 0; i < RND_g_stRandomStructure.ulSizeOfTable; i++) {

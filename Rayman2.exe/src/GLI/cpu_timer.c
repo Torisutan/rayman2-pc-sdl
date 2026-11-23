@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <string.h>
 #include "ERM/CpaError.h"
+#include "port/regress.h"
 
 __declspec(dllimport) DWORD __stdcall timeGetTime(void);
 
@@ -32,6 +33,10 @@ unsigned long __cdecl fn_ulTimerEventTickPerSecond(short channel)
 
 void __cdecl fn_vTimerGetCounter(short channel, LARGE_INTEGER *p_stOut)
 {
+#ifdef RAYMAN2_REGRESS
+    if (REGRESS_fn_bGetCounter(channel, p_stOut))
+        return;
+#endif
 
     switch (channel) {
     case 0:

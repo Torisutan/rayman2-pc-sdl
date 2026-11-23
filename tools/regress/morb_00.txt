@@ -1,0 +1,14 @@
+# Regression input for Morb_00: frames from the level start (60 per second), DirectInput keys.
+# FIRST LAST KEYS
+60   400  UP
+200  210  A
+400  700  UP,RIGHT
+520  530  A
+700  900  LEFT
+760  770  SPACE
+900  1200 UP
+1000 1010 A
+1100 1105 SPACE
+1200 1500 DOWN,LEFT
+1500 1800 UP,RIGHT
+1600 1610 A
