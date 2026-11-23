@@ -32,6 +32,17 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
   - `__declspec(naked)` gates and `_emit` NOP runs, which are protection code: Phase 2;
   - inline-asm math helpers and `#pragma optimize` frame tricks, which become plain C: Phase 4.
 - The game still uses the retail renderer and sound DLLs at this stage.
+- **Status.** `CMakeLists.txt` builds with MSVC 19.51 (no source edits; 136 warnings at the default
+  level, cleaned in Phase 4). Without the crack it behaves like the VC5 build: alive, no window.
+  clang-cl is selectable (see the head of `CMakeLists.txt`), but 32 TUs do not compile yet: inline
+  asm clang rejects (labels and gotos across asm blocks, C statements in naked functions), mostly
+  in the protection files; about 60 prototype mismatches between headers and definitions that
+  MSVC only warns about (C4028); a few argument-count and type-name errors.
+- **Crack behaviour (decided).** The post-link crack (`tools/crack.py`) only partly translates
+  to modern codegen (21 of 29 patches; the result crashes). Instead the protection is removed in C
+  now, behind a fork-only define compiled into BOTH builds. This is Phase 2's work done early
+  and switchable, and it gives a chain of measured steps: VC5 cracked = VC5 + define (the removal
+  changes nothing), then VC5 + define = modern + define (the compiler changes nothing).
 - **Regression run:** load a fixed level, play a recorded input sequence for N frames, and hash
   the engine state each frame (engine structure, main character position, random state). The
   upstream exe produces the reference hashes. This harness is the first deliverable, because every
