@@ -183,6 +183,14 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
 - **2D.** Percent and pixel sprites map into the band (full-width ones keep the full width);
   the loading vignette is squeezed into the band of its own bitmap; superimposed objects map
   their screen position into the band and scale to its width (DEVIATIONS 7-9).
+- **HUD at the screen edges (2026-11-23).** The in-game HUD is drawn by the AGO gauge, icon and
+  text tables (`AGO_vDisplayGAUGES`; measured: no superimposed objects), which the menus use
+  too. The original separates them by `GAM_g_bEngineFrozen` (pause icons 15-24 and text slots
+  below 15 draw while frozen). While not frozen, an element lying entirely in the left or right
+  third of the 4:3 layout keeps its 4:3 distance to that screen edge (`GLI_fn_vSetSafeAreaAnchor`,
+  DEVIATIONS 11). Measured at 1920x1080: head and health bar at the left edge, lum and cage
+  counters with icons at the right edge; pause menu and language menu unchanged (the pause
+  menu freezes the engine; the menu text lies in the middle third). Regression identical.
 - **Verified (screenshots, 2026-11-23):** at 1920x1080 and 1680x1050 the menu text, Murfy
   cursor, HUD (head, health bar, lum/cage counters and icons), pause menu (text, counters,
   masks; swirl background full width) and the loading vignette and bar keep 4:3 proportions

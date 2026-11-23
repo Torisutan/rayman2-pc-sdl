@@ -8,6 +8,9 @@
 #include "GLI/u_Draw.h"
 #include "GLI/GlobalAlpha.h"
 #include "GLI/DisplayFrame.h"
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 static const float AGO_asm_K_c9dc = 0.0f;   /* 0x49c9dc */
 static const float AGO_asm_K_ca2c = 1.0f;   /* 0x49ca2c */
@@ -68,11 +71,20 @@ void AGO_vDisplayIcones(GLD_tdstViewportAttributes *p_stVpt)
         if ((!GAM_g_bEngineFrozen) || ((i > 14) && (i < 25)))
             if (AGO_g_TheIcones[i].Transparency > 0)
             {
+#ifdef RAYMAN2_WIDESCREEN
+                /* HUD (engine not frozen): an icon in an outer third goes to the screen edge */
+                if (!GAM_g_bEngineFrozen)
+                    GLI_fn_vSetSafeAreaAnchor(AGO_g_TheIcones[i].Coords[0], AGO_g_TheIcones[i].Coords[2],
+                                              MTH_M_xConstFloatToReal(100.0f));
+#endif /* RAYMAN2_WIDESCREEN */
                 GLI_vSetGlobalAlpha((float)AGO_g_TheIcones[i].Transparency);
                 GLI_vDraw2DSpriteWithPercent(p_stVpt,
                     AGO_g_TheIcones[i].Coords[0], AGO_g_TheIcones[i].Coords[1],
                     AGO_g_TheIcones[i].Coords[2], AGO_g_TheIcones[i].Coords[3],
                     AGO_g_TheIcones[i].Material);
+#ifdef RAYMAN2_WIDESCREEN
+                GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
+#endif /* RAYMAN2_WIDESCREEN */
             }
     }
 }
@@ -2818,6 +2830,12 @@ void AGO_vDisplayGAUGES(GLD_tdstViewportAttributes *p_stVpt)
             MTH_tdxReal diffy = AGO_g_TheGauges[i].Coords[3] - AGO_g_TheGauges[i].Coords[1];
             MTH_tdxReal position;
 
+#ifdef RAYMAN2_WIDESCREEN
+            /* HUD (engine not frozen): a gauge in an outer third goes to the screen edge */
+            if (!GAM_g_bEngineFrozen)
+                GLI_fn_vSetSafeAreaAnchor(AGO_g_TheGauges[i].Coords[0], AGO_g_TheGauges[i].Coords[2],
+                                          MTH_M_xConstFloatToReal(100.0f));
+#endif /* RAYMAN2_WIDESCREEN */
             if (diffx <= diffy)
             {
                 position = AGO_g_TheGauges[i].Coords[3] - diffy * AGO_g_TheGauges[i].Position * AGO_C_xPercentScale;
@@ -2842,6 +2860,9 @@ void AGO_vDisplayGAUGES(GLD_tdstViewportAttributes *p_stVpt)
                         position, AGO_g_TheGauges[i].Coords[1], AGO_g_TheGauges[i].Coords[2], AGO_g_TheGauges[i].Coords[3],
                         AGO_g_TheGauges[i].EmptyMaterial);
             }
+#ifdef RAYMAN2_WIDESCREEN
+            GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
+#endif /* RAYMAN2_WIDESCREEN */
         }
     }
 
@@ -3421,6 +3442,15 @@ void __cdecl JFFTXT_vAffiche(GLD_tdstViewportAttributes *p_stVpt)
                     p->ucTransparency = (unsigned char)trsp;
                 }
 
+#ifdef RAYMAN2_WIDESCREEN
+                /* HUD (engine not frozen): a string in an outer third goes to the screen edge */
+                if (!GAM_g_bEngineFrozen)
+                {
+                    MTH3D_tdstVector stMin, stMax;
+                    JFFTXT_vGetStringExtents(p, &stMin, &stMax);
+                    GLI_fn_vSetSafeAreaAnchor(stMin.xX, stMax.xX, MTH_M_xConstFloatToReal(100.0f));
+                }
+#endif /* RAYMAN2_WIDESCREEN */
                 if (p->bOther & JFFTXT_AUTOFRAME)
                 {
                     MTH3D_tdstVector x1, x2;
@@ -3432,6 +3462,9 @@ void __cdecl JFFTXT_vAffiche(GLD_tdstViewportAttributes *p_stVpt)
                         p_stVpt);
                 }
                 JFFTXT_vDrawString(p_stVpt, p);
+#ifdef RAYMAN2_WIDESCREEN
+                GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
+#endif /* RAYMAN2_WIDESCREEN */
             }
         }
     }

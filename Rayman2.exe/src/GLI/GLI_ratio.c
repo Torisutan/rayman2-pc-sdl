@@ -18,6 +18,7 @@
 #define GLI_C_xRatio4_3     MTH_M_xConstFloatToReal(0.75f)
 
 MTH_tdxReal GLI_g_xSafeAreaRatio = MTH_C_ONE;
+GLI_tdeSafeAreaAnchor GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
 
 /*
  ----------------------------------------------------------------------------------------
@@ -39,13 +40,42 @@ MTH_tdxReal GLI_fn_xComputeSafeAreaRatio(MTH_tdxReal xWidth, MTH_tdxReal xHeight
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : Coordinate of the full width (0..xFull) mapped into the 4:3 band
+  Description   : Coordinate of the full width (0..xFull) mapped into the 4:3 band; an
+                  element anchored to an edge keeps its 4:3 distance to that edge
+                  (scaled like the band) instead
  ----------------------------------------------------------------------------------------
  */
 MTH_tdxReal GLI_fn_xToSafeArea(MTH_tdxReal xX, MTH_tdxReal xFull)
 {
-    return MTH_M_xAdd( MTH_M_xMul( xX, GLI_g_xSafeAreaRatio ),
-                       MTH_M_xMul( MTH_M_xMul( xFull, MTH_M_xSub( MTH_C_ONE, GLI_g_xSafeAreaRatio ) ), MTH_C_Inv2 ) );
+    switch ( GLI_g_eSafeAreaAnchor )
+    {
+    case GLI_C_eSafeAreaLeft:
+        return MTH_M_xMul( xX, GLI_g_xSafeAreaRatio );
+    case GLI_C_eSafeAreaRight:
+        return MTH_M_xSub( xFull, MTH_M_xMul( MTH_M_xSub( xFull, xX ), GLI_g_xSafeAreaRatio ) );
+    default:
+        return MTH_M_xAdd( MTH_M_xMul( xX, GLI_g_xSafeAreaRatio ),
+                           MTH_M_xMul( MTH_M_xMul( xFull, MTH_M_xSub( MTH_C_ONE, GLI_g_xSafeAreaRatio ) ), MTH_C_Inv2 ) );
+    }
+}
+
+/*
+ ----------------------------------------------------------------------------------------
+  Description   : Anchor of an element spanning xLeft..xRight of a 4:3 layout 0..xFull:
+                  left edge when it lies in the left third, right edge in the right
+                  third, centre otherwise (centred and full-width elements stay)
+ ----------------------------------------------------------------------------------------
+ */
+void GLI_fn_vSetSafeAreaAnchor(MTH_tdxReal xLeft, MTH_tdxReal xRight, MTH_tdxReal xFull)
+{
+    MTH_tdxReal xThird = MTH_M_xDiv( xFull, MTH_M_xLongToReal(3) );
+
+    if ( xRight <= xThird )
+        GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaLeft;
+    else if ( xLeft >= MTH_M_xSub( xFull, xThird ) )
+        GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaRight;
+    else
+        GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
 }
 
 /*

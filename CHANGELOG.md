@@ -14,6 +14,9 @@ through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayma
 - **Faster loading** (`RAYMAN2_FAST_LOADING`, CMake `R2_FAST_LOADING`, on): the loading screen
   no longer waits for a synchronised screen flip at every progress step; the bar is refreshed at
   most every 100 ms. Level loads take about 0.4 s instead of 0.8-1.4 s; image and bar stay.
+- **Widescreen HUD at the screen edges:** health bar and lum/cage counters sit in the screen
+  corners instead of the corners of the 4:3 band. Menus and the pause screen keep their
+  centred 4:3 layout.
 
 ## v0.1.0 (2026-11-23)
 
