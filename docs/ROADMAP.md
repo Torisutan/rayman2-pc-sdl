@@ -32,6 +32,8 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 - Faster loading: the loading screen waited for a synchronised screen flip at every progress step.
   Done (2026-11-23, `RAYMAN2_FAST_LOADING`): level loads 0.8-1.4 s -> 0.4 s.
 - Widescreen: test the windowed/fullscreen switch, window resizing and 21:9.
+- Own icon and manifest for the modern build, so it no longer takes its resources from the GOG
+  exe (the VC5 reference build keeps them, they are part of the byte match).
 
 ## v0.3: solid codebase (PLAN Phase 4)
 - Warnings cleaned at a high level, static analysis, AddressSanitizer runs of the regression
