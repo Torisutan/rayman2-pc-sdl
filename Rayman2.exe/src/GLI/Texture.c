@@ -1318,6 +1318,11 @@ unsigned int __cdecl GLI_AddToProgressBar(int lIncrement)
     unsigned long ulNewPos;
     unsigned long ulLastPos;
 
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#8) */
+    /* with the bar disabled, the result was never set: return the bar position, as when enabled */
+    ulNewPos = GLI_pc_g_lProgressBarCurPos;
+#endif /* RAYMAN2_FIX_BUGS */
     ulStart = GLI_pc_g_lProgressBarStart;
     ucEnabled = GLI_pc_g_bProgressBarEnabled;
     ulSpan = GLI_pc_g_lProgressBarEnd - ulStart - 3;
