@@ -126,6 +126,16 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   which is read before `GLD_bRequestWriteToViewport` sets it) and the ini parser's skipped-rate
   path.
 - One fix per commit, each marked `/* FIX(BUGS.md#n) */` at the site.
+- **Decided (2026-11-23):**
+  - **Fenced:** fixes under `#ifdef RAYMAN2_FIX_BUGS` (CMake option `R2_FIX_BUGS`, on; VC5
+    reference: `tools/build_ref.py --define RAYMAN2_FIX_BUGS`), the original code untouched in the
+    `#else` branch.
+  - **Scope:** crashes and undefined behaviour only (NULL reads, uninitialised reads, dangling
+    pointers, overruns). Gameplay-visible quirks (glitches, exploits) are not touched in this
+    phase; if ever, under a separate opt-in define, since players and speedrunners may rely on them.
+  - **Regression:** a fix may change the hashes (the original read undefined values). Every change
+    is explained in the commit and in BUGS.md, and the modern baseline is re-recorded from that
+    commit (the previous one is kept).
 
 ### Display: widescreen with 4:3 UI (`RAYMAN2_WIDESCREEN`)
 CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define RAYMAN2_WIDESCREEN`.
