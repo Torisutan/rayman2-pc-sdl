@@ -22,7 +22,9 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 
 ## v0.2: cleanup and bug fixes (PLAN Phases 2-3)
 - Exclude the remaining unreferenced protection code, then delete the excluded code.
+  Exclusion done (2026-11-23); deletion still to do.
 - clang-cl builds every file (inline asm it rejects, prototype mismatches).
+  198 of 225 today; the rest are fixes in the decompilation (PLAN Phase 1).
 - Original engine bugs catalogued in `docs/BUGS.md` and fixed one per commit (`RAYMAN2_FIX_BUGS`).
   First pass done (2026-11-23): 6 fixed; open leads listed there.
 - Faster loading: the loading screen waited for a synchronised screen flip at every progress step.
