@@ -8669,7 +8669,7 @@
 "addr": "0x00430880",
 "name": "IPT_fn_vActualizeHistoric",
 "src": "src/IPT/IPT_Hist.c",
-"len": 1063,
+"len": 1068,
 "verdict": "MISMATCH"
 },
 {

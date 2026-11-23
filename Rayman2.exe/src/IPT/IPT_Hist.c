@@ -139,6 +139,7 @@ void __cdecl IPT_fn_vActualizeHistoric(void)
                             stElement.bf2State      = IPT_E_InProgress;
                             stElement.bf6DeviceType = (unsigned char)iType;
                             stElement.swDeviceValue = IPT_g_hScriptPadValue[j].swKeyValue;
+                            stElement.ucCounter     = 0;
                             IPT_g_hInputStructure.p_ucPadAndJoyCounter[iType - IPT_E_Pad00DeviceEvent][IPT_g_hScriptPadValue[j].swKeyValue] = 0;
                         }
                         else if ((ulFlag & ulButtons) != ulFlag &&
