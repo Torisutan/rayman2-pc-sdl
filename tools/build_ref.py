@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import build  # noqa: E402
 
-FORK_TUS = ["src/port/regress.c", "src/GLI/GLI_ratio.c"]   # empty without their define
+FORK_TUS = ["src/port/regress.c", "src/GLI/GLI_ratio.c", "src/GLI/GLI_fastload.c"]   # empty without their define
 
 
 def main():

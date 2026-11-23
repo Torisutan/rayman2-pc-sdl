@@ -175,6 +175,28 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
   (`fn_p_stCode4TextAffiche`) were not on screen in the test runs; windowed/fullscreen toggle
   and window resize are not tested; 21:9 needs windowed mode (no such monitor mode here).
 
+### Loading screen: bounded refresh rate (`RAYMAN2_FAST_LOADING`)
+CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define RAYMAN2_FAST_LOADING`.
+- **Cause.** `GLI_AddToProgressBar` redraws the loading screen whenever the bar moves by more than
+  1/50 of its width: `GLI_RefreshUiSurfaceIfVisible` copies the vignette to the back buffer and
+  waits for a synchronised flip (`GLD_bFlipDeviceWithSynchro`), up to ~50 times per load.
+- **Change.** The bar is still drawn into its buffer at every step; the refresh runs at most once
+  per 100 ms (`GLI_pc_C_ulProgressRefreshPeriod`, `GLI/GLI_fastload.c`). The end of the load
+  shows the full image again (`FUN_0045edf0`), so the screen always ends on the full bar.
+  DEVIATIONS 10.
+- **Measured (2026-11-23, `tools/run.py --level`, mode-6 request to level playing, 3 runs, 0.1 s
+  resolution):**
+
+  | Build | Morb_00 | Rhop_10 |
+  |---|---|---|
+  | before | 0.8-0.9 s | 0.9-1.4 s |
+  | per-step refresh skipped (test patch) | 0.3-0.4 s | 0.4 s |
+  | loading screen disabled (the five functions `ret`, lower bound) | 0.3 s | 0.3-0.4 s |
+  | `RAYMAN2_FAST_LOADING` | 0.4 s | 0.4 s |
+
+  The per-step refreshes are the whole cost; showing the vignette is not. Regression identical
+  (Morb_00, 1860 frames). Not checked by eye yet: the bar visibly advancing during a load.
+
 ### Phase 4: make the codebase solid
 - Clean warnings at a high level (`/W4`, `-Wall -Wextra`), static analysis, and AddressSanitizer
   runs of the regression sequence.

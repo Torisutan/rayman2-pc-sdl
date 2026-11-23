@@ -11,6 +11,9 @@ through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayma
   [docs/BUGS.md](docs/BUGS.md); fixed so far: #1-#6 (uninitialised reads in the engine loop,
   sphere culling and magnets, NULL writes in the AbsoluteAxis AI fields, an out-of-bounds index on
   an empty temp path, a read after free at exit).
+- **Faster loading** (`RAYMAN2_FAST_LOADING`, CMake `R2_FAST_LOADING`, on): the loading screen
+  no longer waits for a synchronised screen flip at every progress step; the bar is refreshed at
+  most every 100 ms. Level loads take about 0.4 s instead of 0.8-1.4 s; image and bar stay.
 
 ## v0.1.0 (2026-11-23)
 

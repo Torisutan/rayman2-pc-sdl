@@ -12,6 +12,9 @@
 #ifdef RAYMAN2_WIDESCREEN
 #include "GLI/GLI_ratio.h"
 #endif /* RAYMAN2_WIDESCREEN */
+#ifdef RAYMAN2_FAST_LOADING
+#include "GLI/GLI_fastload.h"
+#endif /* RAYMAN2_FAST_LOADING */
 
 extern unsigned char __cdecl FUN_0044f4e0(void);
 
@@ -1730,7 +1733,11 @@ __declspec(naked) unsigned int __cdecl GLI_AddToProgressBar(int lIncrement)
         call GLI_FillProgressBarSpan
         add  esp, 0x0c
         push GLI_AA_ProgressUiObject
+#ifdef RAYMAN2_FAST_LOADING
+        call GLI_pc_fn_vRefreshProgressUiIfDue    /* bounded rate, the bar is in the buffer */
+#else
         call GLI_RefreshUiSurfaceIfVisible
+#endif /* RAYMAN2_FAST_LOADING */
         mov  eax, dword ptr [GLI_AA_ProgressBarCurPos]
         add  esp, 0x4
         mov  dword ptr [GLI_AA_ProgressBarLastPos], eax
