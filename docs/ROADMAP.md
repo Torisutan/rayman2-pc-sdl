@@ -22,8 +22,8 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 ## v0.2: cleanup and bug fixes (PLAN Phases 2-3)
 - Exclude the remaining unreferenced protection code, then delete the excluded code.
 - clang-cl builds every file (inline asm it rejects, prototype mismatches).
-- Original engine bugs catalogued in `docs/BUGS.md` and fixed one per commit (uninitialised reads,
-  the ini parser's skipped path, ...).
+- Original engine bugs catalogued in `docs/BUGS.md` and fixed one per commit (`RAYMAN2_FIX_BUGS`).
+  First pass done (2026-11-23): 6 fixed; open leads listed there.
 - Faster loading: the loading screen waits for a synchronised screen flip at every progress step.
 - `ubi.ini` in a per-user location.
 - Widescreen: test the windowed/fullscreen switch, window resizing and 21:9.

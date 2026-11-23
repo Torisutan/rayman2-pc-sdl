@@ -3,6 +3,15 @@
 All notable changes of this fork. Upstream's decompilation progress is not listed here; it arrives
 through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayman2-pc-decomp).
 
+## Unreleased
+
+### Game
+- **Original engine bugs fixed** (`RAYMAN2_FIX_BUGS`, CMake `R2_FIX_BUGS`, on): crashes and
+  undefined behaviour of the retail engine, gameplay unchanged. Catalogue and evidence in
+  [docs/BUGS.md](docs/BUGS.md); fixed so far: #1-#6 (uninitialised reads in the engine loop,
+  sphere culling and magnets, NULL writes in the AbsoluteAxis AI fields, an out-of-bounds index on
+  an empty temp path, a read after free at exit).
+
 ## v0.1.0 (2026-11-23)
 
 First release: the decompiled engine as a modern 32-bit Windows build, without copy protection,

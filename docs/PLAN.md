@@ -133,6 +133,9 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   - **Scope:** crashes and undefined behaviour only (NULL reads, uninitialised reads, dangling
     pointers, overruns). Gameplay-visible quirks (glitches, exploits) are not touched in this
     phase; if ever, under a separate opt-in define, since players and speedrunners may rely on them.
+  - **Status (2026-11-23):** `docs/BUGS.md` lists 6 confirmed bugs, all fixed (#1-#6), regression
+    unchanged by each (Morb_00, 1860 frames), so `modern_baseline.txt` stays. The ini parser's
+    `ParticuleRate` path was checked and is well defined. Open leads in BUGS.md.
   - **Regression:** a fix may change the hashes (the original read undefined values). Every change
     is explained in the commit and in BUGS.md, and the modern baseline is re-recorded from that
     commit (the previous one is kept).
