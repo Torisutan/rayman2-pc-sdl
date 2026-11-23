@@ -81,6 +81,10 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   the shared random generator. Reading copy 0 instead of random copies changes nothing.
   Modern MSVC + define against VC5 + define: only `actor.matrix` differs, from frame 64, with the
   same values for `/arch:SSE2` and `/arch:IA32` (so not x87 against SSE). See open questions.
+- **Decided: regression reference.** With the protection actors inert, `rnd.index` no longer
+  follows the original from the first draw they would have made. From now on the reference is
+  VC5 + define (`tools/build_ref.py --define RAYMAN2_NO_PROTECTION --define
+  RAYMAN2_LOCAL_UBIINI`), not VC5 cracked.
 - `ubi.ini` is read from the working directory (`RAYMAN2_LOCAL_UBIINI`, DEVIATIONS 1), as the
   current installs ship it. Moving it to a per-user config location is still to do.
 - **Still compiled but unreferenced:** the resolver, pool and gate definitions in
@@ -140,6 +144,7 @@ streams (ADPCM, used for music and voices).
 
 ## Open decisions
 - Backend library: SDL3, SDL2 or native code.
-- Level relocation tables: read from `LEVELS0.DAT` or extract them once.
+- Modern build regression: `actor.matrix` differs from VC5 from Morb_00 frame 64 (not x87 against
+  SSE). Being investigated: find the cause, then fix it or accept a tolerance.
 - Big-endian data: swap at load time or convert offline.
 - License: none so far, same as upstream.
