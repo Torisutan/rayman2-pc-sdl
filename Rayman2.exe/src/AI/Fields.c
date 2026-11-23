@@ -22,15 +22,58 @@ unsigned char __cdecl fn_ucGetFieldAbsoluteAxisX(void *p_stContext,
 {
     POS_tdstCompletePosition *p_stMatrix =
         HIE_fn_hGetSuperObjectGlobalMatrix((HIE_tdstSuperObject *)p_stContext);
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#4) */
+    /* the axes were fetched through NULL (crash); AbsoluteAxisY/Z shared this getter */
+    MTH3D_tdstVector stI, stJ, stK;
+
+    POS_fn_vGetRotationMatrix(p_stMatrix, &stI, &stJ, &stK);
+    p_stValue->uParam.a_xVectorValue[0] = stI.xX;
+    p_stValue->uParam.a_xVectorValue[1] = stI.xY;
+    p_stValue->uParam.a_xVectorValue[2] = stI.xZ;
+#else
     MTH3D_tdstVector *p_stNull = (MTH3D_tdstVector *)0;
 
     POS_fn_vGetRotationMatrix(p_stMatrix, p_stNull, p_stNull, p_stNull);
     *(long *)&p_stValue->uParam.a_xVectorValue[0] = *(long *)&p_stNull->xX;
     *(long *)&p_stValue->uParam.a_xVectorValue[1] = *(long *)&p_stNull->xY;
     *(long *)&p_stValue->uParam.a_xVectorValue[2] = *(long *)&p_stNull->xZ;
+#endif /* RAYMAN2_FIX_BUGS */
     p_stValue->eType = 0x15;
     return 1;
 }
+
+#ifdef RAYMAN2_FIX_BUGS
+/* FIX(BUGS.md#4) */
+unsigned char __cdecl fn_ucGetFieldAbsoluteAxisY(void *p_stContext,
+                                                 AI_tdstGetSetParam *p_stValue)
+{
+    MTH3D_tdstVector stI, stJ, stK;
+
+    POS_fn_vGetRotationMatrix(HIE_fn_hGetSuperObjectGlobalMatrix((HIE_tdstSuperObject *)p_stContext),
+                              &stI, &stJ, &stK);
+    p_stValue->uParam.a_xVectorValue[0] = stJ.xX;
+    p_stValue->uParam.a_xVectorValue[1] = stJ.xY;
+    p_stValue->uParam.a_xVectorValue[2] = stJ.xZ;
+    p_stValue->eType = 0x15;
+    return 1;
+}
+
+/* FIX(BUGS.md#4) */
+unsigned char __cdecl fn_ucGetFieldAbsoluteAxisZ(void *p_stContext,
+                                                 AI_tdstGetSetParam *p_stValue)
+{
+    MTH3D_tdstVector stI, stJ, stK;
+
+    POS_fn_vGetRotationMatrix(HIE_fn_hGetSuperObjectGlobalMatrix((HIE_tdstSuperObject *)p_stContext),
+                              &stI, &stJ, &stK);
+    p_stValue->uParam.a_xVectorValue[0] = stK.xX;
+    p_stValue->uParam.a_xVectorValue[1] = stK.xY;
+    p_stValue->uParam.a_xVectorValue[2] = stK.xZ;
+    p_stValue->eType = 0x15;
+    return 1;
+}
+#endif /* RAYMAN2_FIX_BUGS */
 
 /* 0x00455060 */
 unsigned char __cdecl fn_ucSetFieldDefaultFunction(void *p_stContext,
@@ -242,8 +285,14 @@ tdstFieldTableEntryA a_stFieldTableA[18] =
     { 2, fn_ucGetFieldSpeed,             fn_ucSetFieldDefaultFunction },
     { 1, fn_ucGetFieldNormSpeed,         fn_ucSetFieldDefaultFunction },
     { 2, fn_ucGetFieldAbsoluteAxisX,     fn_ucSetFieldDefaultFunction },
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#4) */
+    { 2, fn_ucGetFieldAbsoluteAxisY,     fn_ucSetFieldDefaultFunction },
+    { 2, fn_ucGetFieldAbsoluteAxisZ,     fn_ucSetFieldDefaultFunction },
+#else
     { 2, fn_ucGetFieldAbsoluteAxisX,     fn_ucSetFieldDefaultFunction },
     { 2, fn_ucGetFieldAbsoluteAxisX,     fn_ucSetFieldDefaultFunction },
+#endif /* RAYMAN2_FIX_BUGS */
     { 3, fn_ucGetFieldPrevComportIntell, fn_ucSetFieldDefaultFunction },
     { 3, fn_ucGetFieldPrevComportReflex, fn_ucSetFieldDefaultFunction },
     { 1, fn_ucGetFieldShadowScaleX,      fn_ucSetFieldShadowScaleX },
