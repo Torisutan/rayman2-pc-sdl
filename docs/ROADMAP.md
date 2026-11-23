@@ -11,6 +11,7 @@ say so.
 | v0.3 | Solid codebase, portability inventory | planned |
 | v0.4 | Own sound drivers (no retail sound DLLs) | planned |
 | v0.5 | Platform layer and own renderer (no retail DLLs at all) | planned |
+| v0.6 | Frame rate decoupled from game logic | planned |
 | v1.0 | Windows, Linux and macOS | planned |
 | later | Homebrew ports (PSP, Wii U) | open |
 
@@ -44,6 +45,18 @@ platform. Checked against the retail DLLs by comparing the mixed output of a scr
   timers (`TMR`), plus window, events and threads (today in `GAM/pc_winmain.c`).
 - An in-tree OpenGL / GLES renderer; no retail DLL needed any more.
 - 64-bit x86 build.
+
+## v0.6: frame rate decoupled from game logic
+Today the engine runs one logic step per displayed frame: `fn_vActualizeEngineClock` measures the
+frame time and `fn_ulDetermineUsefulDT` rounds it to a whole number of frame lengths (1 to 8), and
+the flip waits for the display. Goal: the logic keeps the original step, and the display runs at
+any refresh rate, drawing positions interpolated between the last two logic steps.
+- The logic step stays as is, so the regression run is unchanged by construction.
+- Inventory first: everything the draw path reads that moves per step (actor matrices, camera,
+  particles, animations, texture and sinus effects) and what the step changes outside the
+  hashed state.
+- Display side: interpolate transforms per drawn frame, decide what is not interpolated (UI,
+  cycling textures), and make the flip and frame pacing independent of the step.
 
 ## v1.0: desktop platforms
 Windows, Linux and macOS from one source, each checked against its own regression baseline.
