@@ -741,6 +741,12 @@ unsigned char __cdecl MGT_pc_fn_ucRefreshMagnetModification(MGT_tdstMagnetModifi
 
     if (g_aActiveMagnets[p_stMod->xIndexOfActivatedMagnet] == (int *)0) {
 
+#ifdef RAYMAN2_FIX_BUGS
+        /* FIX(BUGS.md#3) */
+        /* only set when a point is blended; start them as the active-magnet path does */
+        ucRet = 0;
+        ucRemoved = 0;
+#endif /* RAYMAN2_FIX_BUGS */
         p_stPosA = p_stObj->d_stOriginalPosition;
         p_stOut  = p_stGeo->d_stListOfPoints;
         pulDur   = p_stMod->d_ulCurrentDuration;
