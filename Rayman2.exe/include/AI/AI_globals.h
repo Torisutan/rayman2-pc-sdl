@@ -136,8 +136,16 @@ extern float AI_TEXT_gax_RealParameters[10];
 
 #define AI_TA_p_stFixViewportAttr ((void *)(GAM_ENGINE_BASE + 0x154))
 
+#ifdef RAYMAN2_WIDESCREEN
+/* width of the 4:3 band: superimposed objects are scaled to it (width / 640) */
+#include "GLI/GLI_ratio.h"
+#define AI_TA_dwScreenWidth \
+    ((unsigned long)MTH_M_xRealToLong(MTH_M_xMul(GLI_g_xSafeAreaRatio, MTH_M_xLongToReal( \
+        ((struct GLD_tdstViewportAttributes_ *)AI_TA_p_stFixViewportAttr)->dwWidth))))
+#else
 #define AI_TA_dwScreenWidth \
     (((struct GLD_tdstViewportAttributes_ *)AI_TA_p_stFixViewportAttr)->dwWidth)
+#endif /* RAYMAN2_WIDESCREEN */
 #define AI_TA_dwScreenHeight \
     (((struct GLD_tdstViewportAttributes_ *)AI_TA_p_stFixViewportAttr)->dwHeight)
 

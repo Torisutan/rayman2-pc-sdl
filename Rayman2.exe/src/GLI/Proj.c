@@ -103,6 +103,9 @@ void __cdecl GLI_xSerialProjectionNoTrans  (	struct GLI_tdstCamera_ *p_stCam ,
 
 #include "GLD/GLD_Pub.h"
 #include "GLI/Vpt3D.h"
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 void __cdecl GLI_vGet3DVertexFromScreenPos(
 			struct GLD_tdstViewportAttributes_	*p_stVpt,
@@ -119,6 +122,11 @@ void __cdecl GLI_vGet3DVertexFromScreenPos(
 	MTH3D_tdstVector					stTemp ;
 	POS_tdstCompletePosition			stMatrix, stInvMatrix ;
 
+#ifdef RAYMAN2_WIDESCREEN
+	/* screen positions of superimposed objects are in the 4:3 band */
+	if ( GLI_g_xSafeAreaRatio < MTH_C_ONE )
+		xRatioX = GLI_fn_xToSafeArea(xRatioX, MTH_C_ONE);
+#endif /* RAYMAN2_WIDESCREEN */
 	stPos2D.xX = MTH_M_xMul(MTH_M_xLongToReal(p_stVpt->dwWidth), xRatioX);
 	stPos2D.xY = MTH_M_xMul(MTH_M_xLongToReal(p_stVpt->dwHeight), xRatioY);
 
