@@ -14,6 +14,7 @@ unsigned char __cdecl fn_ucSetDsgVarInteger(long *pMyVarAddr, unsigned long ulIn
 unsigned char __cdecl fn_ucSetDsgVarArray(long *pMyVarAddr, unsigned long ulIndex,
                                           AI_tdstGetSetParam *p_stValue);
 
+#ifndef RAYMAN2_NO_PROTECTION   /* private import table */
 /* 0x004A13D0 */
 MMG_pc_tdstImport MMG_pc_g_a_stImport[MMG_pc_C_NbImport + 1] = {
 
@@ -96,6 +97,7 @@ MMG_pc_tdstImport MMG_pc_g_a_stImport[MMG_pc_C_NbImport + 1] = {
 char MMG_pc_g_a_szModule[MMG_pc_C_NbModule + 1][sizeof(MMG_pc_tdstModule)] = {
     "KERNEL32.DLL", "USER32.DLL", "PSAPI.DLL", "ADVAPI32.DLL", "GDI32.DLL", "VERSION.DLL", "WINMM.DLL", ""
 };
+#endif /* RAYMAN2_NO_PROTECTION */
 
 #ifndef RAYMAN2_NO_PROTECTION   /* level-load tamper block: DsgVar table install, code block execution */
 void *MMG_pc_g_pvTamperResumeA;   /* 0x00510E14 */

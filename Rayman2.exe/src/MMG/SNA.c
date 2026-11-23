@@ -19,12 +19,14 @@ size_t __cdecl SNA_fn_ulFRead(void   *_p_vBuffer,
     unsigned char *p_ucIn;
     size_t         ulBytesToRead;
 
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
     if (SNA_g_ucErrorMode != 0) {
         __asm { mov dword ptr [SNA_g_pErrorFrame1], offset L_body }
         __asm { mov dword ptr [SNA_g_pErrorFrame2], offset L_epi }
         return 0;
     }
 L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
     ulBytesToRead = _ulSize * _ulCount;
     if (ulBytesToRead == 0) {
         return 0;
@@ -72,7 +74,9 @@ L_body:
     }
 
     return _ulCount;
+#ifndef RAYMAN2_NO_PROTECTION
 L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 /* 0x00450EB0 */

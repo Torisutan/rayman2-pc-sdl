@@ -8,6 +8,7 @@
 #include "GAM/GAM_globals.h"
 #include "port/regress.h"
 
+#ifndef RAYMAN2_NO_PROTECTION   /* private import resolver, code pool, kernel32 search, process enumeration */
 #define g_ulLCGState   MMG_g_ulLCGState
 
 MMG_pc_tduLcgPool MMG_pc_g_uLcgPool;   /* 0x00510EA0 */
@@ -932,6 +933,7 @@ L_epi:;
 }
 
 #pragma optimize("", on)
+#endif /* RAYMAN2_NO_PROTECTION */
 
 #pragma optimize("y", off)
 void __cdecl MMG_fn_vInit(int bInitMMG)
@@ -942,12 +944,14 @@ void __cdecl MMG_fn_vInit(int bInitMMG)
     unsigned int *pTable;
     unsigned int i;
 
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
     if (g_ucMMGChannelMax != 0) {
         __asm { mov dword ptr [g_pfnMMG_510dc8], offset L_body }
         __asm { mov dword ptr [g_pfnMMG_510c08], offset L_epi }
         return;
     }
 L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
 #ifndef RAYMAN2_NO_PROTECTION   /* LCG and code pool of the protection, module-handle table of the private imports */
     qpcOk = QueryPerformanceCounter(&qpc);
     uSeed = qpc.LowPart;
@@ -994,10 +998,13 @@ L_body:
         g_cCDROM = '.';
     }
 #endif /* RAYMAN2_NO_PROTECTION */
+#ifndef RAYMAN2_NO_PROTECTION
 L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 #pragma optimize("", on)
 
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate with room for a decrypted body */
 /* 0x00511404 */
 void *MMG_pc_g_pvNopGateResume;
 void *MMG_pc_g_pvNopGateExit;
@@ -1046,3 +1053,4 @@ L_epi:
         ret
     }
 }
+#endif /* RAYMAN2_NO_PROTECTION */

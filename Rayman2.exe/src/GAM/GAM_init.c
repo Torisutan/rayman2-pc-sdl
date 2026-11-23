@@ -559,8 +559,10 @@ void FUN_00404ba0(void)
 #  define GLILOAD_ERR_MSG    "Graphics Dll not found, run install"  /* 0x0049f3c8 */
 #  define GLILOAD_ERR_TITLE  "Setup problem"                        /* 0x0049f3ec */
 
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate of FUN_00405850 */
 void *GAM_pc_g_pvGliLoadResume;   /* 0x00511414 */
 void *GAM_pc_g_pvGliLoadExit;     /* 0x00511334 */
+#endif /* RAYMAN2_NO_PROTECTION */
 
 static const char GAM_pc_c_szGliLoadErrMsg[]   = GLILOAD_ERR_MSG;     /* 0x0049F3C8 */
 static const char GAM_pc_c_szGliLoadErrTitle[] = GLILOAD_ERR_TITLE;   /* 0x0049F3EC */
@@ -576,6 +578,7 @@ __declspec(naked) void __cdecl FUN_00405850(void)
         push    ebp
         mov     ebp, esp
         sub     esp, 0x28
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
         mov     eax, dword ptr [SNA_g_lProtectionGate]
         test    eax, eax
         je      L_gate
@@ -585,14 +588,17 @@ __declspec(naked) void __cdecl FUN_00405850(void)
         pop     ebp
         ret
 L_gate:
+#endif /* RAYMAN2_NO_PROTECTION */
         push    edi
         mov     byte ptr [GAM_g_b500371], 0
+#ifndef RAYMAN2_NO_PROTECTION   /* room for a decrypted body */
 L_body:
         GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8
         GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8
         GAM_pc_M_vNop8 GAM_pc_M_vNop8 GAM_pc_M_vNop8
         __asm _emit 0x90 __asm _emit 0x90
 L_epi:
+#endif /* RAYMAN2_NO_PROTECTION */
         push    0
         call    FUN_0044f500
         add     esp, 4

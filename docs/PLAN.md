@@ -116,9 +116,13 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   `OPTIMIZED_FOR_PC_FLOATS` without `_WITH_ASM` (the original C branch), as U64 did.
 - `ubi.ini` is read from the working directory (`RAYMAN2_LOCAL_UBIINI`, DEVIATIONS 1), as the
   current installs ship it. Moving it to a per-user config location is still to do.
-- **Still compiled but unreferenced:** the resolver, pool and gate definitions in
-  `MMG/MMG_init.c`, the naked `SNA_g_lProtectionGate` gates, `MMG_pc_g_a_stImport`. Exclude them
-  too (clang-cl rejects most of that asm), then delete the excluded code later.
+- **Unreferenced leftovers excluded (2026-11-23):** the resolver, code pool, kernel32 search and
+  process enumeration in `MMG/MMG_init.c` (all but `MMG_fn_vInit`), `MMG_pc_fn_vNopGate`, the
+  import tables in `MMG/pc_protect.c`, and the `SNA_g_lProtectionGate` gates of live functions
+  (`MMG_fn_vInit`, `FUN_00405850`, `SNA_fn_ulFRead`, `SNA_pc_bOpenSnaFamilyFile`,
+  `SNA_pc_pReadGptTable`). The gate variable is never written, so every gate was dead. Link
+  maps (modern, VC5 with the define) contain none of these symbols; regressions identical. Still to do: delete the excluded code;
+  the gate variables' declarations in `MMG/MMG_globals.h` go with it.
 
 ### Phase 3: fix the original engine's bugs
 - Keep a catalogue in `docs/BUGS.md`: symptom, cause, function, fix. Known candidates from the

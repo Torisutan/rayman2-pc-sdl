@@ -172,12 +172,14 @@ unsigned char __cdecl SNA_pc_bOpenSnaFamilyFile(void *_p_stFile)
     const char *p_cExt;
     unsigned char ucOk;
 
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
     if (SNA_g_ucErrorMode != 0) {
         __asm { mov dword ptr [SNA_g_pOpenErrorFrame1], offset L_body }
         __asm { mov dword ptr [SNA_g_pOpenErrorFrame2], offset L_epi }
         return 1;
     }
 L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
     if (SNA_g_ucNextRelocationTableToLoad == 0xFFu) {
         sprintf(a_cPath, SNA_C_szFmtFix, SNA_p_pcGetBaseDir());
     } else {
@@ -224,7 +226,9 @@ L_body:
     }
 
     return ucOk;
+#ifndef RAYMAN2_NO_PROTECTION
 L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 /* 0x0044DC40 */
@@ -244,12 +248,14 @@ SNA_pc_tdstGptTable *__cdecl SNA_pc_pReadGptTable(void)
     unsigned char  ucIndex;
     unsigned long  ulPtrCount;
 
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
     if (SNA_g_ucErrorMode != 0) {
         __asm { mov dword ptr [SNA_g_pGptErrorFrame1], offset L_body }
         __asm { mov dword ptr [SNA_g_pGptErrorFrame2], offset L_epi }
         return NULL;
     }
 L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
     SNA_pc_vInitLoadLists();
     if (SNA_pc_bOpenSnaFamilyFile(a_ucStream) == 0) {
         return NULL;
@@ -295,7 +301,9 @@ L_body:
 
     SNA_pc_bCloseFile(a_ucStream);
     return p_stHead;
+#ifndef RAYMAN2_NO_PROTECTION
 L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 /* 0x0044DDE0 */
