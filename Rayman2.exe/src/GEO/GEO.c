@@ -79,7 +79,14 @@ static long GEO_lMainCullingSphere
   GLI_tdstSpecificAttributesFor3D	*p_stSpecifAttrib3D;
 	MTH3D_tdstVector				stCenter;
 	GLI_tdstCamera					*hCamera;
+#ifdef RAYMAN2_FIX_BUGS
+	/* FIX(BUGS.md#2) */
+	/* only set below when the near result is not known yet, read by the far test either way;
+	   retail then reads the bits of p_stMatrix, a tiny positive float: not beyond the far plane */
+	MTH_tdxReal						xDotProduct = MTH_C_EpsilonPlus;
+#else
 	MTH_tdxReal						xDotProduct;
+#endif /* RAYMAN2_FIX_BUGS */
 
 	if (!POS_fn_ulIsNotScaledMatrix ( p_stMatrix ))
 	{
