@@ -13,9 +13,8 @@
 # build without edits here. Paths to the non-shipped inputs come from local.json (see BUILDING.md):
 #   vc6  Visual C++ 6.0, for DINPUT.LIB (DirectInputCreateA and the c_dfDI* data formats; current
 #        SDKs ship only the DirectInput 8 library)
-#   gog  your GOG Rayman2.exe, for its resources (icons + manifest)
 cmake_minimum_required(VERSION 3.20)
-project(Rayman2 C)
+project(Rayman2 C RC)
 
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
   message(FATAL_ERROR "Rayman2 builds as 32-bit x86 only: configure with -A Win32")
@@ -34,7 +33,6 @@ if(NOT EXISTS ${R2_LOCAL})
 endif()
 file(READ ${R2_LOCAL} R2_LOCAL_JSON)
 string(JSON R2_VC6 GET ${R2_LOCAL_JSON} vc6)
-string(JSON R2_GOG GET ${R2_LOCAL_JSON} gog)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${R2_LOCAL} ${R2_DIR}/tu.json ${R2_DIR}/exports.txt)
 
 # ---- translation units, in link order ---------------------------------------------------------
@@ -49,17 +47,16 @@ foreach(i RANGE ${R2_TU_LAST})
   # matching; the modern build uses one codegen for every TU.
 endforeach()
 
-# ---- resources: the GOG exe's .rsrc, as tools/build.py links it ------------------------------
-set(R2_RES ${CMAKE_BINARY_DIR}/Rayman2.res)
+# ---- resources: own icon and manifest (src/port/Rayman2.rc); the icon is generated ------------
+set(R2_ICO ${CMAKE_BINARY_DIR}/Rayman2.ico)
 add_custom_command(
-  OUTPUT ${R2_RES}
-  COMMAND ${Python3_EXECUTABLE} -c "import sys; sys.path.insert(0, sys.argv[1]); import build; open(sys.argv[3], 'wb').write(build.res_bytes(sys.argv[2]))" ${CMAKE_SOURCE_DIR}/tools ${R2_GOG} ${R2_RES}
-  DEPENDS ${CMAKE_SOURCE_DIR}/tools/build.py ${R2_GOG}
-  COMMENT "Extracting resources from the GOG exe"
+  OUTPUT ${R2_ICO}
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make_icon.py ${R2_ICO}
+  DEPENDS ${CMAKE_SOURCE_DIR}/tools/make_icon.py
+  COMMENT "Generating Rayman2.ico"
   VERBATIM)
-# A prebuilt .res is a linker input; without this the VS generator lists it as "None" and the exe
-# gets no resources at all.
-set_source_files_properties(${R2_RES} PROPERTIES EXTERNAL_OBJECT TRUE)
+set(R2_RC ${R2_DIR}/src/port/Rayman2.rc)
+set_source_files_properties(${R2_RC} PROPERTIES OBJECT_DEPENDS "${R2_ICO};${R2_DIR}/src/port/Rayman2.manifest")
 
 # ---- exports: the sound driver DLLs call back into these ---------------------------------------
 file(STRINGS ${R2_DIR}/exports.txt R2_EXPORTS)
@@ -101,9 +98,9 @@ if(R2_FIX_BUGS)
   list(APPEND R2_FORK_DEFINES RAYMAN2_FIX_BUGS)
 endif()
 
-add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RES})
+add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RC} ${R2_ICO})
 set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
-target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include)
+target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include $<$<COMPILE_LANGUAGE:RC>:${CMAKE_BINARY_DIR}>)
 # NO_STRICT: VC5-era windows.h typed handles as void * (STRICT was opt-in); the sources declare
 # Win32 APIs that way.
 target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT ${R2_FORK_DEFINES})
@@ -115,8 +112,8 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # DINPUT.LIB (VC6) has no SEH tables: link.exe then drops SAFESEH silently, lld-link stops.
   target_link_options(Rayman2 PRIVATE /SAFESEH:NO)
 endif()
-# /MANIFEST:NO: the linker's default manifest (UAC only) would clash with the GOG one in
-# Rayman2.res, which makes the exe DPI aware.
+# /MANIFEST:NO: the linker's default manifest (UAC only) would clash with the one in Rayman2.rc,
+# which makes the exe DPI aware.
 target_link_options(Rayman2 PRIVATE /MAP /MANIFEST:NO ${R2_EXPORT_FLAGS})
 target_link_libraries(Rayman2 PRIVATE
   kernel32 user32 gdi32 winmm advapi32 shell32

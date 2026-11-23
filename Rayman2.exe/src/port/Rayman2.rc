@@ -1,0 +1,12 @@
+/*
+ * Resources of the modern build (CMakeLists.txt). The retail exe has the same inventory: one
+ * icon group (id 1) and one manifest (id 1), language 1033. The window class keeps the system
+ * icon (GAM/pc_winmain.c); the group icon is what Explorer shows for the exe.
+ *
+ * Rayman2.ico is written at build time by tools/make_icon.py.
+ * The manifest only makes the process per-monitor DPI aware, as the retail one does.
+ */
+LANGUAGE 0x09, 0x01 /* LANG_ENGLISH, SUBLANG_ENGLISH_US: 1033 */
+
+1 ICON "Rayman2.ico"
+1 24 "Rayman2.manifest" /* RT_MANIFEST, CREATEPROCESS_MANIFEST_RESOURCE_ID */
