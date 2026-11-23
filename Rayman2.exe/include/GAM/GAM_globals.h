@@ -116,7 +116,7 @@ EXTERN float GAM_pc_g_xParticuleRate;
 #else
 #define EXTERN
 #endif
-EXTERN unsigned char GAM_g_b500371;
+EXTERN char g_cIsLevelOk;   /* 0x00500371 */
 EXTERN unsigned char GAM_g_b4b7464;
 
 #undef EXTERN

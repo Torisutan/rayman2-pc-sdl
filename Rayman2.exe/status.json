@@ -904,7 +904,7 @@
 },
 {
 "addr": "0x00405850",
-"name": "FUN_00405850",
+"name": "GAM_pc_fn_vLoadGliDll",
 "src": "src/GAM/GAM_init.c",
 "len": 210,
 "verdict": "EXACT"
