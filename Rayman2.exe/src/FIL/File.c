@@ -86,7 +86,7 @@ typedef struct FIL_tdstConcatFile {
     FIL_tdstConcatFileElement *d_stConcatFileElement;
 } FIL_tdstConcatFile;
 
-typedef struct FIL_tdstFileInConcatFile {
+typedef struct FIL_tdstFileInConcatFile_ {
     unsigned char  bUseConcatFile;
     FILE          *p_stFile;
     unsigned long  ulFileActualSeek;
@@ -101,10 +101,10 @@ typedef struct FIL_tdstFileInConcatFile {
 
 FIL_tdstFileInConcatFile *FIL_g_hGlobalFileInConcatFile;   /* 0x004b9c48 */
 
-typedef struct FIL_tdstFileNameListElement_s FIL_tdstFileNameListElement;
+typedef struct FIL_tdstFileNameListElement_ FIL_tdstFileNameListElement;
 typedef struct FIL_tdstFileNameListAnchor_s  FIL_tdstFileNameListAnchor;
 
-struct FIL_tdstFileNameListElement_s {
+struct FIL_tdstFileNameListElement_ {
     FIL_tdstFileNameListElement *p_stNext;
     FIL_tdstFileNameListElement *p_stPrev;
     FIL_tdstFileNameListAnchor  *p_stAnchor;

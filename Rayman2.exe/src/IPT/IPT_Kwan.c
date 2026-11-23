@@ -750,394 +750,239 @@ const unsigned long IPT_KW_aulCorrectionTable[46] = {
     0x3FAF16E3, 0x3FB10ADD, 0x3FB304EE, 0x3FB504F7
 };
 
+#define IPT_C_KeyWordElementSize 8
+
+enum { IPT_C_lAxisCapsRangeOffset = (int)&((INO_pc_tdstAxisDeviceCaps *)0)->a_stAxis
+                                  + (int)&((INO_tdstAxisCaps *)0)->m_lRange };
+
 /* 0x0042F390 */
-__declspec(naked) unsigned char __cdecl
-IPT_fn_bIsKeyWordValid_JoystickAngularValue(IPT_tdstKeyWordElement *_hKeyWordElement)
+unsigned char __cdecl IPT_fn_bIsKeyWordValid_JoystickAngularValue(IPT_tdstKeyWordElement *_hKeyWordElement)
 {
-    (void)_hKeyWordElement;
-    __asm {
-        mov     ecx, dword ptr [esp + 0x4]
-        push    ebx
-        push    ebp
-        push    esi
-        lea     esi, [ecx + TYPE IPT_tdstKeyWordElement]
-        push    edi
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        xor     al, al
-        movsx   ecx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        mov     edx, dword ptr IPT_g_hInputStructure.a_hINODevice[ecx*4 + IPT_E_Pad00DeviceEvent*4]
-        movsx   edi, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebp, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        cmp     byte ptr IPT_g_hInputStructure.p_ucValideAndActiveDevice[ecx + IPT_E_Pad00DeviceEvent], IPT_C_ActivateJoystickDevice
-        mov     dword ptr [esp + 0x14], ebp
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebp, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        jnz     Lfi
+    unsigned char           ucReturn = IPT_C_FALSE;
+    INO_tdstDevice         *hDev;
+    INO_pc_tdstJoyState    *hState;
+    INO_pc_tdstAxisDeviceCaps *hCaps;
+    short                   swPad;
+    short                   swSelA;
+    short                   swSelB;
+    short                   swMin;
+    short                   swMax;
+    float                   fAxisA;
+    float                   fAxisB;
+    float                   fAngle;
+    long                    lAngle;
 
-        lea     eax, [edi - 0x4]
-        cmp     eax, 0x5
-        ja      LdefA
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stState
-        lea     edi, [eax*4 + INO_pc_tdstJoyState.a_lAxis]
-        fild    dword ptr [ecx + edi]
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stCaps
-        lea     edi, [eax + eax*2]
-        lea     edi, [edi*4]INO_pc_tdstAxisDeviceCaps.a_stAxis.m_lRange
-        fidiv   dword ptr [ecx + edi]
-        jmp     LaftA
-    LdefA:
-        fld     dword ptr [esp + 0x14]
-    LaftA:
+    IPT_g_hNextParameter = _hKeyWordElement + 1;
+    swPad = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swSelA = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swSelB = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swMin = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swMax = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
 
-        lea     eax, [ebx - 0x4]
-        cmp     eax, 0x5
-        ja      LdefB
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stState
-        lea     edi, [eax*4 + INO_pc_tdstJoyState.a_lAxis]
-        fild    dword ptr [ecx + edi]
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stCaps
-        lea     edi, [eax + eax*2]
-        lea     edi, [edi*4]INO_pc_tdstAxisDeviceCaps.a_stAxis.m_lRange
-        fidiv   dword ptr [ecx + edi]
-        jmp     LaftB
-    LdefB:
-        fld     dword ptr [esp + 0x14]
-    LaftB:
+    if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + swPad] == IPT_C_ActivateJoystickDevice)
+    {
+        hDev = IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + swPad];
+        hState = (INO_pc_tdstJoyState *)hDev->p_stState;
+        hCaps = (INO_pc_tdstAxisDeviceCaps *)hDev->p_stCaps;
 
-        fcom    qword ptr [IPT_KW_aulDeadzoneNeg]
-        fnstsw  ax
-        test    ah, 0x41
-        jnz     Lpatan
-        fcom    qword ptr [IPT_KW_aulDeadzonePos]
-        fnstsw  ax
-        test    ah, 0x1
-        jz      Lpatan
-        fld     st(1)
-        fcomp   qword ptr [IPT_KW_aulDeadzoneNeg]
-        fnstsw  ax
-        test    ah, 0x41
-        jnz     Lpatan
-        fld     st(1)
-        fcomp   qword ptr [IPT_KW_aulDeadzonePos]
-        fnstsw  ax
-        test    ah, 0x1
-        jz      Lpatan
-        fstp    st(0)
-        fstp    st(0)
-        fld     dword ptr [IPT_KW_ulZeroF]
-        jmp     Lhaveangle
-    Lpatan:
-        fxch    st(1)
-        fpatan
-        fmul    dword ptr [IPT_KW_ulRadToDegF]
-    Lhaveangle:
-        fld     st(0)
-        call    _ftol
-        cmp     eax, dword ptr [esp + 0x14]
-        jl      Lnv
-        cmp     eax, ebp
-        jg      Lnv
-        mov     al, 0x1
-        jmp     Lcv
-    Lnv:
-        xor     al, al
-    Lcv:
-        cmp     al, 0x1
-        jnz     Ldisc
-        mov     edx, dword ptr [IPT_g_h_ActualEntryInput]
-        fstp    dword ptr [edx]IPT_tdstEntryElement.xAnalogicValue
-        mov     esi, dword ptr [IPT_g_hNextParameter]
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     edi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        ret
-    Ldisc:
-        fstp    st(0)
-    Lfi:
-        add     esi, TYPE IPT_tdstKeyWordElement
-        pop     edi
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        ret
+        if (swSelA >= 4 && swSelA <= 9)
+        {
+            fAxisA = (float)hState->a_lAxis[swSelA - 4] / (float)hCaps->a_stAxis[swSelA - 4].m_lRange;
+        }
+        else
+        {
+            fAxisA = (float)swMin;
+        }
+        if (swSelB >= 4 && swSelB <= 9)
+        {
+            fAxisB = (float)hState->a_lAxis[swSelB - 4] / (float)hCaps->a_stAxis[swSelB - 4].m_lRange;
+        }
+        else
+        {
+            fAxisB = (float)swMin;
+        }
+
+        if (!((fAxisB > *(const double *)&IPT_KW_aulDeadzoneNeg[0] && fAxisB < *(const double *)&IPT_KW_aulDeadzonePos[0])
+              && (fAxisA > *(const double *)&IPT_KW_aulDeadzoneNeg[0] && fAxisA < *(const double *)&IPT_KW_aulDeadzonePos[0])))
+        {
+            fAngle = atan2(fAxisB, fAxisA) * *(const float *)&IPT_KW_ulRadToDegF;
+        }
+        else
+        {
+            fAngle = *(const float *)&IPT_KW_ulZeroF;
+        }
+
+        lAngle = (long)fAngle;
+        if (lAngle >= swMin && lAngle <= swMax)
+        {
+            IPT_g_h_ActualEntryInput->xAnalogicValue = fAngle;
+            ucReturn = IPT_C_TRUE;
+        }
     }
+
+    IPT_g_hNextParameter++;
+    return ucReturn;
 }
 
 /* 0x0042F590 */
-__declspec(naked) unsigned char __cdecl
-IPT_fn_bIsKeyWordValid_JoystickTrueNormValue(IPT_tdstKeyWordElement *_hKeyWordElement)
+unsigned char __cdecl IPT_fn_bIsKeyWordValid_JoystickTrueNormValue(IPT_tdstKeyWordElement *_hKeyWordElement)
 {
-    (void)_hKeyWordElement;
-    __asm {
-        mov     ecx, dword ptr [esp + 0x4]
-        push    ebx
-        push    ebp
-        push    esi
-        lea     esi, [ecx + TYPE IPT_tdstKeyWordElement]
-        push    edi
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        xor     al, al
-        movsx   ecx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        mov     edx, dword ptr IPT_g_hInputStructure.a_hINODevice[ecx*4 + IPT_E_Pad00DeviceEvent*4]
-        movsx   edi, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebp, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        cmp     byte ptr IPT_g_hInputStructure.p_ucValideAndActiveDevice[ecx + IPT_E_Pad00DeviceEvent], IPT_C_ActivateJoystickDevice
-        mov     dword ptr [esp + 0x14], ebp
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebp, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        jnz     Lfi
-        lea     eax, [edi - 0x4]
-        cmp     eax, 0x5
-        ja      LdefA
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stState
-        lea     edi, [eax*4 + INO_pc_tdstJoyState.a_lAxis]
-        fild    dword ptr [ecx + edi]
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stCaps
-        lea     edi, [eax + eax*2]
-        lea     edi, [edi*4]INO_pc_tdstAxisDeviceCaps.a_stAxis.m_lRange
-        fidiv   dword ptr [ecx + edi]
-        jmp     LaftA
-    LdefA:
-        fld     dword ptr [esp + 0x14]
-    LaftA:
-        lea     eax, [ebx - 0x4]
-        cmp     eax, 0x5
-        ja      LdefB
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stState
-        lea     edi, [eax*4 + INO_pc_tdstJoyState.a_lAxis]
-        fild    dword ptr [ecx + edi]
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stCaps
-        lea     edi, [eax + eax*2]
-        lea     edi, [edi*4]INO_pc_tdstAxisDeviceCaps.a_stAxis.m_lRange
-        fidiv   dword ptr [ecx + edi]
-        jmp     LaftB
-    LdefB:
-        fld     dword ptr [esp + 0x14]
-    LaftB:
+    unsigned char           ucReturn = IPT_C_FALSE;
+    INO_tdstDevice         *hDev;
+    INO_pc_tdstJoyState    *hState;
+    INO_pc_tdstAxisDeviceCaps *hCaps;
+    short                   swPad;
+    short                   swSelA;
+    short                   swSelB;
+    short                   swMin;
+    short                   swMax;
+    double                  dAxisA;
+    double                  dAxisB;
+    double                  dNorm;
+    long                    lNorm;
 
-        fld     st(1)
-        fld     st(1)
-        fxch    st(1)
-        fmulp   st(3), st(0)
-        fmul    st(0), st(1)
-        faddp   st(2), st(0)
-        fxch    st(1)
-        fsqrt
-        fmul    qword ptr [IPT_KW_aulHundredD]
-        fxch    st(1)
-        fstp    st(0)
-        fld     st(0)
-        call    _ftol
-        cmp     eax, dword ptr [esp + 0x14]
-        jl      Lnv
-        cmp     eax, ebp
-        jg      Lnv
-        mov     al, 0x1
-        jmp     Lcv
-    Lnv:
-        xor     al, al
-    Lcv:
-        cmp     al, 0x1
-        jnz     Ldisc
-        mov     edx, dword ptr [IPT_g_h_ActualEntryInput]
-        fstp    dword ptr [edx]IPT_tdstEntryElement.xAnalogicValue
-        mov     esi, dword ptr [IPT_g_hNextParameter]
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     edi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        ret
-    Ldisc:
-        fstp    st(0)
-    Lfi:
-        add     esi, TYPE IPT_tdstKeyWordElement
-        pop     edi
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        ret
+    IPT_g_hNextParameter = _hKeyWordElement + 1;
+    swPad = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swSelA = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swSelB = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swMin = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swMax = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+
+    if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + swPad] == IPT_C_ActivateJoystickDevice)
+    {
+        hDev = IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + swPad];
+        hState = (INO_pc_tdstJoyState *)hDev->p_stState;
+        hCaps = (INO_pc_tdstAxisDeviceCaps *)hDev->p_stCaps;
+
+        if (swSelA >= 4 && swSelA <= 9)
+        {
+            dAxisA = (double)hState->a_lAxis[swSelA - 4] / (double)hCaps->a_stAxis[swSelA - 4].m_lRange;
+        }
+        else
+        {
+            dAxisA = (double)swMin;
+        }
+        if (swSelB >= 4 && swSelB <= 9)
+        {
+            dAxisB = (double)hState->a_lAxis[swSelB - 4] / (double)hCaps->a_stAxis[swSelB - 4].m_lRange;
+        }
+        else
+        {
+            dAxisB = (double)swMin;
+        }
+
+        dNorm = sqrt(dAxisA * dAxisA + dAxisB * dAxisB) * *(const double *)&IPT_KW_aulHundredD[0];
+        lNorm = (long)dNorm;
+        if (lNorm >= swMin && lNorm <= swMax)
+        {
+            IPT_g_h_ActualEntryInput->xAnalogicValue = (float)dNorm;
+            ucReturn = IPT_C_TRUE;
+        }
     }
+
+    IPT_g_hNextParameter++;
+    return ucReturn;
 }
 
 /* 0x0042F750 */
-__declspec(naked) unsigned char __cdecl
-IPT_fn_bIsKeyWordValid_JoystickCorrectedNormValue(IPT_tdstKeyWordElement *_hKeyWordElement)
+unsigned char __cdecl IPT_fn_bIsKeyWordValid_JoystickCorrectedNormValue(IPT_tdstKeyWordElement *_hKeyWordElement)
 {
-    (void)_hKeyWordElement;
-    __asm {
-        push    ecx
-        mov     ecx, dword ptr [esp + 0x8]
-        push    ebx
-        push    ebp
-        push    esi
-        lea     esi, [ecx + TYPE IPT_tdstKeyWordElement]
-        push    edi
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        xor     al, al
-        movsx   ecx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        mov     edx, dword ptr IPT_g_hInputStructure.a_hINODevice[ecx*4 + IPT_E_Pad00DeviceEvent*4]
-        movsx   edi, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebp, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        cmp     byte ptr IPT_g_hInputStructure.p_ucValideAndActiveDevice[ecx + IPT_E_Pad00DeviceEvent], IPT_C_ActivateJoystickDevice
-        mov     dword ptr [esp + 0x10], ebp
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebp, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        jnz     Lcexit
-        lea     eax, [edi - 0x4]
-        cmp     eax, 0x5
-        ja      LdefA
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stState
-        lea     edi, [eax*4 + INO_pc_tdstJoyState.a_lAxis]
-        fild    dword ptr [ecx + edi]
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stCaps
-        lea     edi, [eax + eax*2]
-        lea     edi, [edi*4]INO_pc_tdstAxisDeviceCaps.a_stAxis.m_lRange
-        fidiv   dword ptr [ecx + edi]
-        jmp     LaftA
-    LdefA:
-        fld     dword ptr [esp + 0x18]
-    LaftA:
-        lea     eax, [ebx - 0x4]
-        cmp     eax, 0x5
-        ja      LdefB
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stState
-        lea     edi, [eax*4 + INO_pc_tdstJoyState.a_lAxis]
-        fild    dword ptr [ecx + edi]
-        mov     ecx, dword ptr [edx]INO_tdstDevice.p_stCaps
-        lea     edi, [eax + eax*2]
-        lea     edi, [edi*4]INO_pc_tdstAxisDeviceCaps.a_stAxis.m_lRange
-        fidiv   dword ptr [ecx + edi]
-        jmp     LaftB
-    LdefB:
-        fld     dword ptr [esp + 0x18]
-    LaftB:
+    unsigned char           ucReturn = IPT_C_FALSE;
+    INO_tdstDevice         *hDev;
+    INO_pc_tdstJoyState    *hState;
+    INO_pc_tdstAxisDeviceCaps *hCaps;
+    short                   swPad;
+    short                   swSelA;
+    short                   swSelB;
+    short                   swMin;
+    short                   swMax;
+    double                  dAxisA;
+    double                  dAxisB;
+    double                  dAngle;
+    double                  dNorm;
+    double                  dAngleIdx;
+    long                    lIndex;
+    float                   fCorrection;
+    float                   fValue;
+    long                    lValue;
 
-        fld     st(0)
-        fld     st(2)
-        fxch    st(1)
-        fabs
-        fxch    st(1)
-        fabs
-        fpatan
-        fld     st(2)
-        fld     st(2)
-        fxch    st(1)
-        fmul    st(0), st(4)
-        fxch    st(2)
-        fsub    qword ptr [IPT_KW_aulHalfPiD]
-        fxch    st(1)
-        fmul    st(0), st(3)
-        fxch    st(1)
-        fabs
-        fxch    st(1)
-        faddp   st(2), st(0)
-        fsubr   qword ptr [IPT_KW_aulHalfPiD]
-        fxch    st(1)
-        fsqrt
-        fmul    qword ptr [IPT_KW_aulHundredD]
-        fxch    st(1)
-        fstp    st(3)
-        fst     dword ptr [esp + 0x18]
-        fxch    st(2)
-        fmul    dword ptr [IPT_KW_ulNegRadToDegF]
-        call    _ftol
-        fld     dword ptr [IPT_KW_ulZeroF]
-        fxch    st(2)
-        mov     edx, offset IPT_KW_aulCorrectionTable
-        shl     eax, 0x2
-        sub     edx, eax
-        fdiv    dword ptr [edx]
-        fxch    st(2)
-        fcomp   st(2)
-        fnstsw  ax
-        test    ah, 0x41
-        fstp    st(0)
-        jnz     Lge0
-        fld     dword ptr [IPT_KW_ulZeroF]
-        jmp     Lhavelow
-    Lge0:
-        fld     st(0)
-    Lhavelow:
-        fld     dword ptr [IPT_KW_ulHundredF]
-        fcomp   st(1)
-        fnstsw  ax
-        test    ah, 0x1
-        fstp    st(0)
-        jz      Lnoupper
-        fstp    st(0)
-        fld     dword ptr [IPT_KW_ulHundredF]
-        jmp     Lcresult
-    Lnoupper:
-        fld     dword ptr [IPT_KW_ulZeroF]
-        fcomp   st(1)
-        fnstsw  ax
-        test    ah, 0x41
-        jnz     Lcresult
-        fstp    st(0)
-        fld     dword ptr [IPT_KW_ulZeroF]
-    Lcresult:
-        fld     st(0)
-        call    _ftol
-        cmp     eax, dword ptr [esp + 0x10]
-        jl      Lcfail
-        cmp     eax, ebp
-        jg      Lcfail
-        mov     ecx, dword ptr [IPT_g_h_ActualEntryInput]
-        mov     al, 0x1
-        fstp    dword ptr [ecx]IPT_tdstEntryElement.xAnalogicValue
-        mov     esi, dword ptr [IPT_g_hNextParameter]
-    Lcexit:
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     edi
-        pop     esi
-        pop     ebp
-        pop     ebx
-        pop     ecx
-        ret
-    Lcfail:
-        xor     al, al
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     edi
-        pop     esi
-        pop     ebp
-        fstp    st(0)
-        pop     ebx
-        pop     ecx
-        ret
+    IPT_g_hNextParameter = _hKeyWordElement + 1;
+    swPad = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swSelA = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swSelB = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swMin = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+    swMax = IPT_g_hNextParameter->u_ElementUnion.swValue;
+    IPT_g_hNextParameter++;
+
+    if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_Pad00DeviceEvent + swPad] == IPT_C_ActivateJoystickDevice)
+    {
+        hDev = IPT_g_hInputStructure.a_hINODevice[IPT_E_Pad00DeviceEvent + swPad];
+        hState = (INO_pc_tdstJoyState *)hDev->p_stState;
+        hCaps = (INO_pc_tdstAxisDeviceCaps *)hDev->p_stCaps;
+
+        if (swSelA >= 4 && swSelA <= 9)
+        {
+            dAxisA = (double)hState->a_lAxis[swSelA - 4] / (double)hCaps->a_stAxis[swSelA - 4].m_lRange;
+        }
+        else
+        {
+            dAxisA = *(const float *)&_hKeyWordElement;
+        }
+        if (swSelB >= 4 && swSelB <= 9)
+        {
+            dAxisB = (double)hState->a_lAxis[swSelB - 4] / (double)hCaps->a_stAxis[swSelB - 4].m_lRange;
+        }
+        else
+        {
+            dAxisB = *(const float *)&_hKeyWordElement;
+        }
+
+        dAngle = atan2(fabs(dAxisB), fabs(dAxisA));
+        dNorm = sqrt(dAxisA * dAxisA + dAxisB * dAxisB) * *(const double *)&IPT_KW_aulHundredD[0];
+
+        dAngleIdx = dAngle - *(const double *)&IPT_KW_aulHalfPiD[0];
+        if (dAngleIdx < 0.0)
+        {
+            dAngleIdx = -dAngleIdx;
+        }
+        dAngleIdx = *(const double *)&IPT_KW_aulHalfPiD[0] - dAngleIdx;
+        lIndex = (long)(dAngleIdx * *(const float *)&IPT_KW_ulNegRadToDegF);
+        fCorrection = *((const float *)IPT_KW_aulCorrectionTable - lIndex);
+        fValue = (float)(dNorm / (double)fCorrection);
+
+        if (!(fValue > *(const float *)&IPT_KW_ulZeroF))
+        {
+            fValue = *(const float *)&IPT_KW_ulZeroF;
+        }
+        else if (fValue > *(const float *)&IPT_KW_ulHundredF)
+        {
+            fValue = *(const float *)&IPT_KW_ulHundredF;
+        }
+
+        lValue = (long)fValue;
+        if (lValue >= swMin && lValue <= swMax)
+        {
+            IPT_g_h_ActualEntryInput->xAnalogicValue = fValue;
+            ucReturn = IPT_C_TRUE;
+        }
     }
+
+    IPT_g_hNextParameter++;
+    return ucReturn;
 }
 
 extern INO_tdhDevice __cdecl INO_pc_hCreateMouseDevice(unsigned short uwHistoricSize);
@@ -1162,156 +1007,103 @@ void __cdecl IPT_pc_fn_vCreateMouseDevice(long _lParam)
 }
 
 /* 0x00430460 */
-__declspec(naked) unsigned char __cdecl
-IPT_fn_bIsKeyWordValid_MouseAxeValue(IPT_tdstKeyWordElement *_hKeyWordElement)
+unsigned char __cdecl IPT_fn_bIsKeyWordValid_MouseAxeValue(IPT_tdstKeyWordElement *_hKeyWordElement)
 {
-    (void)_hKeyWordElement;
-    __asm {
-        mov     eax, dword ptr [IPT_pc_g_bMouseEnabled]
-        test    eax, eax
-        jnz     Lactive
-        mov     eax, dword ptr [esp + 0x4]
-        add     eax, 4*TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], eax
-        xor     al, al
-        ret
-    Lactive:
-        mov     edx, dword ptr [esp + 0x4]
-        push    edi
-        push    esi
-        mov     ecx, dword ptr IPT_g_hInputStructure.a_hINODevice[IPT_E_MouseDeviceEvent*4]
-        lea     esi, [edx + TYPE IPT_tdstKeyWordElement]
-        mov     dl, byte ptr IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_MouseDeviceEvent]
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        push    ebx
-        movsx   eax, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   edi, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     esi, TYPE IPT_tdstKeyWordElement
-        cmp     dl, IPT_C_ActivateMouseDevice
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        movsx   ebx, word ptr [esi]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        jnz     Ldef
-        sub     eax, 0x0
-        jz      Lsel0
-        dec     eax
-        jz      Lsel1
-        dec     eax
-        jnz     Ldef
-        mov     eax, dword ptr [ecx]INO_tdstDevice.p_stState
-        fild    dword ptr [eax]INO_pc_tdstMouseState.lRawZ
-        fmul    dword ptr [IPT_KW_ulInv255F]
-        jmp     Lscale
-    Lsel1:
-        mov     ecx, dword ptr [ecx]INO_tdstDevice.p_stState
-        fild    dword ptr [ecx]INO_pc_tdstMouseState.lRawY
-        fmul    dword ptr [IPT_KW_ulInv255F]
-        jmp     Lscale
-    Lsel0:
-        mov     edx, dword ptr [ecx]INO_tdstDevice.p_stState
-        fild    dword ptr [edx]INO_pc_tdstMouseState.lRawX
-        fmul    dword ptr [IPT_KW_ulInv255F]
-        jmp     Lscale
-    Ldef:
-        fld     dword ptr [esp + 0x10]
-    Lscale:
-        fmul    dword ptr [IPT_KW_ulHundredF]
-        fld     st(0)
-        call    _ftol
-        cmp     eax, edi
-        jl      Lfail
-        cmp     eax, ebx
-        jg      Lfail
-        mov     al, 0x1
-        jmp     Lchk
-    Lfail:
-        xor     al, al
-    Lchk:
-        cmp     al, 0x1
-        jnz     Lng
-        mov     ecx, dword ptr [IPT_g_h_ActualEntryInput]
-        pop     ebx
-        fstp    dword ptr [ecx]IPT_tdstEntryElement.xAnalogicValue
-        mov     esi, dword ptr [IPT_g_hNextParameter]
-        add     esi, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     esi
-        pop     edi
-        ret
-    Lng:
-        add     esi, TYPE IPT_tdstKeyWordElement
-        pop     ebx
-        mov     dword ptr [IPT_g_hNextParameter], esi
-        pop     esi
-        fstp    st(0)
-        pop     edi
-        ret
+    unsigned char ucReturn;
+    INO_tdstDevice *hDevice;
+    long lAxis, lMinValue, lMaxValue;
+    float dfPosition, dfTest;
+    long lTest;
+
+    if (IPT_pc_g_bMouseEnabled == 0)
+    {
+        IPT_g_hNextParameter = _hKeyWordElement + 4;
+        return IPT_C_FALSE;
     }
+
+    hDevice = IPT_g_hInputStructure.a_hINODevice[IPT_E_MouseDeviceEvent];
+
+    IPT_g_hNextParameter = _hKeyWordElement + 1;
+    lAxis = IPT_g_hNextParameter->u_ElementUnion.swValue;
+
+    IPT_g_hNextParameter++;
+    lMinValue = IPT_g_hNextParameter->u_ElementUnion.swValue;
+
+    IPT_g_hNextParameter++;
+    lMaxValue = IPT_g_hNextParameter->u_ElementUnion.swValue;
+
+    if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_MouseDeviceEvent] == IPT_C_ActivateMouseDevice)
+    {
+        switch (lAxis)
+        {
+            case 0:
+                dfPosition = (float)((INO_pc_tdstMouseState *)hDevice->p_stState)->lRawX * *(const float *)&IPT_KW_ulInv255F;
+                break;
+            case 1:
+                dfPosition = (float)((INO_pc_tdstMouseState *)hDevice->p_stState)->lRawY * *(const float *)&IPT_KW_ulInv255F;
+                break;
+            case 2:
+                dfPosition = (float)((INO_pc_tdstMouseState *)hDevice->p_stState)->lRawZ * *(const float *)&IPT_KW_ulInv255F;
+                break;
+        }
+    }
+
+    dfTest = dfPosition * *(const float *)&IPT_KW_ulHundredF;
+    lTest = (long)dfTest;
+    ucReturn = (lTest >= lMinValue && lTest <= lMaxValue) ? IPT_C_TRUE : IPT_C_FALSE;
+
+    if (ucReturn == IPT_C_TRUE)
+        IPT_g_h_ActualEntryInput->xAnalogicValue = dfTest;
+
+    IPT_g_hNextParameter++;
+
+    return ucReturn;
 }
 
 /* 0x00430540 */
-__declspec(naked) unsigned char __cdecl
-IPT_fn_bIsKeyWordValid_MouseAxePosition(IPT_tdstKeyWordElement *_hKeyWordElement)
+unsigned char __cdecl IPT_fn_bIsKeyWordValid_MouseAxePosition(IPT_tdstKeyWordElement *_hKeyWordElement)
 {
-    (void)_hKeyWordElement;
-    __asm {
-        mov     eax, dword ptr [IPT_pc_g_bMouseEnabled]
-        push    ebx
-        xor     bl, bl
-        test    eax, eax
-        jnz     Lactive
-        mov     eax, dword ptr [esp + 0x8]
-        add     eax, 4*TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], eax
-        xor     al, al
-        pop     ebx
-        ret
-    Lactive:
-        mov     ecx, dword ptr [esp + 0x8]
-        mov     edx, dword ptr IPT_g_hInputStructure.a_hINODevice[IPT_E_MouseDeviceEvent*4]
-        lea     eax, [ecx + TYPE IPT_tdstKeyWordElement]
-        mov     dword ptr [IPT_g_hNextParameter], eax
-        movsx   ecx, word ptr [eax]IPT_tdstKeyWordElement.u_ElementUnion.swValue
-        add     eax, 2*TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], eax
-        mov     al, byte ptr IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_MouseDeviceEvent]
-        cmp     al, IPT_C_ActivateMouseDevice
-        jnz     Ldef
-        mov     eax, ecx
-        sub     eax, 0x0
-        jz      Lsel0
-        dec     eax
-        jnz     Ldef
-        mov     eax, dword ptr [edx]INO_tdstDevice.p_stState
-        fld     dword ptr [eax]INO_pc_tdstMouseState.fPosY
-        fild    dword ptr [eax]INO_pc_tdstMouseState.lRawY
-        jmp     Lcmp
-    Lsel0:
-        mov     eax, dword ptr [edx]INO_tdstDevice.p_stState
-        fld     dword ptr [eax]INO_pc_tdstMouseState.fPosX
-        fild    dword ptr [eax]INO_pc_tdstMouseState.lRawX
-    Lcmp:
-        fmul    dword ptr [IPT_KW_ulInv255F]
-        fcomp   dword ptr [IPT_KW_ulZeroF]
-        fnstsw  ax
-        test    ah, 0x40
-        jnz     Lstore
-        mov     bl, 0x1
-        jmp     Lstore
-    Ldef:
-        fld     dword ptr [esp + 0x8]
-    Lstore:
-        fmul    dword ptr [IPT_KW_ulHundredF]
-        mov     edx, dword ptr [IPT_g_h_ActualEntryInput]
-        fstp    dword ptr [edx]IPT_tdstEntryElement.xAnalogicValue
-        mov     eax, dword ptr [IPT_g_hNextParameter]
-        add     eax, TYPE IPT_tdstKeyWordElement
-        mov     dword ptr [IPT_g_hNextParameter], eax
-        mov     al, bl
-        pop     ebx
-        ret
+    unsigned char ucReturn = IPT_C_FALSE;
+    INO_tdstDevice *hDevice;
+    long lAxis;
+    float dfPosition;
+
+    if (IPT_pc_g_bMouseEnabled == 0)
+    {
+        IPT_g_hNextParameter = _hKeyWordElement + 4;
+        return IPT_C_FALSE;
     }
+
+    hDevice = IPT_g_hInputStructure.a_hINODevice[IPT_E_MouseDeviceEvent];
+
+    IPT_g_hNextParameter = _hKeyWordElement + 1;
+    lAxis = IPT_g_hNextParameter->u_ElementUnion.swValue;
+
+    IPT_g_hNextParameter++;
+    IPT_g_hNextParameter++;
+
+    if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[IPT_E_MouseDeviceEvent] == IPT_C_ActivateMouseDevice)
+    {
+        switch (lAxis)
+        {
+            case 0:
+                dfPosition = ((INO_pc_tdstMouseState *)hDevice->p_stState)->fPosX;
+                if ((float)((INO_pc_tdstMouseState *)hDevice->p_stState)->lRawX * *(const float *)&IPT_KW_ulInv255F != *(const float *)&IPT_KW_ulZeroF)
+                    ucReturn = IPT_C_TRUE;
+                break;
+            case 1:
+                dfPosition = ((INO_pc_tdstMouseState *)hDevice->p_stState)->fPosY;
+                if ((float)((INO_pc_tdstMouseState *)hDevice->p_stState)->lRawY * *(const float *)&IPT_KW_ulInv255F != *(const float *)&IPT_KW_ulZeroF)
+                    ucReturn = IPT_C_TRUE;
+                break;
+        }
+    }
+
+    IPT_g_h_ActualEntryInput->xAnalogicValue = dfPosition * *(const float *)&IPT_KW_ulHundredF;
+
+    IPT_g_hNextParameter++;
+
+    return ucReturn;
 }
 
 /* 0x004305E0 */

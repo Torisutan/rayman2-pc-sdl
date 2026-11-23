@@ -525,7 +525,7 @@ long __cdecl GLI_lLensFlareExist(void *p_vRef)
 }
 
 /* 0x0042a980 */
-void __cdecl FUN_0042a980(unsigned long arg)
+void __cdecl FUN_0042a980(unsigned long arg, unsigned long argExtra)
 {
     GLI_g_ul4a72b0 = arg;
 }

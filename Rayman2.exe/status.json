@@ -816,7 +816,7 @@
 "name": "fn_vChangeViewPortPercent",
 "src": "src/GLI/GLD.c",
 "len": 407,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00405010",
@@ -6660,8 +6660,8 @@
 "addr": "0x00423DA0",
 "name": "GLI_pc_fn_vOffsetPointBySinusEffect",
 "src": "src/GLI/Object.c",
-"len": 182,
-"verdict": "MISMATCH"
+"len": 186,
+"verdict": "EXACT"
 },
 {
 "addr": "0x00423E60",
@@ -7599,7 +7599,7 @@
 "name": "GLI_vDoMaterialSelection",
 "src": "src/GLI/Object.c",
 "len": 780,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0042A720",
@@ -7648,7 +7648,7 @@
 "name": "GLI_xSendObjectToViewportWithLights",
 "src": "src/GLI/Object.c",
 "len": 911,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0042AE70",
@@ -7739,7 +7739,7 @@
 "name": "GLI_pc_fn_vBlendScanlineRGB",
 "src": "src/GLI/GLD.c",
 "len": 553,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0042B6B0",
@@ -7815,8 +7815,8 @@
 "addr": "0x0042BD20",
 "name": "GLD_vGetFrontBufferIn24BitsAA",
 "src": "src/GLI/GLD.c",
-"len": 1187,
-"verdict": "EXACT"
+"len": 1169,
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0042C1D0",
@@ -8494,21 +8494,21 @@
 "addr": "0x0042F390",
 "name": "IPT_fn_bIsKeyWordValid_JoystickAngularValue",
 "src": "src/IPT/IPT_Kwan.c",
-"len": 330,
+"len": 345,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0042F590",
 "name": "IPT_fn_bIsKeyWordValid_JoystickTrueNormValue",
 "src": "src/IPT/IPT_Kwan.c",
-"len": 278,
+"len": 293,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0042F750",
 "name": "IPT_fn_bIsKeyWordValid_JoystickCorrectedNormValue",
 "src": "src/IPT/IPT_Kwan.c",
-"len": 421,
+"len": 417,
 "verdict": "MISMATCH"
 },
 {
@@ -8723,7 +8723,7 @@
 },
 {
 "addr": "0x004315B0",
-"name": "HIE_pc_fn_lGetFrameTableEntryCount",
+"name": "HIE_pc_fn_sGetFrameTableEntryCount",
 "src": "src/HIE/HieDraw.c",
 "len": 17,
 "verdict": "EXACT"
@@ -15901,42 +15901,42 @@
 "name": "GLI_RefreshUiSurfaceIfVisible",
 "src": "src/GLI/Texture.c",
 "len": 213,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0045EFB0",
 "name": "GLI_RefreshUiSurfaceUnsynchronized",
 "src": "src/GLI/Texture.c",
 "len": 125,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0045F030",
 "name": "GLI_BlendPixelIntoUiSurface",
 "src": "src/GLI/Texture.c",
 "len": 1007,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0045F420",
 "name": "GLI_DrawProgressBarFrameAndFill",
 "src": "src/GLI/Texture.c",
 "len": 266,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0045F530",
 "name": "GLI_FillProgressBarSpan",
 "src": "src/GLI/Texture.c",
 "len": 688,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0045F7E0",
 "name": "GLI_AddToProgressBar",
 "src": "src/GLI/Texture.c",
 "len": 148,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0045F880",
@@ -15998,7 +15998,7 @@
 "addr": "0x004600C0",
 "name": "AGO_vCreatePart",
 "src": "src/AGO/AGO.c",
-"len": 967,
+"len": 969,
 "verdict": "MISMATCH"
 },
 {
@@ -16061,7 +16061,7 @@
 "addr": "0x00460A10",
 "name": "AGO_vDisplayPart",
 "src": "src/AGO/AGO.c",
-"len": 1757,
+"len": 1755,
 "verdict": "MISMATCH"
 },
 {
@@ -16131,7 +16131,7 @@
 "addr": "0x004626B0",
 "name": "CreateType35AGO",
 "src": "src/AGO/AGO.c",
-"len": 395,
+"len": 393,
 "verdict": "MISMATCH"
 },
 {
@@ -16223,7 +16223,7 @@
 "name": "AGO_Define_OrthogonalVectors",
 "src": "src/AGO/AGO.c",
 "len": 368,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00465850",

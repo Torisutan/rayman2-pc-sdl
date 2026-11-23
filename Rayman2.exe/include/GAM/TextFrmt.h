@@ -28,10 +28,12 @@ void  __cdecl TFMT_vInitFormatterStatus(TFMT_tdstStatus *_p_stStatus,
                                         HIE_tdstSuperObject *_hSuperObjPerso,
                                         MTH_tdxReal _xScreenWidth);
 
+#ifndef AI_RT_TFMT_wPositionModulesAccordingToText
 short __cdecl TFMT_wPositionModulesAccordingToText(
     TFMT_tdstStatus *_p_stStatus, HIE_tdstSuperObject *_hSuperObjPerso,
     char *_pszText, long _lStart, long _lEnd, MTH_tdxReal _xScreenWidth,
     TFMT_tdstLineResults *_d_stLineResults, short _wNbLines);
+#endif
 
 /* 0x00408590 */
 void __cdecl TFMT_vSetDefaultValuesCharacter(

@@ -92,11 +92,12 @@ ACP_tdxBool HIE_fn_bLoadIdentity(void)
 extern POS_tdstCompletePosition *g_p_stCurrentInCamCoordsMatrix;   /* 0x00514D64 */
 #include "GLD/GLD_Pub.h"
 #include "GLI/Vpt3D.h"
-int HIE_fn_bInitCameraMatrixStack(struct GLD_tdstViewportAttributes_ *_hVpt)
+
+int HIE_fn_bInitCameraMatrixStack(void *_hVpt)
 {
     HIE_g_lNbMatrixInCameraStack = 0;
 
-    memcpy(&HIE_g_a_stCameraMatrixStack[0], &((( GLI_tdstSpecificAttributesFor3D *)_hVpt->p_vSpecificToXD)->p_stCam)->stMatrix, sizeof(POS_tdstCompletePosition));
+    memcpy(&HIE_g_a_stCameraMatrixStack[0], &((( GLI_tdstSpecificAttributesFor3D *)((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam)->stMatrix, sizeof(POS_tdstCompletePosition));
     HIE_g_lNbMatrixInCameraStack++;
     HIE_g_p_stCurrentInCamCoordsMatrix = &HIE_g_a_stCameraMatrixStack[HIE_g_lNbMatrixInCameraStack - 1];
     return 1;

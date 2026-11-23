@@ -16,7 +16,7 @@ extern CRITICAL_SECTION g_csMmg;
 void *__cdecl fn_p_vDynAlloc(uint32_t ulSize, unsigned char);
 void  __cdecl fn_vDynFree(void *pUser, unsigned char);
 
-void *__cdecl fn_p_vStaAlloc(uint32_t ulSize, unsigned char ulHeapId);
+void *__cdecl fn_p_vStaAlloc(unsigned long ulSize, unsigned char ulHeapId);
 void  __cdecl fn_vStaFree(void *pUser, uint32_t ulHeapId);
 void *__cdecl fn_p_vGenAlloc(uint32_t ulSize, uint32_t ulHeapId);
 void  __cdecl fn_vGenFree(void *pUser, uint32_t ulHeapId);

@@ -2,6 +2,7 @@
 #include "GLI/Object.h"
 #include "GLI/GLI_globals.h"
 #include "GLI/Material.h"
+#include "GLI/mater_st.h"
 #include "GLI/Proj.h"
 #include "POS/POS_types.h"
 #include "MTH/MTH3D.h"
@@ -48,9 +49,9 @@ struct GLD_tdstViewportAttributes
     short         hViewport;
 };
 
-void GEO_vTurnLookAt(void *p_stObj, void *hVpt, void *p_stCurrentMatrix);
+void GEO_vTurnLookAt(GEO_tdstGeometricObject *p_stObj, void *hVpt, POS_tdstCompletePosition *p_stCurrentMatrix);
 void __cdecl FUN_00428da0(int base, short *p, int idx, int arg4);
-extern void *GLI_gs_aDEF_p_CurrentListOfLight[];
+extern void *GLI_gs_aDEF_p_CurrentListOfLight[300];
 /* 0x0041DAC0 */
 ACP_tdxBool GEO_bIsLookAt(struct GEO_tdstGeometricObject_ *p_stObj);
 
@@ -582,557 +583,255 @@ void __cdecl GLI_pc_fn_vSetSinusEffectVertexColors();         /* 0x00423D00 */
 void __cdecl GLI_pc_fn_vDispatchLightsByType();               /* 0x00428CB0 */
 extern unsigned long GLI_g_ul4a72b0_storage;                   /* 0x004A72B0 */
 extern int g_lActiveLightCount;                                /* 0x00503D4C */
-__declspec(naked)
 void __cdecl GLI_vDoMaterialSelection(
     struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals)
 {
-    (void)p_stGlobals;
-    __asm {
-        /* 0x42a410 */
-        push ecx
-        push ebx
-        push ebp
-        push esi
-        mov  esi, dword ptr [esp + 0x14]
-        mov  eax, dword ptr [esi + 0x0c]
-        test ah, 0x01
-        push edi
-        jz   GLI_vDMS_substitute_default
-        mov  ecx, dword ptr [esi + 0x2d3b8]
-        test ecx, ecx
-        jnz  GLI_vDMS_have_material
-    GLI_vDMS_substitute_default:
-        mov  ecx, dword ptr [GLI_AA_DefaultMaterial]
-        mov  dword ptr [esi + 0x2d3b8], ecx
-    GLI_vDMS_have_material:
-        mov  ecx, dword ptr [esi + 0x2d3b8]
-        and  eax, dword ptr [ecx]
-        push ecx
-        mov  dword ptr [esi + 0x10], eax
-        call GLI_pc_vRefreshOneCyclingTexture
-        mov  edx, dword ptr [esi + 0x2d3b8]
-        mov  eax, dword ptr [edx + 0x48]
-        add  esp, 0x4
-        push esi
-        mov  dword ptr [esi + 0x2d3b4], eax
-        call dword ptr [GLI_DRV_g_vDoOpaqueTextureSelection] /* 0x504528 */
-        mov  eax, dword ptr [esi + 0x10]
-        add  esp, 0x4
-        test eax, 0x400000
-        jnz  GLI_vDMS_skip_pre_setup
-        push esi
-        call GLI_pc_vProjectVerticesToScreen
-        add  esp, 0x4
-    GLI_vDMS_skip_pre_setup:
-        mov  ebp, dword ptr [esi + 0x10]
-        and  ebp, 0x8
-        mov  dword ptr [esp + 0x10], ebp
-        jz   GLI_vDMS_compute_normal_alpha
-        /* 0x49c63c */
-        fld  dword ptr [GLI_K_xOne]
-        or   edi, 0xffffffff
-        jmp  GLI_vDMS_after_alpha_compute
-    GLI_vDMS_compute_normal_alpha:
-        fld  dword ptr [esi + 0x2d408]
-        fcomp qword ptr [GLI_OBJ_K_dOne_bits]
-        fnstsw ax
-        test ah, 0x40
-        jz   GLI_vDMS_alpha_not_unit
+    struct GLI_tdstTexture    *p_stTexture;
+    unsigned long              ulColor;
+    unsigned long              ulFlatMode;
+    unsigned long              ulBits;
+    float                      xVar11;
+    float                      xTmp;
+    long                       lR;
+    long                       lG;
+    long                       lB;
 
-        fld  dword ptr [GLI_PRJ_K_xHalf]
-        or   edi, 0xffffffff
-        jmp  GLI_vDMS_after_alpha_compute
-    GLI_vDMS_alpha_not_unit:
-        fld  dword ptr [esi + 0x2d408]
-        mov  ebx, dword ptr [esi + 0x2d3b8]
-        fsub dword ptr [GLI_OBJ_K_xM49152_bits]
-        fstp dword ptr [esp + 0x18]
-        fld  dword ptr [ebx + 0x04]
-        mov  edi, dword ptr [esp + 0x18]
-        fmul dword ptr [GLI_OBJ_K_x255_bits]
-        shl  edi, 0x8
-        call _ftol
-        fld  dword ptr [ebx + 0x08]
-        fmul dword ptr [GLI_OBJ_K_x255_bits]
-        and  eax, 0xff
-        or   edi, eax
-        shl  edi, 0x8
-        call _ftol
-        fld  dword ptr [ebx + 0x0c]
-        fmul dword ptr [GLI_OBJ_K_x255_bits]
-        and  eax, 0xff
-        or   edi, eax
-        shl  edi, 0x8
-        call _ftol
-        fld  dword ptr [esi + 0x2d408]
-        fmul dword ptr [GLI_PRJ_K_xHalf]
-        and  eax, 0xff
-        or   edi, eax
-    GLI_vDMS_after_alpha_compute:
-
-        mov  eax, dword ptr [esi + 0x2d3b4]
-        test eax, eax
-        jz   GLI_vDMS_skip_texture_override
-        mov  ecx, dword ptr [eax + 0x14]
-        test ch, 0x2
-        jz   GLI_vDMS_skip_texture_override
-        mov  ebp, dword ptr [esi + 0x2d3b8]
-        fld  dword ptr [ebp + 0x08]
-        fmul dword ptr [GLI_OBJ_K_x255_bits]
-        call _ftol
-        fld  dword ptr [ebp + 0x04]
-        fmul dword ptr [GLI_OBJ_K_x255_bits]
-        xor  ebx, ebx
-        mov  bl, al
-        call _ftol
-        fld  dword ptr [ebp + 0x0c]
-        fmul dword ptr [GLI_OBJ_K_x255_bits]
-        mov  bh, al
-        and  edi, 0xff000000
-        shl  ebx, 0x8
-        or   ebx, edi
-        call _ftol
-        mov  ebp, dword ptr [esp + 0x10]
-        and  eax, 0xff
-        or   ebx, eax
-        mov  edi, ebx
-    GLI_vDMS_skip_texture_override:
-
-        mov  edx, dword ptr [esi + 0x2d3b8]
-        fld  dword ptr [esi + 0x28494]
-        mov  dword ptr [esi + 0x2d3d4], edi
-        lea  ecx, [edx + 0x4]
-        mov  ebx, dword ptr [ecx]
-        lea  eax, [esi + 0x2d2c4]
-        mov  edi, eax
-        mov  dword ptr [edi], ebx
-        mov  ebx, dword ptr [ecx + 0x4]
-        mov  dword ptr [edi + 0x4], ebx
-        mov  ebx, dword ptr [ecx + 0x8]
-        mov  dword ptr [edi + 0x8], ebx
-        mov  ecx, dword ptr [ecx + 0x0c]
-        mov  dword ptr [edi + 0x0c], ecx
-        add  edx, 0x14
-        mov  ebx, dword ptr [edx]
-        lea  ecx, [esi + 0x2d2d4]
-        mov  edi, ecx
-        mov  dword ptr [edi], ebx
-        mov  ebx, dword ptr [edx + 0x4]
-        mov  dword ptr [edi + 0x4], ebx
-        mov  ebx, dword ptr [edx + 0x8]
-        mov  dword ptr [edi + 0x8], ebx
-        mov  edx, dword ptr [edx + 0x0c]
-        mov  dword ptr [edi + 0x0c], edx
-        fmul dword ptr [ecx]
-        xor  edi, edi
-        cmp  ebp, edi
-        fadd dword ptr [eax]
-        fstp dword ptr [eax]
-        fld  dword ptr [esi + 0x28498]
-        fmul dword ptr [esi + 0x2d2d8]
-        fadd dword ptr [esi + 0x2d2c8]
-        fstp dword ptr [esi + 0x2d2c8]
-        fld  dword ptr [esi + 0x2849c]
-        fmul dword ptr [esi + 0x2d2dc]
-        fadd dword ptr [esi + 0x2d2cc]
-        fstp dword ptr [esi + 0x2d2cc]
-        fld  dword ptr [esi + 0x284a0]
-        fmul dword ptr [esi + 0x2d2e0]
-        fadd dword ptr [esi + 0x2d2d0]
-        fstp dword ptr [esi + 0x2d2d0]
-        jz   GLI_vDMS_check_fog_override
-
-        mov  dword ptr [esi + 0x2d2e0], edi
-        mov  dword ptr [esi + 0x2d2d0], 0x3f800000
-        jmp  GLI_vDMS_after_flat_check
-    GLI_vDMS_check_fog_override:
-        test dword ptr [esi + 0x10], 0x4000000
-        jz   GLI_vDMS_after_flat_check
-        fst  dword ptr [esi + 0x2d2d0]
-        mov  dword ptr [esi + 0x2d2e0], edi
-    GLI_vDMS_after_flat_check:
-
-        mov  edx, dword ptr [esi + 0x2d3b4]
-        cmp  edx, 0x1
-        jz   GLI_vDMS_special_skip
-        cmp  edx, edi
-        jz   GLI_vDMS_special_skip
-        test byte ptr [edx + 0x14], 0x20
-        jz   GLI_vDMS_special_skip
-        test dword ptr [esi + 0x10], 0x4000000
-        jz   GLI_vDMS_special_skip
-        fst  dword ptr [eax]
-        mov  dword ptr [ecx], edi
-        fst  dword ptr [esi + 0x2d2c8]
-        mov  dword ptr [esi + 0x2d2d8], edi
-        fst  dword ptr [esi + 0x2d2cc]
-        mov  dword ptr [esi + 0x2d2dc], edi
-        fstp dword ptr [esi + 0x2d2d0]
-        mov  dword ptr [esi + 0x2d2e0], edi
-        jmp  GLI_vDMS_bias_add
-    GLI_vDMS_special_skip:
-        fstp st(0)
-    GLI_vDMS_bias_add:
-
-        fld  dword ptr [GLI_g_xBrightness_storage]
-        pop  edi
-        fsub dword ptr [GLI_PRJ_K_xHalf]
-        fadd dword ptr [eax]
-        fstp dword ptr [eax]
-
-        fld  dword ptr [GLI_g_xBrightness_storage]
-        fsub dword ptr [GLI_PRJ_K_xHalf]
-        fadd dword ptr [esi + 0x2d2c8]
-        fstp dword ptr [esi + 0x2d2c8]
-
-        fld  dword ptr [GLI_g_xBrightness_storage]
-        fsub dword ptr [GLI_PRJ_K_xHalf]
-        fadd dword ptr [esi + 0x2d2cc]
-        fstp dword ptr [esi + 0x2d2cc]
-
-        fld  dword ptr [GLI_g_xBrightness_storage]
-        fsub dword ptr [GLI_PRJ_K_xHalf]
-        fadd dword ptr [ecx]
-        fstp dword ptr [ecx]
-
-        fld  dword ptr [GLI_g_xBrightness_storage]
-        fsub dword ptr [GLI_PRJ_K_xHalf]
-        fadd dword ptr [esi + 0x2d2d8]
-        fstp dword ptr [esi + 0x2d2d8]
-
-        fld  dword ptr [GLI_g_xBrightness_storage]
-        fsub dword ptr [GLI_PRJ_K_xHalf]
-        fadd dword ptr [esi + 0x2d2dc]
-        fstp dword ptr [esi + 0x2d2dc]
-
-        /* 0x42a717 */
-        pop  esi
-        pop  ebp
-        pop  ebx
-        pop  ecx
-        ret
+    if (((p_stGlobals->lHierachDrawMask & 0x100) == 0) || (p_stGlobals->hCurrentMaterial == 0))
+    {
+        p_stGlobals->hCurrentMaterial = GLI_pc_g_hDefaultMaterial;
     }
+    p_stGlobals->lCurrentDrawMask = p_stGlobals->lHierachDrawMask & (long)p_stGlobals->hCurrentMaterial->ulMaterialType;
+    GLI_pc_vRefreshOneCyclingTexture(p_stGlobals->hCurrentMaterial);
+    p_stGlobals->p_stCurrentTexture = p_stGlobals->hCurrentMaterial->p_stTexture;
+    (*(void (__cdecl **)(void *))GLI_DRV_vDoOpaqueTextureSelection_PTR)(p_stGlobals);
+    if ((p_stGlobals->lCurrentDrawMask & 0x400000) == 0)
+    {
+        GLI_pc_vProjectVerticesToScreen(p_stGlobals);
+    }
+
+    ulFlatMode = p_stGlobals->lCurrentDrawMask & 8;
+    if (ulFlatMode != 0)
+    {
+        xVar11 = GLI_K_xOne;
+        ulColor = 0xffffffff;
+    }
+    else if (p_stGlobals->xGlobalAlpha == 1.0)
+    {
+        xVar11 = GLI_PRJ_K_xHalf;
+        ulColor = 0xffffffff;
+    }
+    else
+    {
+        xTmp = p_stGlobals->xGlobalAlpha - (-49152.0f);
+        ulBits = *(unsigned long *)&xTmp;
+        lR = (long)(p_stGlobals->hCurrentMaterial->stAmbient.xR * 255.0f);
+        lG = (long)(p_stGlobals->hCurrentMaterial->stAmbient.xG * 255.0f);
+        lB = (long)(p_stGlobals->hCurrentMaterial->stAmbient.xB * 255.0f);
+        ulColor = (((ulBits << 8) | ((unsigned long)lR & 0xff)) << 8 | ((unsigned long)lG & 0xff)) << 8
+                | ((unsigned long)lB & 0xff);
+        xVar11 = p_stGlobals->xGlobalAlpha * GLI_PRJ_K_xHalf;
+    }
+
+    p_stTexture = p_stGlobals->p_stCurrentTexture;
+    if (p_stTexture != 0 && (p_stTexture->ulTextureCaps & 0x200) != 0)
+    {
+        lG = (long)(p_stGlobals->hCurrentMaterial->stAmbient.xG * 255.0f);
+        lR = (long)(p_stGlobals->hCurrentMaterial->stAmbient.xR * 255.0f);
+        lB = (long)(p_stGlobals->hCurrentMaterial->stAmbient.xB * 255.0f);
+        ulColor = ((((unsigned long)lG & 0xff) | (((unsigned long)lR & 0xff) << 8)) << 8)
+                | (ulColor & 0xff000000)
+                | ((unsigned long)lB & 0xff);
+    }
+
+    p_stGlobals->ulColorInitForSprite = ulColor;
+    p_stGlobals->GLI_stColorsAdd = p_stGlobals->hCurrentMaterial->stAmbient;
+    p_stGlobals->GLI_stColorsMul = p_stGlobals->hCurrentMaterial->stDiffuse;
+    p_stGlobals->GLI_stColorsAdd.xR = p_stGlobals->GLI_aDEF_stColorsRLIA.xR * p_stGlobals->GLI_stColorsMul.xR
+                                    + p_stGlobals->GLI_stColorsAdd.xR;
+    p_stGlobals->GLI_stColorsAdd.xG = p_stGlobals->GLI_aDEF_stColorsRLIA.xG * p_stGlobals->GLI_stColorsMul.xG
+                                    + p_stGlobals->GLI_stColorsAdd.xG;
+    p_stGlobals->GLI_stColorsAdd.xB = p_stGlobals->GLI_aDEF_stColorsRLIA.xB * p_stGlobals->GLI_stColorsMul.xB
+                                    + p_stGlobals->GLI_stColorsAdd.xB;
+    p_stGlobals->GLI_stColorsAdd.xA = p_stGlobals->GLI_aDEF_stColorsRLIA.xA * p_stGlobals->GLI_stColorsMul.xA
+                                    + p_stGlobals->GLI_stColorsAdd.xA;
+
+    if (ulFlatMode != 0)
+    {
+        p_stGlobals->GLI_stColorsMul.xA = 0.0f;
+        p_stGlobals->GLI_stColorsAdd.xA = 1.0f;
+    }
+    else if ((p_stGlobals->lCurrentDrawMask & 0x4000000) != 0)
+    {
+        p_stGlobals->GLI_stColorsAdd.xA = xVar11;
+        p_stGlobals->GLI_stColorsMul.xA = 0.0f;
+    }
+
+    p_stTexture = p_stGlobals->p_stCurrentTexture;
+    if (p_stTexture != (struct GLI_tdstTexture *)1 && p_stTexture != 0
+        && (p_stTexture->ulTextureCaps & 0x20) != 0
+        && (p_stGlobals->lCurrentDrawMask & 0x4000000) != 0)
+    {
+        p_stGlobals->GLI_stColorsAdd.xR = xVar11;
+        p_stGlobals->GLI_stColorsMul.xR = 0.0f;
+        p_stGlobals->GLI_stColorsAdd.xG = xVar11;
+        p_stGlobals->GLI_stColorsMul.xG = 0.0f;
+        p_stGlobals->GLI_stColorsAdd.xB = xVar11;
+        p_stGlobals->GLI_stColorsMul.xB = 0.0f;
+        p_stGlobals->GLI_stColorsAdd.xA = xVar11;
+        p_stGlobals->GLI_stColorsMul.xA = 0.0f;
+    }
+
+    xTmp = GLI_g_xBrightness_storage - GLI_PRJ_K_xHalf;
+    p_stGlobals->GLI_stColorsAdd.xR = xTmp + p_stGlobals->GLI_stColorsAdd.xR;
+    p_stGlobals->GLI_stColorsAdd.xG = xTmp + p_stGlobals->GLI_stColorsAdd.xG;
+    p_stGlobals->GLI_stColorsAdd.xB = xTmp + p_stGlobals->GLI_stColorsAdd.xB;
+    p_stGlobals->GLI_stColorsMul.xR = xTmp + p_stGlobals->GLI_stColorsMul.xR;
+    p_stGlobals->GLI_stColorsMul.xG = xTmp + p_stGlobals->GLI_stColorsMul.xG;
+    p_stGlobals->GLI_stColorsMul.xB = xTmp + p_stGlobals->GLI_stColorsMul.xB;
 }
 
 extern void *g_p_stCurrentInCamCoordsMatrix;   /* 0x00514D64 */
 /* 0x0042AAE0 */
-__declspec(naked)
 void __cdecl GLI_xSendObjectToViewportWithLights(
     struct GLD_tdstViewportAttributes *p_stVpt,
     void                              *p_stObj,
     long                               lDrawModeMask)
 {
-    (void)p_stVpt; (void)p_stObj; (void)lDrawModeMask;
-    __asm {
+    struct GEO_tdstGeometricObject_ *p_stGeo;
+    struct GLI_tdstCamera_          *p_stCam;
+    POS_tdstCompletePosition         stSavedMatrix;
+    unsigned long                    ulSavedRadius;
+    unsigned long                    ulTexOverride;
+    long                             lMask;
+    long                             lCount;
+    long                             i;
 
-        sub  esp, 0x60
-        push ebx
-        push ebp
-        push esi
-        push edi
-        mov  edi, dword ptr [esp + 0x78]
-        cmp  word ptr [edi + 0x2c], 0x9c4
-        jg   GLI_xSOTV_epilogue
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        mov  ebx, dword ptr [esp + 0x74]
-        mov  ebp, dword ptr [ebx + 0x68]
-        mov  eax, dword ptr [esp + 0x7c]
-        mov  dword ptr [ecx], ebx
-        mov  edx, dword ptr [GLI_BIG_GLOBALS]
-        or   eax, 0x100000
-        mov  dword ptr [edx + 0x0c], eax
-        mov  dword ptr [esp + 0x7c], eax
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        xor  esi, esi
-        mov  dword ptr [eax + 0x18], esi
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        mov  dword ptr [ecx + 0x04], edi
-        mov  edx, dword ptr [GLI_BIG_GLOBALS]
-        mov  eax, dword ptr [GLI_g_p_stCurrentMatrix]
-        mov  dword ptr [edx + 0x2d2e8], eax
-        mov  ecx, dword ptr [ebp]
-        mov  edx, dword ptr [GLI_BIG_GLOBALS]
-        add  ecx, 0x0c
-        mov  dword ptr [edx + 0x2d2e4], ecx
-        mov  eax, dword ptr [ebp]
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        mov  dword ptr [ecx + 0x2d3bc], eax
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  edx, dword ptr [eax + 0x2d3bc]
-        push eax
-        mov  eax, dword ptr [edx + 0x6c]
-        push eax
+    p_stGeo = (struct GEO_tdstGeometricObject_ *)p_stObj;
+    if ((short)p_stGeo->xNbPoints > 2500)
+    {
+        return;
+    }
 
-        call dword ptr [GLI_DRV_g_vSetZClip]
+    lMask = lDrawModeMask | 0x100000;
+    GLI_BIG_GLOBALS->p_stVpt = (struct GLD_tdstViewportAttributes_ *)p_stVpt;
+    GLI_BIG_GLOBALS->lHierachDrawMask = lMask;
+    GLI_BIG_GLOBALS->lClippingModeMask = 0;
+    GLI_BIG_GLOBALS->p_stObj = p_stGeo;
+    GLI_BIG_GLOBALS->gs_st_CurrentMatrix = (POS_tdstCompletePosition *)GLI_g_p_stCurrentMatrix;
+    p_stCam = *(struct GLI_tdstCamera_ **)p_stVpt->p_vSpecificToXD;
+    GLI_BIG_GLOBALS->gs_st_CameraMatrix = &p_stCam->stMatrix;
+    GLI_BIG_GLOBALS->p_stCurrentCamera = p_stCam;
+    (*(void (__cdecl **)(unsigned long, void *))GLI_DRV_vSetZClip_PTR)(
+        *(unsigned long *)&p_stCam->xNear, GLI_BIG_GLOBALS);
+    (*(void (__cdecl **)(float, float, float, float, void *))GLI_DRV_vSetClipWindow_PTR)(
+        (float)(__int64)p_stVpt->dwClipLeftInPix,
+        (float)(__int64)p_stVpt->dwClipRightInPix,
+        (float)(__int64)p_stVpt->dwClipTopInPix,
+        (float)(__int64)p_stVpt->dwClipBottomInPix,
+        GLI_BIG_GLOBALS);
 
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        mov  edx, dword ptr [ebx + 0x3c]
-        mov  eax, dword ptr [ebx + 0x38]
-        mov  dword ptr [esp + 0x18], edx
-        mov  edx, dword ptr [ebx + 0x40]
-        add  esp, 0x8                           /* 0x50482c */
-        mov  dword ptr [esp + 0x14], esi
-        fild qword ptr [esp + 0x10]
-        push ecx
-        push ecx
-        mov  dword ptr [esp + 0x18], eax
-        fstp dword ptr [esp]
-        mov  dword ptr [esp + 0x1c], esi
-        fild qword ptr [esp + 0x18]
-        push ecx
-        mov  ecx, dword ptr [ebx + 0x44]
-        mov  dword ptr [esp + 0x1c], ecx
-        fstp dword ptr [esp]
-        mov  dword ptr [esp + 0x20], esi
-        fild qword ptr [esp + 0x1c]
-        push ecx
-        mov  dword ptr [esp + 0x20], edx
-        mov  dword ptr [esp + 0x24], esi
-        fstp dword ptr [esp]
-        push ecx
-        fild qword ptr [esp + 0x24]
-        fstp dword ptr [esp]
+    if (GEO_bIsLookAt(p_stGeo))
+    {
+        stSavedMatrix = *(POS_tdstCompletePosition *)GLI_g_p_stCurrentMatrix;
+        GEO_vTurnLookAt(p_stGeo, p_stVpt, (POS_tdstCompletePosition *)GLI_g_p_stCurrentMatrix);
+        POS_fn_vMulMatrixMatrix(&GLI_BIG_GLOBALS->gs_st_CurrentMatrixMultiplyedWithCameraMatrix,
+                                &p_stCam->stMatrix,
+                                GLI_BIG_GLOBALS->gs_st_CurrentMatrix);
+    }
+    else
+    {
+        GLI_BIG_GLOBALS->gs_st_CurrentMatrixMultiplyedWithCameraMatrix =
+            *(POS_tdstCompletePosition *)g_p_stCurrentInCamCoordsMatrix;
+    }
 
-        call dword ptr [GLI_DRV_g_vSetClipWindow]
-        add  esp, 0x14
-        push edi
-        call GEO_bIsLookAt                      /* 0x41DAC0 */
-        add  esp, 0x4
-        test al, al
-        jz   GLI_xSOTV_no_lod_blend
+    if ((GLI_pc_g_cSinusEffectState == 1 && (lMask & 0x80000000) == 0)
+        || (GLI_pc_g_cSinusEffectState == 2 && (lMask & 0x80000000) != 0)
+        || GLI_pc_g_cSinusEffectState == 3)
+    {
+        ulSavedRadius = *(unsigned long *)&p_stGeo->xBoudingSphereRadius;
+        p_stGeo->xBoudingSphereRadius = p_stGeo->xBoudingSphereRadius
+            - (((GLI_pc_stSinEffectAmp.xX + GLI_pc_stSinEffectAmp.xY) + GLI_pc_stSinEffectAmp.xZ)
+               * (*(const float *)&GLI_OBJ_K_xMinus2_bits));
+        GLI_pc_fn_vComputeObjectClipFlags(GLI_BIG_GLOBALS);
+        *(unsigned long *)&p_stGeo->xBoudingSphereRadius = ulSavedRadius;
+        if ((GLI_BIG_GLOBALS->lClippingModeMask & 0x100) != 0)
+        {
+            GLI_pc_fn_vTransformObjectVerticesSinusClipped(GLI_BIG_GLOBALS);
+        }
+        else
+        {
+            GLI_pc_fn_vTransformObjectVerticesSinus(GLI_BIG_GLOBALS);
+        }
+    }
+    else
+    {
+        GLI_pc_fn_vComputeObjectClipFlags(GLI_BIG_GLOBALS);
+        if ((GLI_BIG_GLOBALS->lClippingModeMask & 0x100) != 0)
+        {
+            GLI_pc_fn_vTransformObjectVerticesClipped(GLI_BIG_GLOBALS);
+        }
+        else
+        {
+            GLI_pc_fn_vTransformObjectVertices(GLI_BIG_GLOBALS);
+        }
+    }
 
-        mov  eax, dword ptr [GLI_g_p_stCurrentMatrix]
-        push eax
-        mov  esi, eax
-        mov  eax, dword ptr [esp + 0x7c]
-        push ebx
-        mov  ecx, 0x16
-        lea  edi, [esp + 0x20]
-        push eax
-        rep  movsd
-        call GEO_vTurnLookAt                    /* 0x0041dad0 */
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  ecx, dword ptr [eax + 0x2d2e8]
-        mov  edx, dword ptr [ebp]
-        add  esp, 0x0c
-        push ecx
-        add  edx, 0x0c
-        push edx
-        add  eax, 0x2d344
-        push eax
-        call POS_fn_vMulMatrixMatrix            /* 0x00445130 */
-        add  esp, 0x0c
-        jmp  GLI_xSOTV_after_lod_branch
+    ulTexOverride = GLI_g_ul4a72b0_storage;
+    if (ulTexOverride != 0 && (lMask & 0x1000) != 0)
+    {
+        lCount = (short)p_stGeo->xNbPoints;
+        FUN_00428da0((int)GLI_BIG_GLOBALS, (short *)ulTexOverride, 0, lCount);
+        if ((lMask & 0x20000000) == 0 || GLI_pc_g_cSinusEffectState == 3)
+        {
+            GLI_pc_fn_vSetSinusEffectVertexColors(GLI_BIG_GLOBALS, 0, lCount);
+        }
+        GLI_g_ul4a72b0_storage = 0;
+    }
+    else
+    {
+        lCount = (short)p_stGeo->xNbPoints;
+        for (i = 0; i < lCount; i++)
+        {
+            GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID[i].xR = 0.0f;
+            GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID[i].xG = 0.0f;
+            GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID[i].xB = 0.0f;
+            GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID[i].xA = 0.0f;
+        }
+    }
 
-    GLI_xSOTV_no_lod_blend:
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  esi, dword ptr [g_p_stCurrentInCamCoordsMatrix] /* 0x00514D64 */
-        lea  edi, [eax + 0x2d344]
-        mov  ecx, 0x16
-        rep  movsd
+    GLI_pc_fn_vDispatchLightsByType(GLI_gs_aDEF_p_CurrentListOfLight,
+                                    p_stGeo,
+                                    &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID,
+                                    &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLIS,
+                                    &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLIA,
+                                    g_lActiveLightCount,
+                                    GLI_BIG_GLOBALS);
+    (*(void (__cdecl **)(void *))GLI_DRV_vComputeFogEffect_PTR)(GLI_BIG_GLOBALS);
 
-    GLI_xSOTV_after_lod_branch:
+    if ((GLI_BIG_GLOBALS->lHierachDrawMask & 0x40000) == 0)
+    {
+        lCount = (short)p_stGeo->xNbPoints;
+        for (i = 0; i < lCount; i++)
+        {
+            GLI_BIG_GLOBALS->GLI_ScreenPoint[i].xOoZ = GLI_BIG_GLOBALS->GLI_ScreenPoint[i].xOoZ
+                                                      - (*(const float *)&GLI_OBJ_K_xMinusEps_bits);
+        }
+    }
 
-        mov  al, byte ptr [GLI_pc_g_cSinusEffectState]
-        cmp  al, 0x1
-        mov  esi, dword ptr [esp + 0x7c]
-        jnz  GLI_xSOTV_check_mode2
-        test esi, 0x80000000
-        jz   GLI_xSOTV_mirror_path
-    GLI_xSOTV_check_mode2:
-        cmp  al, 0x2
-        jnz  GLI_xSOTV_check_mode3
-        test esi, 0x80000000
-        jnz  GLI_xSOTV_mirror_path
-    GLI_xSOTV_check_mode3:
-        cmp  al, 0x3
-        jnz  GLI_xSOTV_standard_path
+    if (GLI_BIG_GLOBALS->lDisplayMenuIsDetected != 0)
+    {
+        lCount = (short)p_stGeo->xNbPoints;
+        for (i = 0; i < lCount; i++)
+        {
+            GLI_BIG_GLOBALS->GLI_ScreenPoint[i].xOoZ = GLI_BIG_GLOBALS->GLI_ScreenPoint[i].xOoZ
+                                                      - (*(const float *)&GLI_OBJ_K_xM0_9_bits);
+        }
+    }
 
-    GLI_xSOTV_mirror_path:
-
-        fld  dword ptr [GLI_pc_stSinEffectAmp]
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        fadd dword ptr [GLI_pc_stSinEffectAmp + 4]
-        mov  eax, dword ptr [ecx + 0x4]
-        mov  edx, dword ptr [eax + 0x34]
-
-        mov  dword ptr [esp + 0x7c], edx
-        fadd dword ptr [GLI_pc_stSinEffectAmp + 8]
-        fmul dword ptr [GLI_OBJ_K_xMinus2_bits]
-        fsubr dword ptr [eax + 0x34]
-        fstp dword ptr [eax + 0x34]
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        push eax
-        call GLI_pc_fn_vComputeObjectClipFlags
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        mov  edx, dword ptr [ecx + 0x4]
-        mov  eax, dword ptr [esp + 0x80]
-        mov  dword ptr [edx + 0x34], eax
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  ecx, dword ptr [eax + 0x18]
-        add  esp, 0x4
-        test ch, 0x1
-        push eax
-        jz   GLI_xSOTV_mirror_dispatch_d020
-        call GLI_pc_fn_vTransformObjectVerticesSinusClipped
-        jmp  GLI_xSOTV_after_dispatch
-    GLI_xSOTV_mirror_dispatch_d020:
-        call GLI_pc_fn_vTransformObjectVerticesSinus
-        jmp  GLI_xSOTV_after_dispatch
-
-    GLI_xSOTV_standard_path:
-        mov  ecx, dword ptr [GLI_BIG_GLOBALS]
-        push ecx
-        call GLI_pc_fn_vComputeObjectClipFlags
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  ecx, dword ptr [eax + 0x18]
-        add  esp, 0x4
-        test ch, 0x1
-        push eax
-        jz   GLI_xSOTV_std_dispatch_cec0
-        call GLI_pc_fn_vTransformObjectVerticesClipped
-        jmp  GLI_xSOTV_after_dispatch
-    GLI_xSOTV_std_dispatch_cec0:
-        call GLI_pc_fn_vTransformObjectVertices
-
-    GLI_xSOTV_after_dispatch:
-        mov  ecx, dword ptr [GLI_g_ul4a72b0_storage]
-        add  esp, 0x4
-        test ecx, ecx
-        jz   GLI_xSOTV_no_tex_override
-        test esi, 0x1000
-        jz   GLI_xSOTV_no_tex_override
-
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  edx, dword ptr [eax + 0x4]
-        movsx edx, word ptr [edx + 0x2c]
-        push edx
-        push 0
-        push ecx
-        push eax
-        call FUN_00428da0
-        add  esp, 0x10
-        test esi, 0x20000000
-        jz   GLI_xSOTV_call_423d00
-        cmp  byte ptr [GLI_pc_g_cSinusEffectState], 0x3
-        jnz  GLI_xSOTV_skip_423d00
-    GLI_xSOTV_call_423d00:
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  ecx, dword ptr [eax + 0x4]
-        movsx edx, word ptr [ecx + 0x2c]
-        push edx
-        push 0
-        push eax
-        call GLI_pc_fn_vSetSinusEffectVertexColors
-        add  esp, 0x0c
-    GLI_xSOTV_skip_423d00:
-        mov  dword ptr [GLI_g_ul4a72b0_storage], 0
-        jmp  GLI_xSOTV_after_tex_path
-
-    GLI_xSOTV_no_tex_override:
-
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        mov  ecx, dword ptr [eax + 0x4]
-        movsx ecx, word ptr [ecx + 0x2c]
-        lea  edi, [eax + 0x14c14]
-        shl  ecx, 0x4
-        add  ecx, edi
-        cmp  edi, ecx
-        jnc  GLI_xSOTV_after_globals_reload
-        sub  ecx, edi
-        add  ecx, 0x3
-        shr  ecx, 0x2
-        xor  eax, eax
-        rep  stosd
-
-    GLI_xSOTV_after_tex_path:
-        /* 0x503760 */
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-    GLI_xSOTV_after_globals_reload:
-        mov  edx, dword ptr [g_lActiveLightCount]
-        push eax
-        push edx
-        lea  ecx, [eax + 0x28494]
-        push ecx
-        lea  edx, [eax + 0x1e854]
-        push edx
-        mov  edx, dword ptr [eax + 0x4]
-        lea  ecx, [eax + 0x14c14]
-        push ecx
-        push edx
-        push OFFSET GLI_gs_aDEF_p_CurrentListOfLight /* 0x503760 */
-        call GLI_pc_fn_vDispatchLightsByType
-        mov  eax, dword ptr [GLI_BIG_GLOBALS]
-        add  esp, 0x1c
-        push eax
-
-        call dword ptr [GLI_DRV_g_vComputeFogEffect]
-        mov  edx, dword ptr [GLI_BIG_GLOBALS]
-        mov  eax, dword ptr [edx + 0x0c]
-        add  esp, 0x4
-        test eax, 0x40000
-        jnz  GLI_xSOTV_skip_first_subtract_loop
-
-        mov  ecx, dword ptr [edx + 0x4]
-        movsx ecx, word ptr [ecx + 0x2c]
-        lea  eax, [edx + 0x9c6c]
-        shl  ecx, 0x4
-        add  ecx, eax
-        cmp  eax, ecx
-        jnc  GLI_xSOTV_skip_first_subtract_loop
-    GLI_xSOTV_first_subtract_loop_top:
-        fld  dword ptr [eax + 0x8]
-        add  eax, 0x10
-        cmp  eax, ecx
-        fsub dword ptr [GLI_OBJ_K_xMinusEps_bits]
-        fstp dword ptr [eax - 0x8]
-        jc   GLI_xSOTV_first_subtract_loop_top
-        mov  edx, dword ptr [GLI_BIG_GLOBALS]
-
-    GLI_xSOTV_skip_first_subtract_loop:
-        mov  eax, dword ptr [edx + 0x2d404]
-        test eax, eax
-        jz   GLI_xSOTV_skip_second_subtract_loop
-        mov  ecx, dword ptr [edx + 0x4]
-        movsx ecx, word ptr [ecx + 0x2c]
-        lea  eax, [edx + 0x9c6c]
-        shl  ecx, 0x4
-        add  ecx, eax
-        cmp  eax, ecx
-        jnc  GLI_xSOTV_skip_second_subtract_loop
-    GLI_xSOTV_second_subtract_loop_top:
-        fld  dword ptr [eax + 0x8]
-        add  eax, 0x10
-        cmp  eax, ecx
-        fsub dword ptr [GLI_OBJ_K_xM0_9_bits]
-        fstp dword ptr [eax - 0x8]
-        jc   GLI_xSOTV_second_subtract_loop_top
-        mov  edx, dword ptr [GLI_BIG_GLOBALS]
-
-    GLI_xSOTV_skip_second_subtract_loop:
-        push edx
-        call GLI_xSendObjectElement             /* 0x0042a990 */
-
-        mov  edx, dword ptr [esp + 0x7c]
-        add  esp, 0x4
-        push edx
-        call GEO_bIsLookAt                      /* 0x41DAC0 */
-        add  esp, 0x4
-        test al, al
-        jz   GLI_xSOTV_epilogue
-        /* 0x00506b00 */
-        mov  edi, dword ptr [GLI_g_p_stCurrentMatrix]
-        mov  ecx, 0x16
-        lea  esi, [esp + 0x18]
-        rep  movsd
-
-    GLI_xSOTV_epilogue:
-        pop  edi
-        pop  esi
-        pop  ebp
-        pop  ebx
-        add  esp, 0x60
-        ret
+    GLI_xSendObjectElement(GLI_BIG_GLOBALS);
+    if (GEO_bIsLookAt(p_stGeo))
+    {
+        *(POS_tdstCompletePosition *)GLI_g_p_stCurrentMatrix = stSavedMatrix;
     }
 }
 

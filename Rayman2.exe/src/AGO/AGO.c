@@ -95,146 +95,43 @@ extern float gs_fCoefOfMultiplicationForAnimatedTexture;
 #define AGO_g_ulVBLTime         (gs_fCoefOfMultiplicationForAnimatedTexture)
 
 /* 0x004656E0 */
-__declspec(naked) void AGO_Define_OrthogonalVectors(
-    MTH3D_tdstVector *p_stDirection, MTH3D_tdstVector *p_stV1, MTH3D_tdstVector *p_stV2)
+void AGO_Define_OrthogonalVectors(MTH3D_tdstVector *p_stDirection, MTH3D_tdstVector *p_stV1, MTH3D_tdstVector *p_stV2)
 {
-    (void)p_stDirection; (void)p_stV1; (void)p_stV2;
-    __asm {
-        sub     esp, 0x2c
-        mov     ecx, [esp+0x30]
-        fld     dword ptr [ecx+8]
-        fchs
-        fstp    dword ptr [esp+0x30]
-        fld     dword ptr [ecx+4]
-        mov     eax, [esp+0x30]
-        fld     dword ptr [ecx+4]
-        fld     dword ptr [ecx]
-        mov     [esp+0x18], eax
-        fld     dword ptr [esp+0x18]
-        fmul    dword ptr [esp+0x18]
-        fxch    st(3)
-        fchs
-        fxch    st(2)
-        fstp    dword ptr [esp+0x1c]
-        fxch    st(2)
-        fadd    dword ptr [esp+0x1c]
-        fld     dword ptr [esp+0x30]
-        fxch    st(2)
-        fst     dword ptr [esp+8]
-        fld     st(3)
-        fxch
-        fmul    dword ptr [esp+8]
-        fxch    st(2)
-        fadd    dword ptr [esp+0x1c]
-        fxch
-        fmul    st, st(4)
-        fld     dword ptr [ecx]
-        fxch    st(4)
-        fst     dword ptr [esp+0x20]
-        fmul    dword ptr [esp+0x20]
-        fxch
-        faddp   st(3), st
-        fxch
+	MTH3D_tdstVector stV1, stV2, stV3;
+	MTH_tdxReal xNorm1, xNorm2, xNorm3;
 
-        _emit 0xD9
-        _emit 0x54
-        _emit 0x24
-        _emit 0x00
-        fxch    st(3)
-        fstp    dword ptr [esp+0x28]
-        fadd    dword ptr [esp+0x28]
-        fxch
-        fstp    dword ptr [esp+0x30]
-        fxch
-        fcomp   dword ptr [esp+0x30]
-        fadd    dword ptr [esp+0x28]
-        fld     dword ptr AGO_ASM_K_C9DC
-        fxch
-        fnstsw  ax
-        fstp    dword ptr [esp+4]
-        test    ah, 0x41
-        jnz     L791
-        fstp    st(0)
-        fstp    st(0)
-        fld     dword ptr [esp+0x18]
-        fld     dword ptr [esp+0x1c]
+	stV1.xX = (-(p_stDirection->xY)); stV1.xY = p_stDirection->xX; stV1.xZ = MTH_C_ZERO;
+	stV2.xX = (-(p_stDirection->xZ)); stV2.xY = MTH_C_ZERO; stV2.xZ = p_stDirection->xX;
+	stV3.xX = MTH_C_ZERO; stV3.xY = (-(p_stDirection->xZ)); stV3.xZ = p_stDirection->xY;
 
-        _emit 0xD9
-        _emit 0x44
-        _emit 0x24
-        _emit 0x00
-        mov     dword ptr [esp+8], 0
-        jmp     L795
-    L791:
-        fld     dword ptr [esp+0x30]
-    L795:
-        fld     dword ptr [esp+4]
-        fcomp   st(1)
-        fnstsw  ax
-        test    ah, 0x41
-        jnz     L7be
-        fstp    st(0)
-        mov     edx, [esp+0x20]
-        fstp    st(0)
-        fstp    st(0)
-        fld     dword ptr AGO_ASM_K_C9DC
-        fld     dword ptr [esp+0x28]
-        fld     dword ptr [esp+4]
-        mov     [esp+8], edx
-    L7be:
-        fsqrt
-        mov     eax, [esp+0x38]
-        fdivr   dword ptr AGO_ASM_K_CA2C
-        fst     dword ptr [esp+0x30]
-        fld     dword ptr [esp+0x30]
-        fxch
-        fmul    st, st(3)
-        fld     dword ptr [esp+0x30]
-        fxch    st(2)
-        fmul    st, st(3)
-        fxch
-        fst     dword ptr [esp+0xc]
-        fxch
-        fst     dword ptr [esp+0x10]
-        fmul    dword ptr [ecx+4]
-        fld     dword ptr [esp+0xc]
-        fxch    st(2)
-        fmul    dword ptr [ecx+8]
-        fld     dword ptr [esp+0x10]
-        fxch    st(4)
-        fmul    dword ptr [esp+8]
-        fxch
-        fsubp   st(2), st
-        fst     dword ptr [esp+8]
-        fxch
-        fstp    dword ptr [eax]
-        fld     dword ptr [ecx]
-        fxch
-        fmul    dword ptr [ecx+8]
-        fld     dword ptr [esp+8]
-        fxch    st(2)
-        fmul    dword ptr [esp+0x10]
-        fld     dword ptr [esp+8]
-        fxch
-        fsubp   st(2), st
-        fxch
-        fstp    dword ptr [eax+4]
-        fld     dword ptr [ecx]
-        fmul    dword ptr [esp+0xc]
-        fxch    st(2)
-        fmul    dword ptr [ecx+4]
-        fsubp   st(2), st
-        fxch
-        fstp    dword ptr [eax+8]
-        mov     eax, [esp+0x34]
-        fstp    dword ptr [eax]
-        fstp    dword ptr [eax+4]
-        fstp    dword ptr [eax+8]
-        fstp    st(0)
-        fstp    st(0)
-        add     esp, 0x2c
-        ret
-    }
+	xNorm1 = MTH3D_M_xSqrVector(&stV1);
+	xNorm2 = MTH3D_M_xSqrVector(&stV2);
+	xNorm3 = MTH3D_M_xSqrVector(&stV3);
+
+	if (MTH_M_bGreater(xNorm3, xNorm1))
+	{
+		stV1.xX = stV3.xX;
+		stV1.xY = stV3.xY;
+		stV1.xZ = stV3.xZ;
+		xNorm1 = xNorm3;
+	}
+	if (MTH_M_bGreater(xNorm2, xNorm1))
+	{
+		stV1.xX = stV2.xX;
+		stV1.xY = stV2.xY;
+		stV1.xZ = stV2.xZ;
+		xNorm1 = xNorm2;
+	}
+
+	MTH3D_M_vNormalizeVector(&stV1, &stV1);
+
+	p_stV2->xX = MTH_M_xMulSubMul(p_stDirection->xY, stV1.xZ, p_stDirection->xZ, stV1.xY);
+	p_stV2->xY = MTH_M_xMulSubMul(p_stDirection->xZ, stV1.xX, p_stDirection->xX, stV1.xZ);
+	p_stV2->xZ = MTH_M_xMulSubMul(p_stDirection->xX, stV1.xY, p_stDirection->xY, stV1.xX);
+
+	p_stV1->xX = stV1.xX;
+	p_stV1->xY = stV1.xY;
+	p_stV1->xZ = stV1.xZ;
 }
 
 /* 0x00460020 */

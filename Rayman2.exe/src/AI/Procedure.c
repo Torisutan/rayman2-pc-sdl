@@ -38,8 +38,8 @@
 
 extern void __cdecl fn_vInitActionTable(AI_tdstIntelligence *p_stIntelligence);
 
-extern void __cdecl MEC_vTurnAroundZAxis(void *p_stDynamic, float xAngle);
-extern void __cdecl MEC_vTurnAbsolute(void *p_stDynamic, void *p_stVector);
+extern void __cdecl MEC_vTurnAroundZAxis(DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xAngle);
+extern void __cdecl MEC_vTurnAbsolute(DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stVector);
 /* 0x00480980 */
 extern AI_tdstNodeInterpret *__cdecl fn_p_stSwapNextParameter2(AI_tdstNodeInterpret *p_stTree);
 
@@ -52,7 +52,7 @@ extern void          __cdecl IPT_fn_vActivateEntryElement(void *hEntryElement);
 extern void          __cdecl IPT_fn_vDesactivateEntryElement(void *hEntryElement);
 extern unsigned char __cdecl IPT_fn_bModifyIPTAction(void *hElementToChange, void *hReplacingElement);
 extern void __cdecl fn_vSetProcedureActionReturn(unsigned char ucActionReturn);
-extern void *__cdecl fn_hGetStateMechanicsIdCard(void *h_State);
+extern void *__cdecl fn_hGetStateMechanicsIdCard(tdxHandleToState h_State);
 extern void __cdecl fn_vSetHitPointsToInitValue(void *p_stObject);
 extern void __cdecl fn_vSetHitPointsMaxToInitValue(void *p_stObject);
 extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
@@ -1206,7 +1206,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stChangeMyComportIntelligenceAndReflexProcedu
 }
 
 extern ACP_tdxBool __cdecl PLA_fn_bSetNewState(HIE_tdstSuperObject *p_stSuperObject,
-                                               void *h_WantedState, ACP_tdxBool _bForce,
+                                               tdxHandleToState h_WantedState, ACP_tdxBool _bForce,
                                                ACP_tdxBool _bHandleSkippedEventsIfRelevant,
                                                ACP_tdxBool _bPcSkipTransition);  /* 0x0040FAA0 */
 extern ACP_tdxBool __cdecl PLA_fn_bSetNewStateWithRandom(HIE_tdstSuperObject *p_stSuperObject, void *h_WantedState);
@@ -1696,9 +1696,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stLinkTableProcedure(
     return p_stTree;
 }
 
-extern unsigned short __cdecl fn_uwGetObjectTableNumberOfelements(void *_hTargetTable);
+extern unsigned short __cdecl fn_uwGetObjectTableNumberOfelements(tdxHandleToObjectsTablesList _hTargetTable);
 #define AI_M_pfn_fn_uwGetObjectTableNb ((short (__cdecl *)(void *))fn_uwGetObjectTableNumberOfelements)
-extern void __cdecl fn_vCopyObjectFromObjectTabletoAnother(void *_hTargetTable, void *_hSourceTable, unsigned short _uwTargetObject, unsigned short _uwSourceObject);
+extern void __cdecl fn_vCopyObjectFromObjectTabletoAnother(tdxHandleToObjectsTablesList _hTargetTable, tdxHandleToObjectsTablesList _hSourceTable,unsigned short _uwTargetObject, unsigned short _uwSourceObject);
 #define AI_M_pfn_fn_vCopyObjectInTable fn_vCopyObjectFromObjectTabletoAnother
 
 /* 0x004687B0 */
@@ -1773,7 +1773,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stBuildObjectTableFromTableAndStringProcedure
     return p_stTree;
 }
 
-extern void __cdecl fn_vTakeControlOfChannel(void *_hActor, unsigned short _uwChannel, ACP_tdxBool _bControlled);
+extern void __cdecl fn_vTakeControlOfChannel(struct tdstEngineObject_ *_hActor, unsigned short _uwChannel, ACP_tdxBool _bControlled);
 #define AI_M_pfn_fn_vTakeControlOfChannel fn_vTakeControlOfChannel
 
 /* 0x00468970 */
@@ -2839,8 +2839,8 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCustomBitsProc(
 extern AI_tdstNodeInterpret *__cdecl fn_p_stSwapNextParameter(AI_tdstNodeInterpret *p_stTree);
 #define AI_M_pfn_fn_p_stSwapNextParameter    ((AI_tdstNodeInterpret *(__cdecl *)(AI_tdstNodeInterpret *))&fn_p_stSwapNextParameter)
 /* 0x432D30 */
-extern void __cdecl MEC_vImposeTranslation(void *p_stDynamic, MTH3D_tdstVector *p_stVector);
-extern void __cdecl MEC_vImposeRotationMatrix(void *p_stDynamic, POS_tdstCompletePosition *hRotationMatrix);
+extern void __cdecl MEC_vImposeTranslation(DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stVector);
+extern void __cdecl MEC_vImposeRotationMatrix(DNM_tdstDynamics *p_stDynamic, POS_tdxHandleToPosition hRotationMatrix);
 #define AI_M_pfn_MEC_vImposeRotationMatrix   ((void (__cdecl *)(void *, POS_tdstCompletePosition *))&MEC_vImposeRotationMatrix)
 #define AI_M_pfn_HIE_vComputeNewRelativeMatrix HIE_fn_vComputeNewRelativeMatrix
 #define AI_M_pfn_HIE_vRefreshHierarchy       HIE_fn_vRefreshHierarchy
@@ -3780,7 +3780,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stChangePersoHorizSighting(
 }
 
 /* 0x432da0 */
-extern void __cdecl MEC_vInitTranslation(void *p_stDynamic, void *hSupObj, void *p_stVector);
+extern void __cdecl MEC_vInitTranslation(DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, MTH3D_tdstVector *p_stVector);
 #define AI_M_pfn_MEC_vInitTranslation \
     ((void (__cdecl *)(void *, void *, float *))&MEC_vInitTranslation)
 
@@ -4490,7 +4490,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stSetSPOCoordinates(
 #define AI_M_pfn_HIE_SO_vSetSuperimposedFlag   ((void (__cdecl *)(void *))HIE_fn_SO_vSetSuperimposedFlag)
 #define AI_M_pfn_HIE_SO_vClearSuperimposedFlag ((void (__cdecl *)(void *))HIE_fn_SO_vClearSuperimposedFlag)
 /* 0x412810 */
-extern void __cdecl fn_vRemoveObjectInSectorList(void *hCharacter);
+extern void __cdecl fn_vRemoveObjectInSectorList(HIE_tdstSuperObject *hCharacter);
 #define AI_M_pfn_fn_vRemoveObjectInSectorList  ((void (__cdecl *)(void *))&fn_vRemoveObjectInSectorList)
 /* 0x00412740 */
 extern void __cdecl fn_vInsertObjectInSectorList(HIE_tdstSuperObject *hSector, HIE_tdstSuperObject *hCharacter);
@@ -5066,7 +5066,7 @@ extern void __cdecl fn_vGetFieldTypeVector(void);          /* 0x00403290 */
 extern short *__cdecl HIE_pc_fn_p_stCreateFrameTable(short sCount);
 extern unsigned long *__cdecl HIE_pc_fn_pulSetFrameTableEntry(void *p_stTable, short sIndex, long lCount);
 extern unsigned long __cdecl HIE_pc_fn_ulGetFrameTableEntry(void *p_stTable, short sIndex);
-extern long __cdecl HIE_pc_fn_lGetFrameTableEntryCount(void *p_stTable, short sIndex);
+extern short __cdecl HIE_pc_fn_sGetFrameTableEntryCount(void *p_stTable, short sIndex);
 extern void __cdecl HIE_pc_fn_vStoreScaledShortRecords(short *psDst, const float *pfSrc, long lCount);
 
 /* 0x004B9C78 */
@@ -5122,7 +5122,7 @@ void __cdecl AI_pc_fn_vLightWalkNode(unsigned char *p_ucNode)
             {
                 GLI_vGetVisualSetLOD((void *)lVisualSet, lIndex, &xThreshold, &hObject);
                 fn_vGetFieldTypeVector();
-                sIndex = (short)HIE_pc_fn_lGetFrameTableEntryCount(psTable, (short)lIndex);
+                sIndex = HIE_pc_fn_sGetFrameTableEntryCount(psTable, (short)lIndex);
                 ulEntry = HIE_pc_fn_ulGetFrameTableEntry(psTable, (short)lIndex);
                 HIE_pc_fn_vStoreScaledShortRecords((short *)ulEntry, AI_pc_xLightSourceRecord, (long)sIndex);
                 lIndex++;
@@ -6191,7 +6191,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_SetMechanicOption(
 	return p_stTree;
 }
 
-extern void __cdecl DNM_fn_vSetHangingLimit(void *p_stDynamic, float xValue);
+extern void __cdecl DNM_fn_vSetHangingLimit(DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xValue);
 
 extern float MEC_g_xBaseCoeff;   /* 0x004B72C4 */
 extern float MEC_g_xWalkCoeff;   /* 0x004B72C8 */
@@ -6683,7 +6683,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_SetMechanicClimbSpeedLimit(
     return p_stNext;
 }
 
-extern void __cdecl GEO_vEndModifyObject2(void *hObject);
+extern void __cdecl GEO_vEndModifyObject2(ACP_tdxHandleOfObject hObject);
 extern void __cdecl GEO_vGetMinMaxPointOfIndexedAlignedBox(void *hObject, short hElement,
                                                            short xBoxIdx, short *p_xMin, short *p_xMax);
 #define AI_M_pfn_fn_hGetGeometricZdxOfTypeAtIndex \
@@ -7058,12 +7058,12 @@ AI_tdstNodeInterpret *__cdecl fn_p_stActivationZDR(
     return p_stNext;
 }
 
-extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithMap(void *h, long b);
-extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithProjectile(void *h, long b);
-extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithSecondaryCharacter(void *h, long b);
-extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithMainCharacter(void *h, long b);
-extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithOtherSectors(void *h, long b);
-extern void __cdecl fn_vCollSetSetCharacterNoCollisionZdeWithProjectile(void *h, long b);
+extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithMap(void *h, ACP_tdxBool b);
+extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithProjectile(void *h, ACP_tdxBool b);
+extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithSecondaryCharacter(void *h, ACP_tdxBool b);
+extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithMainCharacter(void *h, ACP_tdxBool b);
+extern void __cdecl fn_vCollSetSetCharacterNoCollisionWithOtherSectors(void *h, ACP_tdxBool b);
+extern void __cdecl fn_vCollSetSetCharacterNoCollisionZdeWithProjectile(void *h, ACP_tdxBool b);
 
 /* 0x0046E180 */
 AI_tdstNodeInterpret *__cdecl fn_p_stSetCollSetCollisionFlag(
@@ -7096,8 +7096,8 @@ AI_tdstNodeInterpret *__cdecl fn_p_stSetCollSetCollisionFlag(
 
 extern void __cdecl fn_vCollSetSetCollComputeFrequency(void *hCollSet, unsigned char ucFrequency);
 /* 0x418850 */
-extern void __cdecl fn_v3dDataSetBrainComputationFrequency(void *h_3dData, unsigned char _ucFrequency);
-extern void __cdecl fn_v3dDataSetLightComputationFrequency(void *h_3dData, unsigned char _ucFrequency);
+extern void __cdecl fn_v3dDataSetBrainComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency);
+extern void __cdecl fn_v3dDataSetLightComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency);
 #define AI_M_pfn_fn_v3dDataSetBrainComputationFrequency ((void (__cdecl *)(void *, unsigned char))&fn_v3dDataSetBrainComputationFrequency)
 #define AI_M_pfn_fn_v3dDataSetLightComputationFrequency ((void (__cdecl *)(void *, unsigned char))&fn_v3dDataSetLightComputationFrequency)
 
@@ -8086,8 +8086,8 @@ extern void __cdecl CAM_fn_vActivateCamera(void *_hCineInfo, long _lTypeOfChange
 #define AI_M_pfn_CAM_fn_vUpdateTargetPosition ((void (__cdecl *)(void *))CAM_fn_vUpdateTargetPosition)
 
 /* 0x00414100 */
-extern void __cdecl CAM_fn_vSetCineinfoCurrentFromVisibility(void *hCineinfo);
-extern void __cdecl CAM_fn_vSetCineinfoWorkFromVisibility(void *hCineinfo);
+extern void __cdecl CAM_fn_vSetCineinfoCurrentFromVisibility(struct tdstCineinfo_ *hCineinfo);
+extern void __cdecl CAM_fn_vSetCineinfoWorkFromVisibility(struct tdstCineinfo_ *hCineinfo);
 #define AI_M_pfn_CAM_fn_vSetCineinfoCurrentFromVisibility CAM_fn_vSetCineinfoCurrentFromVisibility
 #define AI_M_pfn_CAM_fn_vSetCineinfoWorkFromVisibility    CAM_fn_vSetCineinfoWorkFromVisibility
 
@@ -8109,7 +8109,7 @@ extern void __cdecl CAM_fn_vChangeAVectorParameter(void *_hCineInfo, MTH3D_tdstV
 #define AI_M_pfn_CAM_fn_vInitCompleteCineinfo ((void (__cdecl *)(void *))CAM_fn_vInitCompleteCineinfo)
 
 /* 0x00474270 */
-extern void __cdecl CAM_fn_vInitCameraStructure(void *_hSuperObjPerso, void *_p_stStruct);
+extern void __cdecl CAM_fn_vInitCameraStructure(struct HIE_tdstSuperObject *_hSuperObjPerso, struct CAM_tdstUpdateCamera_ *_p_stStruct);
 #define AI_M_pfn_CAM_fn_vInitCameraStructure        ((void (__cdecl *)(void *, void *))CAM_fn_vInitCameraStructure)
 #define AI_M_pfn_CAM_fn_vComputeReferencePoint(p_stStruct) CAM_fn_vComputeReferencePoint((struct CAM_tdstUpdateCamera_ *)(p_stStruct))
 #define AI_M_pfn_CAM_fn_vComputeTarget(p_stStruct)         CAM_fn_vComputeTarget((struct CAM_tdstUpdateCamera_ *)(p_stStruct))
@@ -9289,7 +9289,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stTurnToPosition(
 }
 
 /* 0x00433210 */
-extern void __cdecl MEC_fn_vUpdateSpeed(void *hSupObj);
+extern void __cdecl MEC_fn_vUpdateSpeed(HIE_tdstSuperObject *hSupObj);
 #define AI_M_pfn_MEC_fn_vUpdateSpeed             ((void (__cdecl *)(void *))&MEC_fn_vUpdateSpeed)
 #define AI_M_pfn_fn_p_stDynamGetDynamics         ((void *(__cdecl *)(void *))&fn_p_stDynamGetDynamics)
 #define AI_M_pfn_CAM_fn_vRemindSpeed             ((void (__cdecl *)(void *, void *))CAM_fn_vRemindSpeed)

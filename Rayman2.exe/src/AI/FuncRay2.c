@@ -293,6 +293,8 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetSituationOnRail(
 
 #define AI_M_pfn_fn_ulGetCapabilities ((unsigned long (__cdecl *)(void *))fn_ulGetCapabilities)
 
+static __inline unsigned long HIE_fn_ulGetSuperObjectType(struct HIE_tdstSuperObject *_hSprObj);
+
 /* 0x00477E90 */
 AI_tdstNodeInterpret *__cdecl fn_p_stPersoCapabilityFunction(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -734,20 +736,15 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGraphToWayFunction(
 #define AI_M_pfn_MSWay_lGetFirstIndexInPath    ((long (__cdecl *)(void *))MSWay_fn_lGetFirstIndexInPath)
 #define AI_M_pfn_MSWay_lGetLastIndexInPath     ((long (__cdecl *)(void *))MSWay_fn_lGetLastIndexInPath)
 #define AI_M_pfn_MSWay_lIncrementCurrentIndexInPath ((long (__cdecl *)(void *, long))MSWay_fn_lIncrementCurrentIndexInPath)
-/* 0x00417210 */
-extern void *__cdecl MSWay_fn_hGetWayPointOfPath(void *hWay, int iIndex);
+
 #define AI_M_pfn_MSWay_hGetWayPointOfPath      ((unsigned long (__cdecl *)(void *, long))&MSWay_fn_hGetWayPointOfPath)
-/* 0x00417260 */
-extern unsigned long __cdecl MSWay_fn_ulGetCapsForNextWayPointOfPath(void *hWay, int iIndex);
+
 #define AI_M_pfn_MSWay_ulGetCapsForNextWayPointOfPath ((unsigned long (__cdecl *)(void *, long))&MSWay_fn_ulGetCapsForNextWayPointOfPath)
-/* 0x004172E0 */
-extern long __cdecl MSWay_fn_lChangeCapsForNextWayPointOfPath(void *hWay, int iIndex, unsigned long ulNewCaps, long lValue);
+
 #define AI_M_pfn_MSWay_lChangeCapsForNextWayPointOfPath ((long (__cdecl *)(void *, long, unsigned long, long))&MSWay_fn_lChangeCapsForNextWayPointOfPath)
-/* 0x00417360 */
-extern long __cdecl MSWay_fn_lGetWeightForNextWayPointOfPath(void *hWay, int iIndex);
+
 #define AI_M_pfn_MSWay_lGetWeightForNextWayPointOfPath ((long (__cdecl *)(void *, long))&MSWay_fn_lGetWeightForNextWayPointOfPath)
-/* 0x004173E0 */
-extern long __cdecl MSWay_fn_lChangeWeightForNextWayPointOfPath(void *hWay, int iIndex, long lWeight);
+
 #define AI_M_pfn_MSWay_lChangeWeightForNextWayPointOfPath ((long (__cdecl *)(void *, long, long))&MSWay_fn_lChangeWeightForNextWayPointOfPath)
 
 #define AI_M_pfn_MSWay_lLookForWPInMSWay       ((long (__cdecl *)(void *, unsigned long))&MSWay_fn_lLookForWPInMSWay)

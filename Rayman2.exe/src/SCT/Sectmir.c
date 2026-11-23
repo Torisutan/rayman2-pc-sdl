@@ -13,9 +13,9 @@ extern float __cdecl fn_xGetSectorZFar(void *_hSprObjSector);
 extern void  __cdecl SCT_pc_fn_vCollectMirrorsOfSectors(void *_hVpt, void *_hSprObjSector,
                                                         void *_p_hMirrorSO, void *_p_hGeomMirror,
                                                         void *_p_hSectorList, short *_p_shNb);
-extern void  __cdecl SCT_pc_fn_vComputeMirrorMatrix(void *_p_stSourceMatrix, void *_p_stMirrorMatrix,
-                                                    float *_p_stReflectedPoint, float *_p_stPlaneNormal,
-                                                    float *_p_stPlanePoint);
+extern void  __cdecl SCT_pc_fn_vComputeMirrorMatrix(struct POS_tdstCompletePosition_ *_p_stSourceMatrix, struct POS_tdstCompletePosition_ *_p_stMirrorMatrix,
+                                                    struct MTH3D_tdstVector_ *_p_stReflectedPoint, struct MTH3D_tdstVector_ *_p_stPlaneNormal,
+                                                    struct MTH3D_tdstVector_ *_p_stPlanePoint);
 extern void  __cdecl SCT_fn_vSendSectorWhereIAmToViewport(void *p_stCamPos, void *p_stVpt,
                                                           void *hSprObjSector, long lDrawMask);
 extern void  __cdecl SECT_fn_vSendDynamicLightsFromWhereIAmToViewport(void *p_stVpt, char *p_stSprObj);
@@ -40,11 +40,11 @@ extern void  __cdecl GLI_xAdjustCameraToViewport2(void *p_stDev, void *p_stVpt, 
 extern unsigned short __cdecl GLI_pc_fn_usClipQuadToScreenRect(void *p_stObj, unsigned long *p_stMatA,
                                                                unsigned long *p_stMatB, void *p_stCam,
                                                                void *p_stRect, unsigned long ulFlags);
-extern void  __cdecl POS_fn_vSetIdentityMatrix(void *p_stPos);
-extern void  __cdecl POS_fn_vMulMatrixVertex(void *_p_stDest, void *_hMatrix, void *_p_stSource);
-extern void  __cdecl POS_fn_vMulMatrixVector(void *_p_stDest, void *_hMatrix, void *_p_stSource);
-extern void  __cdecl POS_fn_vGetRotationMatrix(void *_hMatrix, void *_p_stI, void *_p_stJ, void *_p_stK);
-extern void  __cdecl POS_fn_vSetRotationMatrix(void *_hMatrix, void *_p_stI, void *_p_stJ, void *_p_stK);
+extern void  __cdecl POS_fn_vSetIdentityMatrix(POS_tdstCompletePosition *p_stPos);
+extern void  __cdecl POS_fn_vMulMatrixVertex(MTH3D_tdstVector *_p_stDest, POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stSource);
+extern void  __cdecl POS_fn_vMulMatrixVector(MTH3D_tdstVector *_p_stDest, POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stSource);
+extern void  __cdecl POS_fn_vGetRotationMatrix(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stI, MTH3D_tdstVector *_p_stJ, MTH3D_tdstVector *_p_stK);
+extern void  __cdecl POS_fn_vSetRotationMatrix(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stI, MTH3D_tdstVector *_p_stJ, MTH3D_tdstVector *_p_stK);
 extern void  __cdecl AGO_vProcessAllParts(void *p_stVpt);
 extern void  __cdecl HIE_fn_vSendSuperObjectToViewport(void *_hVpt, void *_hSprObj, long _lDrawMask);
 extern int   __cdecl HIE_fn_bInitCameraMatrixStack(void *_hVpt);

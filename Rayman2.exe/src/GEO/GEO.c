@@ -500,7 +500,7 @@ long GEO_lCullingSphereNoMMM(
 }
 
 long GEO_lCullingBox(
-	struct GLD_tdstViewportAttributes_	*p_stVpt,
+	void								*p_stVpt,
 	MTH3D_tdstVector			*p_stMin,
 	MTH3D_tdstVector			*p_stMax,
 	long						_lCullingResult)
@@ -511,7 +511,7 @@ long GEO_lCullingBox(
 	GLI_tdstCamera					*hCamera;
 	ACP_tdxBool						bComputed = FALSE;
 
-	hCamera = ((GLI_tdstSpecificAttributesFor3D *) p_stVpt->p_vSpecificToXD)->p_stCam;
+	hCamera = ((GLI_tdstSpecificAttributesFor3D *) ((struct GLD_tdstViewportAttributes_ *)p_stVpt)->p_vSpecificToXD)->p_stCam;
 
 	MTH3D_M_vSubVector( &stMinWithCamera, p_stMin, &gs_stCameraPosInGlobal );
 	MTH3D_M_vSubVector( &stMaxWithCamera, p_stMax, &gs_stCameraPosInGlobal );

@@ -511,15 +511,9 @@ void HIE_pc_fn_vStoreScaledShortRecords(short *psDst, const float *pfSrc, long l
 }
 
 /* 0x004315B0 */
-__declspec(naked) long __cdecl HIE_pc_fn_lGetFrameTableEntryCount(void *p_stTable, short sIndex)
+short __cdecl HIE_pc_fn_sGetFrameTableEntryCount(void *p_stTable, short sIndex)
 {
-    __asm {
-        mov ecx, [esp+4]
-        movsx eax, word ptr [esp+8]
-        mov edx, [ecx+4]
-        mov ax, word ptr [edx+eax*8]
-        ret
-    }
+    return ((HIE_pc_tdstFrameTable *)p_stTable)->pEntries[sIndex].sSubCount;
 }
 
 /* 0x0042af70 */

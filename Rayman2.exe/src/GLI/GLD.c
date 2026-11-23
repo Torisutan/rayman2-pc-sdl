@@ -1115,400 +1115,178 @@ unsigned char GLD_pc_g_a_ucFloatRgbScanline[0x8000];   /* 0x004AF2B8 */
 static const float GLI_pc_g_xBlendOne;                  /* 0x0049C674 */
 extern long __cdecl _ftol(void);
 
-__declspec(naked) void __cdecl GLD_vGetFrontBufferIn24BitsAA(
+void __cdecl GLD_vGetFrontBufferIn24BitsAA(
     short hGLDDevice, short hGLDViewport,
     unsigned long lWidth, unsigned long lHeight,
     unsigned char *p_lBufferDst)
 {
-    (void)hGLDDevice; (void)hGLDViewport; (void)lWidth;
-    (void)lHeight;    (void)p_lBufferDst;
-    __asm {
-        /* 0x0042BD20 */
-        sub  esp, 0xe8
-        push ebx
-        push ebp
-        push esi
-        mov  esi, dword ptr [esp + 0xfc]
-        push edi
-        mov  edi, dword ptr [esp + 0xfc]
+    GLD_tdstPixelFormat stFmt;
+    GLD_pc_tdstVptAttrCopy stAttr;
+    struct GLD_tdstViewportAttributes_ *p_stAttr;
+    long lRequestOk;
+    long lCanWrite;
+    long lPitchWords;
+    unsigned long ulWidth;
+    unsigned long ulRowBytes;
+    unsigned long ulCount;
+    unsigned long ulRows;
+    unsigned long ulPrevIdx;
+    unsigned long *p_ulZero;
+    unsigned short *p_usSrc;
+    long lIdx;
+    float xPos;
+    float xPrevPos;
+    float xStep;
+    float xW;
 
-        push esi
-        lea  eax, [esp + 0x4c]
-        push edi
-        push eax
-        call GLD_bGetPixelFormatOfDevice
-        add  esp, 0xc
+    p_stAttr = (struct GLD_tdstViewportAttributes_ *)&stAttr;
+    GLD_bGetPixelFormatOfDevice(&stFmt, hGLDDevice, hGLDViewport);
+    lRequestOk = GLD_bRequestWriteToViewport2D(hGLDDevice, hGLDViewport,
+                                               (unsigned long *)&stAttr, &lCanWrite);
+    if (lRequestOk != 0 && lCanWrite != 0) {
+        lPitchWords = p_stAttr->lPitch >> 1;
+        p_usSrc = (unsigned short *)p_stAttr->p_cVirtualScreen;
 
-        lea  ecx, [esp + 0x3c]
-        push ecx
-        lea  edx, [esp + 0x8c]
-        push edx
-        push esi
-        push edi
-        call GLD_bRequestWriteToViewport2D
-        add  esp, 0x10
-        test eax, eax
-        jz   epilogue_pop                      /* 0x0042c1b8 */
-        mov  eax, dword ptr [esp + 0x3c]
-        test eax, eax
-        jz   epilogue_pop
+        if (stFmt.lPixelNbBits == 0x20) {
 
-        mov  edi, dword ptr [esp + 0xec]
-        mov  eax, dword ptr [esp + 0x4c]
-        mov  ebp, dword ptr [esp + 0x94]
-        sar  edi, 1
-        cmp  eax, 0x20
-        mov  dword ptr [esp + 0x10], edi
-        jnz  not_32bpp
+            if (p_stAttr->dwHeight != lHeight) {
+                return;
+            }
+            for (; lHeight != 0; lHeight--) {
+                for (ulWidth = lWidth; ulWidth != 0; ulWidth--) {
+                    p_lBufferDst[0] = (unsigned char)p_usSrc[0];
+                    p_lBufferDst[1] = (unsigned char)(p_usSrc[0] >> 8);
+                    p_lBufferDst[2] = (unsigned char)p_usSrc[1];
+                    p_lBufferDst += 3;
+                    p_usSrc += 2;
+                }
+            }
+        } else if (stFmt.lPixelNbBits == 0x10) {
 
-        mov  ecx, dword ptr [esp + 0x108]
-        cmp  dword ptr [esp + 0x90], ecx
-        jnz  epilogue_pop                      /* 0x0042c1b8 */
-        test ecx, ecx
-        mov  eax, dword ptr [esp + 0xe8]
-        jbe  release_and_return
-        mov  edi, dword ptr [esp + 0x104]
-        mov  ebp, ecx
-        mov  ecx, dword ptr [esp + 0x10c]
-    rows_32bpp:
-        test edi, edi
-        jbe  next_row_32bpp
-        mov  esi, edi
-    cols_32bpp:
-        mov  dl, byte ptr [eax]
-        mov  byte ptr [ecx], dl
-        mov  dl, byte ptr [eax + 1]
-        inc  ecx
-        inc  eax
-        mov  byte ptr [ecx], dl
-        mov  dl, byte ptr [eax + 1]
-        inc  ecx
-        inc  eax
-        mov  byte ptr [ecx], dl
-        inc  ecx
-        add  eax, 2
-        dec  esi
-        jnz  cols_32bpp
-    next_row_32bpp:
-        dec  ebp
-        jnz  rows_32bpp
-        jmp  release_and_return
+            ulWidth = lWidth;
+            if (lWidth < p_stAttr->dwWidth) {
+                ulWidth = p_stAttr->dwWidth;
+            }
+            if (lHeight == p_stAttr->dwHeight) {
+                if (lHeight != 0) {
+                    ulRowBytes = ulWidth << 2;
+                    ulRows = lHeight;
+                    do {
+                        if (ulRowBytes != 0) {
+                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                            for (ulCount = ulRowBytes & 0x3fffffff; ulCount != 0; ulCount--) {
+                                *p_ulZero++ = 0;
+                            }
+                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucFloatRgbScanline;
+                            for (ulCount = ulRowBytes & 0x3fffffff; ulCount != 0; ulCount--) {
+                                *p_ulZero++ = 0;
+                            }
+                        }
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, 1.0f);
+                        GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
+                            p_lBufferDst, lWidth);
+                        p_lBufferDst += lWidth * 3;
+                        p_usSrc += lPitchWords;
+                        ulRows--;
+                    } while (ulRows != 0);
+                }
+            } else if (p_stAttr->dwHeight < lHeight) {
 
-    not_32bpp:
-        cmp  eax, 0x10
-        jnz  release_and_return
-        mov  esi, dword ptr [esp + 0x104]
-        cmp  ebp, esi
-        jbe  width_max_from_src
-        mov  ecx, ebp
+                xPos = 0.0f;
+                xPrevPos = 0.0f;
+                ulPrevIdx = 0;
+                xStep = (float)p_stAttr->dwHeight / (float)(long)lHeight;
+                if (lHeight != 0) {
+                    ulRows = lHeight;
+                    do {
+                        lIdx = (long)xPos;
+                        if ((unsigned long)lIdx != ulPrevIdx) {
+                            p_usSrc += lPitchWords;
+                        }
+                        ulRowBytes = ulWidth * 4;
+                        if (ulRowBytes != 0) {
+                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                            for (ulCount = ulRowBytes; ulCount != 0; ulCount--) {
+                                *p_ulZero++ = 0;
+                            }
+                        }
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        xW = xPos - (float)lIdx;
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth,
+                            GLI_pc_g_xBlendOne - xW);
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc + lPitchWords,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, xW);
+                        GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
+                            p_lBufferDst, lWidth);
+                        xPos = xPos + xStep;
+                        p_lBufferDst += lWidth * 3;
+                        ulPrevIdx = (unsigned long)lIdx;
+                        ulRows--;
+                    } while (ulRows != 0);
+                }
+            } else if (lHeight < p_stAttr->dwHeight) {
 
-        mov  dword ptr [esp + 0x30], ecx
-        jmp  after_width_max
-    width_max_from_src:
-        mov  dword ptr [esp + 0x30], esi
-        mov  ecx, esi
-    after_width_max:
-        mov  edx, dword ptr [esp + 0x90]
-        mov  eax, dword ptr [esp + 0x108]
-        cmp  eax, edx
-        mov  ebx, dword ptr [esp + 0xe8]
-        jnz  not_equal_h
-
-        test eax, eax
-        jbe  release_and_return
-        shl  ecx, 2
-        lea  edx, [edi + edi*1]
-        mov  dword ptr [esp + 0x34], ecx
-        mov  dword ptr [esp + 0x24], edx
-        mov  dword ptr [esp + 0x18], eax
-        jmp  enter_equal_loop
-    equal_loop_top:
-        mov  ecx, dword ptr [esp + 0x34]
-    enter_equal_loop:
-        test ecx, ecx
-        jbe  skip_zero_equal
-        lea  edx, [ecx*4]
-        mov  ecx, edx
-        shr  ecx, 2
-        xor  eax, eax
-        mov  edi, OFFSET GLD_pc_g_a_ucRgbScanline
-        rep  stosd
-        mov  ecx, edx
-        shr  ecx, 2
-        mov  edi, OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        rep  stosd
-    skip_zero_equal:
-        mov  eax, dword ptr [esp + 0x30]
-        push 0x3f800000
-        push eax
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        lea  ecx, [esp + 0x54]
-        push ebx
-        push ecx
-        call GLD_pc_fn_vUnpackScanline16ToFloat
-        add  esp, 0x14
-
-        push 0x3f800000
-        push esi
-        push ebp
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        call GLI_pc_fn_vBlendScanlineRGB
-        mov  edi, dword ptr [esp + 0x120]
-        add  esp, 0x14
-
-        push esi
-        push edi
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        call GLD_pc_fn_vWriteScanlineRgb24                                /* 0x4A72B8 */
-        mov  ecx, dword ptr [esp + 0x30]
-        lea  eax, [esi + esi*2]
-        add  edi, eax
-        mov  eax, dword ptr [esp + 0x24]
-        add  esp, 0xc
-        add  ebx, ecx
-        dec  eax
-        mov  dword ptr [esp + 0x10c], edi
-        mov  dword ptr [esp + 0x18], eax
-        jnz  equal_loop_top
-        jmp  release_and_return
-
-    not_equal_h:
-        jbe  downscale_branch
-        mov  dword ptr [esp + 0x1c], edx
-        xor  edx, edx
-        cmp  eax, edx
-        mov  dword ptr [esp + 0x20], edx
-        fild qword ptr [esp + 0x1c]
-        mov  dword ptr [esp + 0x1c], eax
-        mov  dword ptr [esp + 0x20], edx
-        mov  dword ptr [esp + 0x14], edx
-        fidiv dword ptr [esp + 0x1c]
-        mov  dword ptr [esp + 0x38], edx
-        fstp float ptr [esp + 0x18]
-        jbe  release_and_return
-        mov  edx, dword ptr [esp + 0x10]
-        lea  edi, [ecx*4]
-        lea  ecx, [edx + edx*1]
-        mov  dword ptr [esp + 0x34], edi
-        mov  dword ptr [esp + 0x24], ecx
-        mov  dword ptr [esp + 0x10], eax
-        jmp  enter_upscale_loop
-    upscale_loop_top:
-        mov  edi, dword ptr [esp + 0x34]
-    enter_upscale_loop:
-        fld  float ptr [esp + 0x14]
-        call _ftol
-        cmp  eax, dword ptr [esp + 0x38]
-        mov  dword ptr [esp + 0x28], eax
-        jz   skip_advance_src
-        add  ebx, dword ptr [esp + 0x24]
-    skip_advance_src:
-        test edi, edi
-        mov  dword ptr [esp + 0x38], eax
-        jbe  skip_zero_upscale
-        mov  ecx, edi
-        xor  eax, eax
-        mov  edi, OFFSET GLD_pc_g_a_ucRgbScanline
-        rep  stosd
-    skip_zero_upscale:
-        mov  edi, dword ptr [esp + 0x30]
-        push 0x3f800000
-        push edi
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        lea  edx, [esp + 0x54]
-        push ebx
-        push edx
-        call GLD_pc_fn_vUnpackScanline16ToFloat
-        fild dword ptr [esp + 0x3c]
-        add  esp, 0x14
-        push ecx
-        fsubr float ptr [esp + 0x18]
-
-        fstp float ptr [esp + 0x30]
-        fld  dword ptr GLI_pc_g_xBlendOne
-        fsub float ptr [esp + 0x30]
-        fstp float ptr [esp]
-
-        push esi
-        push ebp
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        call GLI_pc_fn_vBlendScanlineRGB
-        mov  eax, dword ptr [esp + 0x38]
-        add  esp, 0x14
-
-        push 0x3f800000
-        push edi
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        lea  ecx, [ebx + eax]
-        push ecx
-        lea  edx, [esp + 0x58]
-        push edx
-        call GLD_pc_fn_vUnpackScanline16ToFloat
-        mov  eax, dword ptr [esp + 0x40]
-        add  esp, 0x14
-
-        push eax
-        push esi
-        push ebp
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        call GLI_pc_fn_vBlendScanlineRGB
-        mov  edi, dword ptr [esp + 0x120]
-        add  esp, 0x14
-
-        push esi
-        push edi
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        call GLD_pc_fn_vWriteScanlineRgb24
-        fld  float ptr [esp + 0x20]
-        fadd float ptr [esp + 0x24]
-        lea  eax, [esi + esi*2]
-        add  edi, eax
-        mov  eax, dword ptr [esp + 0x1c]
-        add  esp, 0xc
-        fstp float ptr [esp + 0x14]
-        dec  eax
-        mov  dword ptr [esp + 0x10c], edi
-        mov  dword ptr [esp + 0x10], eax
-        jnz  upscale_loop_top
-        jmp  release_and_return
-
-    downscale_branch:
-        cmp  eax, edx
-        jnc  release_and_return
-        mov  dword ptr [esp + 0x1c], eax
-        xor  eax, eax
-        mov  dword ptr [esp + 0x20], eax
-        fild qword ptr [esp + 0x1c]
-        mov  dword ptr [esp + 0x20], eax
-        mov  dword ptr [esp + 0x1c], edx
-        mov  dword ptr [esp + 0x14], eax
-        fidiv dword ptr [esp + 0x1c]
-        mov  dword ptr [esp + 0x38], eax
-        lea  eax, [ecx*4]
-        test eax, eax
-        mov  dword ptr [esp + 0x2c], 0
-        mov  dword ptr [esp + 0x34], eax
-        fstp float ptr [esp + 0x18]
-        jbe  skip_zero_downscale
-        shl  eax, 2
-        mov  ecx, eax
-        shr  ecx, 2
-        mov  dword ptr [esp + 0x28], eax
-        xor  eax, eax
-        mov  edi, OFFSET GLD_pc_g_a_ucRgbScanline
-        rep  stosd
-        mov  ecx, dword ptr [esp + 0x28]
-        shr  ecx, 2
-        mov  edi, OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        rep  stosd
-        mov  edi, dword ptr [esp + 0x10]
-    skip_zero_downscale:
-        test edx, edx
-        jbe  release_and_return
-        lea  ecx, [edi + edi*1]
-        mov  dword ptr [esp + 0x24], ecx
-        mov  dword ptr [esp + 0x28], edx
-    downscale_loop_top:
-        fld  float ptr [esp + 0x14]
-        call _ftol
-        mov  edi, eax
-        cmp  edi, dword ptr [esp + 0x2c]
-        mov  dword ptr [esp + 0x1c], edi
-        jz   downscale_no_write
-        mov  dword ptr [esp + 0x40], edi
-        mov  dword ptr [esp + 0x44], 0
-        fild qword ptr [esp + 0x40]
-        push ecx
-        fst  float ptr [esp + 0x14]
-        fsub float ptr [esp + 0x3c]
-        fstp float ptr [esp]
-        push esi
-        push ebp
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        call GLI_pc_fn_vBlendScanlineRGB
-        mov  edx, dword ptr [esp + 0x120]
-        add  esp, 0x14
-
-        push esi
-        push edx
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        call GLD_pc_fn_vWriteScanlineRgb24
-        mov  ecx, dword ptr [esp + 0x40]
-        add  esp, 0xc
-        test ecx, ecx
-        jbe  no_clear_after_write
-        xor  eax, eax
-        mov  edi, OFFSET GLD_pc_g_a_ucRgbScanline
-        rep  stosd
-        mov  edi, dword ptr [esp + 0x1c]
-    no_clear_after_write:
-        mov  ecx, dword ptr [esp + 0x10c]
-        fld  float ptr [esp + 0x14]
-        fsub float ptr [esp + 0x10]
-        mov  eax, esi
-        add  eax, ecx
-        lea  ecx, [eax + esi*2]
-        fstp float ptr [esp + 0x10]
-        mov  dword ptr [esp + 0x10c], ecx
-        jmp  downscale_after_write
-    downscale_no_write:
-        mov  edx, dword ptr [esp + 0x18]
-        mov  dword ptr [esp + 0x10], edx
-    downscale_after_write:
-        mov  ecx, dword ptr [esp + 0x30]
-        mov  eax, dword ptr [esp + 0x14]
-        push 0x3f800000
-        push ecx
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        lea  edx, [esp + 0x54]
-        push ebx
-        push edx
-        mov  dword ptr [esp + 0x40], edi
-        mov  dword ptr [esp + 0x4c], eax
-        call GLD_pc_fn_vUnpackScanline16ToFloat
-        mov  eax, dword ptr [esp + 0x24]
-        add  esp, 0x14
-
-        push eax
-        push esi
-        push ebp
-        push OFFSET GLD_pc_g_a_ucRgbScanline
-        push OFFSET GLD_pc_g_a_ucFloatRgbScanline
-        call GLI_pc_fn_vBlendScanlineRGB
-        fld  float ptr [esp + 0x28]
-        mov  ecx, dword ptr [esp + 0x38]
-        fadd float ptr [esp + 0x2c]
-        mov  eax, dword ptr [esp + 0x3c]
-        add  esp, 0x14
-        add  ebx, ecx
-        fstp float ptr [esp + 0x14]
-        dec  eax
-        mov  dword ptr [esp + 0x28], eax
-        jnz  downscale_loop_top
-
-    release_and_return:
-        mov  ecx, dword ptr [esp + 0x100]
-        mov  edx, dword ptr [esp + 0xfc]
-        push ecx
-        push edx
-        call GLD_bWriteToViewportFinished2D
-        add  esp, 8
-    epilogue_pop:
-        pop  edi
-        pop  esi
-        pop  ebp
-        pop  ebx
-        add  esp, 0xe8
-        ret
+                xPos = 0.0f;
+                xPrevPos = 0.0f;
+                ulPrevIdx = 0;
+                ulRowBytes = ulWidth * 4;
+                if (ulRowBytes != 0) {
+                    p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                    for (ulCount = (ulWidth & 0xfffffff) << 2; ulCount != 0; ulCount--) {
+                        *p_ulZero++ = 0;
+                    }
+                    p_ulZero = (unsigned long *)GLD_pc_g_a_ucFloatRgbScanline;
+                    for (ulCount = (ulWidth & 0xfffffff) << 2; ulCount != 0; ulCount--) {
+                        *p_ulZero++ = 0;
+                    }
+                }
+                if (p_stAttr->dwHeight != 0) {
+                    ulRows = p_stAttr->dwHeight;
+                    do {
+                        lIdx = (long)xPos;
+                        xStep = (float)lHeight / (float)(long)p_stAttr->dwHeight;
+                        xW = xStep;
+                        if ((unsigned long)lIdx != ulPrevIdx) {
+                            GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                                (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth,
+                                (float)lIdx - xPrevPos);
+                            GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
+                                p_lBufferDst, lWidth);
+                            if (ulRowBytes != 0) {
+                                p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                                for (ulCount = ulRowBytes; ulCount != 0; ulCount--) {
+                                    *p_ulZero++ = 0;
+                                }
+                            }
+                            p_lBufferDst += lWidth * 3;
+                            xW = xPos - (float)lIdx;
+                        }
+                        xPrevPos = xPos;
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, xW);
+                        xPos = xPos + xStep;
+                        p_usSrc += lPitchWords;
+                        ulRows--;
+                        ulPrevIdx = (unsigned long)lIdx;
+                    } while (ulRows != 0);
+                }
+            }
+        }
+        GLD_bWriteToViewportFinished2D(hGLDDevice, hGLDViewport);
     }
 }
 
 extern void GLI_xAdjustCameraToViewport(short hDevice, short hViewport, struct GLI_tdstCamera_ *p_stCam);
-__declspec(naked) void __cdecl fn_vChangeViewPortPercent(
+void __cdecl fn_vChangeViewPortPercent(
     unsigned long _ulMode,
     unsigned long _ulWhat,
     unsigned long _ulWidth,
@@ -1520,139 +1298,59 @@ __declspec(naked) void __cdecl fn_vChangeViewPortPercent(
     int           _iPosX,
     int           _iPosY)
 {
-    (void)_ulMode; (void)_ulWhat; (void)_ulWidth; (void)_ulHeight;
-    (void)_ulClipTop; (void)_ulClipLeft; (void)_ulClipBottom; (void)_ulClipRight;
-    (void)_iPosX; (void)_iPosY;
-    __asm {
+    GLD_tdstViewportAttributes  stViewAttrib;
+    struct GLI_tdstCamera_      *p_stCam;
 
-        mov  eax, dword ptr [GAM_AA_engine_14C]
-        sub  esp, 0x74
-        push esi
+    WaitForSingleObject(GAM_g_stEngineStructure.hDrawSem, INFINITE);
 
-        push -1
-        push eax
-        call dword ptr [WaitForSingleObject]    /* 0x49C0F8 */
+  {
 
-        mov  esi, dword ptr [esp + 0x7c]
-        mov  dx,  word ptr [GAM_AA_engine_D6]
-        lea  ecx, [esp + 0x4]
-        cmp  esi, 1
-        push ecx
-        jz   ge1_use_primary
-        mov  dx,  word ptr [GAM_AA_engine_150]
-    ge1_use_primary:
-        mov  ax,  word ptr [GAM_AA_engine_D4]
-        push edx
-        push eax
-        call GLI_xGetViewportCamera             /* 0x00422720 */
-        mov  eax, dword ptr [esp + 0x10]
-        add  esp, 0xc
-        test eax, eax
-        jz   ge_release
+    if(_ulMode == 1)
+        GLI_xGetViewportCamera(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDViewport, &p_stCam);
+    else
+        GLI_xGetViewportCamera(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDFixViewport, &p_stCam);
 
-        mov  dx,  word ptr [GAM_AA_engine_D6]
-        mov  ax,  word ptr [GAM_AA_engine_D4]
-        lea  ecx, [esp + 0x8]
-        push ecx
-        push edx
-        push eax
-        call GLD_bGetViewportAttributes
-        mov  eax, dword ptr [esp + 0x8c]
-        add  esp, 0xc
+    if(p_stCam!=NULL)
+    {
+        GLD_bGetViewportAttributes(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDViewport, &stViewAttrib);
 
-        cmp  eax, 1
-        jnz  ge_check2
-        mov  ecx, dword ptr [esp + 0x84]
-        mov  edx, dword ptr [esp + 0x88]
-        mov  dword ptr [esp + 0x38], ecx
-        mov  dword ptr [esp + 0x3c], edx
-        jmp  ge_after_dispatch
-    ge_check2:
-        cmp  eax, 2
-        jnz  ge_check3
-        mov  eax, dword ptr [esp + 0x8c]
-        mov  ecx, dword ptr [esp + 0x90]
-        mov  edx, dword ptr [esp + 0x94]
-        mov  dword ptr [esp + 0x50], eax
-        mov  eax, dword ptr [esp + 0x98]
-        mov  dword ptr [esp + 0x58], ecx
-        mov  dword ptr [esp + 0x54], edx
-        mov  dword ptr [esp + 0x5c], eax
-        jmp  ge_after_dispatch
-    ge_check3:
-        cmp  eax, 3
-        jnz  ge_check4
-        mov  ecx, dword ptr [esp + 0x9c]
-        mov  edx, dword ptr [esp + 0xa0]
-        mov  dword ptr [esp + 0x60], ecx
-        jmp  ge_store_posy
-    ge_check4:
-        cmp  eax, 4
-        jnz  ge_after_dispatch
+        if(_ulWhat == 1)
+        {
+            stViewAttrib.dwWidthInPercent = _ulWidth;
+            stViewAttrib.dwHeightInPercent = _ulHeight;
+        }
+        else if(_ulWhat == 2)
+        {
+            stViewAttrib.dwClipTopInPerMille = _ulClipTop;
+            stViewAttrib.dwClipLeftInPerMille = _ulClipLeft;
+            stViewAttrib.dwClipBottomInPerMille = _ulClipBottom;
+            stViewAttrib.dwClipRightInPerMille = _ulClipRight;
+        }
+        else if(_ulWhat == 3)
+        {
+            stViewAttrib.iOffsetPosX = _iPosX;
+            stViewAttrib.iOffsetPosY = _iPosY;
+        }
+        else if ( _ulWhat == 4 )
+        {
+            stViewAttrib.iOffsetPosX = (_iPosX * (int) stViewAttrib.dwWidth) / 1000;
+            stViewAttrib.iOffsetPosY = (_iPosY * (int) stViewAttrib.dwHeight) / 1000;
+        }
 
-        mov  ecx, dword ptr [esp + 0x14]
-        mov  eax, 0x10624dd3
-        imul ecx, dword ptr [esp + 0x9c]
-        imul ecx
-        mov  ecx, dword ptr [esp + 0x10]
-        imul ecx, dword ptr [esp + 0xa0]
-        sar  edx, 0x6
-        mov  eax, edx
-        shr  eax, 0x1f
-        add  edx, eax
-        mov  eax, 0x10624dd3
-        mov  dword ptr [esp + 0x60], edx
-        imul ecx
-        sar  edx, 0x6
-        mov  ecx, edx
-        shr  ecx, 0x1f
-        add  edx, ecx
-    ge_store_posy:
-        mov  dword ptr [esp + 0x64], edx
-
-    ge_after_dispatch:
-
-        lea  edx, [esp + 0x8]
-        cmp  esi, 1
-        push edx
-        jnz  ge_alt_mode
-        mov  ax,  word ptr [GAM_AA_engine_D6]
-        mov  cx,  word ptr [GAM_AA_engine_D4]
-        push eax
-        push ecx
-        call GLD_bSetViewportPosition
-        mov  edx, dword ptr [esp + 0x10]
-        mov  ax,  word ptr [GAM_AA_engine_D6]
-        add  esp, 0xc
-        push edx
-        jmp  ge_publish
-    ge_alt_mode:
-        mov  ax,  word ptr [GAM_AA_engine_150]
-        mov  cx,  word ptr [GAM_AA_engine_D4]
-        push eax
-        push ecx
-        call GLD_bSetViewportPosition
-        mov  edx, dword ptr [esp + 0x10]
-        mov  ax,  word ptr [GAM_AA_engine_150]
-        add  esp, 0xc
-        push edx
-    ge_publish:
-        mov  cx,  word ptr [GAM_AA_engine_D4]
-        push eax
-        push ecx
-        call GLI_xAdjustCameraToViewport        /* 0x004228D0 */
-        add  esp, 0xc
-
-    ge_release:
-        mov  edx, dword ptr [GAM_AA_engine_14C]
-        push 0
-        push 1
-        push edx
-        call dword ptr [ReleaseSemaphore]        /* 0x49C0D8 */
-        pop  esi
-        add  esp, 0x74
-        ret
+        if(_ulMode == 1)
+        {
+            GLD_bSetViewportPosition(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDViewport, &stViewAttrib);
+            GLI_xAdjustCameraToViewport(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDViewport, p_stCam);
+        }
+        else
+        {
+            GLD_bSetViewportPosition(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDFixViewport, &stViewAttrib);
+            GLI_xAdjustCameraToViewport(GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDFixViewport, p_stCam);
+        }
     }
+    }
+
+    ReleaseSemaphore(GAM_g_stEngineStructure.hDrawSem, 1, NULL);
 }
 
 long __cdecl _ftol(void);
@@ -1660,216 +1358,103 @@ long __cdecl _ftol(void);
 static const float GLI_pc_g_xBlendZero = 0.0f;   /* 0x0049C670 */
 static const float GLI_pc_g_xBlendOne  = 1.0f;   /* 0x0049C674 */
 
-__declspec(naked) void __cdecl GLI_pc_fn_vBlendScanlineRGB(float *p_xTable,
-                                                             float *p_xOut,
-                                                             unsigned long ulCountA,
-                                                             unsigned long ulCountB,
-                                                             float xWeight)
+void __cdecl GLI_pc_fn_vBlendScanlineRGB(float *p_xTable, float *p_xOut,
+                                         unsigned long ulCountA, unsigned long ulCountB, float xWeight)
 {
-    __asm {
-        /* 0x0042B480 */
-        mov   ecx, dword ptr [esp + 0x0c]
-        sub   esp, 8
-        push  ebx
-        push  ebp
-        push  esi
-        push  edi
-        mov   edi, dword ptr [esp + 0x28]
-        cmp   ecx, edi
-        jnz   blend_not_equal
+    float *p_xOutCur;
+    float *p_xSrc;
+    float *p_xPix;
+    unsigned long ulLoop;
+    unsigned long ulPrevIdx;
+    long lIdx;
+    float xPos;
+    float xPrevPos;
+    float xStep;
+    float xF;
+    float xG;
+    float xW;
+    float xF1;
+    float xF2;
+    float xF3;
+    float xC1;
+    float xC2;
+    float xC3;
 
-        test  ecx, ecx
-        jbe   blend_ep_final
-        mov   eax, dword ptr [esp + 0x20]
-        mov   edx, ecx
-        mov   ecx, dword ptr [esp + 0x1c]
-        add   eax, 8
-blend_eq_loop:
-        fld   dword ptr [ecx + 4]
-        mov   esi, dword ptr [esp + 0x2c]
-        fmul  dword ptr [esp + 0x2c]
-        mov   dword ptr [ecx], esi
-        add   ecx, 0x10
-        add   eax, 0x10
-        dec   edx
-        fadd  dword ptr [eax - 0x14]
-        fstp  dword ptr [eax - 0x14]
-        fld   dword ptr [ecx - 8]
-        fmul  dword ptr [esp + 0x2c]
-        fadd  dword ptr [eax - 0x10]
-        fstp  dword ptr [eax - 0x10]
-        fld   dword ptr [ecx - 4]
-        fmul  dword ptr [esp + 0x2c]
-        fadd  dword ptr [eax - 0x0c]
-        fstp  dword ptr [eax - 0x0c]
-        jnz   blend_eq_loop
-        pop   edi
-        pop   esi
-        pop   ebp
-        pop   ebx
-        add   esp, 8
-        ret
+    if (ulCountA == ulCountB) {
 
-blend_not_equal:
-        jbe   blend_case_c
+        if (ulCountA != 0) {
+            p_xOutCur = p_xOut + 2;
+            ulLoop = ulCountA;
+            do {
+                p_xTable[0] = xWeight;
+                p_xOutCur[-1] = p_xTable[1] * xWeight + p_xOutCur[-1];
+                p_xOutCur[0] = p_xTable[2] * xWeight + p_xOutCur[0];
+                p_xOutCur[1] = p_xTable[3] * xWeight + p_xOutCur[1];
+                p_xOutCur += 4;
+                p_xTable += 4;
+                ulLoop--;
+            } while (ulLoop != 0);
+        }
+    } else if (ulCountB < ulCountA) {
 
-        mov   dword ptr [esp + 0x10], edi
-        xor   edi, edi
-        cmp   ecx, edi
-        mov   dword ptr [esp + 0x14], edi
-        fild  qword ptr [esp + 0x10]
-        mov   dword ptr [esp + 0x10], ecx
-        mov   dword ptr [esp + 0x14], edi
-        fidiv dword ptr [esp + 0x10]
-        fstp  dword ptr [esp + 0x24]
-        fld   dword ptr [GLI_pc_g_xBlendZero]
-        jbe   blend_end_pop
-        mov   edx, dword ptr [esp + 0x1c]
-        mov   ebp, dword ptr [esp + 0x20]
-        lea   esi, [edx + 8]
-        mov   ebx, ecx
-blend_b_loop:
-        fld   st(0)
-        call  _ftol
-        fld   dword ptr [esi - 4]
-        mov   edx, dword ptr [esi]
-        fld   dword ptr [esi + 4]
-        mov   ecx, eax
-        shl   ecx, 4
-        add   ecx, ebp
-        cmp   edi, eax
-        mov   dword ptr [esp + 0x1c], edx
-        jz    blend_b_same_idx
-        mov   dword ptr [esp + 0x10], eax
-        mov   dword ptr [esp + 0x14], 0
-        fild  qword ptr [esp + 0x10]
-        fld   st(0)
-        fsub  dword ptr [esp + 0x20]
-        fmul  dword ptr [esp + 0x2c]
-        fld   st(0)
-        fadd  dword ptr [ecx - 0x10]
-        fstp  dword ptr [ecx - 0x10]
-        fld   st(3)
-        fmul  st(0), st(1)
-        fadd  dword ptr [ecx - 0x0c]
-        fstp  dword ptr [ecx - 0x0c]
-        fld   dword ptr [esp + 0x1c]
-        fmul  st(0), st(1)
-        fadd  dword ptr [ecx - 8]
-        fstp  dword ptr [ecx - 8]
-        fld   st(2)
-        fmul  st(0), st(1)
-        fadd  dword ptr [ecx - 4]
-        fstp  dword ptr [ecx - 4]
-        fstp  st(0)
-        fld   st(3)
-        _emit 0xDE
-        _emit 0xE1
-        jmp   blend_b_join
-blend_b_same_idx:
-        fld   dword ptr [esp + 0x24]
-blend_b_join:
-        fmul  dword ptr [esp + 0x2c]
-        add   esi, 0x10
-        dec   ebx
-        fld   st(3)
-        fstp  dword ptr [esp + 0x20]
-        mov   edi, eax
-        fld   st(0)
-        fadd  dword ptr [ecx]
-        fstp  dword ptr [ecx]
-        fxch  st(2)
-        fmul  st(0), st(2)
-        fadd  dword ptr [ecx + 4]
-        fstp  dword ptr [ecx + 4]
-        fld   dword ptr [esp + 0x1c]
-        fmul  st(0), st(2)
-        fadd  dword ptr [ecx + 8]
-        fstp  dword ptr [ecx + 8]
-        fmul  st(0), st(1)
-        fadd  dword ptr [ecx + 0x0c]
-        fstp  dword ptr [ecx + 0x0c]
-        fstp  st(0)
-        fadd  dword ptr [esp + 0x24]
-        jnz   blend_b_loop
-        fstp  st(0)
-        pop   edi
-        pop   esi
-        pop   ebp
-        pop   ebx
-        add   esp, 8
-        ret
+        xStep = (float)ulCountB / ulCountA;
+        xPos = 0.0f;
+        xPrevPos = 0.0f;
+        ulPrevIdx = 0;
+        if (ulCountA != 0) {
+            p_xSrc = p_xTable + 2;
+            ulLoop = ulCountA;
+            do {
+                lIdx = (long)xPos;
+                xF1 = p_xSrc[-1];
+                xF2 = p_xSrc[0];
+                xF3 = p_xSrc[1];
+                p_xPix = p_xOut + lIdx * 4;
+                if ((unsigned long)lIdx == ulPrevIdx) {
+                    xF = xStep;
+                } else {
+                    xW = ((float)lIdx - xPrevPos) * xWeight;
+                    p_xPix[-4] = xW + p_xPix[-4];
+                    p_xPix[-3] = xF1 * xW + p_xPix[-3];
+                    p_xPix[-2] = xF2 * xW + p_xPix[-2];
+                    p_xPix[-1] = xF3 * xW + p_xPix[-1];
+                    xF = xPos - (float)lIdx;
+                }
+                xW = xF * xWeight;
+                p_xPix[0] = xW + p_xPix[0];
+                p_xPix[1] = xF1 * xW + p_xPix[1];
+                p_xPix[2] = xF2 * xW + p_xPix[2];
+                p_xPix[3] = xF3 * xW + p_xPix[3];
+                ulPrevIdx = (unsigned long)lIdx;
+                xPrevPos = xPos;
+                xPos = xPos + xStep;
+                p_xSrc += 4;
+                ulLoop--;
+            } while (ulLoop != 0);
+        }
+    } else {
 
-blend_case_c:
-        xor   ebp, ebp
-        cmp   edi, ebp
-        mov   dword ptr [esp + 0x10], ecx
-        mov   dword ptr [esp + 0x14], ebp
-        fild  qword ptr [esp + 0x10]
-        mov   dword ptr [esp + 0x10], edi
-        mov   dword ptr [esp + 0x14], ebp
-        fidiv dword ptr [esp + 0x10]
-        fstp  dword ptr [esp + 0x24]
-        fld   dword ptr [GLI_pc_g_xBlendZero]
-        jbe   blend_end_pop
-        mov   ebx, dword ptr [esp + 0x1c]
-        mov   esi, dword ptr [esp + 0x20]
-blend_c_loop:
-        fld   st(0)
-        call  _ftol
-        mov   dword ptr [esp + 0x10], eax
-        mov   dword ptr [esp + 0x14], ebp
-        fild  qword ptr [esp + 0x10]
-        shl   eax, 4
-        add   eax, ebx
-        add   esi, 0x10
-        dec   edi
-        fsubr st(0), st(1)
-        fld   dword ptr [GLI_pc_g_xBlendOne]
-        fsub  st(0), st(1)
-        fld   dword ptr [eax + 4]
-        fmul  st(0), st(1)
-        fld   dword ptr [eax + 0x14]
-        fmul  st(0), st(3)
-        faddp st(1), st(0)
-        fstp  dword ptr [esp + 0x20]
-        fld   dword ptr [eax + 8]
-        fmul  st(0), st(1)
-        fld   dword ptr [eax + 0x18]
-        fmul  st(0), st(3)
-        faddp st(1), st(0)
-        fstp  dword ptr [esp + 0x1c]
-        fld   dword ptr [eax + 0x0c]
-        fmul  st(0), st(1)
-        fld   dword ptr [eax + 0x1c]
-        fmul  st(0), st(3)
-        faddp st(1), st(0)
-        fstp  st(2)
-        fstp  st(0)
-        fld   dword ptr [esp + 0x2c]
-        fadd  dword ptr [esi - 0x10]
-        fstp  dword ptr [esi - 0x10]
-        fld   dword ptr [esp + 0x20]
-        fmul  dword ptr [esp + 0x2c]
-        fadd  dword ptr [esi - 0x0c]
-        fstp  dword ptr [esi - 0x0c]
-        fld   dword ptr [esp + 0x1c]
-        fmul  dword ptr [esp + 0x2c]
-        fadd  dword ptr [esi - 8]
-        fstp  dword ptr [esi - 8]
-        fmul  dword ptr [esp + 0x2c]
-        fadd  dword ptr [esi - 4]
-        fstp  dword ptr [esi - 4]
-        fadd  dword ptr [esp + 0x24]
-        jnz   blend_c_loop
-blend_end_pop:
-        fstp  st(0)
-blend_ep_final:
-        pop   edi
-        pop   esi
-        pop   ebp
-        pop   ebx
-        add   esp, 8
-        ret
+        xStep = (float)ulCountA / ulCountB;
+        xPos = 0.0f;
+        if (ulCountB != 0) {
+            p_xOutCur = p_xOut;
+            ulLoop = ulCountB;
+            do {
+                lIdx = (long)xPos;
+                p_xSrc = p_xTable + lIdx * 4;
+                xF = xPos - (float)lIdx;
+                xG = GLI_pc_g_xBlendOne - xF;
+                xC1 = p_xSrc[1] * xG + p_xSrc[5] * xF;
+                xC2 = p_xSrc[2] * xG + p_xSrc[6] * xF;
+                xC3 = p_xSrc[3] * xG + p_xSrc[7] * xF;
+                p_xOutCur[0] = xWeight + p_xOutCur[0];
+                p_xOutCur[1] = xC1 * xWeight + p_xOutCur[1];
+                p_xOutCur[2] = xC2 * xWeight + p_xOutCur[2];
+                p_xOutCur[3] = xC3 * xWeight + p_xOutCur[3];
+                p_xOutCur += 4;
+                xPos = xPos + xStep;
+                ulLoop--;
+            } while (ulLoop != 0);
+        }
     }
 }

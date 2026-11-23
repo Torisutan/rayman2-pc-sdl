@@ -117,7 +117,7 @@ void __cdecl SECT_fn_vSetHandleOfLightsInDNMLightsList(void *_hDNMLightsElement,
     *(void **)_hDNMLightsElement = _hDNMLights;
 }
 
-extern HIE_tdstSuperObject *__cdecl fn_h_StandardGameGetSuperObject(void *h_StandardGame);
+extern HIE_tdstSuperObject *__cdecl fn_h_StandardGameGetSuperObject(MS_tdxHandleToStandardGame h_StandardGame);
 void __cdecl fn_vSectInfoDesinit(struct tdstEngineObject_ *p_stObject, long eObjectInit)
 {
     if (p_stObject == NULL)

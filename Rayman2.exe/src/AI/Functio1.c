@@ -1808,7 +1808,7 @@ extern void *__cdecl fn_p_stDynamGetDynamics(void *h_Dynam);
 extern unsigned short __cdecl fn_xMaskOfObstacle(void *_p_stObstacle);
 #define AI_M_pfn_fn_xMaskOfObstacle_fn1       fn_xMaskOfObstacle
 /* 0x0042DB40 */
-extern unsigned char __cdecl GMT_fn_xTestCollideIdentifierTypeOfGameMaterial(void *_hGameMat, unsigned short _uwType);
+extern unsigned char __cdecl GMT_fn_xTestCollideIdentifierTypeOfGameMaterial(GMT_tdxHandleToGameMaterial _hGameMat, unsigned short _uwType);
 #define AI_M_pfn_GMT_xTestCollideIdType_fn1   ((unsigned char (__cdecl *)(void *, long))&GMT_fn_xTestCollideIdentifierTypeOfGameMaterial)
 
 #define AI_C_xDegToRad_f1   0.017453292f

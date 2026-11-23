@@ -32,7 +32,7 @@ void          __cdecl FUN_004225d0(unsigned long *p_dst, unsigned long *p_src);
 char          __cdecl GLI_cRegisterLensFlare(void *p_vRef);    /* 0x00428DE0 */
 void          __cdecl GLI_vUnregisterLensFlare(void *p_vRef);  /* 0x00428E60 */
 
-void          __cdecl FUN_0042a980(unsigned long arg);
+void          __cdecl FUN_0042a980(unsigned long arg, unsigned long);
 int           __cdecl GLI_lGetVisualSetNumbertOfLOD(void *p);   /* 0x0042AF60 */
 unsigned long __cdecl GLI_hGetRLI(void *p, unsigned int idx);   /* 0x0042B2B0 */
 

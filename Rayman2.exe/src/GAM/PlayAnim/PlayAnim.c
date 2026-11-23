@@ -42,7 +42,7 @@ tdstA3dGENERAL *__cdecl fn_p_GetA3dGENERAL(unsigned short uwNumOfA3dGENERAL, uns
 unsigned char __cdecl GAM_fn_ucGetFirstCallOfEvent(tdstEvent *_p_stEvent);
 /* 0x00418B50 */
 void __cdecl fn_v_ExpandQuat(float *_a4_xQuatD, short *_a4_xQuatS);
-void __cdecl fn_v_QuatToMatrix(float *_a3a3_xMtx, float *_a4_xQuat);
+void __cdecl fn_v_QuatToMatrix(float (*_a3a3_xMtx)[3], float *_a4_xQuat);
 /* 0x004194D0 */
 void __cdecl fn_vInitCSOList(CHN_tdxHandleToChannelArray *, unsigned long);
 
@@ -1714,7 +1714,7 @@ void __cdecl fn_vUpdateFrame(HIE_tdstSuperObject *_p_stSuperObject, tdstFrame3d 
             _p_stFrame->p_stAngularSpeedMatrix = TMP_M_p_Malloc(0x24);
         fn_v_ExpandQuat(a4_xQuat,
             &p_stAngularSpeedQuats[p_stCurrentOnlyFrame->uwNumOfAngularSpeedQuat * 4]);
-        fn_v_QuatToMatrix((float *)_p_stFrame->p_stAngularSpeedMatrix, a4_xQuat);
+        fn_v_QuatToMatrix((float (*)[3])_p_stFrame->p_stAngularSpeedMatrix, a4_xQuat);
     }
 
     if (p_stCurrentOnlyFrame->uwNumOfSpeedVector == SEB_Invalid)

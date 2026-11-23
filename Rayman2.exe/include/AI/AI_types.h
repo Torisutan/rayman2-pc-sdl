@@ -426,10 +426,10 @@ AI_tdstNodeInterpret *__cdecl fn_p_stVectorDotOperator(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue);
 /* 0x00481A60 */
 AI_tdstNodeInterpret *__cdecl fn_p_stVectorOperator(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue);
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue);
 /* 0x00481880 */
 AI_tdstNodeInterpret *__cdecl fn_p_stScalarOperator(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue);
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue);
 /* 0x00481CE0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stDotOperator(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue);
@@ -1471,7 +1471,7 @@ void __cdecl fn_vMSLightSetPulse(void *h_MSLight, unsigned char bOnOff, float xS
 long __cdecl SND_fn_lSendRequestSound(long indice, long type, void *evt, long prio, void *proc);
 
 unsigned char __cdecl fn_ucSetDsgVar(unsigned char ucId, unsigned char ucIndex,
-                                     void *p_stMind, void *p_stGetSetParam);
+                                     AI_tdstMind *p_stMind, AI_tdstGetSetParam *p_stGetSetParam);
 struct IPT_tdstEntryElement_;
 char *__cdecl IPT_fn_szGetEntryActionName(struct IPT_tdstEntryElement_ *_hEntryElement);
 

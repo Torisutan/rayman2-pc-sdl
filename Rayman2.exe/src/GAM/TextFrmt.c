@@ -97,7 +97,7 @@ float TFMT_a_xLetterWidth_storage[256];
 /* 0x00449BE0 */
 extern void RDN_fn_vSetRandomSeed(unsigned long _lIndexNumber, long _lNewSeed);
 /* 0x00419460 */
-extern unsigned short __cdecl fn_uwGetObjectTableNumberOfelements(void *_hTargetTable);
+extern unsigned short __cdecl fn_uwGetObjectTableNumberOfelements(tdxHandleToObjectsTablesList _hTargetTable);
 #define TFMT_RT_uwGetObjTableCount(h) ((short)fn_uwGetObjectTableNumberOfelements((void *)(h)))
 
 #define TFMT_RT_vCopyObjectBetweenTables(hTgt, hSrc, uwTgt, uwSrc) \
