@@ -104,7 +104,9 @@ target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include $<$<COMPILE_LANGUAG
 # NO_STRICT: VC5-era windows.h typed handles as void * (STRICT was opt-in); the sources declare
 # Win32 APIs that way.
 target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT ${R2_FORK_DEFINES})
-target_compile_options(Rayman2 PRIVATE /O2 /Gy)
+# Debug (--config Debug): CMake's /Od /RTC1 instead, to run the regression with run-time checks
+# (docs/BUGS.md). /O2 would conflict with /RTC1.
+target_compile_options(Rayman2 PRIVATE $<$<NOT:$<CONFIG:Debug>>:/O2 /Gy>)
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # Same policy as MSVC, which only warns on these (C4133, C4013, C4047): Phase 4 cleans them.
   target_compile_options(Rayman2 PRIVATE
