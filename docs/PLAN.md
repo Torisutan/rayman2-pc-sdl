@@ -44,11 +44,14 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
 - **Status.** `CMakeLists.txt` builds with MSVC 19.51 (no source edits; 136 warnings at the default
   level, cleaned in Phase 4). Without the crack it behaves like the VC5 build: alive, no window.
   clang-cl is selectable (see the head of `CMakeLists.txt`); 224 of 225 TUs compile
-  (2026-11-23, clang 23.1, after the decompilation fixes; 198 before, 193 before the
-  protection leftovers were excluded). The one left is a clang crash (compiler bug) in
-  `FUN_00405850` (`GAM/GAM_init.c`): `push offset` of a char array in a naked function
-  (`mov eax, offset` of the same array compiles). The fix has to keep the VC5 bytes, so it
-  goes to the decompilation; until then clang-cl does not link.
+  (2026-11-23, clang 23.1; 198 before the decompilation fixes). `GAM_pc_fn_vLoadGliDll` is C
+  under `RAYMAN2_NO_PROTECTION` (its asm only served the protection gate; the naked version
+  crashes clang). The last TU, `GAM/GAM_init.c`, calls `INO_fn_wActivateDevice` before
+  `INO/INO.h` is included, against a local `void *` prototype; the fix goes to the
+  decompilation. With that one line fixed locally, clang-cl links (`/SAFESEH:NO`, the VC6
+  `DINPUT.LIB` has no SEH tables) and runs the regression: 1860 frames, every field identical to
+  the MSVC baseline except `actor.matrix` from frame 961 (per-target arithmetic, see Phase 2).
+  Its own baseline: `build/regress/clang_baseline.txt`.
   The uninitialised-read pass on the 198 TUs that compile is in BUGS.md (Checked).
 - **Crack behaviour (decided).** The post-link crack (`tools/crack.py`) only partly translates
   to modern codegen (21 of 29 patches; the result crashes). Instead Phase 2 comes first: the

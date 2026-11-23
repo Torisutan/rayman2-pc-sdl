@@ -25,7 +25,7 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 - Exclude the remaining unreferenced protection code, then delete the excluded code.
   Exclusion done (2026-11-23); deletion still to do.
 - clang-cl builds every file (inline asm it rejects, prototype mismatches).
-  224 of 225 today; the last one (a clang crash) is a fix in the decompilation (PLAN Phase 1).
+  224 of 225 today; the last one is a prototype fix in the decompilation. With it, the clang-cl exe runs the regression (PLAN Phase 1).
 - Original engine bugs catalogued in `docs/BUGS.md` and fixed one per commit (`RAYMAN2_FIX_BUGS`).
   First pass done (2026-11-23): 6 fixed; open leads listed there.
 - Faster loading: the loading screen waited for a synchronised screen flip at every progress step.
