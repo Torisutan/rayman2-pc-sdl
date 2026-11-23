@@ -27,6 +27,7 @@ decompilation and reach this fork through upstream merges.
 | `GAM_pc_fn_szFormatSaveSlotDate`, 0x00410DB0 | Retail returns a pointer to a stack buffer (dangling). This source already returns a static buffer, so it is safe here. |
 | `FUN_00405a30` (ubi.ini, `ParticuleRate`), 0x00405A30 | `Null` sets the rate to 0.0 and nothing else matches it. `Low`/`Medium`/`High` set 1/2/3, and any other value keeps the default. Retail does the same (one call per matched value). Well defined. |
 | `GLI_fn_lRequestNewDisplayMode`, 0x004222C0 | The deferred-mode path returns no value (retail returns whatever `EAX` holds). Its only caller (AI procedure) ignores the result. |
+| `GLI_pc_vTransformPointsByObject`, 0x0042CA40 | Looked like overlapping output vectors and a read of an unwritten frame slot. It is neither: the axes are fetched 12 bytes apart and transposed in place, and the slot is written by the callee. The result is defined and equals this source. |
 | `fn_uiEngineMainLoop`, 0x00401540 | No return value, but it ends in `GAM_pc_fn_vEngineThreadExit`, which never returns (`Sleep(INFINITE)`). |
 | Compiler leads (C4701/C4703, 2026-11-23) in `GEO/Element.c`, `GEO/GeoObj.c`, `GMT/GMT.c`, `HIE/HIE.c`, `HIE/HieMtStk.c`, `SCT/Sector.c`, `MMG/MMG_alloc.c`, `COL/COL.c`, `HIE/HieDraw.c`, `MEC/MEC.c`, `MEC/MECBhv.c`, `MEC/MECCol.c`, `MEC/MECTools.c`, `INT/Inters.c`, `INO/INO.c`, `AI/Procedure.c`, `GEO/GEO.c` (box culling) | False positives. The allocation macro always assigns for a non-zero size. Paired tests use the same predicate for the write and the read. The switches only ever see the handled values. |
 
@@ -35,5 +36,4 @@ decompilation and reach this fork through upstream merges.
 | Function, retail address | Lead | Needed |
 |---|---|---|
 | `IPT_fn_bIsKeyWordValid_JoystickAxeValue` (`IPT/IPT_Kwan.c`) | `dfPosition` is uninitialised if the entry's action number is not an axis (X..V). | Check whether the input data or its parser can produce a non-axis action. |
-| `GLI_pc_vTransformPointsByObject`, 0x0042CA40 | Retail writes overlapping 3-float output vectors (8-byte stride), and its loop reads a frame slot that nothing writes. This source does not reproduce it yet. | First settle what retail computes (decompilation). Then decide whether the result is defined. |
 | clang-cl `-Wuninitialized -Wsometimes-uninitialized -Warray-bounds`; a `/RTC1` run of the regression | Not run yet. | Further leads. |
