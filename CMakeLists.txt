@@ -57,6 +57,9 @@ add_custom_command(
   DEPENDS ${CMAKE_SOURCE_DIR}/tools/build.py ${R2_GOG}
   COMMENT "Extracting resources from the GOG exe"
   VERBATIM)
+# A prebuilt .res is a linker input; without this the VS generator lists it as "None" and the exe
+# gets no resources at all.
+set_source_files_properties(${R2_RES} PROPERTIES EXTERNAL_OBJECT TRUE)
 
 # ---- exports: the sound driver DLLs call back into these ---------------------------------------
 file(STRINGS ${R2_DIR}/exports.txt R2_EXPORTS)
@@ -96,7 +99,9 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
   target_compile_options(Rayman2 PRIVATE
     -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion)
 endif()
-target_link_options(Rayman2 PRIVATE /MAP ${R2_EXPORT_FLAGS})
+# /MANIFEST:NO: the linker's default manifest (UAC only) would clash with the GOG one in
+# Rayman2.res, which makes the exe DPI aware.
+target_link_options(Rayman2 PRIVATE /MAP /MANIFEST:NO ${R2_EXPORT_FLAGS})
 target_link_libraries(Rayman2 PRIVATE
   kernel32 user32 gdi32 winmm advapi32 shell32
   # The sources call some CRT functions through their import slots (_imp__fprintf, ...). The UCRT

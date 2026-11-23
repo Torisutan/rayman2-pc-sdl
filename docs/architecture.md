@@ -300,7 +300,8 @@ ships neither.
 sound plugin DLLs fetch them from the exe with `GetProcAddress`.
 
 **Resources.** `.rsrc` is taken from the GOG exe at build time. It holds the icons and GOG's
-DPI-aware manifest; without the manifest Windows stretches the window.
+DPI-aware manifest; without the manifest Windows stretches the window. The modern build links with
+`/MANIFEST:NO`, since the linker's default manifest would otherwise replace it.
 
 **Source file names.** Retail embedded the original build's file names (`__FILE__`) in a few memory
 logging calls. Those TUs set them with `#line N "name"`. Otherwise the exe would contain the path it
