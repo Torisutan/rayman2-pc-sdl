@@ -1,7 +1,13 @@
-# Modern toolchain build of Rayman2.exe (32-bit x86, current MSVC).
+# Modern toolchain build of Rayman2.exe (32-bit x86, current MSVC or clang-cl).
 #
+# MSVC (Visual Studio generator):
 #   cmake -S . -B build-cmake -A Win32
 #   cmake --build build-cmake --config Release
+# clang-cl (from an x86 developer prompt, vcvars32.bat; any single-config generator):
+#   cmake -S . -B build-clang -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release
+#         -DCMAKE_C_COMPILER=clang-cl -DCMAKE_C_COMPILER_TARGET=i686-pc-windows-msvc
+#         -DCMAKE_LINKER=lld-link
+#   cmake --build build-clang
 #
 # The translation units and their link order come from Rayman2.exe/tu.json, so TUs added upstream
 # build without edits here. Paths to the non-shipped inputs come from local.json (see BUILDING.md):
@@ -69,6 +75,11 @@ target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include)
 # Win32 APIs that way.
 target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT)
 target_compile_options(Rayman2 PRIVATE /O2 /Gy)
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  # Same policy as MSVC, which only warns on these (C4133, C4013, C4047): Phase 4 cleans them.
+  target_compile_options(Rayman2 PRIVATE
+    -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion)
+endif()
 target_link_options(Rayman2 PRIVATE /MAP ${R2_EXPORT_FLAGS})
 target_link_libraries(Rayman2 PRIVATE
   kernel32 user32 gdi32 winmm advapi32 shell32
