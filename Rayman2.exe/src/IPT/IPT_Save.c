@@ -73,6 +73,45 @@ unsigned char __cdecl IPT_fn_bLoadOptionsFromFile(FILE *p_stFile)
     unsigned int         (__cdecl *pfnFread)(void *, unsigned int, unsigned int, FILE *);
 
     pfnFread = _imp__fread;
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#7) */
+    /* A damaged file: an unknown entry name dereferenced NULL, a short read repeated the last
+       length forever, a name without its terminator was read past its end and a key code
+       outside 0..255 indexed past p_ucKeyboardCounter. Stop at the first such entry (the size
+       of an unknown entry's values is not known, so the rest cannot be read); the entries read
+       so far stay, the others keep their current values. */
+    if (pfnFread(&ucLength, 1, 1, p_stFile) != 1)
+        return IPT_C_TRUE;
+    while (ucLength != 0xff)
+    {
+        short swValue1, swValue2;
+
+        if (pfnFread(szName, 1, ucLength, p_stFile) != ucLength)
+            break;
+        szName[ucLength] = '\0';
+        hEntryElement = IPT_pc_fn_p_stFindEntryByName(szName);
+        if (hEntryElement == NULL || hEntryElement->d_stKeyWordElementArray == NULL)
+            break;
+        if (hEntryElement->d_stKeyWordElementArray[0].u_ElementUnion.swValue
+            == IPT_C_swKeyWordKeyPressed)
+        {
+            if (pfnFread(&swValue1, 2, 1, p_stFile) != 1
+                || (unsigned short)swValue1 >= sizeof(IPT_g_hInputStructure.p_ucKeyboardCounter))
+                break;
+            hEntryElement->d_stKeyWordElementArray[1].u_ElementUnion.swValue = swValue1;
+        }
+        else if (hEntryElement->d_stKeyWordElementArray[0].u_ElementUnion.swValue
+                 == IPT_C_swKeyWordPadKey)
+        {
+            if (pfnFread(&swValue1, 2, 1, p_stFile) != 1 || pfnFread(&swValue2, 2, 1, p_stFile) != 1)
+                break;
+            hEntryElement->d_stKeyWordElementArray[1].u_ElementUnion.swValue = swValue1;
+            hEntryElement->d_stKeyWordElementArray[2].u_ElementUnion.swValue = swValue2;
+        }
+        if (pfnFread(&ucLength, 1, 1, p_stFile) != 1)
+            break;
+    }
+#else
     pfnFread(&ucLength, 1, 1, p_stFile);
     while (ucLength != 0xff)
     {
@@ -94,5 +133,6 @@ unsigned char __cdecl IPT_fn_bLoadOptionsFromFile(FILE *p_stFile)
         }
         pfnFread(&ucLength, 1, 1, p_stFile);
     }
+#endif /* RAYMAN2_FIX_BUGS */
     return IPT_C_TRUE;
 }
