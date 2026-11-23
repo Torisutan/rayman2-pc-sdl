@@ -148,23 +148,30 @@ streams (ADPCM, used for music and voices).
   frame 64): `POS_fn_vNormalizeMatrix` (from `MEC_fn_vCorrectMatrix`) gets bit-identical input in
   both exes. VC5 keeps the sum of squares, the square root and `inv_norm` on the x87 stack (control
   word 0x027F, 53-bit precision) and rounds to float only at the stores; modern MSVC
-  (`/fp:precise`, SSE2 and x87 alike) rounds each intermediate to float. A model of each
-  reproduces both results bit for bit (first element `bcbb18ef` against `bcbb18f0`). Not CRT
-  math, not an asm helper, not an engine bug. The 1-ulp start feeds back through the dynamics: by
-  frame ~980 a rotation element is off by 1.54 and the translation by 0.39 (heading about 70
-  degrees apart); no other hashed field differs in 1860 frames. x87 with `/fp:fast` diverges too
-  (from frame 63): VC5's rounding follows its own register allocation, no modern setting
-  reproduces it, and a tolerance cannot cover a difference that grows. **Next (decided):** where
-  VC5 keeps intermediates on the x87 stack, a C branch beside the original ones evaluates them in
-  `double` (equal to x87 at 53-bit precision), site by site, each measured; first site
-  `MTH3D_M_vNormalizeVector`. **Platform macro (decided):** `OPTIMIZED_FOR_PC_FLOATS_LIKE_X87`,
-  beside `OPTIMIZED_FOR_PC_FLOATS*`: float intermediates evaluated like the x87 at 53-bit precision
-  (C `double`). CMake option `R2_FLOATS_LIKE_X87`, on for x86/x64; off for targets whose `double`
-  is software (PSP); never defined in the VC5 reference. **Progress:** `MTH3D_M_vNormalizeVector`
-  (DEVIATIONS 7): first difference frame 64 -> 210. Stop when the trail leaves reusable MTH/POS helpers (one-off engine
-  code, CRT trig) and fall back to: **Proposal:** the modern
-  build is checked bit-exact against a modern baseline (same compiler and flags, last green
-  commit); VC5 + define stays the reference for the other hashed fields and for `actor.matrix`
-  up to its first difference, reported, not gating. Each later target gets its own baseline.
+  (`/fp:precise`, SSE2 and x87 alike) rounds each intermediate to float. Not CRT math, not an asm
+  helper, not an engine bug. The 1-ulp start feeds back through the dynamics: by frame ~980 a
+  rotation element is off by 1.54 and the translation by 0.39; no other hashed field differs in
+  1860 frames. x87 with `/fp:fast` diverges too (from frame 63).
+  **Tried:** a `double` branch (`OPTIMIZED_FOR_PC_FLOATS_LIKE_X87`, CMake `R2_FLOATS_LIKE_X87`,
+  DEVIATIONS 7) in `MTH3D_M_vNormalizeVector` moves the first difference to frame 210. The next
+  site, `POS_fn_vQuatToMat` (from `POS_fn_vRotatePositionAroundAxisNoTranslation`, AI 3D
+  procedure; sin/cos identical), is register-allocation bound: VC5 keeps some products on the x87
+  stack and spills others to float locals. Over 180 calls, all-`double` matches VC5 131 times, a
+  model of VC5's exact spills 180 times. A precision rule cannot reproduce VC5; only copying its
+  register allocation, site by site, can.
+  **Original engine structure:** MTH chooses the real type and the math path per target (PC:
+  float with `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM`; `U64`: float on a single-precision FPU with its
+  own asm; `NITRO`: 19.12 fixed point). Engine code such as `POS_fn_vQuatToMat` is one source for all targets, so each target
+  computes its own numbers; no target reproduces the PC's. Cross-target bit equality was never a
+  property of the engine.
+  **Proposal (recommended):** follow the original: per-target arithmetic, each target checked
+  bit-exact against its own baseline (same compiler and flags, last green commit, recorded by
+  `tools/regress.py`), starting with the modern x86 build. VC5 + define stays the reference for
+  every other hashed field and for `actor.matrix` up to its first difference, reported, not
+  gating. Drop the `OPTIMIZED_FOR_PC_FLOATS_LIKE_X87` branch (it buys 146 frames, not equality).
+  Target selection belongs in one MTH target block (Phase 5): x64 and other targets take
+  `OPTIMIZED_FOR_PC_FLOATS` without `_WITH_ASM` (the original C branch), as U64 did.
+  **Open question:** does anything need cross-build bit equality (demo playback, save data that
+  stores positions)? Unchecked.
 - Big-endian data: swap at load time or convert offline.
 - License: none so far, same as upstream.
