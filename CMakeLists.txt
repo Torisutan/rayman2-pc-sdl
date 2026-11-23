@@ -84,6 +84,11 @@ if(R2_LOCAL_UBIINI)
   list(APPEND R2_FORK_DEFINES RAYMAN2_LOCAL_UBIINI)
 endif()
 
+option(R2_FLOATS_LIKE_X87 "Evaluate MTH float intermediates in double, as VC5's x87 code does (OPTIMIZED_FOR_PC_FLOATS_LIKE_X87)" ON)
+if(R2_FLOATS_LIKE_X87)
+  list(APPEND R2_FORK_DEFINES OPTIMIZED_FOR_PC_FLOATS_LIKE_X87)
+endif()
+
 add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RES})
 set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
 target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include)

@@ -184,6 +184,19 @@ extern MTH_tdxReal MTH3D_M_xNormVector(MTH3D_tdstVector *VectA);
 
 #if defined(NITRO)
 extern void MTH3D_M_vNormalizeVector(MTH3D_tdstVector *VectDest, MTH3D_tdstVector *VectA);
+#elif defined(OPTIMIZED_FOR_PC_FLOATS_LIKE_X87)
+/* Intermediates as on the x87 at 53-bit precision (double): squares, sum, sqrt and inverse
+   are not rounded to float; each component is rounded once, at its store. */
+#define MTH3D_M_vNormalizeVector(VectDest, VectA)                                  \
+         {                                                                         \
+			double dfX= (double) (VectA)->xX;                                      \
+			double dfY= (double) (VectA)->xY;                                      \
+			double dfZ= (double) (VectA)->xZ;                                      \
+			double df_inv_norm= 1.0 / sqrt( dfX*dfX + dfY*dfY + dfZ*dfZ );         \
+			(VectDest)->xX= (MTH_tdxReal) (dfX*df_inv_norm);                      \
+			(VectDest)->xY= (MTH_tdxReal) (dfY*df_inv_norm);                      \
+			(VectDest)->xZ= (MTH_tdxReal) (dfZ*df_inv_norm);                      \
+         }
 #elif !defined(U64)
 #define MTH3D_M_vNormalizeVector(VectDest, VectA)                                  \
          {																		   \

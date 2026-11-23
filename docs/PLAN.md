@@ -157,7 +157,11 @@ streams (ADPCM, used for music and voices).
   reproduces it, and a tolerance cannot cover a difference that grows. **Next (decided):** where
   VC5 keeps intermediates on the x87 stack, a C branch beside the original ones evaluates them in
   `double` (equal to x87 at 53-bit precision), site by site, each measured; first site
-  `MTH3D_M_vNormalizeVector`. Stop when the trail leaves reusable MTH/POS helpers (one-off engine
+  `MTH3D_M_vNormalizeVector`. **Platform macro (decided):** `OPTIMIZED_FOR_PC_FLOATS_LIKE_X87`,
+  beside `OPTIMIZED_FOR_PC_FLOATS*`: float intermediates evaluated like the x87 at 53-bit precision
+  (C `double`). CMake option `R2_FLOATS_LIKE_X87`, on for x86/x64; off for targets whose `double`
+  is software (PSP); never defined in the VC5 reference. **Progress:** `MTH3D_M_vNormalizeVector`
+  (DEVIATIONS 7): first difference frame 64 -> 210. Stop when the trail leaves reusable MTH/POS helpers (one-off engine
   code, CRT trig) and fall back to: **Proposal:** the modern
   build is checked bit-exact against a modern baseline (same compiler and flags, last green
   commit); VC5 + define stays the reference for the other hashed fields and for `actor.matrix`
