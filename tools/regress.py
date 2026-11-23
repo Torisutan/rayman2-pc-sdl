@@ -8,8 +8,11 @@ and hashed.
   python tools/regress.py run EXE OUT [--level Morb_00] [--frames 1800] [--input SCRIPT]
                                       [--record SCRIPT] [--timeout 300]
       run EXE in the sandbox (tools/run.py) and write the per-frame hash file OUT
-  python tools/regress.py diff A B
-      compare two hash files: first differing frame and the fields that differ there
+  python tools/regress.py diff A B [--report FIELD ...]
+      compare two hash files: first differing frame and the fields that differ there.
+      --report FIELD: FIELD does not gate; its first difference is reported. Use it to compare
+      builds whose arithmetic differs (docs/PLAN.md Phase 2: modern build against VC5 with
+      --report actor.matrix); the modern build gates against its own baseline.
 
 Exit code 0 = run complete / files identical.
 """
@@ -61,21 +64,38 @@ def parse(line):
 
 def do_diff(a):
     la, lb = open(a.a).read().splitlines(), open(a.b).read().splitlines()
+    reported = {}                                   # field -> first frame where it differs
+    rc = 0
     for x, y in zip(la, lb):
         if x == y:
             continue
         fa, ha, da = parse(x)
         fb, hb, db = parse(y)
-        print("first difference at frame %d (mode %s, level %s)" % (fa, da.get("mode"), da.get("lvl")))
-        for k in da:
-            if da.get(k) != db.get(k):
+        keys = [k for k in list(da) + [k for k in db if k not in da] if da.get(k) != db.get(k)]
+        for k in keys:
+            if k in a.report and k not in reported:
+                reported[k] = (fa, da.get(k), db.get(k))
+        gating = [k for k in keys if k not in a.report]
+        if gating:
+            print("first difference at frame %d (mode %s, level %s)" % (fa, da.get("mode"), da.get("lvl")))
+            for k in gating:
                 print("  %-14s %s | %s" % (k, da.get(k), db.get(k)))
-        return 1
-    if len(la) != len(lb):
-        print("identical for %d frames, then lengths differ: %d | %d" % (min(len(la), len(lb)), len(la), len(lb)))
-        return 1
-    print("identical: %d frames" % len(la))
-    return 0
+            rc = 1
+            break
+    else:
+        if len(la) != len(lb):
+            print("identical for %d frames, then lengths differ: %d | %d" % (min(len(la), len(lb)), len(la), len(lb)))
+            rc = 1
+        elif a.report:
+            print("identical: %d frames (except reported fields)" % len(la))
+        else:
+            print("identical: %d frames" % len(la))
+    for k in a.report:
+        if k in reported:
+            print("  reported: %-14s first difference at frame %d (%s | %s)" % ((k,) + reported[k]))
+        elif rc == 0:
+            print("  reported: %-14s identical" % k)
+    return rc
 
 
 def main():
@@ -92,6 +112,8 @@ def main():
     d = sub.add_parser("diff")
     d.add_argument("a")
     d.add_argument("b")
+    d.add_argument("--report", action="append", default=[], metavar="FIELD",
+                   help="field reported at its first difference, not gating (repeatable)")
     a = ap.parse_args()
     return do_run(a) if a.cmd == "run" else do_diff(a)
 

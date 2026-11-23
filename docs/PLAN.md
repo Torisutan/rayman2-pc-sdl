@@ -106,7 +106,10 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   targets, so each target computes its own numbers; no target reproduces the PC's. Cross-target bit
   equality was never a property of the engine. **Decided:** follow the original: per-target
   arithmetic, each target checked bit-exact against its own baseline (same compiler and flags, last
-  green commit, recorded by `tools/regress.py`), starting with the modern x86 build. VC5 + define
+  green commit, recorded by `tools/regress.py`), starting with the modern x86 build
+  (`build/regress/modern_baseline.txt`, from the commit that drops the branch). Check:
+  `regress.py diff BASELINE NEW` gates; `regress.py diff VC5 NEW --report actor.matrix` gates the
+  other fields and reports the matrix. VC5 + define
   stays the reference for every other hashed field and for `actor.matrix` up to its first
   difference, reported, not gating. The `double` branch was dropped (it bought 146 frames, not
   equality). Target selection belongs in one MTH target block (Phase 5): x64 and other targets take
