@@ -1,0 +1,78 @@
+# Modern toolchain build of Rayman2.exe (32-bit x86, current MSVC).
+#
+#   cmake -S . -B build-cmake -A Win32
+#   cmake --build build-cmake --config Release
+#
+# The translation units and their link order come from Rayman2.exe/tu.json, so TUs added upstream
+# build without edits here. Paths to the non-shipped inputs come from local.json (see BUILDING.md):
+#   vc6  Visual C++ 6.0, for DINPUT.LIB (DirectInputCreateA and the c_dfDI* data formats; current
+#        SDKs ship only the DirectInput 8 library)
+#   gog  your GOG Rayman2.exe, for its resources (icons + manifest)
+cmake_minimum_required(VERSION 3.20)
+project(Rayman2 C)
+
+if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+  message(FATAL_ERROR "Rayman2 builds as 32-bit x86 only: configure with -A Win32")
+endif()
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+# Keep any build tree out of git, whatever its name.
+file(WRITE ${CMAKE_BINARY_DIR}/.gitignore "*
+")
+
+set(R2_DIR ${CMAKE_SOURCE_DIR}/Rayman2.exe)
+
+# ---- local.json ---------------------------------------------------------------------------------
+set(R2_LOCAL ${CMAKE_SOURCE_DIR}/local.json)
+if(NOT EXISTS ${R2_LOCAL})
+  message(FATAL_ERROR "local.json missing: run `python tools/build.py --vc5 .. --vc6 .. --gog ..` once (BUILDING.md)")
+endif()
+file(READ ${R2_LOCAL} R2_LOCAL_JSON)
+string(JSON R2_VC6 GET ${R2_LOCAL_JSON} vc6)
+string(JSON R2_GOG GET ${R2_LOCAL_JSON} gog)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${R2_LOCAL} ${R2_DIR}/tu.json ${R2_DIR}/exports.txt)
+
+# ---- translation units, in link order ---------------------------------------------------------
+file(READ ${R2_DIR}/tu.json R2_TU_JSON)
+string(JSON R2_TU_COUNT LENGTH ${R2_TU_JSON} link_order)
+math(EXPR R2_TU_LAST "${R2_TU_COUNT} - 1")
+set(R2_SOURCES)
+foreach(i RANGE ${R2_TU_LAST})
+  string(JSON src GET ${R2_TU_JSON} link_order ${i} src)
+  list(APPEND R2_SOURCES ${R2_DIR}/${src})
+  # Per-TU retail flags (G6 = Pentium Pro scheduling, MD = DLL CRT, none) only matter for byte
+  # matching; the modern build uses one codegen for every TU.
+endforeach()
+
+# ---- resources: the GOG exe's .rsrc, as tools/build.py links it ------------------------------
+set(R2_RES ${CMAKE_BINARY_DIR}/Rayman2.res)
+add_custom_command(
+  OUTPUT ${R2_RES}
+  COMMAND ${Python3_EXECUTABLE} -c "import sys; sys.path.insert(0, sys.argv[1]); import build; open(sys.argv[3], 'wb').write(build.res_bytes(sys.argv[2]))" ${CMAKE_SOURCE_DIR}/tools ${R2_GOG} ${R2_RES}
+  DEPENDS ${CMAKE_SOURCE_DIR}/tools/build.py ${R2_GOG}
+  COMMENT "Extracting resources from the GOG exe"
+  VERBATIM)
+
+# ---- exports: the sound driver DLLs call back into these ---------------------------------------
+file(STRINGS ${R2_DIR}/exports.txt R2_EXPORTS)
+set(R2_EXPORT_FLAGS)
+foreach(e ${R2_EXPORTS})
+  string(STRIP "${e}" e)
+  if(e)
+    list(APPEND R2_EXPORT_FLAGS "/EXPORT:${e}")
+  endif()
+endforeach()
+
+add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RES})
+set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
+target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include)
+# NO_STRICT: VC5-era windows.h typed handles as void * (STRICT was opt-in); the sources declare
+# Win32 APIs that way.
+target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT)
+target_compile_options(Rayman2 PRIVATE /O2 /Gy)
+target_link_options(Rayman2 PRIVATE /MAP ${R2_EXPORT_FLAGS})
+target_link_libraries(Rayman2 PRIVATE
+  kernel32 user32 gdi32 winmm advapi32 shell32
+  # The sources call some CRT functions through their import slots (_imp__fprintf, ...). The UCRT
+  # inlines the printf family, so it has no fprintf slot; this library supplies one.
+  legacy_stdio_definitions
+  ${R2_VC6}/VC98/Lib/DINPUT.LIB dxguid)
