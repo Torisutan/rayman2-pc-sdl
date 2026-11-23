@@ -24,4 +24,10 @@ MTH_tdxReal GLI_fn_xComputeSafeAreaRatio(MTH_tdxReal xWidth, MTH_tdxReal xHeight
 /**********************************************************************************************/
 MTH_tdxReal GLI_fn_xToSafeArea(MTH_tdxReal xX, MTH_tdxReal xFull);
 
+/**********************************************************************************************/
+/* Name: GLI_fn_p_vSqueezeBitmapToSafeArea */
+/* Goal: A 16 bit 4:3 bitmap squeezed into the 4:3 band of a same-size one, black sides */
+/**********************************************************************************************/
+void *GLI_fn_p_vSqueezeBitmapToSafeArea(void *p_vBuffer, long lWidth, long lHeight);
+
 #endif /* RAYMAN2_WIDESCREEN */

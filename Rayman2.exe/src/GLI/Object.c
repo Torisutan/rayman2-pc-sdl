@@ -11,6 +11,9 @@
 #include "GLI/GLI_BigGlobals.h"
 #include "GEO/GEO_types.h"
 #include "GLI/light_st.h"
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 struct GLD_tdstViewportAttributes
 {
@@ -365,6 +368,15 @@ void __cdecl GLI_vDraw2DSpriteWithPercent(
     fHeight = MTH_M_xLongToReal(ulBottomInPix);
     fYMinScaled = YMin * *GLI_g_xOnePercent_ADDR * fHeight;
     fYMaxScaled = YMax * *GLI_g_xOnePercent_ADDR * fHeight;
+#ifdef RAYMAN2_WIDESCREEN
+    /* in the 4:3 band, except full-width sprites (backgrounds, fades) */
+    if ( GLI_g_xSafeAreaRatio < MTH_C_ONE
+      && !( XMin <= MTH_C_ZERO && XMax >= MTH_M_xConstFloatToReal(100.0f) ) )
+    {
+        fXMinScaled = GLI_fn_xToSafeArea(fXMinScaled, fWidth);
+        fXMaxScaled = GLI_fn_xToSafeArea(fXMaxScaled, fWidth);
+    }
+#endif /* RAYMAN2_WIDESCREEN */
 
     {
 

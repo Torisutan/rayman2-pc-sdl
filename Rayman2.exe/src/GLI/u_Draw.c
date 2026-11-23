@@ -9,6 +9,9 @@
 #include "POS/POS_types.h"
 #include "MTH/MTH3D.h"
 #include "GLD/GLD_Pub.h"
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 void POS_fn_vGetTransformMatrix(POS_tdstCompletePosition *_hMatrix,
                                 MTH3D_tdstVector *_p_stI,
@@ -121,6 +124,17 @@ void GLI_vDraw2DSprite(struct GLD_tdstViewportAttributes_ *p_stVpt,
     aColor[1] = 0.0f;
     aColor[2] = 0.0f;
     GLI_xSetMaterialSpecularCoef(p_vMaterial, 0, aColor);
+
+#ifdef RAYMAN2_WIDESCREEN
+    /* in the 4:3 band, except full-width sprites */
+    fI2 = MTH_M_xLongToReal(p_stVpt->dwWidth);
+    if ( GLI_g_xSafeAreaRatio < MTH_C_ONE
+      && !( fParam3 <= MTH_C_ZERO && fParam2 >= fI2 ) )
+    {
+        fParam2 = GLI_fn_xToSafeArea(fParam2, fI2);
+        fParam3 = GLI_fn_xToSafeArea(fParam3, fI2);
+    }
+#endif /* RAYMAN2_WIDESCREEN */
 
     /* 0x429569 */
     fI2 = (float)(long)fParam2;

@@ -9,6 +9,9 @@
 #include "GLI/ui_reset_redraw.h"
 #include <string.h>
 #include <windows.h>
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 extern unsigned char __cdecl FUN_0044f4e0(void);
 
@@ -1743,6 +1746,11 @@ __declspec(naked) unsigned int __cdecl GLI_AddToProgressBar(int lIncrement)
 void __cdecl GLI_pc_fn_vWrite16bBitmapToBackBuffer(void *p_vBuffer, long lPitch, long lHeight,
                                                    long lArg4, long lArg5, long lArg6, long lArg7)
 {
+#ifdef RAYMAN2_WIDESCREEN
+    /* the bitmap (vignette, 4:3) is squeezed into its 4:3 band; size and rect unchanged */
+    if ( GLI_g_xSafeAreaRatio < MTH_C_ONE )
+        p_vBuffer = GLI_fn_p_vSqueezeBitmapToSafeArea(p_vBuffer, lPitch, lHeight);
+#endif /* RAYMAN2_WIDESCREEN */
     ((void (__cdecl *)(void *, long, long, long, long, long, long))GLI_DRV_g_vWrite16bBitmapToBackBuffer)
         (p_vBuffer, lPitch, lHeight, lArg4, lArg5, lArg6, lArg7);
 }
