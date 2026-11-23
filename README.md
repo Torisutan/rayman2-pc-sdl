@@ -31,12 +31,11 @@ comes next.
 Requirements (not included):
 - Visual Studio 2022 or later with the C++ x86 tools, CMake 3.20+, Python 3.
 - Visual C++ 6.0, only for `DINPUT.LIB` (current SDKs ship only the DirectInput 8 library).
-- Your GOG `Rayman2.exe`: its resources (icons, DPI-aware manifest) are linked into the build.
 
 Create `local.json` in the repository root:
 
 ```json
-{ "vc6": "C:\\path\\to\\VC6", "gog": "C:\\path\\to\\Rayman 2\\Rayman2.exe" }
+{ "vc6": "C:\\path\\to\\VC6" }
 ```
 
 Then:
