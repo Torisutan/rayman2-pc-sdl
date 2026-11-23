@@ -10,6 +10,8 @@ and started there (it expects the game folder as its own folder and working dire
   python tools/run.py EXE                       alive + visible window after --seconds?
   python tools/run.py EXE --level Morb_00       once the menu plays, load that level directly
   python tools/run.py EXE --shot 10,20          screen captures at those seconds (build/run/shots)
+  python tools/run.py EXE --mode 1440x1080      display mode written into the sandbox's ubi.ini
+  python tools/run.py EXE --keys 12:esc,13:down key presses at those seconds (DirectInput scancodes)
 
 The direct level load writes the level-change request into the engine structure, as the engine's
 own level change does (GAM_fn_vAskToChangeLevel): szNextLevelName, the mode-6 save flag, then
@@ -57,6 +59,38 @@ def mirror(dst, src):
             junction(d, s)
         elif not os.path.exists(d):
             os.link(s, d)
+
+
+def set_mode(ini, mode):
+    """GLI_Mode line of the sandbox's ubi.ini set to mode ("WxH")."""
+    w, h = (int(v) for v in mode.lower().split("x"))
+    lines = open(ini).read().splitlines()
+    lines = [("GLI_Mode=1 - %d x %d x 32" % (w, h)) if l.startswith("GLI_Mode=") else l for l in lines]
+    open(ini, "w").write("".join(l + chr(10) for l in lines))
+
+
+SCAN = {"esc": 0x01, "enter": 0x1C, "space": 0x39, "up": 0xE048, "down": 0xE050, "left": 0xE04B,
+        "right": 0xE04D, "a": 0x1E, "j": 0x24, "q": 0x10, "tab": 0x0F, "f1": 0x3B}
+
+
+class KEYBDINPUT(ctypes.Structure):
+    _fields_ = [("wVk", wt.WORD), ("wScan", wt.WORD), ("dwFlags", wt.DWORD), ("time", wt.DWORD),
+                ("dwExtraInfo", ctypes.c_size_t)]
+
+
+class INPUT(ctypes.Structure):
+    _fields_ = [("type", wt.DWORD), ("ki", KEYBDINPUT), ("pad", ctypes.c_ubyte * 8)]
+
+
+def press(key, hold=0.15):
+    """One key press by scancode (DirectInput reads scancodes, not virtual keys)."""
+    code = SCAN[key] if key in SCAN else int(key, 16)
+    flags = 0x0008 | (0x0001 if code > 0xFF else 0)          # SCANCODE | EXTENDEDKEY
+    for up in (0, 0x0002):
+        i = INPUT(1, KEYBDINPUT(0, code & 0xFF, flags | up, 0, 0))
+        user32.SendInput(1, ctypes.byref(i), ctypes.sizeof(INPUT))
+        if not up:
+            time.sleep(hold)
 
 
 def build_sandbox(exe):
@@ -194,6 +228,8 @@ def main():
     ap.add_argument("--level")
     ap.add_argument("--shot", default="", help="comma-separated seconds")
     ap.add_argument("--map", help="LINK map of EXE (default: EXE.map, else Rayman2.map beside it)")
+    ap.add_argument("--mode", help="display mode WxH (default: the install's ubi.ini)")
+    ap.add_argument("--keys", default="", help="comma-separated SECONDS:KEY (name or hex scancode)")
     ap.add_argument("--keep", action="store_true", help="leave the game running at the end")
     a = ap.parse_args()
     map_path = a.map or os.path.splitext(os.path.abspath(a.exe))[0] + ".map"
@@ -203,6 +239,9 @@ def main():
     subprocess.run(["taskkill", "/F", "/IM", "Rayman2.exe"], capture_output=True)
     time.sleep(0.5)
     exe = build_sandbox(os.path.abspath(a.exe))
+    if a.mode:
+        set_mode(os.path.join(BOX, "ubi.ini"), a.mode)
+    keys = sorted((float(t), k) for t, k in (e.split(":") for e in a.keys.split(",") if e))
     shots = sorted(float(s) for s in a.shot.split(",") if s)
     if shots:
         os.makedirs(os.path.join(BOX, "shots"), exist_ok=True)
@@ -218,6 +257,10 @@ def main():
             print("window at %.1fs: %r" % (now, windows_of(p.pid)[0][1]))
         if poke:
             poke.step(now)
+        while keys and now >= keys[0][0]:
+            key = keys.pop(0)[1]
+            press(key)
+            print("key %s at %.1fs" % (key, now))
         while shots and now >= shots[0]:
             path = os.path.join(BOX, "shots", "%03d.png" % int(shots.pop(0)))
             print("shot %s: %s" % (path, "ok" if shoot(path) else "FAILED"))
