@@ -17,6 +17,12 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
    commits, so each one can be reviewed and reverted on its own.
 4. **Measure before and after.** Every phase ends with the regression run (below) unchanged, except
    where the phase intends a change.
+5. **Write in the original engine's style.** Names (module prefix, type-prefixed identifiers such
+   as `ul`, `p_st`, `fn_v`), `/* */` comments, and its way of fencing platform code: platform- or
+   compiler-specific code sits under a preprocessor condition, next to a branch for the other
+   targets, and every `#endif` names its condition (`#endif /* NAME */`). New targets (x64, PSP,
+   Wii U, ...) get another branch beside the existing code. Do not rewrite the existing branch.
+   This applies to every edit, not only to protection removal.
 
 ## Phases
 
@@ -27,10 +33,13 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
 - First build the sources as they are. Current 32-bit MSVC still accepts inline asm, naked
   functions and `_emit`, so only real incompatibilities change at this step (headers, shims,
   declarations).
-- Inline asm must go eventually, because no other target compiler accepts the MSVC dialect. It
-  goes in later phases, where its context disappears:
-  - `__declspec(naked)` gates and `_emit` NOP runs, which are protection code: Phase 2;
-  - inline-asm math helpers and `#pragma optimize` frame tricks, which become plain C: Phase 4.
+- No other target compiler accepts the MSVC inline-asm dialect, so the asm leaves the other
+  targets' builds in two ways:
+  - `__declspec(naked)` gates and `_emit` NOP runs are protection code: they are excluded with
+    the protection in Phase 2;
+  - inline-asm math helpers and `#pragma optimize` frame tricks stay as they are for x86 MSVC,
+    under a platform condition (rule 5). A portable C branch goes beside them for the other
+    targets: Phase 4.
 - The game still uses the retail renderer and sound DLLs at this stage.
 - **Status.** `CMakeLists.txt` builds with MSVC 19.51 (no source edits; 136 warnings at the default
   level, cleaned in Phase 4). Without the crack it behaves like the VC5 build: alive, no window.
