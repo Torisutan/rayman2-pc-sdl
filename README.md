@@ -1,41 +1,89 @@
-> **rayman2-pc-sdl** is a fork of [rayman2-pc-decomp](https://github.com/Torisutan/rayman2-pc-decomp).
-> It turns the decompilation into a portable engine (modern compilers, no copy protection, fixed
-> original bugs, later multiplatform), keeping the original engine structure. See
-> [docs/PLAN.md](docs/PLAN.md). The rest of this README is upstream's.
+# rayman2-pc-sdl
 
-# rayman2-pc-decomp
+A portable engine for **Rayman 2: The Great Escape**, built from the decompiled PC source.
 
-A decompilation of the PC version of **Rayman 2: The Great Escape** (`Rayman2.exe`, GOG release,
-MD5 `ef4954015d8b67e3534c9dc40ca3ad6e`). The goal is C source that rebuilds a **byte-identical**
-`Rayman2.exe` with the original toolchain (MSVC 5.0 SP3, LINK 5.10, x87).
+This is a fork of [rayman2-pc-decomp](https://github.com/Torisutan/rayman2-pc-decomp), which
+rebuilds the retail `Rayman2.exe` (GOG release) byte for byte with the original 1999 toolchain.
+This fork takes that source further: it builds with current compilers, removes the copy
+protection, fixes the original engine's bugs and adds modern display support. The long-term goal is
+a multiplatform engine (Windows, Linux, macOS, later homebrew targets such as PSP and Wii U).
 
-## Status
+The original engine structure stays: module split (`GAM`, `GLI`, `SND`, `MMG`, ...), names, file
+layout, data structures and coding style. Every departure is listed with its reason in
+[docs/DEVIATIONS.md](docs/DEVIATIONS.md).
 
-3267 functions reimplemented: 2862 byte-exact, 405 not yet byte-exact (per-function list: `Rayman2.exe/status.json`).
+You need your own copy of the game. This repository contains no game data and no executables.
 
-The full program builds, links and runs. It is not yet byte-identical to retail.
+## Status (v0.1.0)
 
-## Layout
+- Builds with current MSVC as a 32-bit Windows exe; runs the whole game with the retail game
+  data and the install's renderer and sound DLLs.
+- Copy protection removed at the source (no CD check, no tamper checks).
+- DPI aware; widescreen with Hor+ 3D and 4:3 UI at any resolution (16:9, 16:10, ...).
+- Every change is measured with a regression harness: a fixed input sequence, the engine state
+  hashed every frame, compared against a recorded baseline.
 
-| Path | Contents |
+See [CHANGELOG.md](CHANGELOG.md) for the details and [docs/ROADMAP.md](docs/ROADMAP.md) for what
+comes next.
+
+## Building
+
+Requirements (not included):
+- Visual Studio 2022 or later with the C++ x86 tools, CMake 3.20+, Python 3.
+- Visual C++ 6.0, only for `DINPUT.LIB` (current SDKs ship only the DirectInput 8 library).
+- Your GOG `Rayman2.exe`: its resources (icons, DPI-aware manifest) are linked into the build.
+
+Create `local.json` in the repository root:
+
+```json
+{ "vc6": "C:\\path\\to\\VC6", "gog": "C:\\path\\to\\Rayman 2\\Rayman2.exe" }
+```
+
+Then:
+
+```
+cmake -S . -B build-cmake -A Win32
+cmake --build build-cmake --config Release
+```
+
+Copy `build-cmake/Release/Rayman2.exe` into your game folder (keep a backup of the original). The
+game reads `ubi.ini` from its own folder, as current installs ship it.
+
+CMake options (all on by default):
+
+| Option | Define | Effect |
+|---|---|---|
+| `R2_NO_PROTECTION` | `RAYMAN2_NO_PROTECTION` | Copy protection excluded |
+| `R2_LOCAL_UBIINI` | `RAYMAN2_LOCAL_UBIINI` | `ubi.ini` from the game folder, not the Windows folder |
+| `R2_WIDESCREEN` | `RAYMAN2_WIDESCREEN` | Hor+ 3D view and 4:3 UI at wide resolutions |
+| `R2_REGRESS` | `RAYMAN2_REGRESS` | Regression harness (inactive unless started by `tools/regress.py`) |
+
+The original-toolchain build of upstream (byte matching) is described in
+[BUILDING.md](BUILDING.md).
+
+## Tools
+
+| Command | Purpose |
 |---|---|
-| `Rayman2.exe/src/` | Translation units, one engine module per directory (AI, GAM, GLI, MTH, SND, ...) |
-| `Rayman2.exe/include/` | Module headers |
-| `Rayman2.exe/shim/` | `stdint.h` / `intrin.h` stand-ins for the VC5 compiler |
-| `Rayman2.exe/tu.json` | Link order plus compiler flags and toolchain for each TU |
-| `Rayman2.exe/status.json` | Each function's retail address, size, source file and match verdict |
-| `Rayman2.exe/exports.txt` | The retail export table, which the sound plugin DLLs import from the exe |
-| `Rayman2.exe/crack.json` | Translation tables for the post-link crack step |
-| `tools/build.py` | Retail-toolchain build (`--crack` also writes a runnable cracked copy) |
-| `tools/check.py`, `tools/byte_match.py` | Byte comparison against retail: whole exe, or one function with an asm diff |
-| `tools/crack.py` | Post-link crack step |
-
-`/* 0x00XXXXXX */` comments give the retail address of the function or global they sit next to.
+| `python tools/run.py EXE --level Morb_00 --shot 10` | Run the game in a sandbox (your install is never written), load a level, take screenshots |
+| `python tools/regress.py run EXE OUT` | Regression run: fixed input, per-frame state hashes |
+| `python tools/regress.py diff A B` | Compare two regression runs |
+| `python tools/build_ref.py --define ...` | Original-toolchain build with the fork's defines (reference) |
 
 ## Documentation
 
-- [BUILDING.md](BUILDING.md): toolchain, build, byte-matching tools
-- [docs/architecture.md](docs/architecture.md): engine structure, toolchain and link facts, method
+- [docs/ROADMAP.md](docs/ROADMAP.md): milestones
+- [docs/PLAN.md](docs/PLAN.md): the detailed plan, rules, measurements and open decisions
+- [docs/DEVIATIONS.md](docs/DEVIATIONS.md): every departure from the original engine structure
+- [docs/architecture.md](docs/architecture.md): engine structure, toolchain and link facts
+- [BUILDING.md](BUILDING.md): the original-toolchain build and byte-matching tools (upstream)
+
+## Credits
+
+- [rayman2-pc-decomp](https://github.com/Torisutan/rayman2-pc-decomp): the decompilation this
+  fork is built on.
+- [Ray2Fix](https://github.com/spitfirex86/Ray2Fix) by Spitfire_x86 (MIT): the Hor+ formula and the
+  full-width sprite rule of the widescreen support follow it.
 
 ## Legal
 

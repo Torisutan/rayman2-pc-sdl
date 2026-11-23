@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# The fork keeps its own README; upstream edits to it are not merged (needs: git config merge.ours.driver true)
+README.md merge=ours
