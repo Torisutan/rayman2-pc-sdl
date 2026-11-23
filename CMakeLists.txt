@@ -112,6 +112,8 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
   # Same policy as MSVC, which only warns on these (C4133, C4013, C4047): Phase 4 cleans them.
   target_compile_options(Rayman2 PRIVATE
     -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion)
+  # DINPUT.LIB (VC6) has no SEH tables: link.exe then drops SAFESEH silently, lld-link stops.
+  target_link_options(Rayman2 PRIVATE /SAFESEH:NO)
 endif()
 # /MANIFEST:NO: the linker's default manifest (UAC only) would clash with the GOG one in
 # Rayman2.res, which makes the exe DPI aware.
