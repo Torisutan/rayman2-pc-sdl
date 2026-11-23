@@ -984,6 +984,11 @@ void __cdecl fn_vMakeCharacterReact(HIE_tdstSuperObject *p_stSuperObj)
     {
 
         if (!((ulCurrentBits & GAM_C_CustBitNoAI)
+#ifdef RAYMAN2_NO_PROTECTION
+              /* Copy protection removed: the protection actors (their scripts check the
+                 relocation-table keys and the code image) do not think. */
+              || (ulCurrentBits & GAM_C_CustBitProtection)
+#endif /* RAYMAN2_NO_PROTECTION */
               || ((ulCurrentBits & GAM_C_CustBitNoAIWhenTooFar)
                   && fn_bStandardGameIsTooFar(hStdGame))))
         {

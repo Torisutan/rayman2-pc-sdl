@@ -9429,6 +9429,10 @@ AI_tdstNodeInterpret *__cdecl CAM_fn_p_stSetForce(
 
 #include "AI/AI_Erm.h"
 
+#ifdef RAYMAN2_NO_PROTECTION
+void __cdecl AI_pc_fn_vSetProtectionActor(HIE_tdstSuperObject *p_SuperObjPerso);   /* Function.c */
+#endif /* RAYMAN2_NO_PROTECTION */
+
 /* 0x00470000 */
 AI_tdstNodeInterpret *__cdecl fn_p_stMiscProtectProcedure(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
@@ -9442,6 +9446,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMiscProtectProcedure(
     unsigned char         ucVarId;
     AI_tdstGetSetParam    stParam;
 
+#ifndef RAYMAN2_NO_PROTECTION
     MMG_pc_M_vStepLcg();
     p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
     MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpGetModuleHandleA, 0xFF, 0xE0);
@@ -9453,6 +9458,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMiscProtectProcedure(
         MMG_pc_M_vStepLcg();
         *p_ucScrub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
     }
+#else
+    AI_pc_fn_vSetProtectionActor(p_SuperObjPerso);   /* see Function.c */
+#endif /* RAYMAN2_NO_PROTECTION */
 
     if (ulProcId != 0x170)
     {
@@ -9469,6 +9477,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMiscProtectProcedure(
         unsigned long    ulValue;
 
         M_EvalNextParameter(&stParam);
+#ifndef RAYMAN2_NO_PROTECTION   /* ACT_UpdateChecksum: sum of squared dwords of the running code image */
         ulValue = *(unsigned long *)(ulModule + M_GetSetParam_lValue(&stParam));
         ullSum += (unsigned __int64)ulValue * (unsigned __int64)ulValue;
 
@@ -9476,6 +9485,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMiscProtectProcedure(
         ((unsigned long *)M_GetSetParam_Param(&stParam))[2] = ulKeep;
         M_GetSetParam_Type(&stParam) = E_vt_Vector;
         fn_ucSetDsgVar(ucVarId, 0, p_stMind, &stParam);
+#endif /* RAYMAN2_NO_PROTECTION */
     }
     return p_stTree;
 }

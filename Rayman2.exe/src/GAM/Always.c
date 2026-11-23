@@ -65,6 +65,7 @@ extern tdstAnim3d *__cdecl fn_p_stGetAnimInState(void *hState);
 /* 0x00418A20 */
 extern void __cdecl fn_vAllocArrayOfElts3d(void *h_3dData, unsigned short _wNumberOfElts3d);
 
+#ifndef RAYMAN2_NO_PROTECTION   /* LCG of the relocation-table copy selector */
 static unsigned int alw_lcg_step(unsigned int seed)
 {
     unsigned int s    = seed ^ 0x75bd924u;
@@ -73,6 +74,7 @@ static unsigned int alw_lcg_step(unsigned int seed)
         next += 0x7fffffffu;
     return next;
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
 HIE_tdxHandleToSuperObject __cdecl fn_p_stAllocateAlways(
     tdObjectType                otObjectModelType,
@@ -199,9 +201,11 @@ HIE_tdxHandleToSuperObject __cdecl fn_p_stAllocateAlways(
                 fn_p_st3dDataGetCurrentFrame(p_stEngineObject->h_3dData)->p_stAnim = NULL;
             }
 
+#ifndef RAYMAN2_NO_PROTECTION   /* steps the random relocation-table copy selector */
             MMG_g_ulLCGState = alw_lcg_step(MMG_g_ulLCGState);
             GAM_pc_g_ucAlwaysSpawnCounter =
                 (unsigned char)(GAM_pc_g_ucAlwaysSpawnCounter + (int)(MMG_g_ulLCGState) % 5 + 1);
+#endif /* RAYMAN2_NO_PROTECTION */
 
             return h_stSuperObject;
         }

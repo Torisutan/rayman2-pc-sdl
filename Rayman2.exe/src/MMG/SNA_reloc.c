@@ -516,8 +516,10 @@ int __cdecl SNA_pc_vLoadAndRelocate(char *_szFile)
     }
     SNA_g_pGptContext = NULL;
 
+#ifndef RAYMAN2_NO_PROTECTION   /* checksum mismatch: spoil the recorded table state the protection actors check */
     if (((SNA_pc_tdstStream *)a_ucStream)->ulChecksum != SNA_g_ulGptHeaderScratch && SNA_p_bEmbeddedGate())
         SNA_pc_g_a_ulTableState[SNA_g_ulTableIndex - 1] = ~SNA_pc_g_a_ulTableState[SNA_g_ulTableIndex - 1];
+#endif /* RAYMAN2_NO_PROTECTION */
 
     SNA_pc_bCloseFile(a_ucStream);
     return 1;
@@ -739,6 +741,7 @@ void __cdecl SNA_pc_vReadAndRelocateSnd(void)
 BOOL __stdcall SNA_pc_fn_bReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD dwToRead,
                                    LPDWORD lpRead, LPOVERLAPPED lpOverlapped)
 {
+#ifndef RAYMAN2_NO_PROTECTION   /* Win32 call through a code-pool stub */
     unsigned char *p_ucStub;
     unsigned char *p_ucEnd;
     BOOL bResult;
@@ -755,6 +758,9 @@ BOOL __stdcall SNA_pc_fn_bReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD dwToRead
         *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
     }
     return bResult;
+#else
+    return ReadFile(hFile, lpBuffer, dwToRead, lpRead, lpOverlapped);
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 extern unsigned int __cdecl MMG_pc_fn_ulStepLcgState(void);
@@ -824,6 +830,7 @@ unsigned long  SNA_pc_g_ulUnitDenominator;    /* 0x005117C0 */
 unsigned long  SNA_pc_g_ulOffsetMul;          /* 0x005117BC */
 long           SNA_pc_g_lOffsetBase;          /* 0x00511754 */
 
+#ifndef RAYMAN2_NO_PROTECTION
 void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
 {
     char           a_cPath[0x108];
@@ -909,12 +916,54 @@ L_body:
 L_epi:
     ;
 }
+#else
+/* Copy protection removed: LEVELS0.DAT is read from the data directory (no CD drive letter, no
+   code-pool stubs). Its header carries the selector math of the embedded relocation tables. */
+static const char SNA_pc_szFmtLevels[] = "%s\\%s";
+
+void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
+{
+    char           a_cPath[0x108];
+    HANDLE         hFile;
+    DWORD          dwRead;
+    unsigned long  ulWord;
+    unsigned long  a_ulHdr[4];
+    unsigned long  a_ulValue[8];
+    long           i;
+
+    if (SNA_p_bEmbeddedGate() == 0) {
+        return;
+    }
+    sprintf(a_cPath, SNA_pc_szFmtLevels, SNA_p_pcGetBaseDir(), SNA_pc_a_pszLevelFile[0]);
+    hFile = CreateFileA(a_cPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return;
+    }
+
+    /* eight header words, each (word - a) ^ b with a += c, b += d after every word */
+    ReadFile(hFile, a_ulHdr, 0x10, &dwRead, NULL);
+    for (i = 0; i < 8; i++) {
+        ReadFile(hFile, &ulWord, 4, &dwRead, NULL);
+        a_ulValue[i] = (ulWord - a_ulHdr[0]) ^ a_ulHdr[1];
+        a_ulHdr[0] += a_ulHdr[2];
+        a_ulHdr[1] += a_ulHdr[3];
+    }
+    SNA_pc_g_ulUnitNumerator   = a_ulValue[1];
+    SNA_pc_g_ulSelectorModulus = a_ulValue[2] >> 2;
+    SNA_pc_g_ulCountModulus    = a_ulValue[4];
+    SNA_pc_g_ulUnitDenominator = a_ulValue[5];
+    SNA_pc_g_lOffsetBase       = (long)a_ulValue[6];
+    SNA_pc_g_ulOffsetMul       = a_ulValue[7];
+    CloseHandle(hFile);
+}
+#endif /* RAYMAN2_NO_PROTECTION */
 
 HANDLE __stdcall SNA_pc_fn_hCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
                                         LPSECURITY_ATTRIBUTES lpSecurityAttributes,
                                         DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes,
                                         HANDLE hTemplateFile)
 {
+#ifndef RAYMAN2_NO_PROTECTION   /* Win32 call through a code-pool stub */
     unsigned char *p_ucStub;
     unsigned char *p_ucEnd;
     HANDLE hResult;
@@ -932,11 +981,16 @@ HANDLE __stdcall SNA_pc_fn_hCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess
         *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
     }
     return hResult;
+#else
+    return CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+                       dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 DWORD __stdcall SNA_pc_fn_dwSetFilePointer(HANDLE hFile, LONG lDistanceToMove,
                                            PLONG lpDistanceToMoveHigh, DWORD dwMoveMethod)
 {
+#ifndef RAYMAN2_NO_PROTECTION   /* Win32 call through a code-pool stub */
     unsigned char *p_ucStub;
     unsigned char *p_ucEnd;
     DWORD dwResult;
@@ -953,6 +1007,9 @@ DWORD __stdcall SNA_pc_fn_dwSetFilePointer(HANDLE hFile, LONG lDistanceToMove,
         *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
     }
     return dwResult;
+#else
+    return SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 void *SNA_pc_g_pOpenEmbeddedFrame1;   /* 0x00510DC4 */
@@ -960,6 +1017,7 @@ void *SNA_pc_g_pOpenEmbeddedFrame2;   /* 0x00510C04 */
 
 HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset);
 
+#ifndef RAYMAN2_NO_PROTECTION
 unsigned char __cdecl SNA_pc_bOpenEmbeddedSna(void *_p_stFile)
 {
     unsigned char *p_ucStub;
@@ -1011,6 +1069,32 @@ L_body:
 L_epi:
     return ucOk;
 }
+#else
+unsigned char __cdecl SNA_pc_bOpenEmbeddedSna(void *_p_stFile)
+{
+    HANDLE         hFile;
+    DWORD          ulOffset;
+    unsigned long  ulWord;
+    unsigned long  ulX;
+    unsigned long  ulPos;
+
+    hFile = SNA_pc_fn_hOpenFileAtSinusOffset(&ulOffset);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    SetFilePointer(hFile, (LONG)ulOffset, NULL, 0);
+
+    SNA_pc_vInitStream(6, _p_stFile);
+    SNA_pc_g_a_ucLoadKey[3] = (unsigned char)~SNA_pc_g_a_ucLoadKey[2];
+    ulX   = *(unsigned long *)SNA_pc_g_a_ucLoadKey ^ 0x75bd924u;
+    ulPos = ulX * 0x41a7u - 0x7fffffffu * (ulX / 0x1f31du);
+    ((SNA_pc_tdstStream *)_p_stFile)->uKey.ulState = ulPos;
+    ((SNA_pc_tdstStream *)_p_stFile)->hFile = hFile;
+    ((SNA_pc_tdstStream *)_p_stFile)->ulValid = 1;
+    SNA_fn_ulFRead(&ulWord, 4, 1, _p_stFile);   /* table state word: only the protection actors read it */
+    return 1;
+}
+#endif /* RAYMAN2_NO_PROTECTION */
 
 HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset);
 
@@ -1054,6 +1138,7 @@ static const char SNA_pc_szCdromNotFound[] = "CDROM not found!";
         SNA_pc_M_vScrubStubCall(p_ucStub); \
     }
 
+#ifndef RAYMAN2_NO_PROTECTION
 HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset)
 {
     char           a_cPath[0x104];
@@ -1191,3 +1276,64 @@ L_body:
 L_epi:
     return hFile;
 }
+#else
+HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset)
+{
+    char           a_cPath[0x104];
+    HANDLE         hFile;
+    DWORD          dwRead;
+    unsigned long  ulWord;
+    unsigned long  a_ulHdr[4];
+    unsigned long  ulCount;
+    unsigned long  ulKind;
+    unsigned long  ulN;
+    __int64        i64Ival;
+    unsigned long  i;
+    long           lPos;
+    double         dAcc;
+    double         dSin;
+    double         dIp;
+    double         dFrac;
+    double         dFloor1;
+    double         dFloor2;
+
+    sprintf(a_cPath, SNA_pc_szFmtLevels, SNA_p_pcGetBaseDir(), SNA_pc_a_pszLevelFile[0]);
+    hFile = CreateFileA(a_cPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return hFile;
+    }
+
+    /* load key: [0] level, [1] table kind, [2] copy selector (always 0: first copy) */
+    ulN = (unsigned long)SNA_pc_g_a_ucLoadKey[0] % SNA_pc_g_ulSelectorModulus;
+    ulKind = (unsigned long)SNA_pc_g_a_ucLoadKey[1] & 3;
+    SNA_pc_g_a_ucLoadKey[0] = (unsigned char)ulN;
+    SNA_pc_g_a_ucLoadKey[1] = (unsigned char)ulKind;
+    ulCount = ulN * 4 + ulKind;
+
+    ulN = (unsigned long)SNA_pc_g_a_ucLoadKey[2] % SNA_pc_g_ulCountModulus;
+    SNA_pc_g_a_ucLoadKey[2] = (unsigned char)ulN;
+    dAcc = 1.06913;
+    for (i = 0; i < ulN; i++) {
+        dSin = sin((double)i * (double)i * 1.69314);
+        dAcc = (dAcc - fabs(dSin) * -0.69314) - -0.52658;
+    }
+    dFrac = modf(dAcc, &dIp);
+    dFloor1 = floor(dFrac * 1000000.0);
+    i64Ival = (__int64)SNA_pc_g_ulUnitNumerator;
+    dFloor2 = floor((double)i64Ival * (dFloor1 * 1e-6));
+    lPos = (long)dFloor2 * (long)SNA_pc_g_ulOffsetMul + SNA_pc_g_lOffsetBase;
+
+    SetFilePointer(hFile, lPos, NULL, 0);
+    ReadFile(hFile, a_ulHdr, 0x10, &dwRead, NULL);
+    a_ulHdr[0] += a_ulHdr[2] * ulCount;
+    a_ulHdr[1] += a_ulHdr[3] * ulCount;
+    SetFilePointer(hFile, (LONG)(ulCount * 4), NULL, 1);
+    ReadFile(hFile, &ulWord, 4, &dwRead, NULL);
+    *p_ulOffset = (ulWord - a_ulHdr[0]) ^ a_ulHdr[1];
+
+    /* The CD split this stream into files of (ulUnitNumerator / ulUnitDenominator) << 11 bytes
+       (SNA_pc_a_pszLevelFile) and read the table from a randomly chosen one of them. LEVELS0.DAT
+       holds the whole stream, so the table is read there at its full offset. */
+    return hFile;
+}
+#endif /* RAYMAN2_NO_PROTECTION */

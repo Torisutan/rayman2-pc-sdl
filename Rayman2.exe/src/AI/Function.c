@@ -1691,6 +1691,24 @@ AI_tdstNodeInterpret *__cdecl fn_p_stVectorFunction(HIE_tdstSuperObject *p_Super
         }                                                                                      \
     }
 
+#ifdef RAYMAN2_NO_PROTECTION
+/* Copy protection removed. The AI functions of the original PC protection block
+   (PRO_ExecuteVariable, ACT_ComputeProtectKey, MATH_Xor/.../MemoryValue, ACT_UpdateChecksum; the
+   console versions of the engine have none of them) mark their calling actor as a protection
+   actor: it stops thinking (fn_vMakeCharacterReact), so its checks never run. */
+void __cdecl AI_pc_fn_vSetProtectionActor(HIE_tdstSuperObject *p_SuperObjPerso)
+{
+    MS_tdxHandleToStandardGame hStdGame = M_GetMSHandle(p_SuperObjPerso, StandardGame);
+
+    if (hStdGame != NULL)
+    {
+        fn_vStandardGameSetCustomBits(hStdGame,
+            fn_ulStandardGameGetCustomBits(hStdGame) | GAM_C_CustBitProtection);
+    }
+}
+#endif /* RAYMAN2_NO_PROTECTION */
+
+#ifndef RAYMAN2_NO_PROTECTION   /* PRO_ExecuteVariable: runs code held in a DsgVar array */
 /* 0x0047AEB0 */
 typedef unsigned long (__cdecl *AI_tdpfnPcExecVar)(unsigned char *p_ucData, unsigned long *p_ulTable);
 
@@ -1752,6 +1770,26 @@ L_epi:
 }
 
 #pragma optimize("", on)
+#else
+/* Copy protection removed: the code a DsgVar array holds is not executed. The function yields 0,
+   as it does when the array holds no code. */
+AI_tdstNodeInterpret *__cdecl fn_p_ExecuteVariable(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    AI_tdstMind       *v1;
+    unsigned long      v4;
+
+    AI_pc_fn_vSetProtectionActor(p_SuperObjPerso);
+    if (AI_M_eFuncIdInterpret(p_stTree-1) == 0x111)
+    {
+        M_vEvalNextVarId(v1, v4);
+        p_stTree = fn_p_stSkipThisArgument(p_stTree);
+        p_stTree = fn_p_stSkipThisArgument(p_stTree);
+    }
+    M_Full_GetSetParam_Integer(p_stValue, 0);
+    return p_stTree;
+}
+#endif /* RAYMAN2_NO_PROTECTION */
 
 /* 0x0047B0E0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stComputeProtectKey(
@@ -1765,6 +1803,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stComputeProtectKey(
 
     fn_vGetUltraOperatorPerso(
         AI_M_pfn_fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+#ifdef RAYMAN2_NO_PROTECTION
+    AI_pc_fn_vSetProtectionActor(p_SuperObjPerso);
+#endif /* RAYMAN2_NO_PROTECTION */
 
     M_EvalNextParameter(&stParam);
 
@@ -1792,13 +1833,19 @@ AI_tdstNodeInterpret *__cdecl fn_p_stComputeXor(
     AI_tdstGetSetParam    stParam1;
     AI_tdstGetSetParam    stParam2;
 
+#ifndef RAYMAN2_NO_PROTECTION
     AI_PRO_M_vCallModuleStub(ulModule);
+#else
+    AI_pc_fn_vSetProtectionActor(p_SuperObjPerso);
+#endif /* RAYMAN2_NO_PROTECTION */
 
     M_EvalNextParameter(&stParam1);
     ulValue1 = (unsigned long)M_GetSetParam_lValue(&stParam1);
     if (eFuncId == 0x11b)
     {
+#ifndef RAYMAN2_NO_PROTECTION   /* MATH_MemoryValue: a dword of the running code image */
         ulResult = *(unsigned long *)(ulModule + ulValue1);
+#endif /* RAYMAN2_NO_PROTECTION */
     }
     else
     {
@@ -1830,7 +1877,11 @@ AI_tdstNodeInterpret *__cdecl AI_pc_fn_p_stComputeNotU(
     void                 *hProcess;
     AI_tdstGetSetParam    stParam;
 
+#ifndef RAYMAN2_NO_PROTECTION
     AI_PRO_M_vCallModuleStub(ulModule);
+#else
+    AI_pc_fn_vSetProtectionActor(p_SuperObjPerso);
+#endif /* RAYMAN2_NO_PROTECTION */
 
     M_EvalNextParameter(&stParam);
     M_GetSetParam_lValue(p_stValue) = (long)~(unsigned long)M_GetSetParam_lValue(&stParam);

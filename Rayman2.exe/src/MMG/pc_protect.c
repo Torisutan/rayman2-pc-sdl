@@ -97,6 +97,7 @@ char MMG_pc_g_a_szModule[MMG_pc_C_NbModule + 1][sizeof(MMG_pc_tdstModule)] = {
     "KERNEL32.DLL", "USER32.DLL", "PSAPI.DLL", "ADVAPI32.DLL", "GDI32.DLL", "VERSION.DLL", "WINMM.DLL", ""
 };
 
+#ifndef RAYMAN2_NO_PROTECTION   /* level-load tamper block: DsgVar table install, code block execution */
 void *MMG_pc_g_pvTamperResumeA;   /* 0x00510E14 */
 void *MMG_pc_g_pvTamperExitA;     /* 0x00510C54 */
 void *MMG_pc_g_pvTamperResumeB;   /* 0x00510E10 */
@@ -334,3 +335,4 @@ L_pc_epi3:;
 }
 
 #pragma optimize("", on)
+#endif /* RAYMAN2_NO_PROTECTION */

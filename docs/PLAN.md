@@ -63,17 +63,29 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
 
 ### Phase 2: remove the copy protection
 Remove it at the source, not by patching (upstream `docs/architecture.md`, section 2, lists every
-check):
-- the private import resolver and the LCG code-pool stubs (`MMG_init.c`, `SNA` file I/O, which
-  become plain file calls);
-- the CD check and the CD path for `LEVELS0.DAT` (`FUN_00448e30`, `SNA_pc_vVerifyCdLevelsFile`);
-- the level-load tamper block (`MMG/pc_protect.c`) and the AI integrity probes
-  (`fn_p_stMiscProtectProcedure`, `fn_p_stComputeXor`, `AI_pc_fn_p_stComputeNotU`). The protection
-  actors in the levels must still see "OK" values, otherwise they show "CD missing";
-- the relocation-table rekeying and the checksum bit-flip. Level relocation tables are read
-  either directly from `LEVELS0.DAT` with the selector math kept as plain data access, or from
-  tables extracted once to loose files. **Open decision.**
-- `ubi.ini` moves out of the Windows directory into a per-user config location.
+check). Excluded with `#ifndef RAYMAN2_NO_PROTECTION` (CMake option `R2_NO_PROTECTION`, on;
+VC5 reference: `tools/build_ref.py --define RAYMAN2_NO_PROTECTION --define RAYMAN2_LOCAL_UBIINI`).
+Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
+- **Done:** the CD check; the private import resolver, LCG code pool and call stubs (the file
+  layer calls Win32 directly); the level-load tamper block that runs code from level data; the
+  random relocation-table copy selection, decoy reads, key/state recording and checksum
+  bit-flip; the AI integrity probes.
+- **Decided: protection actors are inert.** Actors flagged `GAM_C_CustBitProtection` do not think,
+  and the AI functions of the PC protection block flag their caller. Their checks compare against
+  the original code image, which a rebuilt engine cannot reproduce, and no fixed "OK" values are
+  substituted.
+- **Decided: relocation tables** are decoded from `LEVELS0.DAT`, always from the first copy (load
+  key byte 2 = 0). No extracted files.
+- **Measured (Morb_00, 1860 frames).** VC5 + define against VC5 cracked: every hashed field is
+  identical except `rnd.index` from frame 708, because the protection actors no longer draw from
+  the shared random generator. Reading copy 0 instead of random copies changes nothing.
+  Modern MSVC + define against VC5 + define: only `actor.matrix` differs, from frame 64, with the
+  same values for `/arch:SSE2` and `/arch:IA32` (so not x87 against SSE). See open questions.
+- `ubi.ini` is read from the working directory (`RAYMAN2_LOCAL_UBIINI`, DEVIATIONS 1), as the
+  current installs ship it. Moving it to a per-user config location is still to do.
+- **Still compiled but unreferenced:** the resolver, pool and gate definitions in
+  `MMG/MMG_init.c`, the naked `SNA_g_lProtectionGate` gates, `MMG_pc_g_a_stImport`. Exclude them
+  too (clang-cl rejects most of that asm), then delete the excluded code later.
 
 ### Phase 3: fix the original engine's bugs
 - Keep a catalogue in `docs/BUGS.md`: symptom, cause, function, fix. Known candidates from the

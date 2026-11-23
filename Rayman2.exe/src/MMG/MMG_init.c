@@ -544,6 +544,7 @@ L_epi:;
 
 void __cdecl GLI_FatalExitOrSleep(void);   /* 0x004011C0 */
 
+#ifndef RAYMAN2_NO_PROTECTION   /* CD check: boot-time search for the "RAYMAN2" CD volume */
 #pragma optimize("y", off)
 static void FUN_00448e30(void)
 {
@@ -643,6 +644,7 @@ L_cd_body:
 L_cd_epi:;
 }
 #pragma optimize("", on)
+#endif /* RAYMAN2_NO_PROTECTION */
 
 static __inline unsigned int lcg_next(unsigned int seed)
 {
@@ -946,6 +948,7 @@ void __cdecl MMG_fn_vInit(int bInitMMG)
         return;
     }
 L_body:
+#ifndef RAYMAN2_NO_PROTECTION   /* LCG and code pool of the protection, module-handle table of the private imports */
     qpcOk = QueryPerformanceCounter(&qpc);
     uSeed = qpc.LowPart;
     if (!qpcOk) {
@@ -984,6 +987,13 @@ L_body:
         MMG_pc_fn_vInitProcessEnumeration();
         FUN_00448e30();
     }
+#else
+    /* Copy protection removed: no private import table, no CD drive search. The CD fallback
+       paths ("<drive>\\<path>") resolve against the working directory. */
+    if (bInitMMG) {
+        g_cCDROM = '.';
+    }
+#endif /* RAYMAN2_NO_PROTECTION */
 L_epi:;
 }
 #pragma optimize("", on)

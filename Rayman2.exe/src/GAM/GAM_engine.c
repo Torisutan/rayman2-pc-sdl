@@ -205,6 +205,7 @@ void __cdecl GAM_pc_fn_vCreateEngineGameMaterial(void)
     GAM_pc_g_hEngineGameMaterial = GMT_fn_hCreateGameMaterial();
 }
 
+#ifndef RAYMAN2_NO_PROTECTION   /* decoy read of another relocation table, random load key */
 /* 0x00500588 */
 static void gam_fix_rekey_reloc_table(void)
 {
@@ -218,6 +219,7 @@ static void gam_fix_rekey_reloc_table(void)
     SNA_g_pGptContext = NULL;
     SNA_g_pGptContext = SNA_pc_pReadGptTable();
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
 #include "GAM/a3x_mem.h"
 #include "IPT/IPT_Str.h"
@@ -258,15 +260,19 @@ void __cdecl GAM_pc_fn_vLoadFixStreams(void)
 
     hSavedLevelNameList = GAM_g_stEngineStructure.hLevelNameList;
     SNA_pc_vVerifyCdLevelsFile();
+#ifndef RAYMAN2_NO_PROTECTION
     if (FUN_00418960() != 0)
         gam_fix_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
 
     sprintf(szFixSnaPath, "%s\\Fix.sna", FUN_00492770());
     SNA_g_ucNextRelocationTableToLoad = 0xff;
     SNA_pc_g_ucNextRelocationTableKind = 0;
     SNA_pc_vLoadAndRelocate(szFixSnaPath);
+#ifndef RAYMAN2_NO_PROTECTION
     if (FUN_00418960() != 0)
         gam_fix_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
 
     SNA_g_ucNextRelocationTableToLoad = 0xff;
     SNA_pc_g_ucNextRelocationTableKind = 1;
@@ -344,8 +350,10 @@ void __cdecl GAM_pc_fn_vLoadFixStreams(void)
     GAM_pc_g_p_ul4b72f0 = (unsigned int *)SNA_pc_ulReadAndRelocateLong(); /* 0x4B72F0 */
 
     SNA_pc_vCloseGptFile();
+#ifndef RAYMAN2_NO_PROTECTION
     if (FUN_00418960() != 0)
         gam_fix_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
 
     sprintf(szFixSnaPath, "%s\\Fix.ptx", FUN_00492770());
     FUN_00423610(szFixSnaPath);
@@ -360,8 +368,10 @@ void __cdecl GAM_pc_fn_vLoadFixStreams(void)
     SNA_pc_vOpenSndFile(szFixGptPath);
 
     SNA_pc_vReadAndRelocateSnd();
+#ifndef RAYMAN2_NO_PROTECTION
     if (FUN_00418960() != 0)
         gam_fix_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 #define GAM_g_stMainCharacterPosition (GAM_g_stEngineStructure.stMainCharacterPosition)
@@ -780,6 +790,7 @@ void GAM_fn_vChooseTheGoodInit(void)
 
     case E_EM_ModeEnterGame:
 
+#ifndef RAYMAN2_NO_PROTECTION   /* random relocation-table load key */
         if (ucRNGCount == 0)
         {
             *p_byte0 = 0;
@@ -794,6 +805,14 @@ void GAM_fn_vChooseTheGoodInit(void)
         *p_ulLCG = gam_lcg_step(uVar);
         *(unsigned int *)&SNA_g_ulTableIndex = 0;
         *p_byte2 = (unsigned char)(*p_ulLCG % 0x14);
+#else
+        /* Copy protection removed: every relocation table is read from its first copy in
+           LEVELS0.DAT (load key byte 2 = 0); bytes 0 and 1 are set before each load. */
+        *p_byte0 = 0;
+        *p_byte1 = 0;
+        *(unsigned int *)&SNA_g_ulTableIndex = 0;
+        *p_byte2 = 0;
+#endif /* RAYMAN2_NO_PROTECTION */
 
         GAM_fn_vActualizeAllGameViewportSize();
         fn_vInitGameLoop();                      /* 0x004030c0 */

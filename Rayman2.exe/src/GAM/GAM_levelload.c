@@ -55,6 +55,7 @@ static unsigned int gam_lcg_step(unsigned int seed)
     return next;
 }
 
+#ifndef RAYMAN2_NO_PROTECTION   /* level-load tamper pass over the protection actors */
 extern void __cdecl MMG_pc_fn_vInstallTableDsgVars(AI_tdstMind *p_stMind);
 extern void __cdecl MMG_pc_fn_vRunTamperCodeBlock(AI_tdstMind *volatile p_stMind);
 
@@ -109,7 +110,9 @@ void __cdecl GAM_pc_fn_vProtectFlaggedObjects(int _bSkipTamper)
         p_stChild = p_stChild->p_stNextBrother;
     }
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
+#ifndef RAYMAN2_NO_PROTECTION   /* tamper pass, then re-keys the recorded relocation-table keys/states with the LCG */
 void __cdecl GAM_pc_fn_vReseedLoadTables(void)
 {
     unsigned long ulCount;
@@ -142,6 +145,7 @@ void __cdecl GAM_pc_fn_vReseedLoadTables(void)
     } while (++ulIdx < ulCount);
     MMG_g_ulLCGState = uState;
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
 /* 0x0044DBE0 */
 unsigned char __cdecl GAM_pc_fn_ucFindLevelNameIndex(char *szName)
@@ -183,6 +187,7 @@ int           GAM_pc_g_l4b72f4;
 int           GAM_pc_g_l4b72f8;
 int           GAM_pc_g_l4b72fc;
 
+#ifndef RAYMAN2_NO_PROTECTION   /* decoy read of another relocation table, random load key */
 static void gam_drm_rekey_reloc_table(void)
 {
     SNA_g_ucNextRelocationTableToLoad = (unsigned char)(GAM_g_stEngineStructure.ucNumberOfLevels
@@ -196,6 +201,7 @@ static void gam_drm_rekey_reloc_table(void)
     SNA_g_pGptContext = NULL;
     SNA_g_pGptContext = SNA_pc_pReadGptTable();
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
 /* 0x004A1FB4 */
 static long GAM_pc_g_lLevelLoadFlag = 1;
@@ -361,14 +367,18 @@ void fn_vInitLevelLoop(void)
         FUN_0044d420();
         *(unsigned int *)&SNA_g_ulTableIndex = 0;
 
+#ifndef RAYMAN2_NO_PROTECTION
         if (FUN_00418960() != 0)
             gam_drm_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
         SNA_g_ucNextRelocationTableToLoad = (unsigned char)cTableId;
         SNA_pc_g_ucNextRelocationTableKind = 0;
         SNA_pc_vLoadAndRelocate(szPath208);
 
+#ifndef RAYMAN2_NO_PROTECTION
         if (FUN_00418960() != 0)
             gam_drm_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
         SNA_g_ucNextRelocationTableToLoad = (unsigned char)cTableId;
         SNA_pc_g_ucNextRelocationTableKind = 1;
         {
@@ -603,8 +613,10 @@ void fn_vInitLevelLoop(void)
         GAM_fn_vActualizeAllGameViewportSize();
         FUN_00421820();
         GLI_AddToProgressBar(1);
+#ifndef RAYMAN2_NO_PROTECTION
         if (FUN_00418960() != 0)
             gam_drm_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
 
         SNA_g_ucNextRelocationTableToLoad = (unsigned char)cTableId;
         SNA_pc_g_ucNextRelocationTableKind = 2;
@@ -617,17 +629,23 @@ void fn_vInitLevelLoop(void)
         SNA_vOpenSndFile(szPath480);
         SNA_vReadAndRelocateSnd();
 
+#ifndef RAYMAN2_NO_PROTECTION
         if (FUN_00418960() != 0)
             gam_drm_rekey_reloc_table();
+#endif /* RAYMAN2_NO_PROTECTION */
 
         FUN_0044f4d0(4);
+#ifndef RAYMAN2_NO_PROTECTION
         GAM_pc_fn_vReseedLoadTables();
+#endif /* RAYMAN2_NO_PROTECTION */
         fn_vInitAllObjectsWhenMapJustLoaded();   /* 0x4062f0 */
         GLI_AddToProgressBar(1);
         CAM_fn_vInitCameras();                        /* 0x40b8d0 */
 
+#ifndef RAYMAN2_NO_PROTECTION
         MMG_g_ulLCGState = gam_lcg_step(MMG_g_ulLCGState);
         *(unsigned int *)&SNA_g_ulTableIndex = MMG_g_ulLCGState;
+#endif /* RAYMAN2_NO_PROTECTION */
         fn_vInitDeadLoop();                       /* 0x403150 */
 
         if (GAM_g_stEngineStructure.eEngineMode == 5)

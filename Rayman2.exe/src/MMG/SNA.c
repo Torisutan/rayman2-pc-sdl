@@ -93,10 +93,12 @@ unsigned char __cdecl SNA_pc_bGetFlagBit2(void *_p_stFile)
     return (unsigned char)((((SNA_pc_tdstStream *)_p_stFile)->ucFlags & 4u) >> 2);
 }
 
+#ifndef RAYMAN2_NO_PROTECTION
 unsigned char __cdecl SNA_pc_bRawReadDecodeStubbed(void *_p_vBuffer, size_t _ulBytes,
                                                    void *_p_stFile);
 unsigned char __cdecl SNA_pc_bRawReadPlainStubbed(void *_p_vBuffer, size_t _ulBytes,
                                                   void *_p_stFile);
+#endif /* RAYMAN2_NO_PROTECTION */
 
 /* 0x00450A00 */
 void __cdecl SNA_pc_vInitStream(unsigned char _ucFlags, void *_p_stFile)
@@ -112,15 +114,24 @@ void __cdecl SNA_pc_vInitStream(unsigned char _ucFlags, void *_p_stFile)
     if (SNA_pc_bGetFlagBit1(_p_stFile) != 0) {
         p_stStream->uKey.ulState  = SNA_pc_C_ulStreamSeed;
         p_stStream->ul_pc_1C      = 0;
+#ifndef RAYMAN2_NO_PROTECTION
         p_stStream->pfn_bRawRead  = SNA_pc_bGetFlagBit2(_p_stFile)
                                     ? SNA_pc_bRawReadDecodeStubbed
                                     : SNA_pc_bRawReadDecode;
+#else
+        /* Copy protection removed: flag bit 2 (read through the code-pool stubs) reads directly. */
+        p_stStream->pfn_bRawRead  = SNA_pc_bRawReadDecode;
+#endif /* RAYMAN2_NO_PROTECTION */
     } else {
         p_stStream->uKey.ulState  = 0;
         p_stStream->ul_pc_1C      = 0;
+#ifndef RAYMAN2_NO_PROTECTION
         p_stStream->pfn_bRawRead  = SNA_pc_bGetFlagBit2(_p_stFile)
                                     ? SNA_pc_bRawReadPlainStubbed
                                     : SNA_pc_bRawReadPlain;
+#else
+        p_stStream->pfn_bRawRead  = SNA_pc_bRawReadPlain;
+#endif /* RAYMAN2_NO_PROTECTION */
     }
 }
 
@@ -158,6 +169,7 @@ unsigned char __cdecl SNA_pc_bOpenFile(const char *_szPath, char _cMode,
         break;
     }
 
+#ifndef RAYMAN2_NO_PROTECTION   /* flag bit 2: CreateFileA through a code-pool stub */
     if (SNA_pc_bGetFlagBit2(_p_stFile) != 0) {
 
         MMG_pc_M_vStepLcg();
@@ -172,7 +184,9 @@ unsigned char __cdecl SNA_pc_bOpenFile(const char *_szPath, char _cMode,
             *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
         }
         p_stStream->hFile = hFile;
-    } else {
+    } else
+#endif /* RAYMAN2_NO_PROTECTION */
+    {
         p_stStream->hFile = CreateFileA(_szPath, dwDesiredAccess, 0, NULL,
                                         dwCreationDisposition, 0x80  ,
                                         NULL);
@@ -192,6 +206,7 @@ unsigned char __cdecl SNA_pc_bCloseFile(void *_p_stFile)
     BOOL bOk;
 
     p_stStream->ucCarryUsed = 0;
+#ifndef RAYMAN2_NO_PROTECTION   /* flag bit 2: CloseHandle through a code-pool stub */
     if (SNA_pc_bGetFlagBit2(_p_stFile) != 0) {
 
         hFile = p_stStream->hFile;
@@ -210,6 +225,7 @@ unsigned char __cdecl SNA_pc_bCloseFile(void *_p_stFile)
         p_stStream->hFile = INVALID_HANDLE_VALUE;
         return (unsigned char)(bOk == 0);
     }
+#endif /* RAYMAN2_NO_PROTECTION */
     bOk = CloseHandle(p_stStream->hFile);
     p_stStream->hFile = INVALID_HANDLE_VALUE;
     return (unsigned char)(bOk == 0);
@@ -257,6 +273,7 @@ unsigned char __cdecl SNA_pc_bRawReadDecode(void *_p_vBuffer, size_t _ulBytes,
     return 1;
 }
 
+#ifndef RAYMAN2_NO_PROTECTION   /* reads through a code-pool stub (flag bit 2) */
 /* 0x00451110 */
 unsigned char __cdecl SNA_pc_bRawReadDecodeStubbed(void *_p_vBuffer, size_t _ulBytes,
                                                    void *_p_stFile)
@@ -323,6 +340,8 @@ unsigned char __cdecl SNA_pc_bRawReadPlainStubbed(void *_p_vBuffer, size_t _ulBy
     return (unsigned char)(dwBytesRead == (DWORD)_ulBytes);
 }
 
+#endif /* RAYMAN2_NO_PROTECTION */
+
 /* 0x00450EE0 */
 unsigned long __cdecl SNA_pc_ulSeek(void *_p_stFile, long _lDistance, int _iOrigin)
 {
@@ -356,6 +375,7 @@ unsigned long __cdecl SNA_pc_ulSeek(void *_p_stFile, long _lDistance, int _iOrig
     } else {
         dwMoveMethod = (DWORD)(_iOrigin == 2) + 1;
     }
+#ifndef RAYMAN2_NO_PROTECTION   /* flag bit 2: SetFilePointer through a code-pool stub */
     if (SNA_pc_bGetFlagBit2(_p_stFile) != 0) {
 
         hFile = p_stStream->hFile;
@@ -371,5 +391,6 @@ unsigned long __cdecl SNA_pc_ulSeek(void *_p_stFile, long _lDistance, int _iOrig
         }
         return dwResult;
     }
+#endif /* RAYMAN2_NO_PROTECTION */
     return SetFilePointer(p_stStream->hFile, _lDistance, NULL, dwMoveMethod);
 }
