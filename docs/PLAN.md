@@ -24,12 +24,13 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
 - A CMake build with current MSVC (and clang-cl), **32-bit x86**. The level files store 32-bit
   pointers that the loader rebases (`SNA_pc_vLoadAndRelocate`), and every intended target (PSP,
   Wii U) is 32-bit too, so 32-bit stays the model throughout.
-- Replace constructs that only VC5 accepts or needs:
-  - `__declspec(naked)` functions and `_emit` NOP runs;
-  - `#pragma optimize` frame tricks;
-  - inline-asm math helpers, which become their C equivalents.
-
-  Inline asm must go anyway, because no other target compiler accepts the MSVC dialect.
+- First build the sources as they are. Current 32-bit MSVC still accepts inline asm, naked
+  functions and `_emit`, so only real incompatibilities change at this step (headers, shims,
+  declarations).
+- Inline asm must go eventually, because no other target compiler accepts the MSVC dialect. It
+  goes in later phases, where its context disappears:
+  - `__declspec(naked)` gates and `_emit` NOP runs, which are protection code: Phase 2;
+  - inline-asm math helpers and `#pragma optimize` frame tricks, which become plain C: Phase 4.
 - The game still uses the retail renderer and sound DLLs at this stage.
 - **Regression run:** load a fixed level, play a recorded input sequence for N frames, and hash
   the engine state each frame (engine structure, main character position, random state). The
