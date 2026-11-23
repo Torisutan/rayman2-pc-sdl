@@ -43,21 +43,12 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
 - The game still uses the retail renderer and sound DLLs at this stage.
 - **Status.** `CMakeLists.txt` builds with MSVC 19.51 (no source edits; 136 warnings at the default
   level, cleaned in Phase 4). Without the crack it behaves like the VC5 build: alive, no window.
-  clang-cl is selectable (see the head of `CMakeLists.txt`), but 27 of 225 TUs do not compile
-  yet (2026-11-23, clang 23.1; 32 before the protection leftovers were excluded). All are in
-  decompiled code, and a fix there has to keep the VC5 bytes, so they go to the decompilation:
-  - 59 prototype mismatches between headers and definitions that MSVC only warns about (C4028),
-    in 24 files (most in `AI/Procedure.c`, `GLI/Light.c`, `AI/FuncRay2.c`, `SCT/Sectmir.c`).
-  - 10 C statements (`(void)arg;`) in naked functions: `AGO.c`, `GLI/Object.c`,
-    `GLI/Texture.c`, `IPT/IPT_Kwan.c`.
-  - 6 calls with two arguments to one-argument prototypes: `HIE/HieDraw.c` (`FUN_0042a980`),
-    `MGT/MGT.c` (`MGT_fn_vSetTargetModificationsUsed`,
-    `MGT_fn_vClearTargetModificationsInfluencedBits`).
-  - Inline asm clang cannot resolve: `TYPE IPT_tdstKeyWordElement` and a label (`Lactive`) not defined in the naked
-    function (`IPT/IPT_Kwan.c`), `OFFSET` of an array of pointers (`GLI/Object.c`).
-  - clang crashes (compiler bug) in `FUN_00405850` (`GAM/GAM_init.c`: `push offset` of a char
-    array; `mov eax, offset` of the same array compiles), `GLD_vGetFrontBufferIn24BitsAA`
-    (`GLI/GLD.c`) and `GLI_DrawProgressBarFrameAndFill` (`GLI/Texture.c`), causes not isolated.
+  clang-cl is selectable (see the head of `CMakeLists.txt`); 224 of 225 TUs compile
+  (2026-11-23, clang 23.1, after the decompilation fixes; 198 before, 193 before the
+  protection leftovers were excluded). The one left is a clang crash (compiler bug) in
+  `FUN_00405850` (`GAM/GAM_init.c`): `push offset` of a char array in a naked function
+  (`mov eax, offset` of the same array compiles). The fix has to keep the VC5 bytes, so it
+  goes to the decompilation; until then clang-cl does not link.
   The uninitialised-read pass on the 198 TUs that compile is in BUGS.md (Checked).
 - **Crack behaviour (decided).** The post-link crack (`tools/crack.py`) only partly translates
   to modern codegen (21 of 29 patches; the result crashes). Instead Phase 2 comes first: the
