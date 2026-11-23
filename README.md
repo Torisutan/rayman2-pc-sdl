@@ -14,12 +14,13 @@ layout, data structures and coding style. Every departure is listed with its rea
 
 You need your own copy of the game. This repository contains no game data and no executables.
 
-## Status (v0.1.0)
+## Status (v0.1.1)
 
 - Builds with current MSVC as a 32-bit Windows exe; runs the whole game with the retail game
   data and the install's renderer and sound DLLs.
 - Copy protection removed at the source (no CD check, no tamper checks).
 - DPI aware; widescreen with Hor+ 3D and 4:3 UI at any resolution (16:9, 16:10, ...).
+- Original engine crashes fixed, faster loading, HUD at the screen edges at wide modes.
 - Every change is measured with a regression harness: a fixed input sequence, the engine state
   hashed every frame, compared against a recorded baseline.
 
@@ -27,6 +28,9 @@ See [CHANGELOG.md](CHANGELOG.md) for the details and [docs/ROADMAP.md](docs/ROAD
 comes next.
 
 ## Building
+
+Prebuilt: download `Rayman2.exe` from [Releases](https://github.com/Torisutan/rayman2-pc-sdl/releases)
+(needs the Visual C++ 2015-2022 x86 redistributable). To build it yourself:
 
 Requirements (not included):
 - Visual Studio 2022 or later with the C++ x86 tools, CMake 3.20+, Python 3.
@@ -86,6 +90,8 @@ The original-toolchain build of upstream (byte matching) is described in
 
 ## Legal
 
-This repository contains no game data, executables or toolchain binaries. Building and running
-it needs your own copy of the game. Rayman is a trademark of Ubisoft. This project is not
+This repository contains no game data, executables or toolchain binaries. The prebuilt
+`Rayman2.exe` on the Releases page is compiled from this source with the default options. It
+contains no game data, assets or original Ubisoft binaries, and it runs only with your own copy of
+the game (GOG release). Rayman is a trademark of Ubisoft. This project is not
 affiliated with or endorsed by Ubisoft.
