@@ -39,10 +39,14 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
   in the protection files; about 60 prototype mismatches between headers and definitions that
   MSVC only warns about (C4028); a few argument-count and type-name errors.
 - **Crack behaviour (decided).** The post-link crack (`tools/crack.py`) only partly translates
-  to modern codegen (21 of 29 patches; the result crashes). Instead the protection is removed in C
-  now, behind a fork-only define compiled into BOTH builds. This is Phase 2's work done early
-  and switchable, and it gives a chain of measured steps: VC5 cracked = VC5 + define (the removal
-  changes nothing), then VC5 + define = modern + define (the compiler changes nothing).
+  to modern codegen (21 of 29 patches; the result crashes). Instead Phase 2 comes first: the
+  protection is removed, not emulated, and excluded from the build with `#ifndef
+  RAYMAN2_NO_PROTECTION`, compiled into BOTH builds. Excluding instead of deleting keeps upstream
+  merges clean; the code is deleted later. Measured chain: VC5 cracked = VC5 + define on every
+  game field (protection state such as the LCG leaves the hash), then VC5 + define = modern +
+  define.
+- **Regression harness.** `Rayman2.exe/src/port/regress.c` (`RAYMAN2_REGRESS`), `tools/regress.py`,
+  `tools/build_ref.py`. Two runs of the VC5 cracked build on Morb_00 (1860 frames) are identical.
 - **Regression run:** load a fixed level, play a recorded input sequence for N frames, and hash
   the engine state each frame (engine structure, main character position, random state). The
   upstream exe produces the reference hashes. This harness is the first deliverable, because every
