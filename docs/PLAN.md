@@ -154,7 +154,11 @@ streams (ADPCM, used for music and voices).
   frame ~980 a rotation element is off by 1.54 and the translation by 0.39 (heading about 70
   degrees apart); no other hashed field differs in 1860 frames. x87 with `/fp:fast` diverges too
   (from frame 63): VC5's rounding follows its own register allocation, no modern setting
-  reproduces it, and a tolerance cannot cover a difference that grows. **Proposal:** the modern
+  reproduces it, and a tolerance cannot cover a difference that grows. **Next (decided):** where
+  VC5 keeps intermediates on the x87 stack, a C branch beside the original ones evaluates them in
+  `double` (equal to x87 at 53-bit precision), site by site, each measured; first site
+  `MTH3D_M_vNormalizeVector`. Stop when the trail leaves reusable MTH/POS helpers (one-off engine
+  code, CRT trig) and fall back to: **Proposal:** the modern
   build is checked bit-exact against a modern baseline (same compiler and flags, last green
   commit); VC5 + define stays the reference for the other hashed fields and for `actor.matrix`
   up to its first difference, reported, not gating. Each later target gets its own baseline.
