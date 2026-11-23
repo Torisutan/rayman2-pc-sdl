@@ -33,6 +33,8 @@ def do_run(a):
     subprocess.run(["taskkill", "/F", "/IM", "Rayman2.exe"], capture_output=True)
     time.sleep(0.5)
     exe = run.build_sandbox(os.path.abspath(a.exe))
+    if a.mode:
+        run.set_mode(os.path.join(run.BOX, "ubi.ini"), a.mode)
     out = os.path.abspath(a.out)
     if os.path.exists(out):
         os.remove(out)
@@ -109,6 +111,7 @@ def main():
     r.add_argument("--input", default=DEFAULT_INPUT)
     r.add_argument("--record")
     r.add_argument("--timeout", type=float, default=300)
+    r.add_argument("--mode", help="display mode WxH (default: the install's ubi.ini, 1920x1080)")
     d = sub.add_parser("diff")
     d.add_argument("a")
     d.add_argument("b")
