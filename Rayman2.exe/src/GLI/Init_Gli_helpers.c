@@ -164,7 +164,11 @@ void __cdecl GLI_pc_fn_vReadIniString(const char *szSection, const char *szKey,
                                       unsigned long ulSize, char *szReturnBuf)
 {
     char acPath[260];
+#ifndef RAYMAN2_LOCAL_UBIINI
     GetWindowsDirectoryA(acPath, sizeof(acPath));
+#else
+    strcpy(acPath, ".");   /* ubi.ini in the working directory (the game folder) */
+#endif /* RAYMAN2_LOCAL_UBIINI */
     strcat(acPath, GLI_PC_UBIINI_NAME);
     GetPrivateProfileStringA(szSection, szKey, szReturnBuf, szReturnBuf, ulSize, acPath);
 }
@@ -173,7 +177,11 @@ void __cdecl GLI_pc_fn_vWriteIniString(const char *szSection, const char *szKey,
                                        const char *szValue)
 {
     char acPath[260];
+#ifndef RAYMAN2_LOCAL_UBIINI
     GetWindowsDirectoryA(acPath, sizeof(acPath));
+#else
+    strcpy(acPath, ".");   /* ubi.ini in the working directory (the game folder) */
+#endif /* RAYMAN2_LOCAL_UBIINI */
     strcat(acPath, GLI_PC_UBIINI_NAME);
     WritePrivateProfileStringA(szSection, szKey, szValue, acPath);
 }

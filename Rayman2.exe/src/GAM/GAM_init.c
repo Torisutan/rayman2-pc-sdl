@@ -653,7 +653,11 @@ static void FUN_00405a30(void)
     float xRate;
     int   bHasRate;
 
+#ifndef RAYMAN2_LOCAL_UBIINI
     GetWindowsDirectoryA(szIniPath, 0x104);
+#else
+    strcpy(szIniPath, ".");   /* ubi.ini in the working directory (the game folder) */
+#endif /* RAYMAN2_LOCAL_UBIINI */
     strcat(szIniPath, UBIINI_FILE);                              /* 0x0049f40c */
 
     /* 0x4a6abc */

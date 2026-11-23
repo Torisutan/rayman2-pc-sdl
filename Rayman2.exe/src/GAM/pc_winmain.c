@@ -1370,12 +1370,16 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
         _emit 0x90
         _emit 0x90
     }
+#ifndef RAYMAN2_LOCAL_UBIINI
     GetWindowsDirectoryA(szIniPath, 0x104);
     strcat(szIniPath, "\\UbiSoft");
     if ((*_imp__access)(szIniPath, 0) != 0)
     {
         CreateDirectoryA(szIniPath, NULL);
     }
+#else
+    strcpy(szIniPath, ".");   /* ubi.ini in the working directory (the game folder) */
+#endif /* RAYMAN2_LOCAL_UBIINI */
     strcat(szIniPath, "\\ubi.ini");
     if ((*_imp__access)(szIniPath, 0) != 0)
     {
