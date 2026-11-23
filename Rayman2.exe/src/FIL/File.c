@@ -27,8 +27,16 @@ typedef struct {
 #define s_ftell       ftell
 #define s_fclose      fclose
 #define s_fopen       fopen
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+/* Current CRTs: _finddata_t has 64-bit times, so the name sits elsewhere; FIL_tdstFindData32
+   is the 32-bit layout, struct _finddata32_t */
+#define s_findfirst(p, d)  _findfirst32((p), (struct _finddata32_t *)(d))
+#define s_findnext(h, d)   _findnext32((h), (struct _finddata32_t *)(d))
+typedef char FIL_ct_assert_FindData32_size[(sizeof(FIL_tdstFindData32) == sizeof(struct _finddata32_t)) ? 1 : -1];
+#else
 #define s_findfirst(p, d)  _findfirst((p), (struct _finddata_t *)(d))
 #define s_findnext(h, d)   _findnext((h), (struct _finddata_t *)(d))
+#endif /* _MSC_VER >= 1400 */
 #define s_findclose   _findclose
 
 /* 0x004fb640 */
