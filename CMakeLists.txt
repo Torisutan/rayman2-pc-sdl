@@ -91,6 +91,10 @@ option(R2_LOCAL_UBIINI "Read ubi.ini from the working directory, not the Windows
 if(R2_LOCAL_UBIINI)
   list(APPEND R2_FORK_DEFINES RAYMAN2_LOCAL_UBIINI)
 endif()
+option(R2_FIX_BUGS "Fix the original engine's crashes and undefined behaviour (RAYMAN2_FIX_BUGS, docs/BUGS.md)" ON)
+if(R2_FIX_BUGS)
+  list(APPEND R2_FORK_DEFINES RAYMAN2_FIX_BUGS)
+endif()
 
 add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RES})
 set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)

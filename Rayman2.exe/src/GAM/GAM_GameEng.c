@@ -810,7 +810,14 @@ void GAM_fn_vEngine(void)
     unsigned short hDevice3D   = GAM_g_hDevice3D;
     unsigned short hViewport3D = GAM_g_hViewport3D;
 
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#1) */
+    /* read by the magnet test below before GLD_bRequestWriteToViewport sets it; on PC that call
+       only ever stores 1 */
+    int bEnabledWrite = 1;
+#else
     int bEnabledWrite;
+#endif /* RAYMAN2_FIX_BUGS */
 
     SND_fn_vSynchroSound();   /* 0x452B70 */
     FUN_0044c440();
