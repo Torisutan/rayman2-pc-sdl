@@ -401,10 +401,23 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    title and minimized on loss; on return the window comes back at 1920x1080 but stays white with
    the pause title (the "restoring data" title is never set), and `WM_CLOSE` is ignored: the
    window thread is blocked, the process has to be killed. Original behaviour on this system,
-   not a fork regression; where it blocks is unchecked (no debugger installed; a stack sample by
-   scanning the stack was inconclusive). The SDL build with the same driver: pause on loss,
-   "restoring data" then play on return, exit 0.2 s after `WM_CLOSE`. Open: whether the Win32
-   hang is a `docs/BUGS.md` entry needs the blocking call first.
+   not a fork regression. The SDL build with the same driver: pause on loss,
+   "restoring data" then play on return, exit 0.2 s after `WM_CLOSE`.
+   Where the Win32 build blocks (2026-11-24, cdb attached non-invasively to the hung MSVC Win32
+   build, three runs alike): the window thread, handling the restore (`WM_SYSCOMMAND` ->
+   `WM_WINDOWPOSCHANGED` -> `WM_SIZE`), is in DirectDraw's subclass window procedure, which waits
+   without timeout for DirectDraw's exclusive-mode mutex (`__DDrawExclMode__`) before it puts the
+   display mode back. The engine thread is paused in `GAM_pc_fn_vWaitForEitherEngineEvent`. The
+   driver took exclusive mode on the engine thread (`GLI_xInitGli` -> `xInitDriver` ->
+   `SetCooperativeLevel`, reached from `GAM_pc_fn_ulEngineThreadProc`), and `vActivateGli(hWnd, 0)`
+   on focus loss only sets a flag, so the engine thread still holds the mutex: it waits for the
+   window thread to resume it, the window thread waits for its mutex. A deadlock between the two
+   threads; the SDL build has one thread, which already owns the mutex. The owner itself could not
+   be read (the attach lacks the access to query the mutant); it follows from where
+   `SetCooperativeLevel` runs. Not fixed: the SDL build does not have it, and a fix in the Win32
+   path would change the original threading. Open: a `docs/BUGS.md` entry with a fix (release
+   exclusive mode on the engine thread before it pauses) only if the user wants the Win32 path
+   usable on this system.
 
    **Done (2026-11-24): focus return to fullscreen (SDL build).** The decompiled names on the
    activation path are inverted: on loss `GAM_pc_fn_vHandleActivateEnterFullScreen` ->
