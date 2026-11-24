@@ -36,7 +36,7 @@ __declspec(dllexport) void __cdecl GLI_DRV_vClearDevice(int clearZBuffer, int cl
 __declspec(dllexport) void __cdecl GLI_DRV_vClearZBufferRegion(LONG x0, LONG x1, LONG y0, LONG y1);
 __declspec(dllexport) void __cdecl GLI_DRV_vSetZClip(float zClip, void *pGMT);
 __declspec(dllexport) void __cdecl GLI_DRV_vSetClipWindow(float x0, float x1, float y0, float y1, void *pGMT);
-__declspec(dllexport) void __cdecl GLI_DRV_vAddBlackPolygon(int left, int top, int right, int bottom);
+__declspec(dllexport) void __cdecl GLI_DRV_vAddBlackPolygon(long left, long top, long right, long bottom);
 __declspec(dllexport) void __cdecl GLI_DRV_vNoBlackPolygon(void);
 __declspec(dllexport) void __cdecl GLI_DRV_vOptimizedWindowedMode(void);
 __declspec(dllexport) void __cdecl GLI_DRV_vNonOptimizedWindowedMode(void);
