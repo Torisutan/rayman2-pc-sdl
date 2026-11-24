@@ -11,8 +11,15 @@ through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayma
   without `DLL/GliDX6vf.dll`; any other renderer is still loaded from the `DLL` folder as before.
   On Windows 10 and later, native DirectDraw needs the `DWM8And16BitMitigation` compatibility
   layer to list the driver's 16-bit modes (as with the retail DLL).
+- **Widescreen HUD kept together:** at wide modes an icon and its counter (or a panel) now move
+  to the screen edge as one group, so they keep their 4:3 layout. Before, the hall of doors showed
+  the lum counter far from its icon, and the level panel's lum icon outside the panel.
 
 ### Build
+- **SDL build** (CMake `R2_USE_SDL`, off; SDL3 from vcpkg): window, events, timers, locks and
+  input (keyboard, mouse, gamepads) through SDL, the engine loop on the main thread. Windows only
+  for now: rendering and sound still use the installed drivers. Alt+Tab returns to fullscreen;
+  the window shows once the display is ready. Regression identical to the Win32 build.
 - **C runtime branches** for level data files, ini files and engine memory, beside the Win32
   ones (the first step towards Linux). Windows keeps the Win32 API; CMake `R2_C_RUNTIME`
   (`RAYMAN2_C_RUNTIME`) takes the C runtime there too. Regression identical either way.
