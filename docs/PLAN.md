@@ -294,6 +294,50 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    loop on the main thread; timers, tick counts and the MMG/SND critical sections through the same
    backend. First an inventory of what the window thread does (pause, focus, mode switch, power
    broadcast).
+
+   **Inventory (2026-11-24).** Two threads on PC. The *window thread* (`GAM_pc_fn_WinMain`):
+   ubi.ini bootstrap, single-instance mutex `RAYMAN2EXE`, desktop depth probe (GDI), the draw
+   semaphore and five named events, `MMG_fn_vInit`, `fn_vInitEngineWhenInitApplication`, window
+   class `Rayman2` + window (320x200 client, caption, resizable frame), `Erm_fn_vSetWndHdl4Request`,
+   `fn_bCreateMainDisplayScreen` (GLD device and viewport on the HWND), screensaver off, engine
+   thread started; it spins until the engine thread has opened the events (`GAM_g_ulQuitFlag`),
+   hides the cursor and runs the message loop until `WM_QUIT`, then waits for `ISDEADEVT`,
+   terminates the thread and releases device, viewport and the MMG table. The *engine thread*
+   runs `fn_uiEngineMainLoop`, which ends in `GAM_pc_fn_vEngineThreadExit` (posts `WM_QUIT`, sets
+   `ISDEADEVT`, sleeps forever).
+
+   The per-frame wait point is `FUN_00401160`, before every `fn_vOneTrame` (and the regression
+   hook): when neither `EXEFRAMEEVT` nor `EXITEVT` is set, it sets `ISPAUSEDEVT`, puts the engine in
+   pause and blocks in `GAM_pc_fn_vWaitForEitherEngineEvent`. `FUN_00401100`/`FUN_00401130` (end of
+   game / end of step) poll `EXITEVT`. `MSGBOX` is created and never used; `RAYMAN2EXE` is never
+   released.
+
+   | Window-thread work | Trigger | SDL main-thread loop |
+   |---|---|---|
+   | Focus loss: `GAM_pc_fn_vEnterPauseOnDeactivate` (debounce 2 s / 30 s at level init, engine paused at its next frame, title "pause", sound driver released; from fullscreen `GAM_pc_fn_vDispatchWmActivate` swaps the device mode and minimizes) | `WM_ACTIVATEAPP` off, `WM_CANCELMODE`, `SC_MINIMIZE`, caption clicks while windowed | needed: window focus-lost event, SDL title / minimize / restore |
+   | Focus return: `GAM_pc_fn_vRestoreEngineOnActivate` (fullscreen back, title, sound restored, engine resumed) | `WM_ACTIVATEAPP` on | needed: focus-gained event |
+   | Display mode change from the options menu: `GLI_fn_lRequestNewDisplayMode` posts `WM_USER 0x25`, `GAM_pc_fn_vResumeAfterFocusReturn` pauses the engine, applies the mode under the draw lock, resumes | engine thread request | needed: a request flag served at the wait point, between frames (nothing to pause) |
+   | Error message box: `Erm_fn_iMessageBox` sends `WM_USER 0x24` (cursor shown, pause, `MessageBoxA`) | engine thread request | ERM's own no-window path (`MessageBox(NULL, ...)`) on the main thread |
+   | `WM_USER 0x21` (title text) and `0x22` (activate) | nobody posts them | not needed |
+   | Close: `WM_CLOSE`/`SC_CLOSE` -> `WM_DESTROY` -> `GAM_pc_fn_vSignalEngineAndPostQuit` (sound released, `EXITEVT`) | user | needed: quit / close-requested event |
+   | Alt+Enter (`WM_SYSKEYDOWN` `VK_RETURN`): input entries reset, so the key does not reach the game | user | needed: key event with Alt |
+   | Alt, `SC_KEYMENU`, screensaver / monitor power swallowed; screensaver off for the run | user, system | SDL does it (keeps `SC_KEYMENU` from the menu loop, screensaver off while video is up) |
+   | Power suspend / resume: engine thread suspended under the draw lock, sound paused | `WM_POWERBROADCAST` | not needed: one thread, the system suspends the process |
+   | Minimum track size (`WM_GETMINMAXINFO`), `WM_MOVE`/`WM_SIZE` swallowed during play | system | not carried over (window chrome only) |
+   | Draw semaphore around viewport/camera changes and flips (`GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, the progress screen in `Texture.c`/`ui_state.c`); `"DrawSem"` given to the driver | both threads | nothing to guard; kept as an object (no wait ever blocks). Neither the Direct3D 6 driver nor GOG's `GliOGLvf.dll` waits on `"DrawSem"` |
+
+   Outside `pc_winmain.c` the API is used by: `GAM_engine.c` (`fn_hGetDrawSemaphore`,
+   `GAM_pc_fn_vGetAppContext` for the sound init), `GAM_init.c` (`GAM_pc_fn_hGetAppInstance` for
+   input), `Init_Gli.c` (`"DrawSem"`; `GLI_FatalExitOrSleep` sets `ISDEADEVT` and sleeps when an
+   engine thread exists, else exits), `Init_Gli_helpers.c` (`GAM_pc_fn_vPostResumeAfterFocus`),
+   `INO.c` (`g_hInstance`), `ERM` (`WM_USER` message box), `main.c` (`WinMain`).
+
+   **File split.** The decompiled `pc_winmain.c` also holds engine code that the original keeps
+   in common files (`fn_vOneTrame`, `fn_uiEngineMainLoop`, `fn_bCreateMainDisplayScreen`, the fix
+   camera and viewports). That code stays shared; only the Win32 functions (window, message loop,
+   thread, events, focus) are fenced `#ifndef USE_SDL`, and `GAM/sdl_main.c` gives the same
+   functions for the SDL loop. Open: SDL pumps nothing while a level loads (Windows marks a window
+   "not responding" after 5 s without messages); measure the load times first.
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.
