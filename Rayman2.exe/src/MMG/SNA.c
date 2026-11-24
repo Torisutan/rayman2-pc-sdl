@@ -6,6 +6,7 @@
 #include <intrin.h>
 
 #include "MMG/SNA.h"
+#include "MMG/SNA_file.h"   /* C-ANSI file mode: file calls to the C runtime */
 #include "MMG/MMG_globals.h"
 
 #define SNA_g_ucErrorMode       SNA_g_lProtectionGate

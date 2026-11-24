@@ -7,6 +7,7 @@
 
 #include "MMG/SNA_reloc.h"
 #include "MMG/SNA.h"
+#include "MMG/SNA_file.h"   /* C-ANSI file mode: file calls to the C runtime */
 #include "MMG/MMG_pubaccess.h"
 #include "MMG/MMG_globals.h"
 #include "GAM/GAM_types.h"

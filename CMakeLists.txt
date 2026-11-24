@@ -97,6 +97,14 @@ option(R2_FIX_BUGS "Fix the original engine's crashes and undefined behaviour (R
 if(R2_FIX_BUGS)
   list(APPEND R2_FORK_DEFINES RAYMAN2_FIX_BUGS)
 endif()
+# Level data files through the C runtime instead of the Win32 file API (MMG/SNA_file.c). Windows
+# keeps FILE_MODE_C_WIN95; this option forces the C-ANSI file mode there, to check it against the
+# regression run (docs/PLAN.md Phase 5, step 3).
+option(R2_FILE_MODE_C_ANSI "Read level data through the C runtime on Windows too (FILE_MODE_C_ANSI)" OFF)
+list(APPEND R2_SOURCES ${R2_DIR}/src/MMG/SNA_file.c)
+if(R2_FILE_MODE_C_ANSI)
+  list(APPEND R2_FORK_DEFINES FILE_MODE_C_ANSI)
+endif()
 # The Direct3D 6 renderer driver is built from GliDX6vf.dll/ (its tu.json, in link order) and
 # linked in; ubi.ini's GLI_DllFile=GliDX6 then selects it instead of DLL/GliDX6vf.dll. Other
 # drivers are still loaded from the DLL folder (GLI/GLI_linkdrv.c, DEVIATIONS 13).
