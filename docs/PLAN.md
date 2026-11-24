@@ -552,6 +552,41 @@ streams (ADPCM, used for music and voices).
    retail DLL dependency. Check it against the retail DLLs by capturing the mixed output of a
    scripted scene from both.
 
+## Animation: smoother playback (to evaluate)
+
+**Status:** idea, not decided (user, 2026-11-24). Evaluate first, then choose one of the two
+options, or neither. No code before the evaluation is written down here.
+
+**Options:**
+1. **Interpolate animation frames to 60 fps.** Blend between two stored animation frames at
+   display time, so motion is smooth when the display runs faster than the rate the animations
+   were stored at.
+2. **Use the Dreamcast version's animations.** Only if they are smoother and the engine can read
+   them. The data comes from the player's own copy; nothing of it goes into this repo.
+
+**Evaluate first (never guess):**
+- **PC data:** the rate the animations are stored at, and how the engine picks a frame. Is the
+  frame chosen by time or by engine tick? Does it already blend between frames anywhere? Where
+  do display rate and logic rate meet: the fixed-frame-rate setting in the ini, and the timer
+  code?
+- **Coupling:** does game logic read the current animation frame? Events on animation frames,
+  sound triggers, collision zones attached to channels. Interpolation has to stay display-only,
+  so logic sees exactly the frames it sees today.
+- **Dreamcast data:** is the animation format the same as the PC's or a different one? Is the
+  stored rate higher, and the same for every family? Do the files map one to one onto the PC
+  level files? A different format means a converter, and that is a separate tool, not engine
+  code.
+- **Cost:** for option 1, where it lives. The channel and matrix computation is in the engine;
+  the drawing is in the driver. For option 2, the work of loading data from another platform.
+
+**Rules when it is built:**
+- Behind a define (like `RAYMAN2_WIDESCREEN`), off in the regression build, so the regression
+  stays identical.
+- Its own measurement, frame captures at a fixed time step, with the define on and off.
+
+**Order:** after Phase 4, and not before the playtest and the wider regression. Placing it
+relative to sound and the GL driver is the user's call.
+
 ## Open decisions
 - Platform layer: see Phase 5, open decisions.
 - Cross-build bit equality: does anything need it (demo playback, save data that stores
