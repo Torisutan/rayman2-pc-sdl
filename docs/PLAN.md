@@ -234,8 +234,24 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
   round (24.11.2026, SDL build, OpenGL): focus changes and level transitions fine; HUD split in
   the hall of doors (Widescreen "Open"); **open:** loading a save slot loads the current progress
-  or the 88 % slot whichever is chosen, one slot folder is empty (log 2): reproduce on the Win32
-  build and the retail exe before looking at code.
+  or the 88 % slot whichever is chosen, one slot folder is empty (log 2).
+- **Save slots (read from the code, 24.11.2026; open).** The running game lives in
+  `Data/SaveGame/HiddenSlot` (`General.sav` plus one file per level, written at level changes);
+  the menu slots are `Data/SaveGame/SlotN`. Saving to a slot (`fn_bSaveGameInSlot`) deletes
+  `SlotN` and copies `HiddenSlot` into it; without a `HiddenSlot` it reports success and copies
+  nothing. Loading (`fn_bLoadGameFromSlot`) deletes `HiddenSlot` and copies `SlotN` into it; an
+  empty `SlotN` leaves an empty `HiddenSlot`. The menu lists the slots sorted by the date of
+  their `General.sav` (folder date when there is none) and maps the menu position to a slot
+  number through that list. An empty slot folder (log 2: `Slot2`) is a slot never saved into.
+  Not matching retail yet (decomp status): `GAM_pc_fn_ucSortSaveSlotsByDate`,
+  `fn_bSaveGameInSlot`, `GAM_pc_fn_bCopyDirectoryTree`, `GAM_pc_fn_bDeleteDirectoryTree`,
+  `GAM_pc_fn_ucGrowSaveSlotList`, `GAM_pc_fn_lEnsureDefaultSaveSlot`,
+  `GAM_pc_fn_ulEraseSaveSlotDir`; the sort, for one, copies the score text of only one of the two
+  slots it swaps. Whether retail does the same is unchecked, so log 2 may be original
+  behaviour or a decomp difference. Next: compare these seven with retail (`tools/byte_match.py
+  NAME --asm`; fixes belong to the decomp, so they arrive through upstream), then play one fixed
+  sequence (new game, save, second game, save, load each from the menu and during play) on the
+  retail exe and on the fork, with copies of `Data/SaveGame`.
 
 ### Phase 5 (later): platform layer and ports
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input

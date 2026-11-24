@@ -15,6 +15,7 @@ say so.
 | v1.0 | Windows (32- and 64-bit) and Linux | planned |
 | later | macOS | in scope, postponed |
 | later | Advanced settings menu (replaces the website entry) | open |
+| later | Gamepad rumble | open |
 | later | Homebrew ports (PSP, Wii U) | open |
 | later | Reading the Dreamcast level files | open |
 
@@ -72,6 +73,16 @@ any refresh rate, drawing positions interpolated between the last two logic step
 ## v1.0: desktop platforms
 Windows (32- and 64-bit) and Linux from one source, each checked against its own regression
 baseline. macOS is in scope but comes after v1.0.
+
+## Later: gamepad rumble
+The PC game has no rumble: the exe declares DirectInput's force-feedback interface but never
+creates an effect (checked in the decompiled code, 24.11.2026). Rumble would be a fork feature
+behind its own define, off in the regression build, sent through the input backend's gamepad
+(SDL's rumble call), never from game modules directly.
+- Check first: whether another version (Nintendo 64 Rumble Pak, Dreamcast Jump Pack) triggers
+  rumble from its scripts or level data, and if so whether the PC data carries the same events.
+  If not, the events (hits taken, landing, explosions, charged shot) are chosen here and listed.
+- Comes after the Dreamcast gamepad layout (input backend) and the playtest of it.
 
 ## Later: advanced settings menu
 The main menu's entry that opens the Rayman 2 website is replaced by an "Advanced settings" page
