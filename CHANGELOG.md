@@ -12,6 +12,11 @@ through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayma
   On Windows 10 and later, native DirectDraw needs the `DWM8And16BitMitigation` compatibility
   layer to list the driver's 16-bit modes (as with the retail DLL).
 
+### Build
+- **C runtime branches** for level data files, ini files and engine memory, beside the Win32
+  ones (the first step towards Linux). Windows keeps the Win32 API; CMake `R2_C_RUNTIME`
+  (`RAYMAN2_C_RUNTIME`) takes the C runtime there too. Regression identical either way.
+
 ### Tools
 - `tools/run.py --ini KEY=VALUE` sets a key of the sandbox's `ubi.ini` (repeatable).
 
