@@ -29,7 +29,8 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
 ### Phase 1: modern toolchain, no behaviour change
 - A CMake build with current MSVC (and clang-cl), **32-bit x86**. The level files store 32-bit
   pointers that the loader rebases (`SNA_pc_vLoadAndRelocate`), and every intended target (PSP,
-  Wii U) is 32-bit too, so 32-bit stays the model throughout.
+  Wii U) is 32-bit too, so 32-bit stays the model throughout. (2026-11-24: 64-bit targets are in
+  scope as well, `WIN64` and later `OSX`; Phase 5, platform macros.)
 - First build the sources as they are. Current 32-bit MSVC still accepts inline asm, naked
   functions and `_emit`, so only real incompatibilities change at this step (headers, shims,
   declarations).
@@ -259,7 +260,7 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
   thread, as the consoles do; the engine events and the draw lock then have nothing to guard.
 
 **Steps.**
-1. **Done (2026-11-24): linked-in renderer drivers** (`RAYMAN2_STATIC_GLI`, CMake `R2_STATIC_GLI`,
+1. **Done (2026-11-24): linked-in renderer drivers** (`USE_GLI_DX6`, CMake `R2_GLI_DX6`,
    on; DEVIATIONS 13). The Direct3D 6 driver is built from `GliDX6vf.dll/` into the exe.
    `GLI_fnl_InitDll` keeps its by-name binding; a driver linked into the exe answers it from a
    table (`GLI/GLI_linkdrv.c`), any other driver is still loaded from the DLL folder. Selected by
@@ -281,16 +282,47 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    Windows first.
 7. Sound (below) at any point, independently.
 8. Linux (compiler, asm C branches from Phase 4, calling-convention macros, case-sensitive data
-   paths), then macOS and the consoles (GX2 and GU drivers linked in, big-endian data, memory).
+   paths); `WIN64` (pointer-carrying level data widened at load); the consoles (GX2 and GU drivers
+   linked in, big-endian data, memory). macOS (`OSX`) is in scope but postponed until after these.
+
+**Platform macros (decided 2026-11-24).** Modelled on the original engine's three kinds: target
+macros named after the platform (`U64`, `NITRO`, `WIN32`), a group macro derived from them
+(`GAMECONSOLE`, `SND/snddef.h`), and `USE_`/feature macros for a choice within a target
+(`USE_PROFILER`, `OPTIMIZED_FOR_PC_FLOATS[_WITH_ASM]`, `FILE_MODE_C_WIN95`). Every `#endif` names
+its condition.
+
+| Macro | Kind | Meaning |
+|---|---|---|
+| `WIN32` | target | Windows and the Win32 API. Kept as it is; also defined on 64-bit Windows, as `_WIN32` is |
+| `WIN64` | target | 64-bit Windows, in addition to `WIN32`: only where pointer size or x86-only code matters |
+| `LINUX` | target | Linux |
+| `OSX` | target | macOS (in scope, postponed) |
+| `PSP` | target | PSP |
+| `WIIU` | target | Wii U |
+| `GAMECONSOLE` | group | any console: `snddef.h`'s list plus `PSP` and `WIIU` |
+| `USE_SDL` | backend | window, events, input, audio output and timers through SDL3, on any target that takes it (Windows too, to compare against the Win32 path) |
+| `USE_GLI_DX6` | renderer | Direct3D 6 driver linked in (`GLI_DllFile=GliDX6`; CMake `R2_GLI_DX6`) |
+| `USE_GLI_GL` | renderer | own OpenGL / GLES driver linked in (`GliGL`) |
+| `USE_GLI_GX2` | renderer | Wii U driver linked in (`GliGX2`) |
+| `USE_GLI_GU` | renderer | PSP driver linked in (`GliGU`) |
+| `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` | feature | MTH asm branch: 32-bit x86 MSVC / clang-cl only, not with `WIN64` |
+| `OPTIMIZED_FOR_PC_FLOATS` | feature | MTH C branch: every other target (Phase 2) |
+| `FILE_MODE_C_WIN95` | feature | `CreateFile` file layer (SNA, `sndfile`); set only for `WIN32` without `USE_SDL`, stdio otherwise |
+
+- New code goes beside the original branch: `#if defined(USE_SDL) ... #else /* original Win32 */
+  ... #endif /* USE_SDL */`. The Win32 path needs no macro of its own.
+- No linked-in driver takes the name `GliOGL`: GOG ships a `GliOGLvf.dll`, which a linked-in
+  driver of that name would shadow.
+- The fork's own options keep the `RAYMAN2_` prefix (`RAYMAN2_WIDESCREEN`, `RAYMAN2_FIX_BUGS`, ...),
+  so a fork option and a platform choice are told apart by name.
 
 **Open decisions.**
-- **Platform macro names** for the fork's targets (rule 5): not chosen yet.
 - **Backend library:** SDL3 for the PCs is the candidate; native code on the consoles, where the
   renderer is native anyway.
-- **64-bit.** Current macOS runs 64-bit code only, but Phase 1 keeps 32-bit as the model because
-  the level files store 32-bit pointers. A 64-bit build means widening every pointer-carrying
-  structure loaded from level data. Decide whether macOS (and the 64-bit ROADMAP item) is in scope
-  before step 8.
+- **64-bit data (decided: in scope, 2026-11-24).** `WIN64` and `OSX` need it. The level files store
+  32-bit pointers, so every pointer-carrying structure loaded from level data has to be widened at
+  load. How (per-type load tables or an offline converter, as for big-endian data) is open; decide
+  it with the big-endian question, from Phase 4's portability list.
 - **Big-endian targets (Wii U):** the data files are little-endian. The choices are byte-swapping
   at load time, which needs type information for every relocated block, or an offline data
   converter. Decide it when Phase 4's portability list exists.

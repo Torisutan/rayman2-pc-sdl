@@ -12,7 +12,8 @@ say so.
 | v0.4 | Own sound drivers (no retail sound DLLs) | planned |
 | v0.5 | Platform layer and own renderer (no retail DLLs at all) | planned |
 | v0.6 | Frame rate decoupled from game logic | planned |
-| v1.0 | Windows, Linux and macOS | planned |
+| v1.0 | Windows (32- and 64-bit) and Linux | planned |
+| later | macOS | in scope, postponed |
 | later | Advanced settings menu (replaces the website entry) | open |
 | later | Homebrew ports (PSP, Wii U) | open |
 | later | Reading the Dreamcast level files | open |
@@ -69,7 +70,8 @@ any refresh rate, drawing positions interpolated between the last two logic step
   cycling textures), and make the flip and frame pacing independent of the step.
 
 ## v1.0: desktop platforms
-Windows, Linux and macOS from one source, each checked against its own regression baseline.
+Windows (32- and 64-bit) and Linux from one source, each checked against its own regression
+baseline. macOS is in scope but comes after v1.0.
 
 ## Later: advanced settings menu
 The main menu's entry that opens the Rayman 2 website is replaced by an "Advanced settings" page
