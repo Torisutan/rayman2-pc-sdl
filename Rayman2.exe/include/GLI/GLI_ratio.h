@@ -23,12 +23,34 @@ typedef enum GLI_tdeSafeAreaAnchor_
 /* Anchor of the 2D element being drawn; centre unless a caller sets it for one element */
 extern GLI_tdeSafeAreaAnchor GLI_g_eSafeAreaAnchor;
 
+/* Number of boxes (and of keys, 0..GLI_C_lMaxSafeAreaBoxes - 1) one frame can group */
+#define GLI_C_lMaxSafeAreaBoxes 128
+
 /**********************************************************************************************/
-/* Name: GLI_fn_vSetSafeAreaAnchor */
-/* Goal: Anchor an element spanning xLeft..xRight of a 4:3 layout 0..xFull: to the left edge */
-/*       when it lies in the left third, to the right edge in the right third, else centre */
+/* Name: GLI_fn_vResetSafeAreaBoxes */
+/* Goal: Forget the boxes of the previous frame (every key is centred again) */
 /**********************************************************************************************/
-void GLI_fn_vSetSafeAreaAnchor(MTH_tdxReal xLeft, MTH_tdxReal xRight, MTH_tdxReal xFull);
+void GLI_fn_vResetSafeAreaBoxes(void);
+
+/**********************************************************************************************/
+/* Name: GLI_fn_vAddSafeAreaBox */
+/* Goal: Box of a 2D element (4:3 layout coordinates) to be drawn this frame, under lKey */
+/**********************************************************************************************/
+void GLI_fn_vAddSafeAreaBox(long lKey, MTH_tdxReal xLeft, MTH_tdxReal xTop, MTH_tdxReal xRight, MTH_tdxReal xBottom);
+
+/**********************************************************************************************/
+/* Name: GLI_fn_vComputeSafeAreaAnchors */
+/* Goal: Group the boxes that touch; a group starting in the left third and ending in the */
+/*       left half of the layout 0..xFull goes to the left edge (mirrored: right edge), */
+/*       any other group stays centred */
+/**********************************************************************************************/
+void GLI_fn_vComputeSafeAreaAnchors(MTH_tdxReal xFull);
+
+/**********************************************************************************************/
+/* Name: GLI_fn_vSetSafeAreaAnchorOfBox */
+/* Goal: Anchor the next 2D element with the anchor of its box's group (centre if no box) */
+/**********************************************************************************************/
+void GLI_fn_vSetSafeAreaAnchorOfBox(long lKey);
 
 /**********************************************************************************************/
 /* Name: GLI_fn_xComputeSafeAreaRatio */

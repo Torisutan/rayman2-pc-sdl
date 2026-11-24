@@ -178,14 +178,34 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
 - **2D.** Percent and pixel sprites map into the band (full-width ones keep the full width);
   the loading vignette is squeezed into the band of its own bitmap; superimposed objects map
   their screen position into the band and scale to its width (DEVIATIONS 7-9).
-- **HUD at the screen edges (2026-11-23).** The in-game HUD is drawn by the AGO gauge, icon and
-  text tables (`AGO_vDisplayGAUGES`; measured: no superimposed objects), which the menus use
-  too. The original separates them by `GAM_g_bEngineFrozen` (pause icons 15-24 and text slots
-  below 15 draw while frozen). While not frozen, an element lying entirely in the left or right
-  third of the 4:3 layout keeps its 4:3 distance to that screen edge (`GLI_fn_vSetSafeAreaAnchor`,
-  DEVIATIONS 11). Measured at 1920x1080: head and health bar at the left edge, lum and cage
-  counters with icons at the right edge; pause menu and language menu unchanged (the pause
-  menu freezes the engine; the menu text lies in the middle third). Regression identical.
+- **HUD at the screen edges (2026-11-23, groups 2026-11-24).** The in-game HUD is drawn by the
+  AGO gauge, icon and text tables (`AGO_vDisplayGAUGES`; measured: no superimposed objects), which
+  the menus use too. The original separates them by `GAM_g_bEngineFrozen` (pause icons 15-24 and
+  text slots below 15 draw while frozen). While not frozen, the boxes of all gauges, icons and
+  strings drawn in the frame are grouped where they touch (gap up to 1 % of the 4:3 layout), and
+  each group gets one anchor: left screen edge when it starts in the left third and ends in the
+  left half, right edge mirrored, else the centred band (`AGO_fn_vComputeSafeAreaAnchors`,
+  `GLI_fn_vComputeSafeAreaAnchors`, DEVIATIONS 11). A group keeps its 4:3 inner layout.
+  Why groups: the tables do not pair an icon with its counter (measured: the hall of doors puts
+  the lum counter in text slot 1 beside icon 1, Morb_00 in text slot 15 beside icon 2), so the
+  pairing is only spatial. Measured boxes (percent of the 4:3 layout):
+
+  | Screen | Group | Extent | Anchor |
+  |---|---|---|---|
+  | Morb_00 | head icon 0 + health gauge 0 | 2-25.8 | left |
+  | Morb_00 | lum/cage icons 2, 3 + texts 15, 16 | 68-96.5 | right |
+  | Hall of doors (`Mapmonde`) | lum/cage icons 1, 0 + texts 1 ("0/1000", 13-34.2), 0 | 7-34.2 | left |
+  | Hall of doors | level panel: icons 2, 3, texts 16, 17 and the level name 15 (6-72.1) | 6-72.6 | centre |
+  | Language menu (not frozen) | one group per line | 1.5-67.8 | centre |
+
+  The earlier per-element rule (whole element in an outer third) split the hall's lum counter
+  (past 33 %) from its icon, and sent the panel's lum icon (25-31 %) to the edge without its
+  counter (PLAYTEST log 1). Measured at 1920x1080 (screenshots): hall of doors top-left block at
+  the edge with the counters beside their icons, panel whole in the band; Morb_00 head and bar
+  left, counters right; pause menu and language menu unchanged. At 4:3 and taller every anchor
+  maps to the same place (k = 1), so 1280x960 is unchanged by construction (not re-shot).
+  Regression identical (MSVC, SDL). The Rayman figure in the playtest screenshot is the 3D
+  character (in the test runs he stands elsewhere in the scene), not HUD.
 - **Verified (screenshots, 2026-11-23):** at 1920x1080 and 1680x1050 the menu text, Murfy
   cursor, HUD (head, health bar, lum/cage counters and icons), pause menu (text, counters,
   masks; swirl background full width) and the loading vignette and bar keep 4:3 proportions
@@ -193,10 +213,9 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
 - **Not verified yet:** the logo path (`AGO_vDisplayLogo`) and script text
   (`fn_p_stCode4TextAffiche`) were not on screen in the test runs; windowed/fullscreen toggle
   and window resize are not tested; 21:9 needs windowed mode (no such monitor mode here).
-- **Open (playtest, 24.11.2026):** the edge anchoring splits an icon from its counter. In the
-  hall of doors the lum counter reaches past the left third and stays in the band, while its
-  icon goes to the screen edge (PLAYTEST log 1). The anchor has to be decided for the icon and
-  its counter together, not per element. How the AGO tables pair them is unchecked.
+- **Done (playtest, 24.11.2026):** the per-element edge anchoring split an icon from its
+  counter in the hall of doors (PLAYTEST log 1); the anchor is now decided per group of
+  touching elements (above).
 
 ### Loading screen: bounded refresh rate (`RAYMAN2_FAST_LOADING`)
 CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define RAYMAN2_FAST_LOADING`.

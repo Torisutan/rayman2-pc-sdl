@@ -61,21 +61,118 @@ MTH_tdxReal GLI_fn_xToSafeArea(MTH_tdxReal xX, MTH_tdxReal xFull)
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : Anchor of an element spanning xLeft..xRight of a 4:3 layout 0..xFull:
-                  left edge when it lies in the left third, right edge in the right
-                  third, centre otherwise (centred and full-width elements stay)
+  Edge anchors decided per group of 2D elements, not per element: an icon and its
+  counter (or a gauge and its head) touch, and a group moves to a screen edge as one,
+  so it keeps its 4:3 inner layout. Boxes are in the caller's 4:3 layout units.
  ----------------------------------------------------------------------------------------
  */
-void GLI_fn_vSetSafeAreaAnchor(MTH_tdxReal xLeft, MTH_tdxReal xRight, MTH_tdxReal xFull)
-{
-    MTH_tdxReal xThird = MTH_M_xDiv( xFull, MTH_M_xLongToReal(3) );
+/* Two boxes closer than this (layout units, the HUD tables' percent) belong together */
+#define GLI_C_xSafeAreaGroupGap MTH_M_xConstFloatToReal(1.0f)
 
-    if ( xRight <= xThird )
-        GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaLeft;
-    else if ( xLeft >= MTH_M_xSub( xFull, xThird ) )
-        GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaRight;
-    else
+typedef struct GLI_tdstSafeAreaBox_
+{
+    MTH_tdxReal           xLeft, xTop, xRight, xBottom;
+    long                  lGroup;     /* group label (the key of one of its boxes), -1 when unused */
+    GLI_tdeSafeAreaAnchor eAnchor;
+} GLI_tdstSafeAreaBox;
+
+static GLI_tdstSafeAreaBox GLI_gs_a_stSafeAreaBox[GLI_C_lMaxSafeAreaBoxes];
+
+void GLI_fn_vResetSafeAreaBoxes(void)
+{
+    long lKey;
+
+    for ( lKey = 0 ; lKey < GLI_C_lMaxSafeAreaBoxes ; lKey++ )
+    {
+        GLI_gs_a_stSafeAreaBox[lKey].lGroup  = -1;
+        GLI_gs_a_stSafeAreaBox[lKey].eAnchor = GLI_C_eSafeAreaCentre;
+    }
+}
+
+void GLI_fn_vAddSafeAreaBox(long lKey, MTH_tdxReal xLeft, MTH_tdxReal xTop, MTH_tdxReal xRight, MTH_tdxReal xBottom)
+{
+    GLI_tdstSafeAreaBox *p_stBox;
+
+    if ( lKey < 0 || lKey >= GLI_C_lMaxSafeAreaBoxes )
+        return;
+    p_stBox = &GLI_gs_a_stSafeAreaBox[lKey];
+    p_stBox->xLeft   = xLeft;
+    p_stBox->xTop    = xTop;
+    p_stBox->xRight  = xRight;
+    p_stBox->xBottom = xBottom;
+    p_stBox->lGroup  = lKey;
+}
+
+static unsigned char GLI_fn_bSafeAreaBoxesTouch(GLI_tdstSafeAreaBox *p_stA, GLI_tdstSafeAreaBox *p_stB)
+{
+    return (unsigned char)(    p_stA->xLeft   <= MTH_M_xAdd( p_stB->xRight,  GLI_C_xSafeAreaGroupGap )
+                            && p_stB->xLeft   <= MTH_M_xAdd( p_stA->xRight,  GLI_C_xSafeAreaGroupGap )
+                            && p_stA->xTop    <= MTH_M_xAdd( p_stB->xBottom, GLI_C_xSafeAreaGroupGap )
+                            && p_stB->xTop    <= MTH_M_xAdd( p_stA->xBottom, GLI_C_xSafeAreaGroupGap ) );
+}
+
+void GLI_fn_vComputeSafeAreaAnchors(MTH_tdxReal xFull)
+{
+    MTH_tdxReal           xThird = MTH_M_xDiv( xFull, MTH_M_xLongToReal(3) );
+    MTH_tdxReal           xHalf  = MTH_M_xMul( xFull, MTH_C_Inv2 );
+    MTH_tdxReal           xLeft, xRight;
+    GLI_tdeSafeAreaAnchor eAnchor;
+    long                  i, j, k, lOld, lNew;
+
+    /* groups: merge the groups of every two touching boxes */
+    for ( i = 0 ; i < GLI_C_lMaxSafeAreaBoxes ; i++ )
+    {
+        if ( GLI_gs_a_stSafeAreaBox[i].lGroup < 0 )
+            continue;
+        for ( j = i + 1 ; j < GLI_C_lMaxSafeAreaBoxes ; j++ )
+        {
+            if ( GLI_gs_a_stSafeAreaBox[j].lGroup < 0
+              || GLI_gs_a_stSafeAreaBox[j].lGroup == GLI_gs_a_stSafeAreaBox[i].lGroup
+              || !GLI_fn_bSafeAreaBoxesTouch( &GLI_gs_a_stSafeAreaBox[i], &GLI_gs_a_stSafeAreaBox[j] ) )
+                continue;
+            lOld = GLI_gs_a_stSafeAreaBox[j].lGroup;
+            lNew = GLI_gs_a_stSafeAreaBox[i].lGroup;
+            for ( k = 0 ; k < GLI_C_lMaxSafeAreaBoxes ; k++ )
+                if ( GLI_gs_a_stSafeAreaBox[k].lGroup == lOld )
+                    GLI_gs_a_stSafeAreaBox[k].lGroup = lNew;
+        }
+    }
+
+    /* anchor of each group, from its extent; a group is labelled with the key of one of its boxes */
+    for ( i = 0 ; i < GLI_C_lMaxSafeAreaBoxes ; i++ )
+    {
+        if ( GLI_gs_a_stSafeAreaBox[i].lGroup != i )
+            continue;
+        xLeft  = GLI_gs_a_stSafeAreaBox[i].xLeft;
+        xRight = GLI_gs_a_stSafeAreaBox[i].xRight;
+        for ( k = 0 ; k < GLI_C_lMaxSafeAreaBoxes ; k++ )
+            if ( GLI_gs_a_stSafeAreaBox[k].lGroup == i )
+            {
+                if ( GLI_gs_a_stSafeAreaBox[k].xLeft < xLeft )
+                    xLeft = GLI_gs_a_stSafeAreaBox[k].xLeft;
+                if ( GLI_gs_a_stSafeAreaBox[k].xRight > xRight )
+                    xRight = GLI_gs_a_stSafeAreaBox[k].xRight;
+            }
+
+        if ( xLeft <= xThird && xRight <= xHalf )
+            eAnchor = GLI_C_eSafeAreaLeft;
+        else if ( xRight >= MTH_M_xSub( xFull, xThird ) && xLeft >= xHalf )
+            eAnchor = GLI_C_eSafeAreaRight;
+        else
+            eAnchor = GLI_C_eSafeAreaCentre;
+
+        for ( k = 0 ; k < GLI_C_lMaxSafeAreaBoxes ; k++ )
+            if ( GLI_gs_a_stSafeAreaBox[k].lGroup == i )
+                GLI_gs_a_stSafeAreaBox[k].eAnchor = eAnchor;
+    }
+}
+
+void GLI_fn_vSetSafeAreaAnchorOfBox(long lKey)
+{
+    if ( lKey < 0 || lKey >= GLI_C_lMaxSafeAreaBoxes )
         GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
+    else
+        GLI_g_eSafeAreaAnchor = GLI_gs_a_stSafeAreaBox[lKey].eAnchor;
 }
 
 /*

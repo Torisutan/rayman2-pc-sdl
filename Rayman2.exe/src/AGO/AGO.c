@@ -10,6 +10,11 @@
 #include "GLI/DisplayFrame.h"
 #ifdef RAYMAN2_WIDESCREEN
 #include "GLI/GLI_ratio.h"
+/* Safe area box keys of the HUD tables' elements */
+#define AGO_M_lSafeAreaKeyGauge(i)  (i)
+#define AGO_M_lSafeAreaKeyIcone(i)  (MAX_GAUGES + (i))
+#define AGO_M_lSafeAreaKeyText(i)   (MAX_GAUGES + MAX_ICONES + (i))
+static void AGO_fn_vComputeSafeAreaAnchors(void);
 #endif /* RAYMAN2_WIDESCREEN */
 
 static const float AGO_asm_K_c9dc = 0.0f;   /* 0x49c9dc */
@@ -72,10 +77,8 @@ void AGO_vDisplayIcones(GLD_tdstViewportAttributes *p_stVpt)
             if (AGO_g_TheIcones[i].Transparency > 0)
             {
 #ifdef RAYMAN2_WIDESCREEN
-                /* HUD (engine not frozen): an icon in an outer third goes to the screen edge */
-                if (!GAM_g_bEngineFrozen)
-                    GLI_fn_vSetSafeAreaAnchor(AGO_g_TheIcones[i].Coords[0], AGO_g_TheIcones[i].Coords[2],
-                                              MTH_M_xConstFloatToReal(100.0f));
+                /* HUD (engine not frozen): the icon's group may go to a screen edge */
+                GLI_fn_vSetSafeAreaAnchorOfBox(AGO_M_lSafeAreaKeyIcone(i));
 #endif /* RAYMAN2_WIDESCREEN */
                 GLI_vSetGlobalAlpha((float)AGO_g_TheIcones[i].Transparency);
                 GLI_vDraw2DSpriteWithPercent(p_stVpt,
@@ -2730,6 +2733,10 @@ void AGO_vDisplayGAUGES(GLD_tdstViewportAttributes *p_stVpt)
 {
     int i;
 
+#ifdef RAYMAN2_WIDESCREEN
+    AGO_fn_vComputeSafeAreaAnchors();
+#endif /* RAYMAN2_WIDESCREEN */
+
     for (i = 0; i < MAX_GAUGES; i++)
     {
         if (AGO_g_TheGauges[i].Transparency > 0)
@@ -2739,10 +2746,8 @@ void AGO_vDisplayGAUGES(GLD_tdstViewportAttributes *p_stVpt)
             MTH_tdxReal position;
 
 #ifdef RAYMAN2_WIDESCREEN
-            /* HUD (engine not frozen): a gauge in an outer third goes to the screen edge */
-            if (!GAM_g_bEngineFrozen)
-                GLI_fn_vSetSafeAreaAnchor(AGO_g_TheGauges[i].Coords[0], AGO_g_TheGauges[i].Coords[2],
-                                          MTH_M_xConstFloatToReal(100.0f));
+            /* HUD (engine not frozen): the gauge's group may go to a screen edge */
+            GLI_fn_vSetSafeAreaAnchorOfBox(AGO_M_lSafeAreaKeyGauge(i));
 #endif /* RAYMAN2_WIDESCREEN */
             if (diffx <= diffy)
             {
@@ -3314,6 +3319,45 @@ void __cdecl JFFTXT_vDrawString(GLD_tdstViewportAttributes *p_stVpt, AGO_JFFTXT 
     }
 }
 
+#ifdef RAYMAN2_WIDESCREEN
+/*
+ ----------------------------------------------------------------------------------------
+  Description   : Edge anchors of this frame's HUD (wide display modes): the boxes of
+                  the gauges, icons and strings drawn while the engine is not frozen
+                  (the original's own test for the in-game HUD) are grouped where they
+                  touch, so an icon and its counter go to a screen edge together
+ ----------------------------------------------------------------------------------------
+ */
+static void AGO_fn_vComputeSafeAreaAnchors(void)
+{
+    MTH3D_tdstVector stMin, stMax;
+    int i;
+
+    GLI_fn_vResetSafeAreaBoxes();
+    if (GAM_g_bEngineFrozen)
+        return;
+
+    for (i = 0; i < MAX_GAUGES; i++)
+        if (AGO_g_TheGauges[i].Transparency > 0)
+            GLI_fn_vAddSafeAreaBox(AGO_M_lSafeAreaKeyGauge(i),
+                                   AGO_g_TheGauges[i].Coords[0], AGO_g_TheGauges[i].Coords[1],
+                                   AGO_g_TheGauges[i].Coords[2], AGO_g_TheGauges[i].Coords[3]);
+    for (i = 0; i < MAX_ICONES; i++)
+        if (AGO_g_TheIcones[i].Transparency > 0)
+            GLI_fn_vAddSafeAreaBox(AGO_M_lSafeAreaKeyIcone(i),
+                                   AGO_g_TheIcones[i].Coords[0], AGO_g_TheIcones[i].Coords[1],
+                                   AGO_g_TheIcones[i].Coords[2], AGO_g_TheIcones[i].Coords[3]);
+    for (i = 0; i < MAX_JFFTXT; i++)
+        if ((AGO_g_JFFTXT[i].ucTransparency != 0) && (AGO_g_JFFTXT[i].pString != NULL))
+        {
+            JFFTXT_vGetStringExtents(&AGO_g_JFFTXT[i], &stMin, &stMax);
+            GLI_fn_vAddSafeAreaBox(AGO_M_lSafeAreaKeyText(i), stMin.xX, stMin.xY, stMax.xX, stMax.xY);
+        }
+
+    GLI_fn_vComputeSafeAreaAnchors(MTH_M_xConstFloatToReal(100.0f));
+}
+#endif /* RAYMAN2_WIDESCREEN */
+
 void __cdecl JFFTXT_vAffiche(GLD_tdstViewportAttributes *p_stVpt)
 {
     AGO_JFFTXT *p;
@@ -3351,13 +3395,8 @@ void __cdecl JFFTXT_vAffiche(GLD_tdstViewportAttributes *p_stVpt)
                 }
 
 #ifdef RAYMAN2_WIDESCREEN
-                /* HUD (engine not frozen): a string in an outer third goes to the screen edge */
-                if (!GAM_g_bEngineFrozen)
-                {
-                    MTH3D_tdstVector stMin, stMax;
-                    JFFTXT_vGetStringExtents(p, &stMin, &stMax);
-                    GLI_fn_vSetSafeAreaAnchor(stMin.xX, stMax.xX, MTH_M_xConstFloatToReal(100.0f));
-                }
+                /* HUD (engine not frozen): the string's group may go to a screen edge */
+                GLI_fn_vSetSafeAreaAnchorOfBox(AGO_M_lSafeAreaKeyText(i));
 #endif /* RAYMAN2_WIDESCREEN */
                 if (p->bOther & JFFTXT_AUTOFRAME)
                 {
