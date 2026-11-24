@@ -5,6 +5,7 @@
 #include "MMG/MMG_module.h"
 #include "MMG/MMG_pubaccess.h"
 #include "MMG/MMG_alloc.h"
+#include "MMG/CpaMmg.h"   /* CPA_MALLOC: C runtime memory without FILE_MODE_C_WIN95 */
 #include "ERM/CpaError.h"
 
 typedef struct tdstBlockInfoPriv_PC {

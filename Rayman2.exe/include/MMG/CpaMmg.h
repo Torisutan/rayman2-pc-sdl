@@ -33,4 +33,22 @@
 #define Mmg_MEnterCriticalSection() EnterCriticalSection (&g_csMmg)
 #define Mmg_MLeaveCriticalSection() LeaveCriticalSection (&g_csMmg)
 
+/* System memory of the MMG blocks, as in the original engine's CpaMmg.c: GlobalAlloc(GMEM_FIXED)
+   and GlobalFree on the PC. The MMG files call them written out; without FILE_MODE_C_WIN95 those
+   calls go to the C runtime (docs/PLAN.md Phase 5, step 3). */
+#include "SND/snddef.h"
+#ifdef FILE_MODE_C_WIN95
+#define CPA_MALLOC(size)  GlobalAlloc(GMEM_FIXED, size)
+#define CPA_FREE(ptr)     GlobalFree(ptr)
+#else
+#ifdef _WIN32
+#include <windows.h>   /* first: the macros below would rename its own declarations */
+#endif /* _WIN32 */
+#include <stdlib.h>
+#define CPA_MALLOC(size)  malloc(size)
+#define CPA_FREE(ptr)     free(ptr)
+#define GlobalAlloc(uFlags, ulSize)     ((HGLOBAL)(((uFlags) & GMEM_ZEROINIT) ? calloc(1, (ulSize)) : CPA_MALLOC(ulSize)))
+#define GlobalFree(hMem)  (CPA_FREE((void *)(hMem)), (HGLOBAL)NULL)
+#endif /* FILE_MODE_C_WIN95 */
+
 #endif

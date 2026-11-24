@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "MMG/MMG_alloc.h"
+#include "MMG/CpaMmg.h"   /* CPA_MALLOC: C runtime memory without FILE_MODE_C_WIN95 */
 #include "MMG/MMG_globals.h"
 #include "ERM/CpaError.h"
 
