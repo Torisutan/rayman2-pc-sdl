@@ -1,7 +1,7 @@
 /*
  =======================================================================================
   Name        : GLI_linkdrv.c
-  Description : Renderer drivers linked into the exe (RAYMAN2_STATIC_GLI)
+  Description : Renderer drivers linked into the exe (USE_GLI_DX6)
 
   GLI_fnl_InitDll loads the driver DLL that ubi.ini names (GLI_DllFile) and binds its
   GLI_DRV entry points by name. A driver linked into the exe answers the same names from
@@ -13,7 +13,7 @@
   GLI_DRV_* names stand for the engine's function pointers.
  =======================================================================================
  */
-#ifdef RAYMAN2_STATIC_GLI
+#ifdef USE_GLI_DX6
 
 #include "GliDX6vf/GliDX6vf.h"
 #include "GLI/GLI_linkdrv.h"
@@ -140,4 +140,4 @@ FARPROC __stdcall GLI_pc_fn_pfnGetDriverProc(HMODULE hDriver, const char *szName
     return NULL;
 }
 
-#endif /* RAYMAN2_STATIC_GLI */
+#endif /* USE_GLI_DX6 */

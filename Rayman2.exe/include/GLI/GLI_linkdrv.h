@@ -2,10 +2,10 @@
 /*
  =======================================================================================
   Name        : GLI_linkdrv.h
-  Description : Renderer drivers linked into the exe (RAYMAN2_STATIC_GLI)
+  Description : Renderer drivers linked into the exe (USE_GLI_DX6)
  =======================================================================================
  */
-#ifdef RAYMAN2_STATIC_GLI
+#ifdef USE_GLI_DX6
 
 #include <windows.h>
 
@@ -22,4 +22,4 @@ HMODULE __stdcall GLI_pc_fn_hLoadDriver(const char *szFileName);
 /**********************************************************************************************/
 FARPROC __stdcall GLI_pc_fn_pfnGetDriverProc(HMODULE hDriver, const char *szName);
 
-#endif /* RAYMAN2_STATIC_GLI */
+#endif /* USE_GLI_DX6 */

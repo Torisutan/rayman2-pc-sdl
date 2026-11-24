@@ -100,8 +100,8 @@ endif()
 # The Direct3D 6 renderer driver is built from GliDX6vf.dll/ (its tu.json, in link order) and
 # linked in; ubi.ini's GLI_DllFile=GliDX6 then selects it instead of DLL/GliDX6vf.dll. Other
 # drivers are still loaded from the DLL folder (GLI/GLI_linkdrv.c, DEVIATIONS 13).
-option(R2_STATIC_GLI "Link the Direct3D 6 renderer driver into the exe (RAYMAN2_STATIC_GLI)" ON)
-if(R2_STATIC_GLI)
+option(R2_GLI_DX6 "Link the Direct3D 6 renderer driver into the exe (USE_GLI_DX6)" ON)
+if(R2_GLI_DX6)
   set(R2_GLI_DIR ${CMAKE_SOURCE_DIR}/GliDX6vf.dll)
   set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${R2_GLI_DIR}/tu.json)
   file(READ ${R2_GLI_DIR}/tu.json R2_GLI_TU_JSON)
@@ -122,7 +122,7 @@ if(R2_STATIC_GLI)
       -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion)
   endif()
   list(APPEND R2_SOURCES ${R2_DIR}/src/GLI/GLI_linkdrv.c)
-  list(APPEND R2_FORK_DEFINES RAYMAN2_STATIC_GLI)
+  list(APPEND R2_FORK_DEFINES USE_GLI_DX6)
 endif()
 
 add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RC} ${R2_ICO})
@@ -151,7 +151,7 @@ target_link_libraries(Rayman2 PRIVATE
   # inlines the printf family, so it has no fprintf slot; this library supplies one.
   legacy_stdio_definitions
   ${R2_VC6}/VC98/Lib/DINPUT.LIB dxguid)
-if(R2_STATIC_GLI)
+if(R2_GLI_DX6)
   # ddraw: DirectDrawCreate and DirectDrawEnumerateExA, the driver's only imports beyond kernel32/user32.
   target_link_libraries(Rayman2 PRIVATE GliDX6vf ddraw)
 endif()

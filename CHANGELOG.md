@@ -6,7 +6,7 @@ through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayma
 ## Unreleased
 
 ### Game
-- **Direct3D 6 renderer built in** (`RAYMAN2_STATIC_GLI`, CMake `R2_STATIC_GLI`, on): the
+- **Direct3D 6 renderer built in** (`USE_GLI_DX6`, CMake `R2_GLI_DX6`, on): the
   decompiled `GliDX6vf.dll` is linked into the exe. `GLI_DllFile=GliDX6` in `ubi.ini` uses it
   without `DLL/GliDX6vf.dll`; any other renderer is still loaded from the `DLL` folder as before.
   On Windows 10 and later, native DirectDraw needs the `DWM8And16BitMitigation` compatibility
