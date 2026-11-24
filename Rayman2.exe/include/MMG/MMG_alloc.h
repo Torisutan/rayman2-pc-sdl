@@ -11,7 +11,17 @@ extern uint8_t MMG_g_bAllocDisabled;
 
 #include <windows.h>
 
-extern CRITICAL_SECTION g_csMmg;
+/* The MMG lock (TypeCriticalSection in the original engine's CpaMmg.h): a Win32 critical
+   section on PC; with USE_SDL an SDL mutex, reentrant as well. CpaMmg.h maps the Win32
+   calls on it. */
+#if defined(USE_SDL)
+#include <SDL3/SDL_mutex.h>
+#define TypeCriticalSection SDL_Mutex *
+#else /* original Win32 */
+#define TypeCriticalSection CRITICAL_SECTION
+#endif /* USE_SDL */
+
+extern TypeCriticalSection g_csMmg;
 
 void *__cdecl fn_p_vDynAlloc(uint32_t ulSize, unsigned char);
 void  __cdecl fn_vDynFree(void *pUser, unsigned char);

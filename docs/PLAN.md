@@ -365,6 +365,14 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    the SDL build starts without the one-second busy wait (Morb_00 run: menu at 1.2 s, level at
    3.6 s, plays); no SDL object imports
    `timeGetTime`, `GetTickCount`, `QueryPerformance*` or `timeBeginPeriod`.
+
+   **Done (2026-11-24): MMG lock under `USE_SDL`.** `g_csMmg` takes the original engine's
+   `TypeCriticalSection` (`MMG/MMG_alloc.h`): an SDL mutex, reentrant as the critical section.
+   `MMG/CpaMmg.h` maps the Win32 critical section calls of the MMG files to it, as it maps their
+   `GlobalAlloc` (step 3); the call sites stay. No other file that includes `CpaMmg.h` uses a
+   critical section (`SND/SndThrd.c` keeps its own, Win32, see Sound). Measured: regression
+   identical (SDL, MSVC, clang-cl, VC5 + define); only `SndThrd.obj` imports the critical section
+   functions in the SDL build.
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.

@@ -51,4 +51,18 @@
 #define GlobalFree(hMem)  (CPA_FREE((void *)(hMem)), (HGLOBAL)NULL)
 #endif /* FILE_MODE_C_WIN95 */
 
+/* The MMG lock: with USE_SDL an SDL mutex (MMG/MMG_alloc.h). The MMG files call the Win32
+   critical section functions on g_csMmg written out, as Mmg_MEnterCriticalSection does;
+   those calls go to the mutex. */
+#if defined(USE_SDL)
+#ifdef _WIN32
+#include <windows.h>   /* first: the macros below would rename its own declarations */
+#endif /* _WIN32 */
+#include <SDL3/SDL_mutex.h>
+#define InitializeCriticalSection(p_csLock)  ((void)(*(p_csLock) = SDL_CreateMutex()))
+#define EnterCriticalSection(p_csLock)       SDL_LockMutex(*(p_csLock))
+#define LeaveCriticalSection(p_csLock)       SDL_UnlockMutex(*(p_csLock))
+#define DeleteCriticalSection(p_csLock)      (SDL_DestroyMutex(*(p_csLock)), (void)(*(p_csLock) = NULL))
+#endif /* USE_SDL */
+
 #endif

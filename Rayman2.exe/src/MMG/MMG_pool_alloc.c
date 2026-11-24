@@ -11,7 +11,7 @@
 /* 0x516148 */
 uint8_t MMG_g_ucActiveMode;
 uint8_t MMG_g_bAllocDisabled;
-CRITICAL_SECTION g_csMmg;   /* 0x50B0C0 */
+TypeCriticalSection g_csMmg;   /* 0x50B0C0 */
 
 #define MMG_POOL_GUARD_DWORD 0xe123456eu
 
