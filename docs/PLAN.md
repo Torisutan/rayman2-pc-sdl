@@ -317,7 +317,7 @@ its condition.
 | `PSP` | target | PSP |
 | `WIIU` | target | Wii U |
 | `GAMECONSOLE` | group | any console: `snddef.h`'s list plus `PSP` and `WIIU` |
-| `USE_SDL` | backend | window, events, input, audio output and timers through SDL3, on any target that takes it (Windows too, to compare against the Win32 path) |
+| `USE_SDL` | backend | window, events, input, audio output and timers through SDL (SDL3; SDL2 on `WIIU`), on any target that takes it (Windows too, to compare against the Win32 path) |
 | `USE_GLI_DX6` | renderer | Direct3D 6 driver linked in (`GLI_DllFile=GliDX6`; CMake `R2_GLI_DX6`) |
 | `USE_GLI_GL` | renderer | own OpenGL / GLES driver linked in (`GliGL`) |
 | `USE_GLI_GX2` | renderer | Wii U driver linked in (`GliGX2`) |
@@ -334,8 +334,9 @@ its condition.
 - The fork's own options keep the `RAYMAN2_` prefix (`RAYMAN2_WIDESCREEN`, `RAYMAN2_FIX_BUGS`, ...),
   so a fork option and a platform choice are told apart by name.
 
-**Backend library (decided 2026-11-24): SDL3 for the PCs** (Windows, Linux, later macOS); the
-console backend (SDL where a port exists, or native code) is chosen when each port starts.
+**Backend library (decided 2026-11-24): SDL3 for the PCs** (Windows, Linux, later macOS) and
+PSP (SDL3 has a PSP port); SDL2 on Wii U (the port available there). Getting it: Visual Studio's
+vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - SDL3 covers what the engine's seams need: window and events (`GAM_pc.h`), keyboard, mouse and
   gamepads with its controller mapping table (`INO`), audio output (`SND`'s output backend; the
   mixer, bank reader and ADPCM decoder stay the engine's own), timers, threads and locks, an
@@ -343,8 +344,9 @@ console backend (SDL where a port exists, or native code) is chosen when each po
   per-user `ubi.ini` and saves). License zlib.
 - Not used: SDL's 2D renderer and GPU API (they would replace GLI, not sit behind `GLI_DRV`, and
   cover no console), and its file streams (the C runtime branches serve, step 3).
-- SDL stays out of the engine: it is called only from backend files behind the seams, so a
-  console can swap them for SDL2 or native code without touching engine code.
+- SDL stays out of the engine: it is called only from backend files behind the seams. The Wii U
+  build needs SDL2 equivalents of the SDL3 calls those files make; keeping SDL to these files
+  keeps that difference small (a few `#if` in them, or an SDL2 variant of a backend file).
 - **Original engine style for backend code**, as it writes its platform code: one backend
   file per module beside the PC one, named after the backend as the PC files are after theirs
   (`GAM/pc_winmain.c` -> `GAM/sdl_main.c`, `INO` reader beside `INO_pc_Read*`); functions keep
@@ -352,12 +354,9 @@ console backend (SDL where a port exists, or native code) is chosen when each po
   type prefixes, `/* */` comments, file headers and description blocks as in the fork's other
   files; the whole file fenced `#ifdef USE_SDL ... #endif /* USE_SDL */`, its PC counterpart
   `#ifndef USE_SDL` with the original code untouched.
-- To check per console port: an SDL port for PSP (believed in SDL's tree) and Wii U (believed a
-  community SDL2 port only); SDL3 for 32-bit x86 Windows at the first build.
+- To check at the first build: SDL3 from vcpkg for 32-bit x86 Windows.
 
 **Open decisions.**
-- **Getting SDL3** (a new build dependency): Visual Studio's vcpkg in manifest mode (recommended),
-  CMake `FetchContent` of a release tag, or a prebuilt package path in `local.json`.
 - **64-bit data (decided: in scope, 2026-11-24).** `WIN64` and `OSX` need it. The level files store
   32-bit pointers, so every pointer-carrying structure loaded from level data has to be widened at
   load. How (per-type load tables or an offline converter, as for big-endian data) is open; decide
