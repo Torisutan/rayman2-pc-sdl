@@ -13,7 +13,17 @@
 # build without edits here. Paths to the non-shipped inputs come from local.json (see BUILDING.md):
 #   vc6  Visual C++ 6.0, for DINPUT.LIB (DirectInputCreateA and the c_dfDI* data formats; current
 #        SDKs ship only the DirectInput 8 library)
+#
+# SDL3 platform backend (R2_USE_SDL, off by default; docs/PLAN.md Phase 5): SDL3 comes from vcpkg
+# in manifest mode (vcpkg.json, feature "sdl"), linked statically:
+#   cmake -S . -B build-sdl -A Win32 -DR2_USE_SDL=ON -DVCPKG_TARGET_TRIPLET=x86-windows-static-md
+#         -DCMAKE_TOOLCHAIN_FILE=<vcpkg>/scripts/buildsystems/vcpkg.cmake
 cmake_minimum_required(VERSION 3.20)
+option(R2_USE_SDL "Window, events and timers through SDL3 (USE_SDL; needs the vcpkg toolchain)" OFF)
+if(R2_USE_SDL)
+  # Read by the vcpkg toolchain at project(): installs the manifest's "sdl" feature.
+  list(APPEND VCPKG_MANIFEST_FEATURES sdl)
+endif()
 project(Rayman2 C RC)
 
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -133,6 +143,11 @@ if(R2_GLI_DX6)
   list(APPEND R2_SOURCES ${R2_DIR}/src/GLI/GLI_linkdrv.c)
   list(APPEND R2_FORK_DEFINES USE_GLI_DX6)
 endif()
+# USE_SDL also leaves FILE_MODE_C_WIN95 unset (SND/snddef.h): the C runtime branches come with it.
+if(R2_USE_SDL)
+  find_package(SDL3 CONFIG REQUIRED)
+  list(APPEND R2_FORK_DEFINES USE_SDL)
+endif()
 
 add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RC} ${R2_ICO})
 set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
@@ -163,4 +178,7 @@ target_link_libraries(Rayman2 PRIVATE
 if(R2_GLI_DX6)
   # ddraw: DirectDrawCreate and DirectDrawEnumerateExA, the driver's only imports beyond kernel32/user32.
   target_link_libraries(Rayman2 PRIVATE GliDX6vf ddraw)
+endif()
+if(R2_USE_SDL)
+  target_link_libraries(Rayman2 PRIVATE SDL3::SDL3)
 endif()

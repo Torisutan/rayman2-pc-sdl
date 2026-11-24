@@ -1,0 +1,13 @@
+{
+  "name": "rayman2-pc-sdl",
+  "version-string": "0",
+  "builtin-baseline": "2f8bf7a5bad48aaef99d80b221fca712f016ab8f",
+  "features": {
+    "sdl": {
+      "description": "SDL3 platform backend (CMake R2_USE_SDL)",
+      "dependencies": [
+        { "name": "sdl3", "default-features": false }
+      ]
+    }
+  }
+}

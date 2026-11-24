@@ -61,6 +61,16 @@ CMake options (all on by default):
 | `R2_WIDESCREEN` | `RAYMAN2_WIDESCREEN` | Hor+ 3D view and 4:3 UI at wide resolutions |
 | `R2_REGRESS` | `RAYMAN2_REGRESS` | Regression harness (inactive unless started by `tools/regress.py`) |
 
+SDL3 backend (work in progress, off by default): `R2_USE_SDL` (`USE_SDL`) takes the window and
+events from SDL3, with the engine loop on the main thread. SDL3 comes from Visual Studio's vcpkg
+in manifest mode (`vcpkg.json`) and is linked statically:
+
+```
+cmake -S . -B build-sdl -A Win32 -DR2_USE_SDL=ON -DVCPKG_TARGET_TRIPLET=x86-windows-static-md ^
+      -DCMAKE_TOOLCHAIN_FILE="%VCINSTALLDIR%vcpkg\scripts\buildsystems\vcpkg.cmake"
+cmake --build build-sdl --config Release
+```
+
 The original-toolchain build of upstream (byte matching) is described in
 [BUILDING.md](BUILDING.md).
 
