@@ -391,6 +391,20 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    most of it the time stamp counter calibration). The SDL window is created hidden and shown when
    `fn_bCreateMainDisplayScreen` has succeeded. Measured: window log at startup shows no small
    window, the first visible one is the fullscreen window at 0.17 s; regression identical (SDL).
+
+   **Focus test with the Direct3D 6 driver (2026-11-24)** (16-bpp mode, `DWM8And16BitMitigation`;
+   Alt+Tab away at 12 s, back at 18 s, `WM_CLOSE` at 26 s, Morb_00). Original retail exe (install's
+   `GliDX6vf.dll`), VC5 + define and the MSVC Win32 build (linked-in driver) behave alike: pause
+   title and minimized on loss; on return the window comes back at 1920x1080 but stays white with
+   the pause title (the "restoring data" title is never set), and `WM_CLOSE` is ignored: the
+   window thread is blocked, the process has to be killed. Original behaviour on this system,
+   not a fork regression; where it blocks is unchecked (no debugger installed; a stack sample by
+   scanning the stack was inconclusive). The SDL build with the same driver: pause on loss,
+   "restoring data" then play on return, exit 0.2 s after `WM_CLOSE`; it comes back as a captioned
+   1920x1080 window instead of exclusive fullscreen, as with GOG's OpenGL driver. Open: why the
+   device does not return to exclusive mode (the return path calls
+   `GAM_pc_fn_vHandleActivateExitToWindowed` -> `GLD_bSwapToWindowedMode`); whether the Win32
+   hang is a `docs/BUGS.md` entry needs the blocking call first.
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.
