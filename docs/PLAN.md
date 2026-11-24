@@ -336,8 +336,11 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    in common files (`fn_vOneTrame`, `fn_uiEngineMainLoop`, `fn_bCreateMainDisplayScreen`, the fix
    camera and viewports). That code stays shared; only the Win32 functions (window, message loop,
    thread, events, focus) are fenced `#ifndef USE_SDL`, and `GAM/sdl_main.c` gives the same
-   functions for the SDL loop. Open: SDL pumps nothing while a level loads (Windows marks a window
-   "not responding" after 5 s without messages); measure the load times first.
+   functions for the SDL loop. SDL pumps nothing while a level loads (Windows marks a window
+   "not responding" after 5 s without messages). Measured (2026-11-24, SDL build, GOG's OpenGL
+   driver, direct load from the menu, warm file cache): the eight largest levels by data size
+   (Rhop_10 4.6 MB ... Morb_00 2.4 MB) load in 0.4 to 1.1 s, the menu plays 1.2 to 1.8 s after
+   start. No pump during loads; revisit if a target loads much slower (consoles, cold media).
 
    **Done (2026-11-24): SDL window, events and main-thread loop** (`GAM/sdl_main.c`, CMake
    `R2_USE_SDL`, DEVIATIONS 14). On Windows the SDL window's HWND goes to the GLI driver,
