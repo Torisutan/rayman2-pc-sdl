@@ -84,6 +84,7 @@ t_SND_PerTypeRealFn     g_pfn_SND_GetPosCD;
 #include "SND/sndplay.h"
 #include "SND/sndspace.h"
 #include "SND/sndldbin.h"
+#include "FIL/FIL_ini.h"   /* C-ANSI file mode: ini calls to the C runtime */
 
 /* 0x004B8C98 */
 void __cdecl SND_fn_vPauseSound(void)

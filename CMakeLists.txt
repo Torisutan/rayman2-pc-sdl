@@ -97,11 +97,11 @@ option(R2_FIX_BUGS "Fix the original engine's crashes and undefined behaviour (R
 if(R2_FIX_BUGS)
   list(APPEND R2_FORK_DEFINES RAYMAN2_FIX_BUGS)
 endif()
-# Level data files through the C runtime instead of the Win32 file API (MMG/SNA_file.c). Windows
-# keeps FILE_MODE_C_WIN95; this option forces the C-ANSI file mode there, to check it against the
-# regression run (docs/PLAN.md Phase 5, step 3).
-option(R2_FILE_MODE_C_ANSI "Read level data through the C runtime on Windows too (FILE_MODE_C_ANSI)" OFF)
-list(APPEND R2_SOURCES ${R2_DIR}/src/MMG/SNA_file.c)
+# Level data and ini files through the C runtime instead of the Win32 file API (MMG/SNA_file.c,
+# FIL/FIL_ini.c). Windows keeps FILE_MODE_C_WIN95; this option forces the C-ANSI file mode there,
+# to check it against the regression run (docs/PLAN.md Phase 5, step 3).
+option(R2_FILE_MODE_C_ANSI "Level data and ini files through the C runtime on Windows too (FILE_MODE_C_ANSI)" OFF)
+list(APPEND R2_SOURCES ${R2_DIR}/src/MMG/SNA_file.c ${R2_DIR}/src/FIL/FIL_ini.c)
 if(R2_FILE_MODE_C_ANSI)
   list(APPEND R2_FORK_DEFINES FILE_MODE_C_ANSI)
 endif()
