@@ -3,6 +3,18 @@
 All notable changes of this fork. Upstream's decompilation progress is not listed here; it arrives
 through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayman2-pc-decomp).
 
+## Unreleased
+
+### Game
+- **Direct3D 6 renderer built in** (`RAYMAN2_STATIC_GLI`, CMake `R2_STATIC_GLI`, on): the
+  decompiled `GliDX6vf.dll` is linked into the exe. `GLI_DllFile=GliDX6` in `ubi.ini` uses it
+  without `DLL/GliDX6vf.dll`; any other renderer is still loaded from the `DLL` folder as before.
+  On Windows 10 and later, native DirectDraw needs the `DWM8And16BitMitigation` compatibility
+  layer to list the driver's 16-bit modes (as with the retail DLL).
+
+### Tools
+- `tools/run.py --ini KEY=VALUE` sets a key of the sandbox's `ubi.ini` (repeatable).
+
 ## v0.1.1 (2026-11-24)
 
 Bug fixes, faster loading, HUD at the screen edges, own icon. First release with a prebuilt
