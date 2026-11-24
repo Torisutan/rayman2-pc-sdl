@@ -338,6 +338,18 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    thread, events, focus) are fenced `#ifndef USE_SDL`, and `GAM/sdl_main.c` gives the same
    functions for the SDL loop. Open: SDL pumps nothing while a level loads (Windows marks a window
    "not responding" after 5 s without messages); measure the load times first.
+
+   **Done (2026-11-24): SDL window, events and main-thread loop** (`GAM/sdl_main.c`, CMake
+   `R2_USE_SDL`, DEVIATIONS 14). On Windows the SDL window's HWND goes to the GLI driver,
+   DirectInput and the sound driver unchanged; the draw semaphore stays a Win32 semaphore until
+   its users move (locks, below). Measured: regression identical against `modern_baseline.txt`
+   (SDL build) and unchanged for MSVC, clang-cl and VC5 + define with the fences; Morb_00 loads in
+   about 5 s with GOG's OpenGL driver. Focus test (Alt+Tab away and back, then close): pause title
+   and sound release on focus loss, resumed play on return, clean exit 0.2 s after `WM_CLOSE`.
+   Open: on focus return the SDL build comes back as a full-size window with a caption instead
+   of exclusive fullscreen; the Win32 build stops at "restoring data" in the same test with the
+   same driver and does not quit on `WM_CLOSE` afterwards, so there is nothing to compare yet.
+   Check both with the linked-in Direct3D 6 driver.
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.

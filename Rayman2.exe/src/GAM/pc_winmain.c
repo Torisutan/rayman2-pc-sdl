@@ -34,6 +34,9 @@ __declspec(dllimport) DWORD WINAPI timeGetTime(void);
 /* 0x0049f07c */
 HINSTANCE g_hInstance_storage = (HINSTANCE)-1;
 
+/* USE_SDL: the window, message loop, engine thread, events and focus handling of this file
+   (the blocks fenced #ifndef USE_SDL) are in GAM/sdl_main.c; the engine code stays shared */
+#ifndef USE_SDL
 /* 0x004e0d80 */
 static HANDLE g_hSemDraw_storage, g_hEventMsgBox_storage, g_hEventExeFrame_storage,
               g_hEventExit_storage, g_hEventIsDead_storage, g_hEventIsPaused_storage;
@@ -49,6 +52,7 @@ static const char GAM_pc_g_szPauseTitle[]   = "Rayman2 - pause";
 static const char GAM_pc_g_szRestoreTitle[] = "Rayman2 - restoring data... please wait";
 #define GAM_PC_SZ_PAUSE_TITLE    GAM_pc_g_szPauseTitle
 #define GAM_PC_SZ_RESTORE_TITLE  GAM_pc_g_szRestoreTitle
+#endif /* USE_SDL */
 
 /* 0x0049F084 */
 void *GAM_pc_g_hEngineThread_storage = (void *)-1;
@@ -64,6 +68,7 @@ static unsigned long g_ulDisplayWidth_storage, g_ulDisplayHeight_storage;
 static unsigned long g_ulHwndGoneFlag_storage;   /* 0x004A6AA8 */
 #define GAM_pc_g_ulHwndGoneFlag  g_ulHwndGoneFlag_storage
 
+#ifndef USE_SDL
 static unsigned long GAM_pc_g_ulPauseFlag_storage = 1;
 static unsigned long GAM_pc_g_ulPausePending_storage = 1;
 #define GAM_pc_g_ulPauseFlag     GAM_pc_g_ulPauseFlag_storage
@@ -83,6 +88,7 @@ static unsigned long GAM_pc_g_ulNoPauseThisTime_storage;
 /* 0x0049F0E4 */
 static unsigned long GAM_pc_g_ulPendingCompan_storage = 1;
 #define GAM_pc_g_ulPendingCompan  GAM_pc_g_ulPendingCompan_storage
+#endif /* USE_SDL */
 
 static unsigned long g_bDisplayFullScreen_storage;
 #define g_bDisplayFullScreen  g_bDisplayFullScreen_storage
@@ -132,6 +138,7 @@ void __cdecl GAM_pc_fn_vSetDisplayFullScreen(unsigned long bFullScreen)
     g_bDisplayFullScreen = bFullScreen;
 }
 
+#ifndef USE_SDL
 /* 0x00401820 */
 extern long          __cdecl GLD_bSetFullScreenModeForDevice(short hDev,
                                                          unsigned long ulWidth,
@@ -498,6 +505,10 @@ int FUN_00401130(void)
     }
     return GAM_fn_bIsDesInitMode() & 0xFF;
 }
+#else
+void FUN_00401080(void);
+void FUN_00401160(void);
+#endif /* USE_SDL */
 
 /* 0x401340 */
 static void fn_vEmptyFunction(void) { }
@@ -529,6 +540,7 @@ void fn_vOneTrame(void)
     p_fn_vReadInput();
 }
 
+#ifndef USE_SDL
 /* 0x00401310 */
 void FUN_00401160(void)
 {
@@ -550,6 +562,7 @@ void FUN_00401160(void)
 #endif
     fn_vOneTrame();             /* 0x004049E0 */
 }
+#endif /* USE_SDL */
 
 /* 0x401340 */
 unsigned short __cdecl FUN_00401340(int _unused)
@@ -570,6 +583,7 @@ char *__cdecl GAM_pc_fn_szGetCmdLine(void)
     return GAM_g_szCmdLine;
 }
 
+#ifndef USE_SDL
 void __cdecl GAM_pc_fn_vWaitForEitherEngineEvent(void)
 {
     /* 0x4e0ec8 */
@@ -598,6 +612,7 @@ void GAM_pc_fn_vChooseTheGoodInit(void)
 
     GAM_pc_g_ulPendingCompan = 0;
 }
+#endif /* USE_SDL */
 
 /* 0x004010F0 */
 void GAM_pc_fn_vChooseTheGoodDesInit(void)
@@ -632,6 +647,7 @@ unsigned int fn_uiEngineMainLoop(void)
 
 }
 
+#ifndef USE_SDL
 /* 0x00401540 */
 DWORD WINAPI GAM_pc_fn_ulEngineThreadProc(LPVOID lpParameter)
 {
@@ -662,6 +678,7 @@ void GAM_pc_fn_vKillEngineThreadAfterExit(void)
     WaitForSingleObject(*g_hEventIsDead, INFINITE);
     TerminateThread(*(HANDLE *)GAM_pc_g_hEngineThread_ADDR, 0);
 }
+#endif /* USE_SDL */
 
 /* 0x004E0EA4 */
 unsigned long FUN_00401b20(void)
@@ -677,6 +694,7 @@ unsigned long FUN_00401b20(void)
     return 0;
 }
 
+#ifndef USE_SDL
 /* 0x0049B1D0 */
 int FUN_00402580(MSG *p_msg)
 {
@@ -696,6 +714,7 @@ int FUN_00402580(MSG *p_msg)
     }
     return iRet;
 }
+#endif /* USE_SDL */
 
 /* 0x510BF0 */
 void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
@@ -736,6 +755,7 @@ void FUN_00401050(void)
     GLD_bFlipDeviceWithSynchro(*(unsigned short *)p_hDevice, 0xFF);
 }
 
+#ifndef USE_SDL
 /* 0x004A6AA0 */
 int GAM_pc_fn_vRestoreEngineOnActivate(void)
 {
@@ -1081,6 +1101,7 @@ LRESULT CALLBACK GAM_fn_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     }
     return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
+#endif /* USE_SDL */
 
 /* 0x4e0eb0 */
 long          __cdecl GLI_pc_bInitDisplayModes(void);
@@ -1243,6 +1264,7 @@ void __cdecl GAM_fn_vCreateGameDeviceAndViewPorts(void)
     fn_vCreateGameViewPortCamera();
 }
 
+#ifndef USE_SDL
 /* 0x00402150 */
 int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
 {
@@ -1478,3 +1500,4 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
 
     return -1;
 }
+#endif /* USE_SDL */
