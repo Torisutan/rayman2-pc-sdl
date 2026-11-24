@@ -350,6 +350,21 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    of exclusive fullscreen; the Win32 build stops at "restoring data" in the same test with the
    same driver and does not quit on `WM_CLOSE` afterwards, so there is nothing to compare yet.
    Check both with the linked-in Direct3D 6 driver.
+
+   **Done (2026-11-24): timers under `USE_SDL`** (`TMR/sdl_timer.c`, DEVIATIONS 15). The PC timer
+   functions of `GLI/cpu_timer.c` and `GLI/timer_sub2.c` are fenced; the SDL file gives
+   `fn_vTimerGetCounter`, `fn_ulTimerTickPerSecond`, `fn_ulTimerEventTickPerSecond` as the original
+   console timer code does, and `GetTickCount` (`TMR/sdl_timer.h`, for `RND.c` and
+   `GLI_fastload.c`). Channels: 0 milliseconds, 1 and 2 SDL's performance counter. Checked:
+   the engine creates only channel-1 timers (`Basic.c`, `GLD.c`) and the Direct3D 6 driver reads
+   channel 1 through `TimerGetCounter`; channel 2 (the time stamp counter, its rate measured by a
+   one-second busy wait in `TMR_pc_fn_ulCalibrateTscFreq` at init) is read by nothing in the exe.
+   GOG's `GliOGLvf.dll` is unchecked. The calibration keeps the low 32 bits of the one-second delta,
+   which wraps above about 4.29 GHz; with nothing reading the channel that has no effect, and the
+   PC path stays as it is. Measured: regression identical (SDL, MSVC, clang-cl, VC5 + define);
+   the SDL build starts without the one-second busy wait (Morb_00 run: menu at 1.2 s, level at
+   3.6 s, plays); no SDL object imports
+   `timeGetTime`, `GetTickCount`, `QueryPerformance*` or `timeBeginPeriod`.
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.

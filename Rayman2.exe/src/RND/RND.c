@@ -7,6 +7,7 @@
 #include "MTH/MTH_flt.h"
 #include "MMG/MMG_alloc.h"
 #include "port/regress.h"
+#include "TMR/sdl_timer.h"   /* USE_SDL: GetTickCount from the SDL timer */
 
 extern void __cdecl Mmg_fn_cCheckAlignmentValidity(void);
 

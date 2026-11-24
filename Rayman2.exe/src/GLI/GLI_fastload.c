@@ -14,6 +14,7 @@
 #ifdef RAYMAN2_FAST_LOADING
 
 #include <windows.h>
+#include "TMR/sdl_timer.h"   /* USE_SDL: GetTickCount from the SDL timer */
 #include "GLI/Texture.h"
 #include "GLI/GLI_fastload.h"
 

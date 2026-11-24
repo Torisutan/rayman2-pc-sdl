@@ -9,6 +9,7 @@
 #include "ERM/CpaError.h"
 #include "port/regress.h"
 
+#ifndef USE_SDL   /* the SDL counterpart of the PC timer functions: TMR/sdl_timer.c */
 __declspec(dllimport) DWORD __stdcall timeGetTime(void);
 
 unsigned long __cdecl fn_ulTimerEventTickPerSecond(short channel)
@@ -196,6 +197,8 @@ unsigned long __cdecl fn_ulTimerTickPerSecond(short sChannel)
         return 0ul;
     }
 }
+
+#endif /* USE_SDL */
 
 short __cdecl TMR_fn_wInitLibrary(void)
 {

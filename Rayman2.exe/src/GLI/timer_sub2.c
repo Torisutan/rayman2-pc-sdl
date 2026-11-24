@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+#ifndef USE_SDL   /* the SDL counterpart of the PC timer functions: TMR/sdl_timer.c */
+
 void __cdecl TMR_pc_fn_vReadTSC(unsigned __int64 *p_uOut)
 {
 
@@ -112,3 +114,5 @@ void __cdecl TMR_pc_fn_vSetupTimerPeriod(void)
         TMR_pc_g_bTimerPeriodSet = 1;
     }
 }
+
+#endif /* USE_SDL */

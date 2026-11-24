@@ -146,8 +146,10 @@ endif()
 # USE_SDL also leaves FILE_MODE_C_WIN95 unset (SND/snddef.h): the C runtime branches come with it.
 if(R2_USE_SDL)
   find_package(SDL3 CONFIG REQUIRED)
-  # Window, events and engine loop on the main thread, beside GAM/pc_winmain.c's Win32 parts.
+  # Window, events and engine loop on the main thread, beside GAM/pc_winmain.c's Win32 parts;
+  # timer counters beside the PC ones (GLI/cpu_timer.c, GLI/timer_sub2.c).
   list(APPEND R2_SOURCES ${R2_DIR}/src/GAM/sdl_main.c)
+  list(APPEND R2_SOURCES ${R2_DIR}/src/TMR/sdl_timer.c)
   list(APPEND R2_FORK_DEFINES USE_SDL)
 endif()
 
