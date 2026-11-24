@@ -222,6 +222,13 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
 - Replace the remaining raw struct offsets and casts with typed fields.
 - Document every assumption about endianness, pointer size and struct packing at the place it is
   made (`docs/PORTABILITY.md`). Phase 5 works from this list.
+- **Order (user, 2026-11-24):** Phase 5 steps 1, 3, 4 and 5 ran ahead of this phase. Before more
+  Phase 5 work, one task per session: a playtest, a wider regression (more levels, recorded
+  input), then this phase, then closing Phase 2.
+- **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
+  options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
+  drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. Not
+  played yet.
 
 ### Phase 5 (later): platform layer and ports
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input
