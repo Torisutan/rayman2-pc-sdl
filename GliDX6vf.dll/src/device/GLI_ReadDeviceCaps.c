@@ -1,0 +1,122 @@
+#include "GliDX6vf/GliDX6vf.h"
+#include "GliDX6vf/GliDX6vf_State.h"
+
+#define GLI_D3DDEVICEDESC_DWDEVCAPS_OFFSET 0x0c
+#define GLI_D3DDEVICEDESC_TRI_ALPHACMPCAPS_OFFSET 0x7c
+#define GLI_D3DDEVICEDESC_TRI_TEXTURECAPS_OFFSET 0x84
+#define GLI_D3DDEVICEDESC_MAX_TEXTURE_WIDTH_OFFSET 0xb4
+#define GLI_D3DDEVICEDESC_MAX_TEXTURE_HEIGHT_OFFSET 0xb8
+
+#define GLI_D3DDEVCAPS_TEXTURENONLOCALVIDMEM 0x00001000u
+#define GLI_D3DDEVCAPS_SEPARATETEXTUREMEMORIES 0x00004000u
+#define GLI_D3DPTEXTURECAPS_SQUAREONLY 0x00000020u
+
+#define GLI_DDPIXELFORMAT_SIZE 0x20
+#define GLI_DDPF_ALPHAPIXELS 0x00000001u
+#define GLI_DDPF_RGB 0x00000040u
+#define GLI_DDPF_FLAGS_OFFSET 0x04
+#define GLI_DDPF_RGB_BITCOUNT_OFFSET 0x0c
+#define GLI_DDPF_R_MASK_OFFSET 0x10
+#define GLI_DDPF_G_MASK_OFFSET 0x14
+#define GLI_DDPF_B_MASK_OFFSET 0x18
+#define GLI_DDPF_A_MASK_OFFSET 0x1c
+
+#define GLI_GLD_PIXEL_FORMAT_SIZE 0x40
+#define GLI_GLD_PF_FORMAT_NUMBER_OFFSET 0x00
+#define GLI_GLD_PF_ALPHA_OFFSET 0x02
+#define GLI_GLD_PF_PIXEL_BITS_OFFSET 0x04
+#define GLI_GLD_PF_PIXEL_MASK_OFFSET 0x08
+#define GLI_GLD_PF_PIXEL_BYTES_OFFSET 0x0c
+#define GLI_GLD_PF_RED_BITS_OFFSET 0x10
+#define GLI_GLD_PF_RED_SHIFT_OFFSET 0x14
+#define GLI_GLD_PF_RED_MASK_OFFSET 0x18
+#define GLI_GLD_PF_GREEN_BITS_OFFSET 0x1c
+#define GLI_GLD_PF_GREEN_SHIFT_OFFSET 0x20
+#define GLI_GLD_PF_GREEN_MASK_OFFSET 0x24
+#define GLI_GLD_PF_BLUE_BITS_OFFSET 0x28
+#define GLI_GLD_PF_BLUE_SHIFT_OFFSET 0x2c
+#define GLI_GLD_PF_BLUE_MASK_OFFSET 0x30
+#define GLI_GLD_PF_ALPHA_BITS_OFFSET 0x34
+#define GLI_GLD_PF_ALPHA_SHIFT_OFFSET 0x38
+#define GLI_GLD_PF_ALPHA_MASK_OFFSET 0x3c
+
+#define GLI_CAPS_FLAGS_OFFSET 0x04
+#define GLI_CAPS_FEATURES_OFFSET 0x08
+#define GLI_CAPS_MAX_TEXTURE_SIZE_OFFSET 0x14
+
+#define GLI_CAPS_TOTAL_TEXTURE_MEMORY_OFFSET 0x18
+#define GLI_CAPS_TOTAL_VIDEO_MEMORY_OFFSET 0x1c
+#define GLI_CAPS_TOTAL_AGP_MEMORY_OFFSET 0x20
+#define GLI_CAPS_PRIMARY_PIXEL_FORMAT_OFFSET 0x24
+
+#define GLI_DDSCAPS_LOCAL_TEXTURE_MIPMAP_VIDEOMEMORY 0x10405000u
+#define GLI_DDSCAPS_NONLOCAL_TEXTURE_MIPMAP_VIDEOMEMORY 0x20405000u
+
+#define GLI_DWORD_AT(base, offset) (*(DWORD *)((unsigned char *)(base) + (offset)))
+
+HRESULT __cdecl GLI_ReadDeviceCaps(void *gliCaps, void *directDraw4, void *deviceDesc)
+{
+    HRESULT result;
+    DWORD freeBytes;
+    DWORD total;
+    DWORD value;
+
+    if ((GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_TRI_ALPHACMPCAPS_OFFSET) & 0x40) != 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) |= 0x10;
+    }
+    if ((GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_TRI_TEXTURECAPS_OFFSET) &
+         GLI_D3DPTEXTURECAPS_SQUAREONLY) == 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_FEATURES_OFFSET) |= 0x2;
+    }
+
+    if ((GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_DWDEVCAPS_OFFSET) &
+         GLI_D3DDEVCAPS_TEXTURENONLOCALVIDMEM) != 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) |= 0x2;
+    } else if ((GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) & 0x2) != 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) -= 2;
+    }
+
+    if ((GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_DWDEVCAPS_OFFSET) &
+         GLI_D3DDEVCAPS_SEPARATETEXTUREMEMORIES) != 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) |= 0x80;
+    }
+
+    value = GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_MAX_TEXTURE_WIDTH_OFFSET);
+    if (value >= GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_MAX_TEXTURE_HEIGHT_OFFSET)) {
+        value = GLI_DWORD_AT(deviceDesc, GLI_D3DDEVICEDESC_MAX_TEXTURE_HEIGHT_OFFSET);
+    }
+    GLI_DWORD_AT(gliCaps, GLI_CAPS_MAX_TEXTURE_SIZE_OFFSET) = value;
+    if (value == 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_MAX_TEXTURE_SIZE_OFFSET) = 0x100;
+    }
+
+    result = GLI_QueryAvailableVidMem(directDraw4, GLI_DDSCAPS_LOCAL_TEXTURE_MIPMAP_VIDEOMEMORY,
+                                      &total, &freeBytes);
+    if (result == 0) {
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_TOTAL_VIDEO_MEMORY_OFFSET) = total;
+        GLI_DWORD_AT(gliCaps, GLI_CAPS_TOTAL_TEXTURE_MEMORY_OFFSET) = freeBytes;
+    }
+
+    if ((GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) & 0x2) != 0) {
+        result = GLI_QueryAvailableVidMem(directDraw4, GLI_DDSCAPS_NONLOCAL_TEXTURE_MIPMAP_VIDEOMEMORY,
+                                          &total, &freeBytes);
+        if (result == 0) {
+            GLI_DWORD_AT(gliCaps, GLI_CAPS_TOTAL_AGP_MEMORY_OFFSET) = total;
+        } else {
+            GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) =
+                GLI_DWORD_AT(gliCaps, GLI_CAPS_FLAGS_OFFSET) - 2;
+        }
+    }
+
+    if (GLI_g_pPrimarySurface != NULL) {
+        unsigned char pixelFormat[GLI_DDPIXELFORMAT_SIZE];
+
+        ZeroMemory(pixelFormat, sizeof(pixelFormat));
+        GLI_DWORD_AT(pixelFormat, 0) = GLI_DDPIXELFORMAT_SIZE;
+        GLI_g_pPrimarySurface->lpVtbl->GetPixelFormat(GLI_g_pPrimarySurface, pixelFormat);
+        *((BYTE *)gliCaps + GLI_CAPS_PRIMARY_PIXEL_FORMAT_OFFSET) =
+            (BYTE)GLI_lGetOrAddDefinedPixelFormat(pixelFormat);
+    }
+
+    return 0;
+}

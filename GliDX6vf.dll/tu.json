@@ -1,0 +1,263 @@
+{
+ "base_flags": [
+  "/nologo",
+  "/c",
+  "/O2",
+  "/Gy",
+  "/MD"
+ ],
+ "link_order": [
+  {
+   "src": "render/GLI_DRV_vSetZClip.c"
+  },
+  {
+   "src": "render/GLI_DRV_vSetClipWindow.c"
+  },
+  {
+   "src": "clip/GLI_DRV_xClearViewingList.c"
+  },
+  {
+   "src": "clip/clip_staging.c"
+  },
+  {
+   "src": "clip/GLI_DRV_vSendSpriteToClip.c"
+  },
+  {
+   "src": "clip/GLI_DRV_vSendSpriteToClipWithColors.c"
+  },
+  {
+   "src": "clip/GLI_DRV_vSendSpriteToClipWithUV.c"
+  },
+  {
+   "src": "clip/GLI_DRV_vSendSingleLineToClip.c"
+  },
+  {
+   "src": "clip/GLI_DRV_xSendListToViewport.c"
+  },
+  {
+   "src": "clip/clip_send_triangles.c"
+  },
+  {
+   "src": "driver/GLI_DRV_lGetDllInfo.c"
+  },
+  {
+   "src": "driver/GLI_DRV_lSetCommonData.c"
+  },
+  {
+   "src": "driver/GLI_DRV_lSetCommonFct.c"
+  },
+  {
+   "src": "device/GLI_QueryAvailableVidMem.c"
+  },
+  {
+   "src": "device/GLI_ReadDirectDrawCaps.c"
+  },
+  {
+   "src": "device/GLI_vSortValuesAscending.c"
+  },
+  {
+   "src": "device/GLI_ReadDeviceCaps.c"
+  },
+  {
+   "src": "texture/GLI_lFindFirstSetBit.c"
+  },
+  {
+   "src": "texture/GLI_lMakeBitMask.c"
+  },
+  {
+   "src": "texture/GLI_lBitRunLength.c"
+  },
+  {
+   "src": "texture/GLI_lPixelFormatMasksMatch3.c"
+  },
+  {
+   "src": "texture/GLI_lPixelFormatMasksMatch4.c"
+  },
+  {
+   "src": "texture/GLI_vDerivePixelFormatRecord.c"
+  },
+  {
+   "src": "texture/GLI_lFindDefinedPixelFormat.c"
+  },
+  {
+   "src": "texture/GLI_lGetOrAddDefinedPixelFormat.c"
+  },
+  {
+   "src": "texture/GLI_EnumTextureFormats.c"
+  },
+  {
+   "src": "texture/GLI_vGetSelectedTextureFormat.c"
+  },
+  {
+   "src": "texture/GLI_vSelectTextureFormats.c"
+  },
+  {
+   "src": "texture/GLI_ulGetTextureMemoryCost.c"
+  },
+  {
+   "src": "driver/GLI_DRV_fnl_EnumModes.c"
+  },
+  {
+   "src": "device/GLI_lDeviceUsesVideoMemory.c"
+  },
+  {
+   "src": "device/GLI_ulGetDeviceDescFlags.c"
+  },
+  {
+   "src": "device/GLI_pGetDeviceDesc.c"
+  },
+  {
+   "src": "driver/GLI_DRV_fn_lGetAllDisplayConfig.c"
+  },
+  {
+   "src": "driver/GLI_vInitDllInfo.c"
+  },
+  {
+   "src": "render/GLI_DRV_vNoBlackPolygon.c"
+  },
+  {
+   "src": "render/GLI_DRV_vAddBlackPolygon.c"
+  },
+  {
+   "src": "render/GLI_DrawBlackPolygons.c"
+  },
+  {
+   "src": "render/GLI_DRV_vComputeFogEffect.c"
+  },
+  {
+   "src": "render/GLI_EnsureZFuncGreaterequal.c"
+  },
+  {
+   "src": "render/GLI_EnsureZFuncAlways.c"
+  },
+  {
+   "src": "render/GLI_SetBeginSceneOpaqueTextureState.c"
+  },
+  {
+   "src": "render/GLI_EnsureZWriteEnabled.c"
+  },
+  {
+   "src": "render/GLI_DRV_bBeginScene.c"
+  },
+  {
+   "src": "render/GLI_DRV_bEndScene.c"
+  },
+  {
+   "src": "texture/GLI_DRV_vDoOpaqueTextureSelection.c"
+  },
+  {
+   "src": "render/GLI_DisableZWriteIfEnabled.c"
+  },
+  {
+   "src": "driver/GLI_DRV_vWrite16bBitmapToBackBuffer.c"
+  },
+  {
+   "src": "driver/GLI_DRV_lGetSizeOfTexture.c"
+  },
+  {
+   "src": "texture/GLI_lConvertTexturePixels.c"
+  },
+  {
+   "src": "texture/GLI_vAnalyzeColorMask.c"
+  },
+  {
+   "src": "texture/GLI_vSelectPixelFormatForTexture.c"
+  },
+  {
+   "src": "texture/GLI_ulGetTextureSurfaceCaps.c"
+  },
+  {
+   "src": "texture/GLI_vTextureLoadError.c"
+  },
+  {
+   "src": "texture/GLI_lApplyTextureColorKey.c"
+  },
+  {
+   "src": "texture/GLI_DRV_vDownLoadTextures.c"
+  },
+  {
+   "src": "texture/GLI_DRV_vUnLoadTextures.c"
+  },
+  {
+   "src": "device/GLI_DRV_bWindowedModeIsOptimized.c"
+  },
+  {
+   "src": "device/GLI_DRV_vNonOptimizedWindowedMode.c"
+  },
+  {
+   "src": "device/GLI_DRV_vOptimizedWindowedMode.c"
+  },
+  {
+   "src": "device/GLI_DRV_bLockDevice.c"
+  },
+  {
+   "src": "device/GLI_DRV_vPrepareForGliFullScreen.c"
+  },
+  {
+   "src": "device/GLI_DRV_bUnlockDevice.c"
+  },
+  {
+   "src": "driver/GLI_DRV_vActivateGli.c"
+  },
+  {
+   "src": "device/GLI_DRV_bPrepareForGliWindowed.c"
+  },
+  {
+   "src": "driver/GLI_DRV_vReadaptDisplay.c"
+  },
+  {
+   "src": "driver/GLI_DRV_xInitDriver.c"
+  },
+  {
+   "src": "driver/GLI_DRV_vCloseDriver.c"
+  },
+  {
+   "src": "device/GLI_DRV_vFlipDevice.c"
+  },
+  {
+   "src": "device/GLI_DRV_vFlipDeviceWithSyncro.c"
+  },
+  {
+   "src": "device/GLI_DRV_vClearDevice.c"
+  },
+  {
+   "src": "device/GLI_DRV_vClearZBufferRegion.c"
+  },
+  {
+   "src": "driver/GLI_DRV_vGetStats.c"
+  },
+  {
+   "src": "driver/GLI_DRV_hChangeMode.c"
+  },
+  {
+   "src": "clip/GLI_SendSpriteTrianglesViaClip.c"
+  },
+  {
+   "src": "clip/clip_pipeline_labels.c"
+  },
+  {
+   "src": "core/GLI_DiagLog.c"
+  },
+  {
+   "src": "core/GliDX6vf_State.c"
+  },
+  {
+   "src": "device/GLI_CreateOrResetDevice.c"
+  },
+  {
+   "src": "device/GLI_DestroyOrCleanupDevice.c"
+  },
+  {
+   "src": "device/GLI_EnumZBufferFormatsCallback.c"
+  },
+  {
+   "src": "device/GLI_InitDirectDraw.c"
+  },
+  {
+   "src": "device/GLI_ReleaseDeviceObjects.c"
+  },
+  {
+   "src": "render/GLI_UpdateFogParameters.c"
+  }
+ ]
+}

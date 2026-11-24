@@ -1,0 +1,912 @@
+[
+{
+"addr": "0x10001000",
+"name": "GLI_DRV_vSetZClip",
+"src": "render/GLI_DRV_vSetZClip.c",
+"len": 31,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001020",
+"name": "GLI_DRV_vSetClipWindow",
+"src": "render/GLI_DRV_vSetClipWindow.c",
+"len": 45,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001050",
+"name": "GLI_InterpolatePackedColor",
+"src": "clip/clip_pipeline_labels.c",
+"len": 229,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10001140",
+"name": "GLI_DRV_xClearViewingList",
+"src": "clip/GLI_DRV_xClearViewingList.c",
+"len": 98,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100011B0",
+"name": "GLI_InsertListNode",
+"src": "clip/clip_staging.c",
+"len": 307,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100012F0",
+"name": "GLI_ResetStagingCursor",
+"src": "clip/clip_staging.c",
+"len": 11,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001300",
+"name": "GLI_FlushStagedPrimitives",
+"src": "clip/clip_staging.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001340",
+"name": "GLI_FinalizeSpriteStaging",
+"src": "clip/clip_staging.c",
+"len": 166,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100013F0",
+"name": "GLI_DrawStagedLine",
+"src": "clip/clip_staging.c",
+"len": 30,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001410",
+"name": "GLI_CopyStagedBlock60",
+"src": "clip/clip_staging.c",
+"len": 37,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001440",
+"name": "GLI_CopyStagedBlockC0",
+"src": "clip/clip_staging.c",
+"len": 82,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100014A0",
+"name": "GLI_AppendTrianglePipelineTerminal",
+"src": "clip/clip_staging.c",
+"len": 54,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100014E0",
+"name": "GLI_PipelineAdvanceCursor60",
+"src": "clip/clip_staging.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100014F0",
+"name": "GLI_PipelineListAppend",
+"src": "clip/clip_staging.c",
+"len": 106,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10001560",
+"name": "GLI_SnapshotClipWindow",
+"src": "clip/clip_staging.c",
+"len": 94,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100015C0",
+"name": "GLI_DRV_vSendSpriteToClip",
+"src": "clip/GLI_DRV_vSendSpriteToClip.c",
+"len": 779,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100018D0",
+"name": "GLI_DRV_vSendSpriteToClipWithColors",
+"src": "clip/GLI_DRV_vSendSpriteToClipWithColors.c",
+"len": 780,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001BE0",
+"name": "GLI_DRV_vSendSpriteToClipWithUV",
+"src": "clip/GLI_DRV_vSendSpriteToClipWithUV.c",
+"len": 768,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10001EE0",
+"name": "GLI_DRV_vSendSingleLineToClip",
+"src": "clip/GLI_DRV_vSendSingleLineToClip.c",
+"len": 150,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F80",
+"name": "GLI_DRV_xSendListToViewport",
+"src": "clip/GLI_DRV_xSendListToViewport.c",
+"len": 434,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10002140",
+"name": "GLI_DRV_xSendElementTIToClip_TRIANGLES",
+"src": "clip/clip_send_triangles.c",
+"len": 1545,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10002750",
+"name": "GLI_PipelineTerminal",
+"src": "clip/clip_staging.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002760",
+"name": "GLI_ResetClipPipeline",
+"src": "clip/clip_staging.c",
+"len": 23,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002780",
+"name": "GLI_PL_BackfaceCullA",
+"src": "clip/clip_pipeline_labels.c",
+"len": 75,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100027D0",
+"name": "GLI_PL_BackfaceCullB",
+"src": "clip/clip_pipeline_labels.c",
+"len": 75,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002820",
+"name": "GLI_PL_CopyUVOffset",
+"src": "clip/clip_pipeline_labels.c",
+"len": 152,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100028C0",
+"name": "GLI_PL_CopyUV",
+"src": "clip/clip_pipeline_labels.c",
+"len": 114,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002940",
+"name": "GLI_PL_ScaleU",
+"src": "clip/clip_pipeline_labels.c",
+"len": 66,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002990",
+"name": "GLI_PL_ScaleV",
+"src": "clip/clip_pipeline_labels.c",
+"len": 84,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100029F0",
+"name": "GLI_PL_LoadColorsFromCtx",
+"src": "clip/clip_pipeline_labels.c",
+"len": 76,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A40",
+"name": "GLI_PL_LoadColorsFromElement",
+"src": "clip/clip_pipeline_labels.c",
+"len": 75,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A90",
+"name": "GLI_PL_BackfaceCull",
+"src": "clip/clip_pipeline_labels.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AC0",
+"name": "GLI_PL_CulledVertexCheck",
+"src": "clip/clip_pipeline_labels.c",
+"len": 75,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B10",
+"name": "GLI_PL_XSignAndGate",
+"src": "clip/clip_pipeline_labels.c",
+"len": 63,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10002B50",
+"name": "GLI_PL_XGateReject",
+"src": "clip/clip_pipeline_labels.c",
+"len": 41,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B80",
+"name": "GLI_PL_XSignCheck",
+"src": "clip/clip_pipeline_labels.c",
+"len": 41,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BB0",
+"name": "GLI_PL_YSignAndGate",
+"src": "clip/clip_pipeline_labels.c",
+"len": 64,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BF0",
+"name": "GLI_PL_YGateReject",
+"src": "clip/clip_pipeline_labels.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C20",
+"name": "GLI_PL_YGateReject2",
+"src": "clip/clip_pipeline_labels.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C50",
+"name": "GLI_PL_XYGate",
+"src": "clip/clip_pipeline_labels.c",
+"len": 110,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10002CC0",
+"name": "GLI_PL_LoadVertex",
+"src": "clip/clip_pipeline_labels.c",
+"len": 277,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002DE0",
+"name": "GLI_PL_CopyFog",
+"src": "clip/clip_pipeline_labels.c",
+"len": 107,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E50",
+"name": "GLI_PL_ZNearClip",
+"src": "clip/clip_pipeline_labels.c",
+"len": 1466,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10003410",
+"name": "GLI_PL_FlagClip",
+"src": "clip/clip_pipeline_labels.c",
+"len": 2086,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10003C40",
+"name": "GLI_PL_XMinClip",
+"src": "clip/clip_pipeline_labels.c",
+"len": 1650,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100042C0",
+"name": "GLI_PL_YMaxClip",
+"src": "clip/clip_pipeline_labels.c",
+"len": 1655,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10004940",
+"name": "GLI_PL_XMaxClip",
+"src": "clip/clip_pipeline_labels.c",
+"len": 1648,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10004FB0",
+"name": "GLI_PL_YMinClip",
+"src": "clip/clip_pipeline_labels.c",
+"len": 1652,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10005630",
+"name": "GLI_PL_FlagClipComposite",
+"src": "clip/clip_pipeline_labels.c",
+"len": 3160,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10006290",
+"name": "GLI_SendSpriteTrianglesViaClip",
+"src": "clip/GLI_SendSpriteTrianglesViaClip.c",
+"len": 812,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100065C0",
+"name": "GLI_DRV_xSendSingleTriangleToClip_TRIANGLES",
+"src": "clip/clip_send_triangles.c",
+"len": 444,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006780",
+"name": "DllMain",
+"src": "driver/GLI_DRV_lGetDllInfo.c",
+"len": 13,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006790",
+"name": "GLI_DRV_lGetDllInfo",
+"src": "driver/GLI_DRV_lGetDllInfo.c",
+"len": 317,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100068D0",
+"name": "GLI_DRV_lSetCommonData",
+"src": "driver/GLI_DRV_lSetCommonData.c",
+"len": 605,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006B30",
+"name": "GLI_DRV_lSetCommonFct",
+"src": "driver/GLI_DRV_lSetCommonFct.c",
+"len": 2085,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007360",
+"name": "GLI_QueryAvailableVidMem",
+"src": "device/GLI_QueryAvailableVidMem.c",
+"len": 58,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100073A0",
+"name": "GLI_vSortValuesAscending",
+"src": "device/GLI_vSortValuesAscending.c",
+"len": 57,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100073E0",
+"name": "GLI_ReadDirectDrawCaps",
+"src": "device/GLI_ReadDirectDrawCaps.c",
+"len": 580,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10007630",
+"name": "GLI_ReadDeviceCaps",
+"src": "device/GLI_ReadDeviceCaps.c",
+"len": 277,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007750",
+"name": "GLI_lFindFirstSetBit",
+"src": "texture/GLI_lFindFirstSetBit.c",
+"len": 377,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100078D0",
+"name": "GLI_lMakeBitMask",
+"src": "texture/GLI_lMakeBitMask.c",
+"len": 357,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007A40",
+"name": "GLI_lBitRunLength",
+"src": "texture/GLI_lBitRunLength.c",
+"len": 408,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007BE0",
+"name": "GLI_lPixelFormatMasksMatch3",
+"src": "texture/GLI_lPixelFormatMasksMatch3.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007C20",
+"name": "GLI_lPixelFormatMasksMatch4",
+"src": "texture/GLI_lPixelFormatMasksMatch4.c",
+"len": 60,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007C60",
+"name": "GLI_vDerivePixelFormatRecord",
+"src": "texture/GLI_vDerivePixelFormatRecord.c",
+"len": 238,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10007D50",
+"name": "GLI_lFindDefinedPixelFormat",
+"src": "texture/GLI_lFindDefinedPixelFormat.c",
+"len": 111,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10007DC0",
+"name": "GLI_lGetOrAddDefinedPixelFormat",
+"src": "texture/GLI_lGetOrAddDefinedPixelFormat.c",
+"len": 66,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10007E10",
+"name": "GLI_EnumTextureFormats",
+"src": "texture/GLI_EnumTextureFormats.c",
+"len": 314,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10007F50",
+"name": "GLI_EnumTextureFormatsCallback",
+"src": "texture/GLI_EnumTextureFormats.c",
+"len": 80,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007FA0",
+"name": "GLI_vGetSelectedTextureFormat",
+"src": "texture/GLI_vGetSelectedTextureFormat.c",
+"len": 68,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007FF0",
+"name": "GLI_vSelectTextureFormats",
+"src": "texture/GLI_vSelectTextureFormats.c",
+"len": 684,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100082A0",
+"name": "GLI_ulGetTextureMemoryCost",
+"src": "texture/GLI_ulGetTextureMemoryCost.c",
+"len": 78,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100082F0",
+"name": "GLI_EnumDisplayModeCallback",
+"src": "driver/GLI_DRV_fnl_EnumModes.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008320",
+"name": "GLI_EnumDriverCallback",
+"src": "driver/GLI_DRV_fnl_EnumModes.c",
+"len": 160,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100083C0",
+"name": "GLI_DRV_fnl_EnumModes",
+"src": "driver/GLI_DRV_fnl_EnumModes.c",
+"len": 265,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100084D0",
+"name": "GLI_EnumDeviceCallback",
+"src": "driver/GLI_DRV_fnl_EnumModes.c",
+"len": 179,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008590",
+"name": "GLI_lDeviceUsesVideoMemory",
+"src": "device/GLI_lDeviceUsesVideoMemory.c",
+"len": 9,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100085A0",
+"name": "GLI_ulGetDeviceDescFlags",
+"src": "device/GLI_ulGetDeviceDescFlags.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100085B0",
+"name": "GLI_pGetDeviceDesc",
+"src": "device/GLI_pGetDeviceDesc.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100085C0",
+"name": "GLI_DisplayConfigDriverCallback",
+"src": "driver/GLI_DRV_fn_lGetAllDisplayConfig.c",
+"len": 296,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100086F0",
+"name": "GLI_DisplayConfigModeCallback",
+"src": "driver/GLI_DRV_fn_lGetAllDisplayConfig.c",
+"len": 163,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100087A0",
+"name": "GLI_DisplayConfigDeviceCallback",
+"src": "driver/GLI_DRV_fn_lGetAllDisplayConfig.c",
+"len": 272,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100088B0",
+"name": "GLI_DRV_fn_lGetAllDisplayConfig",
+"src": "driver/GLI_DRV_fn_lGetAllDisplayConfig.c",
+"len": 83,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008910",
+"name": "GLI_vInitDllInfo",
+"src": "driver/GLI_vInitDllInfo.c",
+"len": 22,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008930",
+"name": "GLI_DRV_vNoBlackPolygon",
+"src": "render/GLI_DRV_vNoBlackPolygon.c",
+"len": 11,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008940",
+"name": "GLI_DRV_vAddBlackPolygon",
+"src": "render/GLI_DRV_vAddBlackPolygon.c",
+"len": 220,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008A20",
+"name": "GLI_DrawBlackPolygons",
+"src": "render/GLI_DrawBlackPolygons.c",
+"len": 84,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008A80",
+"name": "GLI_UpdateFogParameters",
+"src": "render/GLI_UpdateFogParameters.c",
+"len": 452,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008C50",
+"name": "GLI_DRV_vComputeFogEffect",
+"src": "render/GLI_DRV_vComputeFogEffect.c",
+"len": 204,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008D20",
+"name": "GLI_EnsureZFuncGreaterequal",
+"src": "render/GLI_EnsureZFuncGreaterequal.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008D50",
+"name": "GLI_EnsureZFuncAlways",
+"src": "render/GLI_EnsureZFuncAlways.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008D80",
+"name": "GLI_SetBeginSceneOpaqueTextureState",
+"src": "render/GLI_SetBeginSceneOpaqueTextureState.c",
+"len": 163,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008E30",
+"name": "GLI_EnsureZWriteEnabled",
+"src": "render/GLI_EnsureZWriteEnabled.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008E60",
+"name": "GLI_DRV_bBeginScene",
+"src": "render/GLI_DRV_bBeginScene.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008E90",
+"name": "GLI_DRV_bEndScene",
+"src": "render/GLI_DRV_bEndScene.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008EB0",
+"name": "GLI_DRV_vDoOpaqueTextureSelection",
+"src": "texture/GLI_DRV_vDoOpaqueTextureSelection.c",
+"len": 980,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009290",
+"name": "GLI_DisableZWriteIfEnabled",
+"src": "render/GLI_DisableZWriteIfEnabled.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100092C0",
+"name": "GLI_ApplyViewingListInitialRenderState",
+"src": "clip/GLI_DRV_xSendListToViewport.c",
+"len": 51,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009300",
+"name": "GLI_ApplyViewingListNodeRenderState",
+"src": "clip/GLI_DRV_xSendListToViewport.c",
+"len": 796,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009620",
+"name": "GLI_DRV_vWrite16bBitmapToBackBuffer",
+"src": "driver/GLI_DRV_vWrite16bBitmapToBackBuffer.c",
+"len": 321,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009770",
+"name": "GLI_DRV_lGetSizeOfTexture",
+"src": "driver/GLI_DRV_lGetSizeOfTexture.c",
+"len": 147,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009810",
+"name": "GLI_lConvertTexturePixels",
+"src": "texture/GLI_lConvertTexturePixels.c",
+"len": 1275,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10009D10",
+"name": "GLI_vAnalyzeColorMask",
+"src": "texture/GLI_vAnalyzeColorMask.c",
+"len": 80,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009D60",
+"name": "GLI_vSelectPixelFormatForTexture",
+"src": "texture/GLI_vSelectPixelFormatForTexture.c",
+"len": 161,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009E10",
+"name": "GLI_ulGetTextureSurfaceCaps",
+"src": "texture/GLI_ulGetTextureSurfaceCaps.c",
+"len": 252,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009F10",
+"name": "GLI_vTextureLoadError",
+"src": "texture/GLI_vTextureLoadError.c",
+"len": 169,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009FC0",
+"name": "GLI_lApplyTextureColorKey",
+"src": "texture/GLI_lApplyTextureColorKey.c",
+"len": 287,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x1000A0E0",
+"name": "GLI_DRV_vDownLoadTextures",
+"src": "texture/GLI_DRV_vDownLoadTextures.c",
+"len": 1359,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x1000A630",
+"name": "GLI_DRV_vUnLoadTextures",
+"src": "texture/GLI_DRV_vUnLoadTextures.c",
+"len": 97,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A6A0",
+"name": "GLI_DRV_bWindowedModeIsOptimized",
+"src": "device/GLI_DRV_bWindowedModeIsOptimized.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A6B0",
+"name": "GLI_DRV_vNonOptimizedWindowedMode",
+"src": "device/GLI_DRV_vNonOptimizedWindowedMode.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A6C0",
+"name": "GLI_DRV_bLockDevice",
+"src": "device/GLI_DRV_bLockDevice.c",
+"len": 97,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A730",
+"name": "GLI_DRV_vPrepareForGliFullScreen",
+"src": "device/GLI_DRV_vPrepareForGliFullScreen.c",
+"len": 97,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A7A0",
+"name": "GLI_DRV_bUnlockDevice",
+"src": "device/GLI_DRV_bUnlockDevice.c",
+"len": 22,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A7C0",
+"name": "GLI_DRV_vActivateGli",
+"src": "driver/GLI_DRV_vActivateGli.c",
+"len": 27,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A7E0",
+"name": "GLI_DRV_bPrepareForGliWindowed",
+"src": "device/GLI_DRV_bPrepareForGliWindowed.c",
+"len": 57,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A820",
+"name": "GLI_DRV_vReadaptDisplay",
+"src": "driver/GLI_DRV_vReadaptDisplay.c",
+"len": 202,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A8F0",
+"name": "GLI_DRV_xInitDriver",
+"src": "driver/GLI_DRV_xInitDriver.c",
+"len": 270,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AA00",
+"name": "GLI_DRV_vCloseDriver",
+"src": "driver/GLI_DRV_vCloseDriver.c",
+"len": 11,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AA10",
+"name": "GLI_DRV_vFlipDevice",
+"src": "device/GLI_DRV_vFlipDevice.c",
+"len": 188,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AAD0",
+"name": "GLI_DRV_vFlipDeviceWithSyncro",
+"src": "device/GLI_DRV_vFlipDeviceWithSyncro.c",
+"len": 289,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC00",
+"name": "GLI_DRV_vClearDevice",
+"src": "device/GLI_DRV_vClearDevice.c",
+"len": 86,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC60",
+"name": "GLI_DRV_vClearZBufferRegion",
+"src": "device/GLI_DRV_vClearZBufferRegion.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC90",
+"name": "GLI_DRV_vGetStats",
+"src": "driver/GLI_DRV_vGetStats.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000ACB0",
+"name": "GLI_DestroyOrCleanupDevice",
+"src": "device/GLI_DestroyOrCleanupDevice.c",
+"len": 99,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AD20",
+"name": "GLI_ReleaseDeviceObjects",
+"src": "device/GLI_ReleaseDeviceObjects.c",
+"len": 218,
+"verdict": "FLOOR"
+},
+{
+"addr": "0x1000AE00",
+"name": "GLI_CreateOrResetDevice",
+"src": "device/GLI_CreateOrResetDevice.c",
+"len": 1506,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x1000B3F0",
+"name": "GLI_EnumZBufferFormatsCallback",
+"src": "device/GLI_EnumZBufferFormatsCallback.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B420",
+"name": "GLI_InitDirectDraw",
+"src": "device/GLI_InitDirectDraw.c",
+"len": 101,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B490",
+"name": "GLI_DRV_hChangeMode",
+"src": "driver/GLI_DRV_hChangeMode.c",
+"len": 72,
+"verdict": "EXACT"
+}
+]
