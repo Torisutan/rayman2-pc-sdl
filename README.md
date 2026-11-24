@@ -14,13 +14,15 @@ layout, data structures and coding style. Every departure is listed with its rea
 
 You need your own copy of the game. This repository contains no game data and no executables.
 
-## Status (v0.1.1)
+## Status (v0.1.2)
 
 - Builds with current MSVC as a 32-bit Windows exe; runs the whole game with the retail game
   data and the install's renderer and sound DLLs.
 - Copy protection removed at the source (no CD check, no tamper checks).
 - DPI aware; widescreen with Hor+ 3D and 4:3 UI at any resolution (16:9, 16:10, ...).
 - Original engine crashes fixed, faster loading, HUD at the screen edges at wide modes.
+- The Direct3D 6 renderer is built into the exe (`GLI_DllFile=GliDX6`); an optional SDL build
+  (window, input, timers through SDL) is the first step towards other platforms.
 - Every change is measured with a regression harness: a fixed input sequence, the engine state
   hashed every frame, compared against a recorded baseline.
 

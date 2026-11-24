@@ -5,6 +5,11 @@ through regular merges of [rayman2-pc-decomp](https://github.com/Torisutan/rayma
 
 ## Unreleased
 
+## v0.1.2 (2026-11-24)
+
+Widescreen HUD fix, Direct3D 6 renderer built in. The prebuilt `Rayman2.exe` is the default
+Windows build; the SDL build is source-only for now.
+
 ### Game
 - **Direct3D 6 renderer built in** (`USE_GLI_DX6`, CMake `R2_GLI_DX6`, on): the
   decompiled `GliDX6vf.dll` is linked into the exe. `GLI_DllFile=GliDX6` in `ubi.ini` uses it
