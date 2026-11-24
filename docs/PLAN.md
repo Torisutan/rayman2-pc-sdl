@@ -271,12 +271,29 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    screenshots match. On Windows 10 native DirectDraw lists the 16-bpp modes only under the
    `DWM8And16BitMitigation` compatibility layer, for the retail driver as for the linked-in one.
 2. Phase 4 prerequisites: typed fields for the structures the driver reads, `docs/PORTABILITY.md`.
-3. Portable branches beside the Win32 code for the small helpers (timers, tick count, allocation,
-   critical sections, an ini reader, stdio in SNA and `sndfile`). Each can be forced on in the
-   Windows build and checked against the regression run.
+3. **Done (2026-11-24): C runtime branches** beside the Win32 code, selected by
+   `FILE_MODE_C_WIN95` (set in `SND/snddef.h` as in the original engine) and forced on Windows by
+   `RAYMAN2_C_RUNTIME` (CMake `R2_C_RUNTIME`, off):
+   - level data files: the Win32 file calls of `SNA.c`, `SNA_reloc.c` and `GAM_init.c` go to C
+     runtime streams (`MMG/SNA_file.c`, included as `MMG/SNA_file.h`);
+   - ini files: `Get/WritePrivateProfileStringA` in `GAM_init.c`, `GLI/Init_Gli_helpers.c` and
+     `SND/SND.c` go to `FIL/FIL_ini.c` (`FIL/FIL_ini.h`). A differential test against the Win32
+     functions (1043 reads, 234 writes on `ubi.ini`, the sound ini and edge cases) gives the same
+     results and file bytes, except deleting an indented key, which the engine never does;
+   - MMG system memory: the original `CPA_MALLOC`/`CPA_FREE` in `MMG/CpaMmg.h`, `GlobalAlloc`
+     or `malloc`.
+   The call sites stay as they are: each file includes the header that maps the Win32 names.
+   Measured (Morb_00, 1860 frames): identical against `modern_baseline.txt` with and without
+   `R2_C_RUNTIME`, VC5 + define identical against `np_b`. With `R2_C_RUNTIME` no object imports
+   these Win32 functions except `SND/sndfile.c`.
+   **Not in this step:** `sndfile`'s file functions stay Win32: the retail sound DLLs look them up
+   by name and use their handles (two also call `ReadFile` on them), so they change with the own
+   sound drivers (Sound, below). Timers, tick counts and critical sections need a backend (the C
+   runtime has no portable monotonic clock or mutex on every target): they go with step 4.
 4. A second platform file beside `pc_winmain.c`, same `GAM_pc.h` API: window and events, engine
-   loop on the main thread. First an inventory of what the window thread does (pause, focus,
-   mode switch, power broadcast).
+   loop on the main thread; timers, tick counts and the MMG/SND critical sections through the same
+   backend. First an inventory of what the window thread does (pause, focus, mode switch, power
+   broadcast).
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.
@@ -307,7 +324,8 @@ its condition.
 | `USE_GLI_GU` | renderer | PSP driver linked in (`GliGU`) |
 | `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` | feature | MTH asm branch: 32-bit x86 MSVC / clang-cl only, not with `WIN64` |
 | `OPTIMIZED_FOR_PC_FLOATS` | feature | MTH C branch: every other target (Phase 2) |
-| `FILE_MODE_C_WIN95` | feature | `CreateFile` file layer (SNA, `sndfile`); set only for `WIN32` without `USE_SDL`, stdio otherwise |
+| `FILE_MODE_C_WIN95` | feature | Win32 API for level data files, ini files and MMG memory; set in `SND/snddef.h` unless `GAMECONSOLE`, `USE_SDL` or `RAYMAN2_C_RUNTIME`; C runtime otherwise |
+| `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
 
 - New code goes beside the original branch: `#if defined(USE_SDL) ... #else /* original Win32 */
   ... #endif /* USE_SDL */`. The Win32 path needs no macro of its own.
