@@ -46,9 +46,11 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 - `docs/PORTABILITY.md`: every endianness, pointer-size and packing assumption, where it is made.
 
 ## v0.4: sound (PLAN "Sound")
-The game-side `SND` module stays. The retail driver DLLs are replaced by in-tree drivers behind the
-same interface: `.bnm` bank reader, `.apm` ADPCM decoder, a software mixer, one output backend per
-platform. Checked against the retail DLLs by comparing the mixed output of a scripted scene.
+The game-side `SND` module stays. The sample driver (`WAVMWBVR.dll`, software mixer, 3D samples,
+output) is decompiled upstream; it is linked into the exe, gets a C branch beside its MMX mixer and
+an SDL audio output beside waveOut. The ADPCM stream driver (`.apm`, music and voices) follows,
+decompiled or written from the format. Checked against the retail DLLs by comparing the mixed
+output of a scripted scene.
 
 ## v0.5: platform layer and renderer (PLAN Phase 5)
 - Backends behind the engine's existing seams: renderer (`GLI_DRV`), input (`INO`), files (`FIL`),

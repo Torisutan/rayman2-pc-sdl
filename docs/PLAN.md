@@ -585,22 +585,37 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 
 **Today.** The `SND` module (in the exe) manages events, banks, 3D positioning (`sndspace`,
 `sndvect`), themes and sequences. It loads driver DLLs from the game's `DLL` folder at run time,
-and they call back into the ~110 functions the exe exports. The data is `.bnm` banks and `.apm`
-streams (ADPCM, used for music and voices).
+chosen by `DLL/Snd_Cpa.ini`, and they call back into the ~110 functions the exe exports. The data
+is `.bnm` banks and `.apm` streams (ADPCM, used for music and voices). Drivers named by the
+install's `Snd_Cpa.ini`:
 
-**Plan:**
+| Section | Driver (MMX test passes) | Fallback | Source |
+|---|---|---|---|
+| `DLL_Sxd` (samples, 3D, mixer, output) | `WAVMWBVR.dll` | `WAVPWBVR.dll` | decompiled: `WAVMWBVR.dll/` (upstream, 758 of 767 functions byte-exact, `tools/build_wavmw.py`) |
+| `DLL_Adpcm` (`.apm` streams) | `APMMXBVR.dll` | `APMPWBVR.dll` | none yet |
+
+The `DLL` folder also holds MPEG drivers (`MPGMXBVR.dll`, `MPGP5BVR.dll`) and `MPEG_ON_OFF=ON`,
+but `Snd_Cpa.ini` has no section for them; whether the game loads them is unchecked.
+
+**Plan** (rewritten 24.11.2026 now that the sample driver is decompiled; the earlier plan wrote a
+mixer and decoders from the file formats):
 1. **Keep the `SND` module as it is.** It is decompiled, almost all of it byte-exact, and it already
    does the game-side logic, including 3D attenuation and panning.
-2. **Replace the DLL boundary with in-tree drivers** that implement the same interface the DLLs
-   register through the exports. The first step is to document that interface (exports, call
-   order, buffer formats) in `docs/SOUND.md`, by observing the retail DLLs. Drivers:
-   - a `.bnm` bank reader and an `.apm` ADPCM decoder, written from the file formats;
-   - a software mixer: voices with volume, pan, pitch and loop, streaming for `.apm`;
-   - one output backend per platform behind the platform layer (SDL audio or miniaudio on PC,
-     native audio on the consoles).
-3. **Order:** after Phase 4 and before the renderer. It is smaller, and it removes the first
-   retail DLL dependency. Check it against the retail DLLs by capturing the mixed output of a
-   scripted scene from both.
+2. **Link `WAVMWBVR` into the exe**, as the Direct3D 6 driver was (DEVIATIONS 13): its entry
+   points through a table instead of `LoadLibraryA`/`GetProcAddress`, selected as before by
+   `Snd_Cpa.ini`, the DLL path unchanged for any other driver. First an inventory of the
+   boundary (exports both ways, call order, threads), in `docs/SOUND.md`; name clashes between the
+   exe's `SND` and the driver's sources are to be measured, not assumed.
+3. **Platform branches inside the driver, in the original engine's style:** the MMX mixer (`src/mixer/*.asm`) stays as
+   written under its condition, with a C branch beside it for targets without it; the waveOut
+   output, its thread and locks get an SDL audio branch under `USE_SDL`. Mixer and streaming code
+   stay shared.
+4. **ADPCM streams:** `APMMXBVR.dll` is not decompiled. Either it arrives through upstream like
+   `WAVMWBVR`, or an `.apm` decoder is written from the file format behind the same interface.
+   Decide when step 3 is done; until then the SDL build keeps loading it on Windows.
+5. **Check:** the linked-in driver against the retail DLL with the same data (mixed output of a
+   scripted scene captured from both), then the SDL output branch against the waveOut branch.
+6. **Order:** unchanged, after Phase 4 and before the renderer.
 
 ## Animation: smoother playback (to evaluate)
 
