@@ -601,8 +601,8 @@ the game's binaries; sound left to Sound, below):
 | ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
 | SNA level files | rename of 6 file calls (`MMG/SNA_file.h`) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
 | FIL ini | rename of `Get/WritePrivateProfileStringA` (`FIL/FIL_ini.h`) | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
-| GAM draw lock | rename of `WaitForSingleObject`/`ReleaseSemaphore` (`GAM/GAM_DrawSem.h`) | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore` | fork |
-| TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` (fork file: calls the TMR function directly) | `TMR_M_ulGetTickCount` | fork |
+| GAM draw lock | rename of `WaitForSingleObject`/`ReleaseSemaphore` (`GAM/GAM_DrawSem.h`) | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
+| TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
 | GLI driver binding | rename of `LoadLibraryA`/`GetProcAddress` (`GLI/Init_Gli.c`) | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
 | GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
@@ -610,8 +610,10 @@ the game's binaries; sound left to Sound, below):
 | Misc direct | `GetTempPathA` (`GAM_init.obj`), `ShellExecuteA` (`Procedure.obj`), `FreeLibrary`/`GetClientRect` (shared part of `pc_winmain.obj`) | | open: one line each at migration | |
 | Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetWindowLongA`, `SetErrorMode`, under `WIN32`), `regress.obj` (Windows tool) | | stays, fenced `WIN32` | |
 
-Order: TMR, GAM draw lock, MMG lock and memory, FIL, SNA, GLI, ERM; the rest with the targets
-that need them.
+Order: TMR first (fork only, no call-site change), then MMG lock and memory, GAM draw lock, FIL,
+SNA, GLI once their call sites carry the names (asked of the decomp on 25.11.2026; if it declines
+the names without an original source, the fork changes those call sites itself); ERM and the
+rest with the targets that need them.
 Why: a rename keeps the Win32 types at every call site (a `windows.h` stand-in on Linux and the
 consoles, i.e. Win32 emulation), reroutes every call of that name in the file (an upstream merge
 that adds an unrelated `WaitForSingleObject` would silently reach the SDL semaphore), and depends
