@@ -24,6 +24,14 @@
 #include <windows.h>
 #include <string.h>
 
+#ifdef RAYMAN2_STATIC_GLI
+/* A driver linked into the exe answers GLI_fnl_InitDll's lookups; any other driver is
+   still loaded from the driver folder (GLI/GLI_linkdrv.c, DEVIATIONS 13). */
+#include "GLI/GLI_linkdrv.h"
+#define LoadLibraryA    GLI_pc_fn_hLoadDriver
+#define GetProcAddress  GLI_pc_fn_pfnGetDriverProc
+#endif /* RAYMAN2_STATIC_GLI */
+
 /* 0x00403290 */
 extern void __cdecl SND_PrintUsedStaticMemory(void);
 
