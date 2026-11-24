@@ -121,8 +121,7 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   equality). Target selection belongs in one MTH target block (Phase 5): x64 and other targets take
   `OPTIMIZED_FOR_PC_FLOATS` without `_WITH_ASM` (the original C branch), as U64 did.
 - `ubi.ini` is read from the working directory (`RAYMAN2_LOCAL_UBIINI`, DEVIATIONS 1), as the
-  current installs ship it. A per-user location comes later, chosen by an ini setting (ROADMAP,
-  advanced settings menu).
+  current installs ship it. The per-user location is planned in "User folder" (below).
 - **Unreferenced leftovers excluded (2026-11-23):** the resolver, code pool, kernel32 search and
   process enumeration in `MMG/MMG_init.c` (all but `MMG_fn_vInit`), `MMG_pc_fn_vNopGate`, the
   import tables in `MMG/pc_protect.c`, and the `SNA_g_lProtectionGate` gates of live functions
@@ -216,6 +215,37 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
 - **Done (playtest, 24.11.2026):** the per-element edge anchoring split an icon from its
   counter in the hall of doors (PLAYTEST log 1); the anchor is now decided per group of
   touching elements (above).
+
+### User folder: `ubi.ini` and saves per user (planned, 24.11.2026)
+User decision: the game folder decides by a marker file, not by an ini setting.
+- **`portable.txt` in the game folder:** everything stays local, as today: `ubi.ini` in the game
+  folder (DEVIATIONS 1), saves in `Data/SaveGame`.
+- **No `portable.txt`:** `ubi.ini` and the save folder live in `Documents/UbiSoft/Rayman 2`
+  (`ubi.ini`, `SaveGame/`), created when missing. Documents comes from the system: on Windows the
+  Documents known folder (not a fixed `C:/Users/...` path, it can be redirected); in the SDL build
+  `SDL_GetUserFolder(SDL_FOLDER_DOCUMENTS)`, which also serves Linux. If no Documents folder can be
+  found, fall back to the game folder and say so in the log.
+- **Game folder:** the working directory, as `RAYMAN2_LOCAL_UBIINI` already assumes (the installs
+  start the game there).
+- **What moves, from the code:** the ini path is the one of DEVIATIONS 1 (`FUN_00405a30`,
+  `GAM_pc_fn_WinMain`, `GLI_pc_fn_vRead/WriteIniString`). The save path is the data directory plus a
+  name from `Game.dsb` (`GAM_pc_fn_vReadExternalCtrlDirectories`, tag `0x2e`, stored by
+  `FUN_004926d0`, read by the save code through `FUN_00492700`), so one site sets it to the user
+  folder instead. Other directories of that table stay in the game folder.
+- **Switch:** `RAYMAN2_USER_FOLDER`, CMake `R2_USER_FOLDER` (on); off keeps today's behaviour.
+  New code in a new file (`GAM/GAM_userdir.c`), a DEVIATIONS row, a CHANGELOG entry (where the
+  saves are now, and how to stay portable).
+- **Proposed, to be confirmed:** on the first start without a per-user `ubi.ini`, copy the game
+  folder's `ubi.ini` (it holds the renderer choice the installer made), and copy
+  `Data/SaveGame` when the user folder has no saves yet. Copy only: never overwrite, never delete
+  the game folder's files.
+- **Open:** whether `Data/Options` (`Current.cfg`, the in-game options) moves with the saves; its
+  directory's tag in `Game.dsb` is unchecked. `DLL/Snd_Cpa.ini` stays in the game folder (driver
+  choice, not user data).
+- **Tests stay out of Documents:** `tools/run.py` and `tools/regress.py` put `portable.txt` in
+  their sandbox. Measure: both modes start, save to a slot and load it; regression identical.
+- **Order:** with Phase 4, after the wider regression (it touches saves, which the wider
+  regression and the save slot work cover).
 
 ### Loading screen: bounded refresh rate (`RAYMAN2_FAST_LOADING`)
 CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define RAYMAN2_FAST_LOADING`.

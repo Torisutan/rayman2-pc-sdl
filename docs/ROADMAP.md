@@ -89,8 +89,8 @@ behind its own define, off in the regression build, sent through the input backe
 ## Later: advanced settings menu
 The main menu's entry that opens the Rayman 2 website is replaced by an "Advanced settings" page
 for the fork's own options, so they can be changed in game instead of only in `ubi.ini`. Candidates,
-as they arrive: widescreen, fast loading, bug fixes on/off, and the `ubi.ini` location (game folder
-or a per-user folder, chosen by an ini setting).
+as they arrive: widescreen, fast loading, bug fixes on/off. (The `ubi.ini` and save location is
+decided by a `portable.txt` in the game folder instead, PLAN "User folder".)
 Inventory first: where the menu pages and the website entry are defined (exe or level data), and
 how a new page stores its values.
 
