@@ -52,6 +52,8 @@ platform. Checked against the retail DLLs by comparing the mixed output of a scr
 - Backends behind the engine's existing seams: renderer (`GLI_DRV`), input (`INO`), files (`FIL`),
   timers (`TMR`), plus window, events and threads (today in `GAM/pc_winmain.c`).
 - An in-tree OpenGL / GLES renderer; no retail DLL needed any more.
+- First step done (2026-11-24): the decompiled Direct3D 6 renderer is linked into the exe and
+  selected by `ubi.ini` like a DLL; other renderers still load from the `DLL` folder.
 - 64-bit x86 build.
 
 ## v0.6: frame rate decoupled from game logic

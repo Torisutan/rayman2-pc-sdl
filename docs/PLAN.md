@@ -226,15 +226,78 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input
 devices (`INO`), the sound driver interface (`SND`), files (`FIL`) and timers (`TMR`). The platform
 layer puts backends behind those seams instead of adding a new layer on top, which keeps the
-engine structure intact. What is still missing is window/event handling and thread/sync
-primitives, which today live in `GAM/pc_winmain.c`.
-- **Backend library:** SDL3, SDL2 or per-platform native code. **Open decision.** SDL covers the
-  PCs, and community SDL ports exist for PSP and Wii U.
-- **Renderer:** a new in-tree driver behind `GLI_DRV`: OpenGL / GLES first, later GU (PSP) and
-  GX2 (Wii U).
+engine structure intact.
+
+**Inventory (2026-11-24).** The game modules (AI, COL, DNM, MEC, GEO, HIE, IPT, POS, PRT, SCT,
+MTH, ...) make no Win32 calls. The platform code sits in seven places:
+
+| Area | Where | Win32 use |
+|---|---|---|
+| Window, message loop, threads | `GAM/pc_winmain.c`, its API in `GAM/GAM_pc.h` | window and message loop; the engine runs in a thread of its own (`GAM_pc_fn_vCreateEngineThread`), driven by five named events; a draw semaphore |
+| Draw lock | `GLD.c`, `Texture.c`, `ui_state.c`, `GAM_GameEng.c`, `Basic.c`, `ToolCam.c` | `WaitForSingleObject`/`ReleaseSemaphore` on the draw semaphore, which the renderer driver also gets (`"DrawSem"`) |
+| Renderer binding | `GLI/Init_Gli.c` (`GLI_fnl_InitDll`) | `LoadLibraryA` + 43 `GetProcAddress`; about 25 callbacks and 8 data blocks the other way (`SetCommonFct`/`SetCommonData`) |
+| Input | `INO/INO.c` | DirectInput, already split per device type (`INO_pc_ReadKeyboard`, `_ReadMouse`, `_ReadJoystick*`) |
+| Sound | `SND/SND.c`, `SndThrd.c`, `sndseq.c`, `sndfile.c` | driver DLLs, threads, mutexes (see Sound) |
+| Files | `MMG/SNA*.c`, `SND/sndfile.c` | `CreateFileA`/`ReadFile` directly; `FIL` already uses the C runtime |
+| Small helpers | `TMR`, `GLI/cpu_timer.c`, `GLI/timer_sub2.c`, `RND`, `MMG` allocators, ini reads | performance counter, `timeGetTime`/`GetTickCount`, `GlobalAlloc`, critical sections, 26 `GetPrivateProfileStringA` calls |
+
+**Original engine structure.** The PC renderer DLL boundary and the engine thread are PC-only:
+the console targets (`U64`, `NITRO`) link GLI statically, with the platform files beside the
+common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
+
+**The `GLI_DRV` interface** stays the renderer interface. What a new driver has to cope with:
+- the driver reads the engine's `GLI_tdstInternalGlobalValuesFor3dEngine` by raw offsets (63 sites
+  in the Direct3D 6 driver), so a new driver needs the typed struct first (Phase 4, typed fields);
+- four entry points take an `HWND` (`xInitDriver`, `bPrepareForGliWindowed`,
+  `vPrepareForGliFullScreen`, `vActivateGli`) and GLD keeps the window as `unsigned long`: an
+  opaque window handle type is needed, for 64-bit as well;
+- DirectDraw-shaped parts carry over: `bLockDevice` is bound but never called by the exe; display
+  mode enumeration, windowed-mode variants and texture pixel-format negotiation (565/4444/1555
+  callbacks) map to GL, GX2 and GU;
+- on PC the window thread renders too (the pause / fullscreen re-entry path), which a GL context,
+  bound to one thread, does not allow. Non-Win32 targets therefore run the engine loop on the main
+  thread, as the consoles do; the engine events and the draw lock then have nothing to guard.
+
+**Steps.**
+1. **Done (2026-11-24): linked-in renderer drivers** (`RAYMAN2_STATIC_GLI`, CMake `R2_STATIC_GLI`,
+   on; DEVIATIONS 13). The Direct3D 6 driver is built from `GliDX6vf.dll/` into the exe.
+   `GLI_fnl_InitDll` keeps its by-name binding; a driver linked into the exe answers it from a
+   table (`GLI/GLI_linkdrv.c`), any other driver is still loaded from the DLL folder. Selected by
+   ubi.ini as before (`GLI_DllFile=GliDX6`). Consoles will use the same table without DLLs.
+   Measured: regression identical (Morb_00, 1860 frames; MSVC against `modern_baseline.txt`,
+   clang-cl against `clang_baseline.txt`; the regression runs the install's driver, so it shows
+   the DLL path is unchanged). Linked-in against retail DX6 driver, same ubi.ini: Morb_00 loads,
+   screenshots match. On Windows 10 native DirectDraw lists the 16-bpp modes only under the
+   `DWM8And16BitMitigation` compatibility layer, for the retail driver as for the linked-in one.
+2. Phase 4 prerequisites: typed fields for the structures the driver reads, `docs/PORTABILITY.md`.
+3. Portable branches beside the Win32 code for the small helpers (timers, tick count, allocation,
+   critical sections, an ini reader, stdio in SNA and `sndfile`). Each can be forced on in the
+   Windows build and checked against the regression run.
+4. A second platform file beside `pc_winmain.c`, same `GAM_pc.h` API: window and events, engine
+   loop on the main thread. First an inventory of what the window thread does (pause, focus,
+   mode switch, power broadcast).
+5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
+6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
+   Windows first.
+7. Sound (below) at any point, independently.
+8. Linux (compiler, asm C branches from Phase 4, calling-convention macros, case-sensitive data
+   paths), then macOS and the consoles (GX2 and GU drivers linked in, big-endian data, memory).
+
+**Open decisions.**
+- **Platform macro names** for the fork's targets (rule 5): not chosen yet.
+- **Backend library:** SDL3 for the PCs is the candidate; native code on the consoles, where the
+  renderer is native anyway.
+- **64-bit.** Current macOS runs 64-bit code only, but Phase 1 keeps 32-bit as the model because
+  the level files store 32-bit pointers. A 64-bit build means widening every pointer-carrying
+  structure loaded from level data. Decide whether macOS (and the 64-bit ROADMAP item) is in scope
+  before step 8.
 - **Big-endian targets (Wii U):** the data files are little-endian. The choices are byte-swapping
   at load time, which needs type information for every relocated block, or an offline data
-  converter. **Open decision.** Decide it when Phase 4's portability list exists.
+  converter. Decide it when Phase 4's portability list exists.
+- **Key codes:** whether the bindings in `ubi.ini` and the level data are DirectInput scan codes
+  decides the input backend's mapping. Unchecked.
+- **Direct3D 6 driver:** 26 of its 130 functions do not match their original bytes yet; which of
+  them behave differently is unchecked.
 - **Memory:** PSP has 32-64 MB in total. Measure MMG's block budgets per level before
   committing to that port.
 
@@ -260,7 +323,7 @@ streams (ADPCM, used for music and voices).
    scripted scene from both.
 
 ## Open decisions
-- Backend library: SDL3, SDL2 or native code.
+- Platform layer: see Phase 5, open decisions.
 - Cross-build bit equality: does anything need it (demo playback, save data that stores
   positions)? Unchecked; per-target arithmetic (Phase 2, modern build reference) assumes not.
 - Big-endian data: swap at load time or convert offline.
