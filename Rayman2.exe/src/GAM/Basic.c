@@ -2,6 +2,7 @@
 #include "HIE/HIE_types.h"
 #include "GAM/GAM_globals.h"
 #include "GAM/GAM_pc.h"
+#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 #include "ERM/CpaError.h"
 #include "TMR/TMR.h"
 #include "GLI/Camera.h"

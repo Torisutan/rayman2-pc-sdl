@@ -11,8 +11,8 @@
   thread (display mode change, activation) become SDL user events, served there too.
 
   On Windows the window's HWND goes to the renderer driver, DirectInput and the sound
-  driver as before. The draw semaphore stays a Win32 semaphore while its users call the
-  Win32 wait functions; with one thread no wait on it ever blocks.
+  driver as before. The draw semaphore is an SDL semaphore; its users keep their Win32
+  calls (GAM/GAM_DrawSem.h). With one thread no wait on it ever blocks.
  =======================================================================================
  */
 #ifdef USE_SDL
@@ -27,6 +27,7 @@
 #include "GLI/misc_trivial.h"
 #include "ERM/CpaError.h"
 #include "SND/SND.h"
+#include "GAM/GAM_DrawSem.h"
 
 #include <io.h>
 #include <stdio.h>
@@ -74,8 +75,9 @@ static int GAM_sdl_g_bEventIsDead   = 0;
 static int GAM_sdl_g_bEventIsPaused = 0;
 static int GAM_sdl_g_bEventPulse    = 0;
 
-/* The draw semaphore */
-static HANDLE GAM_sdl_g_hSemDraw = NULL;
+/* The draw semaphore (maximum count 1) */
+#define GAM_SDL_C_ulDrawSemMax  1
+static SDL_Semaphore *GAM_sdl_g_p_stSemDraw = NULL;
 
 /* Focus and pause state, as in pc_winmain.c */
 static unsigned long GAM_sdl_g_ulPauseFlag       = 1;
@@ -119,7 +121,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateEnterFullScreen(int iFlag)
 {
     short hDevice = (short)FUN_00401340(0);
 
-    if ( WaitForSingleObject(GAM_sdl_g_hSemDraw, 500) == WAIT_TIMEOUT )
+    if ( WaitForSingleObject(GAM_sdl_g_p_stSemDraw, 500) == WAIT_TIMEOUT )
     {
         return 0;
     }
@@ -142,7 +144,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateEnterFullScreen(int iFlag)
             {
                 GAM_fn_vActualizeAllGameViewportSize();
             }
-            ReleaseSemaphore(GAM_sdl_g_hSemDraw, 1, NULL);
+            ReleaseSemaphore(GAM_sdl_g_p_stSemDraw, 1, NULL);
 
             switch ( (unsigned char)GAM_fn_ucGetEngineMode() )
             {
@@ -155,7 +157,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateEnterFullScreen(int iFlag)
     }
 
     GAM_pc_fn_vSetDisplaySize(GLI_fn_lDisplayModeWidth(), GLI_fn_lDisplayModeHeight());
-    ReleaseSemaphore(GAM_sdl_g_hSemDraw, 1, NULL);
+    ReleaseSemaphore(GAM_sdl_g_p_stSemDraw, 1, NULL);
     return 0;
 }
 
@@ -168,7 +170,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateExitToWindowed(int iFlag)
 {
     short hDevice = (short)FUN_00401340(0);
 
-    if ( WaitForSingleObject(GAM_sdl_g_hSemDraw, 500) == WAIT_TIMEOUT )
+    if ( WaitForSingleObject(GAM_sdl_g_p_stSemDraw, 500) == WAIT_TIMEOUT )
     {
         return 0;
     }
@@ -187,7 +189,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateExitToWindowed(int iFlag)
             {
                 GAM_fn_vActualizeAllGameViewportSize();
             }
-            ReleaseSemaphore(GAM_sdl_g_hSemDraw, 1, NULL);
+            ReleaseSemaphore(GAM_sdl_g_p_stSemDraw, 1, NULL);
             if ( (unsigned char)GAM_fn_ucGetEngineMode() != E_EM_ModePlaying )
             {
                 FUN_0045edf0();
@@ -197,7 +199,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateExitToWindowed(int iFlag)
         }
     }
 
-    ReleaseSemaphore(GAM_sdl_g_hSemDraw, 1, NULL);
+    ReleaseSemaphore(GAM_sdl_g_p_stSemDraw, 1, NULL);
     return 0;
 }
 
@@ -317,11 +319,11 @@ void GAM_pc_fn_vResumeAfterFocusReturn(void)
         return;
     }
 
-    if ( WaitForSingleObject(GAM_sdl_g_hSemDraw, 500) == WAIT_OBJECT_0 )
+    if ( WaitForSingleObject(GAM_sdl_g_p_stSemDraw, 500) == WAIT_OBJECT_0 )
     {
         GLI_pc_fn_bApplyDeferredMode();
         GAM_pc_fn_vSetDisplaySize(GLI_fn_lDisplayModeWidth(), GLI_fn_lDisplayModeHeight());
-        ReleaseSemaphore(GAM_sdl_g_hSemDraw, 1, NULL);
+        ReleaseSemaphore(GAM_sdl_g_p_stSemDraw, 1, NULL);
     }
 }
 
@@ -401,7 +403,50 @@ void GAM_pc_fn_vPostWindowCmd(unsigned short uwCmd)
  */
 HANDLE fn_hGetDrawSemaphore(void)
 {
-    return GAM_sdl_g_hSemDraw;
+    return (HANDLE)GAM_sdl_g_p_stSemDraw;
+}
+
+/*
+ ----------------------------------------------------------------------------------------
+  Description   : WaitForSingleObject on the draw semaphore (GAM/GAM_DrawSem.h)
+ ----------------------------------------------------------------------------------------
+ */
+unsigned long __cdecl GAM_sdl_fn_ulWaitDrawSemaphore(void *hSemaphore, unsigned long ulMilliseconds)
+{
+    Sint32 lTimeout = ( ulMilliseconds == INFINITE ) ? -1 : (Sint32)ulMilliseconds;
+
+    if ( SDL_WaitSemaphoreTimeout((SDL_Semaphore *)hSemaphore, lTimeout) )
+    {
+        return WAIT_OBJECT_0;
+    }
+    return WAIT_TIMEOUT;
+}
+
+/*
+ ----------------------------------------------------------------------------------------
+  Description   : ReleaseSemaphore on the draw semaphore (GAM/GAM_DrawSem.h)
+ ----------------------------------------------------------------------------------------
+ */
+int __cdecl GAM_sdl_fn_bReleaseDrawSemaphore(void *hSemaphore, long lReleaseCount,
+                                             long *p_lPreviousCount)
+{
+    SDL_Semaphore *p_stSem = (SDL_Semaphore *)hSemaphore;
+    Uint32         ulCount = SDL_GetSemaphoreValue(p_stSem);
+
+    if ( p_stSem == NULL || lReleaseCount <= 0
+         || ulCount + (Uint32)lReleaseCount > GAM_SDL_C_ulDrawSemMax )
+    {
+        return FALSE;
+    }
+    if ( p_lPreviousCount != NULL )
+    {
+        *p_lPreviousCount = (long)ulCount;
+    }
+    while ( lReleaseCount-- > 0 )
+    {
+        SDL_SignalSemaphore(p_stSem);
+    }
+    return TRUE;
 }
 
 /*
@@ -431,7 +476,7 @@ void GAM_pc_fn_vPostResumeAfterFocus(void)
  */
 void GAM_pc_fn_vCreateSyncObjects(void)
 {
-    GAM_sdl_g_hSemDraw = CreateSemaphoreA(NULL, 1, 1, "DRAWSEM");
+    GAM_sdl_g_p_stSemDraw = SDL_CreateSemaphore(GAM_SDL_C_ulDrawSemMax);
 }
 
 /*

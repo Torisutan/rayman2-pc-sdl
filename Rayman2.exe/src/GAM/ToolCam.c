@@ -1,6 +1,7 @@
 #include "GAM/GAM_types.h"
 #include <string.h>
 #include "GAM/GAM_pc.h"
+#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 #include "GAM/cineinfo.h"
 
 #include "HIE/HIE_types.h"

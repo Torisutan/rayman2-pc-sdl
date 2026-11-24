@@ -11,6 +11,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 #include "GLD/GLD_Pub.h"
 #include "GLD/Specif/DevVpt.h"
 

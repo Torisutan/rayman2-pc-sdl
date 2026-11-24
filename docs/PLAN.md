@@ -373,6 +373,18 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    critical section (`SND/SndThrd.c` keeps its own, Win32, see Sound). Measured: regression
    identical (SDL, MSVC, clang-cl, VC5 + define); only `SndThrd.obj` imports the critical section
    functions in the SDL build.
+
+   **Done (2026-11-24): draw semaphore under `USE_SDL`.** An SDL semaphore (maximum count 1, as the
+   Win32 one) created in `GAM/sdl_main.c`; `GAM/GAM_DrawSem.h` maps `WaitForSingleObject` and
+   `ReleaseSemaphore` in its six users, which call them on no other object; `GAM_GameEng.c`'s own
+   prototypes of the two are fenced. The renderer driver still gets it as `"DrawSem"` and does
+   not wait on it (above). Measured: regression identical (SDL, MSVC, clang-cl, VC5 + define);
+   in the SDL build only `SndThrd.obj` imports `WaitForSingleObject`, nothing
+   `ReleaseSemaphore`/`CreateSemaphoreA`.
+   Still Win32 in the SDL build outside SND (Windows-only for now, open for Linux): `Sleep` (seven
+   files), `GetCurrentThreadId` for the MMG channel of the calling thread (`GLD.c`), the
+   single-instance mutex `RAYMAN2EXE` (`sdl_main.c`), and `SetEvent` in `GLI_FatalExitOrSleep`,
+   on a path taken only when an engine thread exists.
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.

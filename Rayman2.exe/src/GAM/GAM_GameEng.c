@@ -20,6 +20,7 @@
 #include "GAM/GAM_globals.h"
 #include "SCT/SectExt.h"
 #include "GAM/AlwAct.h"
+#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 
 extern void *__cdecl fn_p_stDynamGetDynamics(void *h_Dynam);
 /* 0x0042DE30 */
@@ -758,7 +759,9 @@ static const unsigned char GAM_g_ucEraseBackground_storage = 1;
 #define GAM_g_ucEraseBackground     (GAM_g_ucEraseBackground_storage)
 #define GAM_g_ucMirrorDisplayMode   GAM_g_bInGameMenu   /* 0x004B9BC8 */
 
+#ifndef USE_SDL   /* GAM/GAM_DrawSem.h */
 __declspec(dllimport) unsigned long __stdcall WaitForSingleObject(void *hHandle, unsigned long dwMilliseconds);
+#endif /* USE_SDL */
 #define GAM_pc_WaitForSingleObject  WaitForSingleObject
 
 /* 0x0044C440 */
@@ -915,7 +918,9 @@ void GAM_fn_vEngine(void)
     }
 }
 
+#ifndef USE_SDL   /* GAM/GAM_DrawSem.h */
 __declspec(dllimport) int __stdcall ReleaseSemaphore(void *hSemaphore, long lReleaseCount, long *lpPreviousCount);
+#endif /* USE_SDL */
 #define GAM_pc_ReleaseSemaphore  ReleaseSemaphore
 
 void fn_vDisplayAll(void)
