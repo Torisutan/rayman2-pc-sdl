@@ -236,7 +236,8 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   the hall of doors (Widescreen "Open"); **open:** loading a save slot loads the current progress
   or the 88 % slot whichever is chosen, one slot folder is empty (log 2).
 - **Save slots (read from the code, 24.11.2026; open).** The running game lives in
-  `Data/SaveGame/HiddenSlot` (`General.sav` plus one file per level, written at level changes);
+  `Data/SaveGame/HiddenSlot` (`General.sav` plus one file per level, written by `fn_bPlayerSaveGameAll` and
+  `fn_bLevelSaveGameAll`; when the engine calls them is unchecked);
   the menu slots are `Data/SaveGame/SlotN`. Saving to a slot (`fn_bSaveGameInSlot`) deletes
   `SlotN` and copies `HiddenSlot` into it; without a `HiddenSlot` it reports success and copies
   nothing. Loading (`fn_bLoadGameFromSlot`) deletes `HiddenSlot` and copies `SlotN` into it; an
