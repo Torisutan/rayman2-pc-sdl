@@ -6,10 +6,11 @@
 #define GAMECONSOLE
 #endif /* U64 || NITRO || PSX || DREAMCAST || PSP || WIIU */
 
-/* Win32 file API (CreateFile) unless a target or FILE_MODE_C_ANSI asks for the C runtime */
-#if !defined(GAMECONSOLE) && !defined(USE_SDL) && !defined(FILE_MODE_C_ANSI)
+/* Win32 API for files, ini files and memory (CreateFile, profile strings, GlobalAlloc), unless
+   a target or RAYMAN2_C_RUNTIME asks for the C runtime */
+#if !defined(GAMECONSOLE) && !defined(USE_SDL) && !defined(RAYMAN2_C_RUNTIME)
 #define FILE_MODE_C_WIN95
-#endif /* !GAMECONSOLE && !USE_SDL && !FILE_MODE_C_ANSI */
+#endif /* !GAMECONSOLE && !USE_SDL && !RAYMAN2_C_RUNTIME */
 
 #define NB_MICRO_MAX 2
 
