@@ -193,6 +193,10 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
 - **Not verified yet:** the logo path (`AGO_vDisplayLogo`) and script text
   (`fn_p_stCode4TextAffiche`) were not on screen in the test runs; windowed/fullscreen toggle
   and window resize are not tested; 21:9 needs windowed mode (no such monitor mode here).
+- **Open (playtest, 24.11.2026):** the edge anchoring splits an icon from its counter. In the
+  hall of doors the lum counter reaches past the left third and stays in the band, while its
+  icon goes to the screen edge (PLAYTEST log 1). The anchor has to be decided for the icon and
+  its counter together, not per element. How the AGO tables pair them is unchecked.
 
 ### Loading screen: bounded refresh rate (`RAYMAN2_FAST_LOADING`)
 CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define RAYMAN2_FAST_LOADING`.
@@ -227,8 +231,11 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   input), then this phase, then closing Phase 2.
 - **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
   options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
-  drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. Not
-  played yet.
+  drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
+  round (24.11.2026, SDL build, OpenGL): focus changes and level transitions fine; HUD split in
+  the hall of doors (Widescreen "Open"); **open:** loading a save slot loads the current progress
+  or the 88 % slot whichever is chosen, one slot folder is empty (log 2): reproduce on the Win32
+  build and the retail exe before looking at code.
 
 ### Phase 5 (later): platform layer and ports
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input

@@ -63,7 +63,7 @@ Mark each cell `ok`, `-` (not tried) or the number of a log entry.
 | # | Step | Expected | SDL-GL | SDL-DX6 | W32-DX6 | W32-GL |
 |---|---|---|---|---|---|---|
 | O1 | Change the display mode, if the menu offers it | New mode, picture correct, menu still usable | | | | |
-| O2 | Rebind a few keys, play with them, restart | New bindings work and survive the restart | | | | |
+| O2 | ~~Rebind keys~~ | Retail has no key-binding option (log 5) | n/a | n/a | n/a | n/a |
 | O3 | Change the sound and music volumes | Audible change; kept after restart | | | | |
 
 ### F: focus and window
@@ -96,3 +96,9 @@ Anything that looks, sounds or reacts differently from the retail game: one log 
 
 | # | Date | Commit | Build | Step | What happened | Retail does the same? | Recorded as |
 |---|---|---|---|---|---|---|---|
+| 1 | 24.11.2026 | 05a2305 | SDL-GL | W1 | Hall of doors at 1920x1080: the lum and cage icons and the cage counter sit at the left screen edge, the lum counter (826/999) stays in the 4:3 band, so icon and counter are far apart (Screenshot 19). Before 15d20d9 all of it stayed in the band together. Cause: DEVIATIONS 11 decides per element; the lum counter reaches past the left third of the 4:3 layout (its right edge at 36 %), the icon and the cage counter do not. | no (fork change) | PLAN, Widescreen "Open" |
+| 2 | 24.11.2026 | 05a2305 | SDL-GL | G3 | Two slots in the menu, 0 % and 88 %. Whichever is chosen, the game loads either the current progress or the 88 % slot. On disk `Slot1` holds 68 files dated 14.06.2026, `Slot2` (created 24.11.2026 22:59) is empty. The slot code (`GAM/GAM_save_slot.c`) is unchanged from the export. | unchecked | PLAN, Phase 4 "Playtest", open |
+| 3 | 24.11.2026 | 05a2305 | SDL-GL | I3 | Gamepad works, but the buttons do other things than expected. Today's layout is DirectInput's XInput order (DEVIATIONS 16); the Dreamcast layout is handoff task 2b. | n/a | task 2b |
+| 4 | 24.11.2026 | 05a2305 | SDL-GL | I3 | No rumble. The decompiled exe declares DirectInput's effect interface but never calls `CreateEffect`, so the PC game most likely has no rumble (from the code; not played on retail). | yes (from code) | original behaviour |
+| 5 | 24.11.2026 | - | - | O2 | Retail has no key-binding option in its menu. | yes | original behaviour |
+| 6 | 24.11.2026 | 05a2305 | SDL-GL | F1, G2 | Alt+Tab and a level transition work. | - | ok |
