@@ -385,6 +385,12 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    files), `GetCurrentThreadId` for the MMG channel of the calling thread (`GLD.c`), the
    single-instance mutex `RAYMAN2EXE` (`sdl_main.c`), and `SetEvent` in `GLI_FatalExitOrSleep`,
    on a path taken only when an engine thread exists.
+
+   **Done (2026-11-24): SDL window hidden until the device exists** (user decision). On PC the
+   320x200 window is on screen while the driver starts (Win32 build: 328x237 incl. frame for 1.2 s;
+   most of it the time stamp counter calibration). The SDL window is created hidden and shown when
+   `fn_bCreateMainDisplayScreen` has succeeded. Measured: window log at startup shows no small
+   window, the first visible one is the fullscreen window at 0.17 s; regression identical (SDL).
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.

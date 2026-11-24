@@ -699,14 +699,17 @@ void GAM_pc_fn_vChooseTheGoodInit(void)
 /*
  ----------------------------------------------------------------------------------------
   Description   : The window (320x200 client, resizable) and the display device on it.
-                  ERM gets no window: its message boxes come from the main thread.
+                  The window is shown once the device exists: on PC the small window
+                  stays on screen while the driver starts. ERM gets no window: its
+                  message boxes come from the main thread.
  ----------------------------------------------------------------------------------------
  */
 int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
 {
     (void)hInstance; (void)iShowCmd;
 
-    GAM_sdl_g_p_stWindow = SDL_CreateWindow(GAM_SDL_SZ_WNDTITLE, 0x140, 200, SDL_WINDOW_RESIZABLE);
+    GAM_sdl_g_p_stWindow = SDL_CreateWindow(GAM_SDL_SZ_WNDTITLE, 0x140, 200,
+                                             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
     if ( GAM_sdl_g_p_stWindow == NULL )
     {
         return 0;
@@ -721,7 +724,12 @@ int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
         return 0;
     }
 
-    return fn_bCreateMainDisplayScreen();
+    if ( !fn_bCreateMainDisplayScreen() )
+    {
+        return 0;
+    }
+    SDL_ShowWindow(GAM_sdl_g_p_stWindow);
+    return 1;
 }
 
 /*
