@@ -23,6 +23,11 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
    targets, and every `#endif` names its condition (`#endif /* NAME */`). New targets (x64, PSP,
    Wii U, ...) get another branch beside the existing code. Do not rewrite the existing branch.
    This applies to every edit, not only to protection removal.
+   Platform calls in shared code go through names the module owns, defined per platform in the
+   module's header, as the original engine does (`OPENFILESND_READ` in `WAVMWBVR.dll/include/SND/sndfile.h`,
+   `TypeCriticalSection` in `MMG/MMG_alloc.h`). Never `#define` a system API name (`CreateFileA`,
+   `WaitForSingleObject`, ...) to something else, and no Win32 types in a non-Win32 branch
+   (Phase 5, "Platform glue").
 
 ## Phases
 
@@ -560,8 +565,29 @@ its condition.
 | `FILE_MODE_C_WIN95` | feature | Win32 API for level data files, ini files and MMG memory; set in `SND/snddef.h` unless `GAMECONSOLE`, `USE_SDL` or `RAYMAN2_C_RUNTIME`; C runtime otherwise |
 | `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
 
-- New code goes beside the original branch: `#if defined(USE_SDL) ... #else /* original Win32 */
-  ... #endif /* USE_SDL */`. The Win32 path needs no macro of its own.
+- New code goes beside the original branch. Fence by what the code depends on: Win32-only code
+  by the target (`#ifdef WIN32 ... #endif /* WIN32 */`, never `_WIN32` in engine files), a
+  backend choice by its `USE_` macro (`#ifdef USE_SDL ... #else ... #endif /* USE_SDL */`).
+  `#ifndef USE_SDL` alone does not mean "Win32": it stops holding once a non-Windows target exists.
+
+**Platform glue (decided 2026-11-25).** Below the seams (files, ini, locks, semaphores, tick
+counts, `Sleep`, thread ids) shared code calls module-owned names, not system API names:
+- each module gets neutral macros or functions in its own header (`SNA_M_...`, `FIL_M_...`,
+  `GAM_M_...`, `TMR_M_...`; final names chosen from the original engine's naming in the first
+  step and listed here), with one branch per platform: `FILE_MODE_C_WIN95` / `WIN32` maps them to
+  the Win32 call, the other branch to the C runtime or the SDL backend;
+- the call sites use the neutral name. Under VC5 the Win32 branch expands to the same call, so
+  the change is byte-neutral and belongs in the decomp (arrives through upstream); the fork adds
+  only the non-Win32 branches;
+- neutral types for handles and results (`SNA_tdhFile`, ...), so the non-Win32 branches compile
+  without `windows.h`;
+- replaces the current Win32 name renames (`MMG/SNA_file.h`, `FIL/FIL_ini.h`,
+  `GAM/GAM_DrawSem.h`, `TMR/sdl_timer.h`). No new renames meanwhile. A pre-commit check rejects
+  added lines that `#define` a Win32 API name.
+Why: a rename keeps the Win32 types at every call site (a `windows.h` stand-in on Linux and the
+consoles, i.e. Win32 emulation), reroutes every call of that name in the file (an upstream merge
+that adds an unrelated `WaitForSingleObject` would silently reach the SDL semaphore), and depends
+on include order.
 - No linked-in driver takes the name `GliOGL`: GOG ships a `GliOGLvf.dll`, which a linked-in
   driver of that name would shadow.
 - The fork's own options keep the `RAYMAN2_` prefix (`RAYMAN2_WIDESCREEN`, `RAYMAN2_FIX_BUGS`, ...),
@@ -688,3 +714,11 @@ relative to sound and the GL driver is the user's call.
   positions)? Unchecked; per-target arithmetic (Phase 2, modern build reference) assumes not.
 - Big-endian data: swap at load time or convert offline.
 - License: none so far, same as upstream.
+- Renderer choice in the game (user goal, 2026-11-25). The linked-in drivers are additive and
+  chosen by name (`GLI_DllFile`), so a choice "after restart" only writes that key. Switching
+  while running is new work: the driver is loaded once (`GLI_fnl_InitDll` from `GAM_init.c`)
+  and never released; it needs driver release, a new window (Direct3D 6 changes the window's
+  styles, an SDL GL context needs an OpenGL window) and all textures uploaded again. Unchecked:
+  whether the engine can reload its textures, and whether the options menu is built in level
+  data (then a new entry needs a data change or a menu of the fork's own). Prerequisite either
+  way: an opaque window handle in `GLI_DRV` instead of `HWND` (Phase 5).
