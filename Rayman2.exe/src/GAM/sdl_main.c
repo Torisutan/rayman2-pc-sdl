@@ -223,6 +223,13 @@ unsigned long GAM_pc_fn_vDispatchWmActivate(void)
         if ( GAM_sdl_g_p_stWindow != NULL )
         {
             GAM_sdl_fn_vSetTitle(GAM_SDL_SZ_PAUSE_TITLE);
+#ifdef WIN32
+            /* A fullscreen driver may have made the window a popup (GOG's OpenGL driver
+               does). SDL is told: it puts its own style back when the window leaves the
+               minimized state, and the game would return in a captioned window. */
+            SDL_SetWindowBordered(GAM_sdl_g_p_stWindow,
+                                  (GetWindowLongA((HWND)(*g_hWnd), GWL_STYLE) & WS_CAPTION) != 0);
+#endif /* WIN32 */
             SDL_MinimizeWindow(GAM_sdl_g_p_stWindow);
         }
     }

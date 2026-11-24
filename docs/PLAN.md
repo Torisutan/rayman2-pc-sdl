@@ -400,11 +400,24 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    window thread is blocked, the process has to be killed. Original behaviour on this system,
    not a fork regression; where it blocks is unchecked (no debugger installed; a stack sample by
    scanning the stack was inconclusive). The SDL build with the same driver: pause on loss,
-   "restoring data" then play on return, exit 0.2 s after `WM_CLOSE`; it comes back as a captioned
-   1920x1080 window instead of exclusive fullscreen, as with GOG's OpenGL driver. Open: why the
-   device does not return to exclusive mode (the return path calls
-   `GAM_pc_fn_vHandleActivateExitToWindowed` -> `GLD_bSwapToWindowedMode`); whether the Win32
+   "restoring data" then play on return, exit 0.2 s after `WM_CLOSE`. Open: whether the Win32
    hang is a `docs/BUGS.md` entry needs the blocking call first.
+
+   **Done (2026-11-24): focus return to fullscreen (SDL build).** The decompiled names on the
+   activation path are inverted: on loss `GAM_pc_fn_vHandleActivateEnterFullScreen` ->
+   `GLD_bSwapDeviceMode` -> the driver's `vActivateGli(hWnd, 0)`; on return
+   `GAM_pc_fn_vHandleActivateExitToWindowed` -> `GLD_bSwapToWindowedMode` ->
+   `vActivateGli(hWnd, 1)`, which in the Direct3D 6 driver recreates the exclusive fullscreen
+   device. With that driver the SDL build already came back as it started: on this system (16 bpp
+   under `DWM8And16BitMitigation`) the exclusive mode shows as a captioned 1920x1080 window from
+   the start, in the Win32 build as well. GOG's OpenGL driver makes the window a popup itself
+   (`SetWindowLongA`, measured style `0x96000000`); SDL 3.4 puts its own style back
+   (`0x16CF0000`, caption and frame) whenever the window leaves the minimized state, in its
+   `WM_WINDOWPOSCHANGED` handling, whichever call restores it (`SDL_RestoreWindow` or the system
+   restore of `pc_winmain.c`). On focus loss, before minimizing, SDL is now told whether the
+   driver left the window without a caption (`SDL_SetWindowBordered`); a borderless SDL window
+   gets no non-client area. Measured: the OpenGL focus test returns fullscreen (screenshot,
+   taskbar hidden); Direct3D 6 unchanged; regression identical (SDL).
 5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.
