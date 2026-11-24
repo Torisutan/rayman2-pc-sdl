@@ -361,19 +361,16 @@ static void HIE_pc_fn_vRenderLODFrameAtDistance(void *_hVpt, GEO_tdstVisualSet *
 static void HIE_pc_fn_vRenderLODByCenterDistance(void *_hVpt, GEO_tdstVisualSet *_hVS, float *_pfCenter,
                                                  long _lDrawMask)
 {
-    float  aVector[3];
-    GLI_tdstCamera *pCamera;
-    float  xDistance;
+    MTH3D_tdstVector stVector;
 
-    POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aVector, GLI_g_p_stCurrentMatrix,
-                            (MTH3D_tdstVector *)_pfCenter);
-    pCamera = ((GLI_tdstSpecificAttributesFor3D *)
-               ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam;
-    POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aVector,
-                            &pCamera->stMatrix,
-                            (MTH3D_tdstVector *)aVector);
-    xDistance = MTH_M_xSqrt(aVector[2] * aVector[2] + aVector[1] * aVector[1] + aVector[0] * aVector[0]);
-    HIE_pc_fn_vRenderLODFrameAtDistance(_hVpt, _hVS, xDistance, _lDrawMask);
+    POS_fn_vMulMatrixVertex(&stVector, GLI_g_p_stCurrentMatrix, (MTH3D_tdstVector *)_pfCenter);
+    POS_fn_vMulMatrixVertex(&stVector,
+                            &((GLI_tdstSpecificAttributesFor3D *)
+                              ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam->stMatrix,
+                            &stVector);
+    HIE_pc_fn_vRenderLODFrameAtDistance(_hVpt, _hVS,
+        MTH_M_xSqrt(stVector.xX * stVector.xX + stVector.xY * stVector.xY + stVector.xZ * stVector.xZ),
+        _lDrawMask);
 }
 
 /* 0x004315a0 */

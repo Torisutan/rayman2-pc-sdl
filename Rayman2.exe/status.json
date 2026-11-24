@@ -17034,7 +17034,7 @@
 "addr": "0x0046E450",
 "name": "fn_p_stReadAnalogJoystickMario",
 "src": "src/AI/Procedure.c",
-"len": 4879,
+"len": 4881,
 "verdict": "MISMATCH"
 },
 {
@@ -17832,7 +17832,7 @@
 "addr": "0x00476960",
 "name": "fn_p_stCode4PersoLePlusProche",
 "src": "src/AI/FuncRay2.c",
-"len": 1452,
+"len": 1448,
 "verdict": "MISMATCH"
 },
 {

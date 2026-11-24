@@ -2507,10 +2507,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetPersoSighting(
 }
 
 /* 0x00480950 */
-extern AI_tdstNodeInterpret *__cdecl fn_p_stSwapNextParameter(AI_tdstNodeInterpret *p_stTree);
-#define AI_M_pfn_fn_p_stSwapNextParameter \
-    ((AI_tdstNodeInterpret *(__cdecl *)(AI_tdstNodeInterpret *))&fn_p_stSwapNextParameter)
-
 static __inline HIE_tdstSuperObject *fn_hGetSuperObjectInChannel(CHN_tdxHandleToChannelArray hChannelArray, unsigned short uwChannelNumber)
 {
 	return (hChannelArray) ? hChannelArray[uwChannelNumber].hSupObject : NULL;

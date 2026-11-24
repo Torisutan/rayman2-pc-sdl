@@ -14,7 +14,7 @@ void __cdecl GLI_xSerialProjectionNoTrans(void  *p_stCam,
 
 /* 0x00422940 */
 void __cdecl GLI_vGet3DVertexFromScreenPos(void  *p_stVpt,
-                                            float *p_stPos3D,
+                                            MTH3D_tdstVector *p_stPos3D,
                                             float  xRatioX,
                                             float  xRatioY,
                                             float  xSize);

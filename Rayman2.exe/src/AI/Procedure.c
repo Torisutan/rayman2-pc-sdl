@@ -2835,9 +2835,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCustomBitsProc(
   return p_stTree;
 }
 
-/* 0x00480950 */
-extern AI_tdstNodeInterpret *__cdecl fn_p_stSwapNextParameter(AI_tdstNodeInterpret *p_stTree);
-#define AI_M_pfn_fn_p_stSwapNextParameter    ((AI_tdstNodeInterpret *(__cdecl *)(AI_tdstNodeInterpret *))&fn_p_stSwapNextParameter)
 /* 0x432D30 */
 extern void __cdecl MEC_vImposeTranslation(DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stVector);
 extern void __cdecl MEC_vImposeRotationMatrix(DNM_tdstDynamics *p_stDynamic, POS_tdxHandleToPosition hRotationMatrix);
@@ -4500,7 +4497,7 @@ extern void __cdecl fn_vSectInfoSetCurrentSector(void *h_SectInfo, void *hCurren
 #define AI_M_pfn_fn_vSectInfoSetCurrentSector  ((void (__cdecl *)(void *, void *))&fn_vSectInfoSetCurrentSector)
 
 #define AI_M_pfn_fn_h_SectInfoGetCurrentSector ((void *(__cdecl *)(void *))&fn_h_SectInfoGetCurrentSector)
-#define AI_M_pfn_GLI_vGet3DVertexFromScreenPos ((void (__cdecl *)(void *, MTH3D_tdstVector *, float, float, float))GLI_vGet3DVertexFromScreenPos)
+#define AI_M_pfn_GLI_vGet3DVertexFromScreenPos GLI_vGet3DVertexFromScreenPos
 
 #define AI_M_pfn_HIE_SO_SwitchSuperImposedTab  ((void (__cdecl *)(long))HIE_fn_SO_SwitchSuperImposedTab)
 

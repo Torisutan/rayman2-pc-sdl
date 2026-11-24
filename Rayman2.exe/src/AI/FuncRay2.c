@@ -210,7 +210,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetNbActivePerso(
 
 #define AI_M_pfn_MSWay_hGetWP          ((void *(__cdecl *)(void *, long))&MSWay_fn_hGetWayPointOfPath)
 extern float __cdecl WP_fnx_WayPoint_GetRadius(void *_hWayPoint);
-#define AI_M_pfn_POS_vGetTransVec_rail ((void (__cdecl *)(void *, float *))POS_fn_vGetTranslationVector)
 /* 0x00487830 */
 extern void __cdecl WP_fnv_WayPoint_GetVertex(void *_hWayPoint, void *_pstVector);
 #define AI_M_pfn_WP_vGetVertex_rail    ((void (__cdecl *)(void *, float *))&WP_fnv_WayPoint_GetVertex)
@@ -1529,10 +1528,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetZDxCenter(
     return p_stNode;
 }
 
-#define AI_M_pfn_POS_vGetRotationMatrix ((void (__cdecl *)(void *, float *, float *, float *))POS_fn_vGetRotationMatrix)
-#define AI_M_pfn_POS_vSetRotationMatrix ((void (__cdecl *)(void *, float *, float *, float *))POS_fn_vSetRotationMatrix)
-#define AI_M_pfn_POS_vGetRotationVector ((void (__cdecl *)(void *, float **, float **, float **))POS_fn_vGetRotationVector)
-#define AI_M_pfn_POS_vInvertIsoMatrix   ((void (__cdecl *)(void *, void *))POS_fn_vInvertIsoMatrix)
 #define AI_M_pfn_POS_vMulMatrixVertex   ((void (__cdecl *)(float *, void *, float *))POS_fn_vMulMatrixVertex)
 
 #define AI_FR2_xDegToRad     (0.017453292f)   /* 0x49cccc */
@@ -1812,7 +1807,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
     MTH3D_tdstVector      stDirection;
     MTH3D_tdstVector      stMyVector;
     POS_tdstCompletePosition stGlobToPerso;
-    float                *p_stActorSighting = (float *)0;
+    MTH3D_tdstVector     *p_stActorSighting;
 
     fn_vGetUltraOperatorPerso(
         AI_M_pfn_fn_ucGetFunctionUltraOperator2(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
@@ -1862,15 +1857,15 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
             if (eFuncId == 0x6c)
             {
 
-                AI_M_pfn_POS_vGetTransVec_rail(HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso), (float *)&stMyVector);
+                POS_fn_vGetTranslationVector( HIE_fn_hGetSuperObjectGlobalMatrix( hNewSuperObjPerso), &stMyVector );
             }
 
             else if (eFuncId == 0x6e)
             {
-                void  *hActorMatrix = HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso);
-                float *p_stTmpVector1, *p_stTmpVector2;
-                AI_M_pfn_POS_vGetTransVec_rail(hActorMatrix, (float *)&stMyVector);
-                AI_M_pfn_POS_vGetRotationVector(hActorMatrix, &p_stTmpVector1, &p_stActorSighting, &p_stTmpVector2);
+                POS_tdxHandleToPosition hActorMatrix = HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso);
+                MTH3D_tdstVector *p_stTmpVector1, *p_stTmpVector2;
+                POS_fn_vGetTranslationVector( hActorMatrix, &stMyVector );
+                POS_fn_vGetRotationVector ( hActorMatrix, &p_stTmpVector1, &p_stActorSighting, &p_stTmpVector2 );
             }
 
             else
@@ -1881,7 +1876,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
                 POS_fn_vCopyMatrix(&stGlobPerso, HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso));
 
                 if (!MTH3D_M_bIsNullVector(&stDirection)) {
-                    AI_M_pfn_POS_vGetRotationMatrix(&stGlobPerso, &vI, &vJ, &vK);
+                    POS_fn_vGetRotationMatrix(&stGlobPerso,&vI,&vJ,&vK);
 
                     MTH3D_M_vNegVector(&stDirection, &stDirection);
                     MTH3D_M_vNormalizeVector(&vJ, &stDirection);
@@ -1900,15 +1895,15 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
                         MTH3D_M_vCrossProductVectorWithoutBuffer(&vK, &vI, &vJ);
                     }
 
-                    AI_M_pfn_POS_vSetRotationMatrix(&stGlobPerso, &vI, &vJ, &vK);
+                    POS_fn_vSetRotationMatrix(&stGlobPerso,&vI,&vJ,&vK);
                 }
 
-                AI_M_pfn_POS_vInvertIsoMatrix(&stGlobToPerso, &stGlobPerso);
+                POS_fn_vInvertIsoMatrix(&stGlobToPerso,&stGlobPerso);
             }
 
             hCloserSO = (int *)AI_fn_h_GetClosestPersoInSector(
                 (HIE_tdstSuperObject *)hCloserSO, &xBestDist, &xPrevWeight, hNewSuperObjPerso, &stMyVector,
-                (MTH3D_tdstVector *)p_stActorSighting, &stGlobToPerso, hCurrentSectorPerso, ulCustomBitValue,
+                p_stActorSighting, &stGlobToPerso, hCurrentSectorPerso, ulCustomBitValue,
                 xXWeight, x2DWeight, x3DWeight, xMask, xCosXoY, xSinYoZ, eFuncId);
 
             SECT_M_ForEachGraphicNodeInGraphicInteractionList(hCurrentSectorPerso, hGraphicElement, i)
@@ -1917,7 +1912,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
 
                 hCloserSO = (int *)AI_fn_h_GetClosestPersoInSector(
                     (HIE_tdstSuperObject *)hCloserSO, &xBestDist, &xPrevWeight, hNewSuperObjPerso, &stMyVector,
-                    (MTH3D_tdstVector *)p_stActorSighting, &stGlobToPerso, hGraphicSectorSO, ulCustomBitValue,
+                    p_stActorSighting, &stGlobToPerso, hGraphicSectorSO, ulCustomBitValue,
                     xXWeight, x2DWeight, x3DWeight, xMask, xCosXoY, xSinYoZ, eFuncId);
             }
         }

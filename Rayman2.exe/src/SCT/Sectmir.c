@@ -7,7 +7,7 @@ extern float AI_GLI_xFogBlendNear;
 extern float AI_GLI_xFogBlendFar;
 extern float AI_GLI_a_xFogColor[4];
 
-extern void  __cdecl GEO_vGetPointOfObject(void *hObject, float *p_stPoint, short xIndexOfPoint);
+extern void  __cdecl GEO_vGetPointOfObject(void *hObject, MTH3D_tdstVector *p_stPoint, short xIndexOfPoint);
 extern void  __cdecl GEO_fn_vComputeCameraParametersForCulling(void *p_stVpt, float xZFar);
 extern float __cdecl fn_xGetSectorZFar(void *_hSprObjSector);
 extern void  __cdecl SCT_pc_fn_vCollectMirrorsOfSectors(void *_hVpt, void *_hSprObjSector,
@@ -32,13 +32,13 @@ extern void  __cdecl FUN_004239c0(void);
 extern void  __cdecl FUN_004239d0(void);
 extern void  __cdecl FUN_004239e0(void);
 extern long  __cdecl GLD_bGetDeviceAttributes(short hDev, void *pstDevAttrib);
-extern void  __cdecl GLI_xGetCameraMatrix(void *p_stCam, long *p_stMatrix);
-extern void  __cdecl GLI_xSetCameraMatrix(void *p_stCam, long *p_stMatrix);
+extern void  __cdecl GLI_xGetCameraMatrix(void *p_stCam, POS_tdstCompletePosition *p_stMatrix);
+extern void  __cdecl GLI_xSetCameraMatrix(void *p_stCam, POS_tdstCompletePosition *p_stMatrix);
 extern void  __cdecl GLI_xSetViewportCamera(short hDevice, short hViewport, long lCam);
 extern void  __cdecl GLI_xGetViewportCamera(unsigned long hDevice, unsigned short hViewport, void **p_stCam);
 extern void  __cdecl GLI_xAdjustCameraToViewport2(void *p_stDev, void *p_stVpt, void *p_stCam);
-extern unsigned short __cdecl GLI_pc_fn_usClipQuadToScreenRect(void *p_stObj, unsigned long *p_stMatA,
-                                                               unsigned long *p_stMatB, void *p_stCam,
+extern unsigned short __cdecl GLI_pc_fn_usClipQuadToScreenRect(void *p_stObj, POS_tdstCompletePosition *p_stMatA,
+                                                               POS_tdstCompletePosition *p_stMatB, void *p_stCam,
                                                                void *p_stRect, unsigned long ulFlags);
 extern void  __cdecl POS_fn_vSetIdentityMatrix(POS_tdstCompletePosition *p_stPos);
 extern void  __cdecl POS_fn_vMulMatrixVertex(MTH3D_tdstVector *_p_stDest, POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stSource);
@@ -58,10 +58,12 @@ extern char  DAT_005115c9;
 #include "SCT/Sector.h"
 #include "MTH/MTH3D.h"
 
-void GEO_vGetNormalOfGeometricObjectElement(void *p_stGeomObj, short xElements,
-                                            short xIndexOfFace, float *p_stNormal);
+#define SCT_C_xNbMaxOfMirrorsInVisibleSectors 6
 
-void SCT_fn_vSendSectorWhereIAmToViewportWithMirror(void *p_stAbsolutePositionOfCamera,
+void GEO_vGetNormalOfGeometricObjectElement(void *p_stGeomObj, short xElements,
+                                            short xIndexOfFace, MTH3D_tdstVector *p_stNormal);
+
+void SCT_fn_vSendSectorWhereIAmToViewportWithMirror(MTH3D_tdstVector *p_stAbsolutePositionOfCamera,
                                                     unsigned short hDevice,
                                                     unsigned short hViewport,
                                                     void *p_stVpt,
@@ -70,18 +72,18 @@ void SCT_fn_vSendSectorWhereIAmToViewportWithMirror(void *p_stAbsolutePositionOf
 {
     unsigned long  aulCamCopy[55];
     unsigned long  aulDevAttr[24];
-    unsigned long  aulMatrix[22];
-    void          *apvMirrorObj[6];
-    void          *apvSectorElem[6];
-    void          *apvMirrorSO[6];
-    void          *apvGeomMirror[6];
-    float          afRotI[3];
-    float          afRotJ[3];
-    float          afRotK[3];
-    float          afWorldPt[3];
-    float          afLocalPt[3];
-    float          afNormal[3];
-    float          afReflected[3];
+    POS_tdstCompletePosition stMatrix;
+    POS_tdstCompletePosition *a_hMirrorMatrix[SCT_C_xNbMaxOfMirrorsInVisibleSectors];
+    void          *apvSectorElem[SCT_C_xNbMaxOfMirrorsInVisibleSectors];
+    void          *apvMirrorSO[SCT_C_xNbMaxOfMirrorsInVisibleSectors];
+    void          *apvGeomMirror[SCT_C_xNbMaxOfMirrorsInVisibleSectors];
+    MTH3D_tdstVector stI;
+    MTH3D_tdstVector stJ;
+    MTH3D_tdstVector stK;
+    MTH3D_tdstVector stWorldPoint;
+    MTH3D_tdstVector stLocalPoint;
+    MTH3D_tdstVector stNormal;
+    MTH3D_tdstVector stReflected;
     unsigned char  acVisible[8];
     void          *pvCam;
     void         **ppvGeom;
@@ -137,33 +139,32 @@ void SCT_fn_vSendSectorWhereIAmToViewportWithMirror(void *p_stAbsolutePositionOf
             ppvGeom = &apvGeomMirror[iIdx];
             ppvSectorElem = &apvSectorElem[iIdx];
 
-            apvMirrorObj[iIdx] = ((HIE_tdstSuperObject *)apvMirrorSO[iIdx])->hGlobalMatrix;
-            GEO_vGetPointOfObject(apvGeomMirror[iIdx], afLocalPt, 0);
-            POS_fn_vMulMatrixVertex(afWorldPt, apvMirrorObj[iIdx], afLocalPt);
-            GEO_vGetNormalOfGeometricObjectElement(apvGeomMirror[iIdx], 0, 0, afLocalPt);
-            POS_fn_vGetRotationMatrix(apvMirrorObj[iIdx], afRotI, afRotJ, afRotK);
-            POS_fn_vSetIdentityMatrix(aulMatrix);
-            POS_fn_vSetRotationMatrix(aulMatrix, afRotI, afRotJ, afRotK);
-            POS_fn_vMulMatrixVector(afNormal, aulMatrix, afLocalPt);
+            a_hMirrorMatrix[iIdx] = ((HIE_tdstSuperObject *)apvMirrorSO[iIdx])->hGlobalMatrix;
+            GEO_vGetPointOfObject(apvGeomMirror[iIdx], &stLocalPoint, 0);
+            POS_fn_vMulMatrixVertex(&stWorldPoint, a_hMirrorMatrix[iIdx], &stLocalPoint);
+            GEO_vGetNormalOfGeometricObjectElement(apvGeomMirror[iIdx], 0, 0, &stLocalPoint);
+            POS_fn_vGetRotationMatrix(a_hMirrorMatrix[iIdx], &stI, &stJ, &stK);
+            POS_fn_vSetIdentityMatrix(&stMatrix);
+            POS_fn_vSetRotationMatrix(&stMatrix, &stI, &stJ, &stK);
+            POS_fn_vMulMatrixVector(&stNormal, &stMatrix, &stLocalPoint);
 
             /* 0x44B90E */
-            MTH3D_M_vSubVector((MTH3D_tdstVector *)afRotI, (MTH3D_tdstVector *)p_stAbsolutePositionOfCamera,
-                               (MTH3D_tdstVector *)afWorldPt);
-            if (afRotI[0] * afNormal[0] + afRotI[1] * afNormal[1] + afRotI[2] * afNormal[2] < 0.0f) {
+            MTH3D_M_vSubVector(&stI, p_stAbsolutePositionOfCamera, &stWorldPoint);
+            if (stI.xX * stNormal.xX + stI.xY * stNormal.xY + stI.xZ * stNormal.xZ < 0.0f) {
                 *pucVisible = 0;
             }
 
             if (*pucVisible != 0) {
                 GLI_xGetViewportCamera((unsigned long)hDevice, hViewport, &pvCam);
                 FUN_004225d0(aulCamCopy, (unsigned long *)pvCam);
-                GLI_xGetCameraMatrix((void *)aulCamCopy, (long *)aulMatrix);
-                SCT_pc_fn_vComputeMirrorMatrix((void *)aulMatrix, (void *)aulMatrix, afReflected,
-                                               afNormal, afWorldPt);
-                GLI_xSetCameraMatrix((void *)aulCamCopy, (long *)aulMatrix);
+                GLI_xGetCameraMatrix((void *)aulCamCopy, &stMatrix);
+                SCT_pc_fn_vComputeMirrorMatrix(&stMatrix, &stMatrix, &stReflected,
+                                               &stNormal, &stWorldPoint);
+                GLI_xSetCameraMatrix((void *)aulCamCopy, &stMatrix);
                 GLI_xSetViewportCamera((unsigned long)hDevice, hViewport, (long)aulCamCopy);
 
-                usClip = GLI_pc_fn_usClipQuadToScreenRect(apvGeomMirror[iIdx], apvMirrorObj[iIdx],
-                                                          aulMatrix, (void *)aulCamCopy, p_stVpt, lDrawMask);
+                usClip = GLI_pc_fn_usClipQuadToScreenRect(apvGeomMirror[iIdx], a_hMirrorMatrix[iIdx],
+                                                          &stMatrix, (void *)aulCamCopy, p_stVpt, lDrawMask);
                 if ((char)usClip == 0) {
                     *pucVisible = 0;
                 }
@@ -176,14 +177,14 @@ void SCT_fn_vSendSectorWhereIAmToViewportWithMirror(void *p_stAbsolutePositionOf
                     pvElemSO = ((HIE_tdstSuperObject *)*ppvSectorElem)->hLinkedObject.p_Void;
 
                     if (((GEO_tdstGeometricObject *)*ppvGeom)->xNbElements == 1) {
-                        FUN_00423990((unsigned long)p_stVpt, afNormal,
-                                     afWorldPt[0] * afNormal[0] + afWorldPt[1] * afNormal[1] + afWorldPt[2] * afNormal[2]);
+                        FUN_00423990((unsigned long)p_stVpt, &stNormal,
+                                     stWorldPoint.xX * stNormal.xX + stWorldPoint.xY * stNormal.xY + stWorldPoint.xZ * stNormal.xZ);
                     }
                     else {
                         FUN_004239d0();
                     }
 
-                    SCT_fn_vSendSectorWhereIAmToViewport(afReflected, p_stVpt,
+                    SCT_fn_vSendSectorWhereIAmToViewport(&stReflected, p_stVpt,
                         (((SECT_tdxHandleOfSectorObject)pvElemSO)->xVirtual == 0) ? *ppvSectorElem : hSprObjSector,
                         (long)(lDrawMask + 0xFDF00000UL));
 

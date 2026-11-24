@@ -753,6 +753,7 @@ void CAM_fn_vComputeCineinfoCurrentForAPosition(CAM_tdstUpdateCamera *_p_stStruc
 /* 0x004E9280 */
 struct tdstInternalStructurCineinfo_		gst_Ideal;
 
+#undef MTH_M_xRealToLongRound
 #define MTH_M_xRealToLongRound(A)               \
  (long) ( (long)(A*2.0F)-(long)(A) )
 

@@ -1,0 +1,69 @@
+{
+ "base_flags": [
+  "/nologo",
+  "/c",
+  "/O2",
+  "/Gy",
+  "/MT",
+  "/D_DLL_COMPILATION_MODE",
+  "/DVISUAL",
+  "/W3"
+ ],
+ "asm_flags": [
+  "/Zd"
+ ],
+ "ldflags": [
+  "/DEBUG",
+  "/INCREMENTAL:NO"
+ ],
+ "libs": [
+  "winmm.lib",
+  "kernel32.lib",
+  "user32.lib"
+ ],
+ "out_name": "WAVMWBVR.DLL",
+ "link_order": [
+  {
+   "src": "WAVMWBVR.rc"
+  },
+  {
+   "src": "snddll.c"
+  },
+  {
+   "src": "Win95/Sndstrm2.c"
+  },
+  {
+   "src": "Win95/pc_sndtrans.c"
+  },
+  {
+   "src": "sndvirt.c"
+  },
+  {
+   "src": "sndwave.c"
+  },
+  {
+   "src": "pc_mixervol.c"
+  },
+  {
+   "src": "Sndxd.c"
+  },
+  {
+   "src": "sndxdwav.c"
+  },
+  {
+   "src": "mixer/mix1_1000d380.asm"
+  },
+  {
+   "src": "mixer/mix2_1000d720.asm"
+  },
+  {
+   "src": "mixer/mix3_1000d9d0.asm"
+  },
+  {
+   "src": "mixer/mix4_1000dce0.asm"
+  },
+  {
+   "src": "mixer/mix5_1000ea10.asm"
+  }
+ ]
+}

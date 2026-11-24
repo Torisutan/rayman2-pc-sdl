@@ -2187,33 +2187,44 @@ void CreateType60AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirec
 }
 
 /* 0x00462580 */
-void CreateType62AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter)
+void CreateType62AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
 {
-    float Pos[3], Dir[3];
-    int i;
-    float f1, f2;
-    float *pf;
-    /* 0x462584 */
-    pf = &pPos->xX;
-    Pos[0] = *pf++; Pos[1] = *pf++; Pos[2] = *pf;
-    pf = &pDir->xX;
-    Dir[0] = *pf++; Dir[1] = *pf++; Dir[2] = *pf;
-    for (i = 10; i != 0; i--)
-    {
-        int   rr;
-        rr = rand(); Dir[0] = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_f1;
-        rr = rand();
-        Dir[2] = 0.0f;
-        Dir[1] = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_f1;
-        f1 = (float)rand() * AGO_k_f0_09 * AGO_k_f3_05185em05 - AGO_k_fMinus0_01;
-        if (AGO_g_SplashFlag) {
-            f2 = (float)rand() * AGO_k_f0_8 * AGO_k_f3_05185em05 - AGO_k_fMinus0_2;
-        } else {
-            rr = rand(); f2 = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_fMinus1;
-        }
-        AGO_call_vCreatePart(0x10003, &Pos, &Dir,
-                             f2, f1, f1, hVisualMaterial);
-    }
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	int i;
+	MTH_tdxReal scale;
+	MTH_tdxReal time;
+	MTH_tdxReal *p_xSrc;
+	int lRand;
+
+	p_xSrc = &p_stPosition->xX;
+	Pos.xX = *p_xSrc++; Pos.xY = *p_xSrc++; Pos.xZ = *p_xSrc;
+	p_xSrc = &p_stDirection->xX;
+	Direction.xX = *p_xSrc++; Direction.xY = *p_xSrc++; Direction.xZ = *p_xSrc;
+
+	for (i = 10 ; i != 0 ; i--)
+	{
+
+		lRand = rand(); Direction.xX = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_f1;
+		lRand = rand();
+		Direction.xZ = MTH_C_ZERO;
+		Direction.xY = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_f1;
+
+		scale = (float)rand() * AGO_k_f0_09 * AGO_k_f3_05185em05 - AGO_k_fMinus0_01;
+		/* 0x4B9AF8 */
+		if (AGO_g_SplashFlag)
+		{
+
+			time = (float)rand() * AGO_k_f0_8 * AGO_k_f3_05185em05 - AGO_k_fMinus0_2;
+		}
+		else
+		{
+
+			lRand = rand(); time = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_fMinus1;
+		}
+
+		AGO_vCreatePart( AGO_MOVING | AGO_TIMELIMITED,  &Pos,  &Direction,  time, scale, scale, hVisualMaterial );
+	}
 }
 
 /* 0x004626B0 */

@@ -308,9 +308,6 @@ ACP_tdxBool CAM_fn_bPersoIsTurning(HIE_tdstSuperObject *_h_SuperObjPerso, MTH_td
 ACP_tdxBool CAM_fn_bPersoIsMoving(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stMove);
 MTH3D_tdstVector * __cdecl MTH_p_stRotationMulVector(MTH_tdstRotation *_p_stRotation, MTH3D_tdstVector *_p_stSource, MTH3D_tdstVector *_p_stResult);
 
-#define MTH_M_bInRangeEqual(x, a, b)    (MTH_M_bGreaterEqual((x),(a)) && MTH_M_bLessEqual((x),(b)))
-#define MTH_M_bInRange(x, a, b)         (MTH_M_bGreater((x),(a)) && MTH_M_bLess((x),(b)))
-
 #define C_IAFlags_NoShiftUntilPosReached  0x0040
 #define C_PerIAFlags_NoShift              0x04
 

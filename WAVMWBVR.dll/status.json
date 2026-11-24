@@ -1,0 +1,5371 @@
+[
+{
+"addr": "0x10001000",
+"name": "SND_fn_vGetHModuleMpeg",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001020",
+"name": "SND_pc_SND_fn_vGetHModuleMpeg_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001030",
+"name": "SND_fn_vGetHModuleWav",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001050",
+"name": "SND_pc_SND_fn_vGetHModuleWav_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001060",
+"name": "SND_fn_vGetHModuleCd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001080",
+"name": "SND_pc_SND_fn_vGetHModuleCd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001090",
+"name": "SND_fn_vGetHModuleDbg",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100010B0",
+"name": "SND_pc_SND_fn_vGetHModuleDbg_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100010C0",
+"name": "SND_fn_vGetHModuleAdpcm",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100010E0",
+"name": "SND_pc_SND_fn_vGetHModuleAdpcm_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100010F0",
+"name": "SND_fn_vGetHModuleRecord",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001110",
+"name": "SND_pc_SND_fn_vGetHModuleRecord_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001120",
+"name": "SND_fn_vDisplayError",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001150",
+"name": "SND_pc_SND_fn_vDisplayError_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001160",
+"name": "SND_fn_vDisplayErrorEx",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001190",
+"name": "SND_pc_SND_fn_vDisplayErrorEx_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100011A0",
+"name": "SND_fn_iErreurInit",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100011C0",
+"name": "SND_pc_SND_fn_iErreurInit_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100011D0",
+"name": "_snd_assert",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001200",
+"name": "SND_pc__snd_assert_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001210",
+"name": "snd_erreur_init",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001230",
+"name": "SND_pc_snd_erreur_init_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001240",
+"name": "SND_fn_vInitMallocSnd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001260",
+"name": "SND_pc_SND_fn_vInitMallocSnd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001270",
+"name": "SND_fn_vDesInitMallocSnd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001290",
+"name": "SND_pc_SND_fn_vDesInitMallocSnd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100012A0",
+"name": "SND_fn_pvMallocSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100012C0",
+"name": "SND_pc_SND_fn_pvMallocSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100012D0",
+"name": "SND_fn_pvReAllocSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001300",
+"name": "SND_pc_SND_fn_pvReAllocSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001310",
+"name": "SND_fn_vFreeSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001330",
+"name": "SND_pc_SND_fn_vFreeSnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001340",
+"name": "SND_fn_pvMallocSndEx",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001370",
+"name": "SND_pc_SND_fn_pvMallocSndEx_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001380",
+"name": "SND_fn_pvReAllocSndEx",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100013B0",
+"name": "SND_pc_SND_fn_pvReAllocSndEx_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100013C0",
+"name": "SND_fn_vFreeSndEx",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100013F0",
+"name": "SND_pc_SND_fn_vFreeSndEx_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001400",
+"name": "SND_fn_vResizeMemoryBlockSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001430",
+"name": "SND_pc_SND_fn_vResizeMemoryBlockSnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001440",
+"name": "SND_fn_bLoadDataInMem",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001470",
+"name": "SND_pc_SND_fn_bLoadDataInMem_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001480",
+"name": "SND_fn_bLoadDataInMemAndSwap",
+"src": "snddll.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100014C0",
+"name": "SND_pc_SND_fn_bLoadDataInMemAndSwap_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100014D0",
+"name": "SND_fn_bSetCurrentDirectory",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100014F0",
+"name": "SND_pc_SND_fn_bSetCurrentDirectory_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001500",
+"name": "SND_fn_dwFileSndLength",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001520",
+"name": "SND_pc_SND_fn_dwFileSndLength_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001530",
+"name": "SND_fn_dwWriteFileSnd",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001560",
+"name": "SND_pc_SND_fn_dwWriteFileSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001570",
+"name": "SND_fn_vAddDataDirectory",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001590",
+"name": "SND_pc_SND_fn_vAddDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100015A0",
+"name": "SND_fn_vRemoveDataDirectory",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100015C0",
+"name": "SND_pc_SND_fn_vRemoveDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100015D0",
+"name": "SND_fn_vPurgeDataDirectory",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100015F0",
+"name": "SND_pc_SND_fn_vPurgeDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001600",
+"name": "SND_fn_bGetOneDataDirectory",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001630",
+"name": "SND_pc_SND_fn_bGetOneDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001640",
+"name": "SND_fn_iGetNumberOfDataDirectory",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001660",
+"name": "SND_pc_SND_fn_iGetNumberOfDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001670",
+"name": "SND_fn_iGetIdDataDirectory",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001690",
+"name": "SND_pc_SND_fn_iGetIdDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100016A0",
+"name": "SND_fn_bIsDataDirectory",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100016C0",
+"name": "SND_pc_SND_fn_bIsDataDirectory_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100016D0",
+"name": "SND_fn_vResolveFileName",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001700",
+"name": "SND_pc_SND_fn_vResolveFileName_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001710",
+"name": "SND_fn_vSetSoftDirectory",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001730",
+"name": "SND_pc_SND_fn_vSetSoftDirectory_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001740",
+"name": "SND_fn_szGetSoftDirectory",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001760",
+"name": "SND_pc_SND_fn_szGetSoftDirectory_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001770",
+"name": "SND_fn_dwReadFileSnd",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100017A0",
+"name": "SND_pc_SND_fn_dwReadFileSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100017B0",
+"name": "SND_fn_dwSeekFileSnd",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100017E0",
+"name": "SND_pc_SND_fn_dwSeekFileSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100017F0",
+"name": "SND_fn_hOpenFileReadSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001810",
+"name": "SND_pc_SND_fn_hOpenFileReadSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001820",
+"name": "SND_fn_vCloseFileSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001840",
+"name": "SND_pc_SND_fn_vCloseFileSnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001850",
+"name": "SND_fn_bCanSetOptions",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001870",
+"name": "SND_pc_SND_fn_bCanSetOptions_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001880",
+"name": "SND_fn_bGetOptions",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100018B0",
+"name": "SND_pc_SND_fn_bGetOptions_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100018C0",
+"name": "SND_fn_vSetOptions",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100018F0",
+"name": "SND_pc_SND_fn_vSetOptions_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001900",
+"name": "SND_fn_iGetNumberOfBanks",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001920",
+"name": "SND_pc_SND_fn_iGetNumberOfBanks_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001930",
+"name": "SND_fn_iGetNumberOfEventInBank",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001950",
+"name": "SND_pc_SND_fn_iGetNumberOfEventInBank_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001960",
+"name": "SND_fn_bStartLoadBanks",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001980",
+"name": "SND_pc_SND_fn_bStartLoadBanks_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001990",
+"name": "SND_fn_bStartLoadBanks2",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100019B0",
+"name": "SND_pc_SND_fn_bStartLoadBanks2_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100019C0",
+"name": "SND_fn_bInitBank",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100019E0",
+"name": "SND_pc_SND_fn_bInitBank_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100019F0",
+"name": "SND_fn_bInitBank2",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001A20",
+"name": "SND_pc_SND_fn_bInitBank2_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001A30",
+"name": "SND_fn_bEndLoadBanks",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001A50",
+"name": "SND_pc_SND_fn_bEndLoadBanks_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001A60",
+"name": "SND_fn_pGetBinEvent",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001A80",
+"name": "SND_pc_SND_fn_pGetBinEvent_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001A90",
+"name": "SND_fn_pGetBinRes",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001AB0",
+"name": "SND_pc_SND_fn_pGetBinRes_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001AC0",
+"name": "SND_fn_bLoadBinaryBank",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001AE0",
+"name": "SND_pc_SND_fn_bLoadBinaryBank_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001AF0",
+"name": "SND_fn_bUnLoadBinaryBank",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001B10",
+"name": "SND_pc_SND_fn_bUnLoadBinaryBank_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001B20",
+"name": "SND_fn_vInitBankSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001B40",
+"name": "SND_pc_SND_fn_vInitBankSnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001B50",
+"name": "SND_fn_vDesInitBankSnd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001B70",
+"name": "SND_pc_SND_fn_vDesInitBankSnd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001B80",
+"name": "SND_fn_ucDistanceToVolume",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001BA0",
+"name": "SND_pc_SND_fn_ucDistanceToVolume_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001BB0",
+"name": "SND_fn_ucDistanceToVolumeEx",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001BE0",
+"name": "SND_pc_SND_fn_ucDistanceToVolumeEx_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001BF0",
+"name": "SND_fn_rDopplerPitch",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C20",
+"name": "SND_pc_SND_fn_rDopplerPitch_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C30",
+"name": "SND_fn_vSetDopplerFactor",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C50",
+"name": "SND_pc_SND_fn_vSetDopplerFactor_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C60",
+"name": "SND_fn_rGetDopplerFactor",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C80",
+"name": "SND_pc_SND_fn_rGetDopplerFactor_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C90",
+"name": "SND_fn_ucPositionToPan",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001CC0",
+"name": "SND_pc_SND_fn_ucPositionToPan_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001CD0",
+"name": "SND_fn_ucPositionToDolby",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001D00",
+"name": "SND_pc_SND_fn_ucPositionToDolby_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001D10",
+"name": "SND_fn_vSetDefaultRollOff",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001D30",
+"name": "SND_pc_SND_fn_vSetDefaultRollOff_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001D40",
+"name": "SND_fn_vGetDefaultRollOff",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001D60",
+"name": "SND_pc_SND_fn_vGetDefaultRollOff_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001D70",
+"name": "SND_fn_rMulRealRealSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001DA0",
+"name": "SND_pc_SND_fn_rMulRealRealSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001DB0",
+"name": "SND_fn_rMulRealRealQuickSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001DE0",
+"name": "SND_pc_SND_fn_rMulRealRealQuickSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001DF0",
+"name": "SND_fn_rDivRealRealSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001E20",
+"name": "SND_pc_SND_fn_rDivRealRealSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001E30",
+"name": "SND_fn_rAbsRealSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001E50",
+"name": "SND_pc_SND_fn_rAbsRealSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001E60",
+"name": "SND_fn_rNormeVectorSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001E80",
+"name": "SND_pc_SND_fn_rNormeVectorSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001E90",
+"name": "SND_fn_rPseudoNormeVectorSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001EB0",
+"name": "SND_pc_SND_fn_rPseudoNormeVectorSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001EC0",
+"name": "SND_fn_rScalaireVectorSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001EF0",
+"name": "SND_pc_SND_fn_rScalaireVectorSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F00",
+"name": "SND_fn_rPseudoScalaireNormeVectorSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F30",
+"name": "SND_pc_SND_fn_rPseudoScalaireNormeVectorSnd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F40",
+"name": "SND_fn_vProduitVectorSnd",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F70",
+"name": "SND_pc_SND_fn_vProduitVectorSnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F80",
+"name": "SND_fn_vInitThreadSnd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001FA0",
+"name": "SND_pc_SND_fn_vInitThreadSnd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001FB0",
+"name": "SND_fn_vDesInitThreadSnd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001FD0",
+"name": "SND_pc_SND_fn_vDesInitThreadSnd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001FE0",
+"name": "SND_fn_vEnterCriticalSectionThreadSnd_",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002000",
+"name": "SND_pc_SND_fn_vEnterCriticalSectionThreadSnd__Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002010",
+"name": "SND_fn_vQuitCriticalSectionThreadSnd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002030",
+"name": "SND_pc_SND_fn_vQuitCriticalSectionThreadSnd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002040",
+"name": "SND_fn_vMouchardThreadsnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002070",
+"name": "SND_pc_SND_fn_vMouchardThreadsnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002080",
+"name": "SND_fn_vWaitForValueThreadSnd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100020B0",
+"name": "SND_pc_SND_fn_vWaitForValueThreadSnd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100020C0",
+"name": "SND_fn_bTestSnd_Pentium",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100020E0",
+"name": "SND_pc_SND_fn_bTestSnd_Pentium_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100020F0",
+"name": "SND_fn_bTestSnd_MMX",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002110",
+"name": "SND_pc_SND_fn_bTestSnd_MMX_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002120",
+"name": "SND_fn_bTestSnd_WinMM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002140",
+"name": "SND_pc_SND_fn_bTestSnd_WinMM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002150",
+"name": "SND_fn_bTestSnd_Win32",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002170",
+"name": "SND_pc_SND_fn_bTestSnd_Win32_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002180",
+"name": "SND_fn_bTestSnd_WinNT",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100021A0",
+"name": "SND_pc_SND_fn_bTestSnd_WinNT_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100021B0",
+"name": "dbgSND_fn_bGetAskedTheme",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100021E0",
+"name": "SND_pc_dbgSND_fn_bGetAskedTheme_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100021F0",
+"name": "dbgSND_fn_bGetThemePosition",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002220",
+"name": "SND_pc_dbgSND_fn_bGetThemePosition_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002230",
+"name": "dbgSND_fn_vGetInfoForObjectSound",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002260",
+"name": "SND_pc_dbgSND_fn_vGetInfoForObjectSound_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002270",
+"name": "dbgSND_fn_lGetSizeOfSoundParam",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002290",
+"name": "SND_pc_dbgSND_fn_lGetSizeOfSoundParam_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100022A0",
+"name": "SND_fn_vSetResNameCallback",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100022C0",
+"name": "SND_pc_SND_fn_vSetResNameCallback_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100022D0",
+"name": "SND_fn_czGetResNameFromEdId",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100022F0",
+"name": "SND_pc_SND_fn_czGetResNameFromEdId_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002300",
+"name": "dbgSND_fn_bSetResourceStaticVolume",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002330",
+"name": "SND_pc_dbgSND_fn_bSetResourceStaticVolume_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002340",
+"name": "dbgSND_fn_rGetDopplerFactor",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002360",
+"name": "SND_pc_dbgSND_fn_rGetDopplerFactor_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002370",
+"name": "dbgSND_fn_vSendRequestSound",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002390",
+"name": "SND_pc_dbgSND_fn_vSendRequestSound_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100023A0",
+"name": "SND_fn_bCanFreeDataMPEG",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100023C0",
+"name": "SND_pc_SND_fn_bCanFreeDataMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100023D0",
+"name": "SND_fn_lPlayMPEG",
+"src": "snddll.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002410",
+"name": "SND_pc_SND_fn_lPlayMPEG_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002420",
+"name": "SND_fn_vRemoveCallbackMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002440",
+"name": "SND_pc_SND_fn_vRemoveCallbackMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002450",
+"name": "SND_fn_bSetParamMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002480",
+"name": "SND_pc_SND_fn_bSetParamMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002490",
+"name": "SND_fn_bTestIsPlayingMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100024B0",
+"name": "SND_pc_SND_fn_bTestIsPlayingMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100024C0",
+"name": "SND_fn_vStopMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100024E0",
+"name": "SND_pc_SND_fn_vStopMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100024F0",
+"name": "SND_fn_vPauseMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002510",
+"name": "SND_pc_SND_fn_vPauseMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002520",
+"name": "SND_fn_vResumeMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002540",
+"name": "SND_pc_SND_fn_vResumeMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002550",
+"name": "SND_fn_iInitMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002570",
+"name": "SND_pc_SND_fn_iInitMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002580",
+"name": "SND_fn_bTestInitMPEG",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100025A0",
+"name": "SND_pc_SND_fn_bTestInitMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100025B0",
+"name": "SND_fn_vDesInitMPEG",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100025D0",
+"name": "SND_pc_SND_fn_vDesInitMPEG_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100025E0",
+"name": "SND_fn_vSynchroMPEG",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002600",
+"name": "SND_pc_SND_fn_vSynchroMPEG_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002610",
+"name": "SND_fn_tdGetResForVoiceMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002630",
+"name": "SND_pc_SND_fn_tdGetResForVoiceMPEG_Dummy",
+"src": "snddll.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002640",
+"name": "SND_fn_bLoadResScriptMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002670",
+"name": "SND_pc_SND_fn_bLoadResScriptMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002680",
+"name": "SND_fn_bLoadResBinaryMPEG",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100026B0",
+"name": "SND_pc_SND_fn_bLoadResBinaryMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100026C0",
+"name": "SND_fn_vUnLoadResMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100026E0",
+"name": "SND_pc_SND_fn_vUnLoadResMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100026F0",
+"name": "SND_fn_bIsResLoadedMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002710",
+"name": "SND_pc_SND_fn_bIsResLoadedMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002720",
+"name": "SND_fn_rGetPosMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002740",
+"name": "SND_pc_SND_fn_rGetPosMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002750",
+"name": "SND_fn_rGetLengthMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002770",
+"name": "SND_pc_SND_fn_rGetLengthMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002780",
+"name": "SND_fn_lPlayTransitionMPEG",
+"src": "snddll.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100027C0",
+"name": "SND_pc_SND_fn_lPlayTransitionMPEG_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100027D0",
+"name": "SND_fn_bSetParamTransitionMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002800",
+"name": "SND_pc_SND_fn_bSetParamTransitionMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002810",
+"name": "SND_fn_bSetNextTransitionMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002840",
+"name": "SND_pc_SND_fn_bSetNextTransitionMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002850",
+"name": "SND_fn_bDoTransitionWithFadeMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002880",
+"name": "SND_pc_SND_fn_bDoTransitionWithFadeMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002890",
+"name": "SND_fn_bDoTransitionWithFadeMPEG2",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100028C0",
+"name": "SND_pc_SND_fn_bDoTransitionWithFadeMPEG2_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100028D0",
+"name": "SND_fn_vStopTransitionMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100028F0",
+"name": "SND_pc_SND_fn_vStopTransitionMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002900",
+"name": "SND_fn_vPauseTransitionMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002920",
+"name": "SND_pc_SND_fn_vPauseTransitionMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002930",
+"name": "SND_fn_vResumeTransitionMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002950",
+"name": "SND_pc_SND_fn_vResumeTransitionMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002960",
+"name": "SND_fn_vReleaseDriverMPEG",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002980",
+"name": "SND_pc_SND_fn_vReleaseDriverMPEG_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002990",
+"name": "SND_fn_vRestoreDriverMPEG",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100029B0",
+"name": "SND_pc_SND_fn_vRestoreDriverMPEG_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100029C0",
+"name": "SND_fn_lCreateNewBufferExMPEG",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100029F0",
+"name": "SND_pc_SND_fn_lCreateNewBufferExMPEG_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A00",
+"name": "SND_fn_lGetPosBufferExMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A20",
+"name": "SND_pc_SND_fn_lGetPosBufferExMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A30",
+"name": "SND_fn_lPushBufferExMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A60",
+"name": "SND_pc_SND_fn_lPushBufferExMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A70",
+"name": "SND_fn_vSetDefaultRollOffMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A90",
+"name": "SND_pc_SND_fn_vSetDefaultRollOffMPEG_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AA0",
+"name": "SND_fn_bCheckVersionResourceMPEG",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AC0",
+"name": "SND_pc_SND_fn_bCheckVersionResourceMPEG_Dummy",
+"src": "snddll.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AD0",
+"name": "SND_fn_bSetResourceStaticVolumeMPEG",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B00",
+"name": "SND_pc_SND_fn_bSetResourceStaticVolumeMPEG_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B10",
+"name": "SND_fn_bTestFormatRecord",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B40",
+"name": "SND_pc_SND_fn_bTestFormatRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B50",
+"name": "SND_fn_lCreateBufferRecord",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B80",
+"name": "SND_pc_SND_fn_lCreateBufferRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002B90",
+"name": "SND_fn_bIsBufferFullDuplexRecord",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BB0",
+"name": "SND_pc_SND_fn_bIsBufferFullDuplexRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BC0",
+"name": "SND_fn_bStartRecord",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BE0",
+"name": "SND_pc_SND_fn_bStartRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BF0",
+"name": "SND_fn_vStopRecord",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C10",
+"name": "SND_pc_SND_fn_vStopRecord_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C20",
+"name": "SND_fn_bIsWorkingRecord",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C40",
+"name": "SND_pc_SND_fn_bIsWorkingRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C50",
+"name": "SND_fn_lPushBufferToRecord",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C80",
+"name": "SND_pc_SND_fn_lPushBufferToRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C90",
+"name": "SND_fn_bManageMsgForRecord",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002CB0",
+"name": "SND_pc_SND_fn_bManageMsgForRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002CC0",
+"name": "SND_fn_iInitRecord",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002CE0",
+"name": "SND_pc_SND_fn_iInitRecord_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002CF0",
+"name": "SND_fn_vDesInitRecord",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D10",
+"name": "SND_pc_SND_fn_vDesInitRecord_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D20",
+"name": "SND_fn_ucGetInstantVuMeterRecord",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D40",
+"name": "SND_pc_SND_fn_ucGetInstantVuMeterRecord_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D50",
+"name": "SND_fn_vLaunchSupervisater",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D70",
+"name": "SND_pc_SND_fn_vLaunchSupervisater_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D80",
+"name": "SND_fn_vKillSupervisater",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002DA0",
+"name": "SND_pc_SND_fn_vKillSupervisater_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002DB0",
+"name": "SND_fn_vSetSupervisaterActive",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002DD0",
+"name": "SND_pc_SND_fn_vSetSupervisaterActive_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002DE0",
+"name": "SND_fn_bIsSupervisaterActive",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E00",
+"name": "SND_pc_SND_fn_bIsSupervisaterActive_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E10",
+"name": "dbgSND_fn_vSetProjectTitleForSuperVisater",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E30",
+"name": "SND_pc_dbgSND_fn_vSetProjectTitleForSuperVisater_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E40",
+"name": "dbgSND_fn_vAddEventToObject",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E70",
+"name": "SND_pc_dbgSND_fn_vAddEventToObject_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E80",
+"name": "dbgSND_fn_vKillEventToObject",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002EB0",
+"name": "SND_pc_dbgSND_fn_vKillEventToObject_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002EC0",
+"name": "dbgSND_fn_vSetPosObject",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002EF0",
+"name": "SND_pc_dbgSND_fn_vSetPosObject_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002F00",
+"name": "dbgSND_fn_vAddMicro",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002F20",
+"name": "SND_pc_dbgSND_fn_vAddMicro_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002F30",
+"name": "dbgSND_fn_vKillMicro",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002F50",
+"name": "SND_pc_dbgSND_fn_vKillMicro_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002F60",
+"name": "dbgSND_fn_vSetPosMicro",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002F90",
+"name": "SND_pc_dbgSND_fn_vSetPosMicro_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002FA0",
+"name": "dbgSND_fn_vAddHistoric",
+"src": "snddll.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002FE0",
+"name": "SND_pc_dbgSND_fn_vAddHistoric_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002FF0",
+"name": "dbgSND_fn_vKillVolumeLine",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003010",
+"name": "SND_pc_dbgSND_fn_vKillVolumeLine_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003020",
+"name": "dbgSND_fn_vAddVolumeLine",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003040",
+"name": "SND_pc_dbgSND_fn_vAddVolumeLine_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003050",
+"name": "dbgSND_fn_vSetVolumeLine",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003080",
+"name": "SND_pc_dbgSND_fn_vSetVolumeLine_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003090",
+"name": "dbgSND_fn_vLoadBank",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100030B0",
+"name": "SND_pc_dbgSND_fn_vLoadBank_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100030C0",
+"name": "dbgSND_fn_vUnLoadBank",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100030E0",
+"name": "SND_pc_dbgSND_fn_vUnLoadBank_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100030F0",
+"name": "dbgSND_fn_vAddVoiceSample",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003120",
+"name": "SND_pc_dbgSND_fn_vAddVoiceSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003130",
+"name": "dbgSND_fn_vSetParVoiceSample",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003160",
+"name": "SND_pc_dbgSND_fn_vSetParVoiceSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003170",
+"name": "dbgSND_fn_vDelVoiceSample",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003190",
+"name": "SND_pc_dbgSND_fn_vDelVoiceSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100031A0",
+"name": "dbgSND_fn_vPauseVoiceSample",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100031C0",
+"name": "SND_pc_dbgSND_fn_vPauseVoiceSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100031D0",
+"name": "dbgSND_fn_vResumeVoiceSample",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100031F0",
+"name": "SND_pc_dbgSND_fn_vResumeVoiceSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003200",
+"name": "dbgSND_fn_vSetProcessTimeSample",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003220",
+"name": "SND_pc_dbgSND_fn_vSetProcessTimeSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003230",
+"name": "dbgSND_fn_pstGetSelectedResource",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003250",
+"name": "SND_pc_dbgSND_fn_pstGetSelectedResource_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003260",
+"name": "dbgSND_fn_bDoesSupervisaterSelectResource",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003280",
+"name": "SND_pc_dbgSND_fn_bDoesSupervisaterSelectResource_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003290",
+"name": "dbgSND_fn_vRajListesSxdVirtual2",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100032B0",
+"name": "SND_pc_dbgSND_fn_vRajListesSxdVirtual2_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100032C0",
+"name": "dbgSND_fn_vInitListesSxdVirtual",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100032F0",
+"name": "SND_pc_dbgSND_fn_vInitListesSxdVirtual_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003300",
+"name": "dbgSND_fn_vRefreshSupervisater",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003320",
+"name": "SND_pc_dbgSND_fn_vRefreshSupervisater_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003330",
+"name": "SND_fn_bCanFreeDataADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003350",
+"name": "SND_pc_SND_fn_bCanFreeDataADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003360",
+"name": "SND_fn_lPlaySxdADPCM",
+"src": "snddll.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100033A0",
+"name": "SND_pc_SND_fn_lPlaySxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100033B0",
+"name": "SND_fn_vRemoveCallbackSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100033D0",
+"name": "SND_pc_SND_fn_vRemoveCallbackSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100033E0",
+"name": "SND_fn_bSetParamSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003410",
+"name": "SND_pc_SND_fn_bSetParamSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003420",
+"name": "SND_fn_bTestIsPlayingSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003440",
+"name": "SND_pc_SND_fn_bTestIsPlayingSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003450",
+"name": "SND_fn_vStopSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003470",
+"name": "SND_pc_SND_fn_vStopSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003480",
+"name": "SND_fn_vPauseSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100034A0",
+"name": "SND_pc_SND_fn_vPauseSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100034B0",
+"name": "SND_fn_vResumeSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100034D0",
+"name": "SND_pc_SND_fn_vResumeSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100034E0",
+"name": "SND_fn_bIsResourceLoopingSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003500",
+"name": "SND_pc_SND_fn_bIsResourceLoopingSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003510",
+"name": "SND_fn_rGetPosSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003530",
+"name": "SND_pc_SND_fn_rGetPosSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003540",
+"name": "SND_fn_rGetLengthSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003560",
+"name": "SND_pc_SND_fn_rGetLengthSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003570",
+"name": "SND_fn_vSetSoundVolumeSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003590",
+"name": "SND_pc_SND_fn_vSetSoundVolumeSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100035A0",
+"name": "SND_fn_ucGetSoundVolumeSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100035C0",
+"name": "SND_pc_SND_fn_ucGetSoundVolumeSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100035D0",
+"name": "SND_fn_vSetStereoSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100035F0",
+"name": "SND_pc_SND_fn_vSetStereoSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003600",
+"name": "SND_fn_bGetStereoSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003620",
+"name": "SND_pc_SND_fn_bGetStereoSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003630",
+"name": "SND_fn_vSetReverseStereoSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003650",
+"name": "SND_pc_SND_fn_vSetReverseStereoSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003660",
+"name": "SND_fn_bGetReverseStereoSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003680",
+"name": "SND_pc_SND_fn_bGetReverseStereoSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003690",
+"name": "SND_fn_iInitSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100036B0",
+"name": "SND_pc_SND_fn_iInitSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100036C0",
+"name": "SND_fn_bTestInitSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100036E0",
+"name": "SND_pc_SND_fn_bTestInitSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100036F0",
+"name": "SND_fn_vDesInitSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003710",
+"name": "SND_pc_SND_fn_vDesInitSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003720",
+"name": "SND_fn_vSetEffectSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003740",
+"name": "SND_pc_SND_fn_vSetEffectSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003750",
+"name": "SND_fn_vCreateMicroSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003780",
+"name": "SND_pc_SND_fn_vCreateMicroSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003790",
+"name": "SND_fn_vSetMicroParamSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100037C0",
+"name": "SND_pc_SND_fn_vSetMicroParamSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100037D0",
+"name": "SND_fn_vDestroyMicroSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100037F0",
+"name": "SND_pc_SND_fn_vDestroyMicroSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003800",
+"name": "SND_fn_lCreateNewBufferSxdADPCM",
+"src": "snddll.c",
+"len": 59,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003840",
+"name": "SND_pc_SND_fn_lCreateNewBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003850",
+"name": "SND_fn_vSetParamBufferSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003880",
+"name": "SND_pc_SND_fn_vSetParamBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003890",
+"name": "SND_fn_vDeleteBufferSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038B0",
+"name": "SND_pc_SND_fn_vDeleteBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038C0",
+"name": "SND_fn_vPauseBufferSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038E0",
+"name": "SND_pc_SND_fn_vPauseBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038F0",
+"name": "SND_fn_vResumeBufferSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003910",
+"name": "SND_pc_SND_fn_vResumeBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003920",
+"name": "SND_fn_pvGetPtrBufferSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003940",
+"name": "SND_pc_SND_fn_pvGetPtrBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003950",
+"name": "SND_fn_rGetPosBufferSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003970",
+"name": "SND_pc_SND_fn_rGetPosBufferSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003980",
+"name": "SND_fn_bLoadResScriptSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039B0",
+"name": "SND_pc_SND_fn_bLoadResScriptSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039C0",
+"name": "SND_fn_bLoadResBinarySxdADPCM",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039F0",
+"name": "SND_pc_SND_fn_bLoadResBinarySxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A00",
+"name": "SND_fn_bLoadResScriptAndConvertToWAVSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A30",
+"name": "SND_pc_SND_fn_bLoadResScriptAndConvertToWAVSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A40",
+"name": "SND_fn_bLoadResBinaryAndConvertToWAVSxdADPCM",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A70",
+"name": "SND_pc_SND_fn_bLoadResBinaryAndConvertToWAVSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A80",
+"name": "SND_fn_vUnLoadResSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003AA0",
+"name": "SND_pc_SND_fn_vUnLoadResSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003AB0",
+"name": "SND_fn_bIsResLoadedSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003AD0",
+"name": "SND_pc_SND_fn_bIsResLoadedSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003AE0",
+"name": "SND_fn_lPlayTransitionSxdADPCM",
+"src": "snddll.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003B20",
+"name": "SND_pc_SND_fn_lPlayTransitionSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003B30",
+"name": "SND_fn_bSetParamTransitionSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003B60",
+"name": "SND_pc_SND_fn_bSetParamTransitionSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003B70",
+"name": "SND_fn_bSetNextTransitionSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003BA0",
+"name": "SND_pc_SND_fn_bSetNextTransitionSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003BB0",
+"name": "SND_fn_bDoTransitionWithFadeSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003BE0",
+"name": "SND_pc_SND_fn_bDoTransitionWithFadeSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003BF0",
+"name": "SND_fn_bDoTransitionWithFadeSxdADPCM2",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003C20",
+"name": "SND_pc_SND_fn_bDoTransitionWithFadeSxdADPCM2_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003C30",
+"name": "SND_fn_vStopTransitionSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003C50",
+"name": "SND_pc_SND_fn_vStopTransitionSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003C60",
+"name": "SND_fn_vPauseTransitionSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003C80",
+"name": "SND_pc_SND_fn_vPauseTransitionSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003C90",
+"name": "SND_fn_vResumeTransitionSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003CB0",
+"name": "SND_pc_SND_fn_vResumeTransitionSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003CC0",
+"name": "SND_fn_vReleaseDriverSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003CE0",
+"name": "SND_pc_SND_fn_vReleaseDriverSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003CF0",
+"name": "SND_fn_vRestoreDriverSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003D10",
+"name": "SND_pc_SND_fn_vRestoreDriverSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003D20",
+"name": "SND_fn_vGetTargetLabelSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003D50",
+"name": "SND_pc_SND_fn_vGetTargetLabelSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003D60",
+"name": "SND_fn_vSetupTargetSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003D80",
+"name": "SND_pc_SND_fn_vSetupTargetSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003D90",
+"name": "SND_fn_bCanSetupTargetSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003DB0",
+"name": "SND_pc_SND_fn_bCanSetupTargetSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003DC0",
+"name": "SND_fn_vSynchroSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003DE0",
+"name": "SND_pc_SND_fn_vSynchroSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003DF0",
+"name": "SND_fn_lCreateNewBufferExSxdADPCM",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003E20",
+"name": "SND_pc_SND_fn_lCreateNewBufferExSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003E30",
+"name": "SND_fn_lGetPosBufferExSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003E50",
+"name": "SND_pc_SND_fn_lGetPosBufferExSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003E60",
+"name": "SND_fn_lPushBufferExSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003E90",
+"name": "SND_pc_SND_fn_lPushBufferExSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003EA0",
+"name": "SND_fn_vSetDefaultRollOffSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003EC0",
+"name": "SND_pc_SND_fn_vSetDefaultRollOffSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003ED0",
+"name": "SND_fn_bCheckVersionResourceSxdADPCM",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003EF0",
+"name": "SND_pc_SND_fn_bCheckVersionResourceSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003F00",
+"name": "SND_fn_lGetNbVoiceWishedSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003F20",
+"name": "SND_pc_SND_fn_lGetNbVoiceWishedSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003F30",
+"name": "SND_fn_bIsLibActiveSxdADPCM",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003F50",
+"name": "SND_pc_SND_fn_bIsLibActiveSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003F60",
+"name": "SND_fn_bSetResourceStaticVolumeSxdADPCM",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003F90",
+"name": "SND_pc_SND_fn_bSetResourceStaticVolumeSxdADPCM_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003FA0",
+"name": "SND_pc_fn_pfnGetProcAddress",
+"src": "snddll.c",
+"len": 108,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10004010",
+"name": "SND_DllInitEntryPoints_StaticFunctions",
+"src": "snddll.c",
+"len": 3087,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10004C20",
+"name": "SND_DllInitEntryPoints_MpegFunctions",
+"src": "snddll.c",
+"len": 1325,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005150",
+"name": "SND_DllInitEntryPoints_RecordFunctions",
+"src": "snddll.c",
+"len": 437,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005310",
+"name": "SND_DllInitEntryPoints_DbgFunctions",
+"src": "snddll.c",
+"len": 1066,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005740",
+"name": "SND_pc_DllInitEntryPoints_AdpcmFunctions",
+"src": "snddll.c",
+"len": 2176,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005FC0",
+"name": "FUN_10005fc0",
+"src": "Win95/Sndstrm2.c",
+"len": 110,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006030",
+"name": "FUN_10006030",
+"src": "Win95/Sndstrm2.c",
+"len": 430,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100061E0",
+"name": "FUN_100061e0",
+"src": "Win95/Sndstrm2.c",
+"len": 108,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006250",
+"name": "FUN_10006250",
+"src": "Win95/Sndstrm2.c",
+"len": 189,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006310",
+"name": "FUN_10006310",
+"src": "Win95/Sndstrm2.c",
+"len": 492,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006500",
+"name": "FUN_10006500",
+"src": "Win95/Sndstrm2.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006510",
+"name": "FUN_10006510",
+"src": "Win95/Sndstrm2.c",
+"len": 146,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100065B0",
+"name": "FUN_100065b0",
+"src": "Win95/Sndstrm2.c",
+"len": 37,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100065E0",
+"name": "FUN_100065e0",
+"src": "Win95/Sndstrm2.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006620",
+"name": "FUN_10006620",
+"src": "Win95/Sndstrm2.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006630",
+"name": "FUN_10006630",
+"src": "Win95/Sndstrm2.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006640",
+"name": "FUN_10006640",
+"src": "Win95/Sndstrm2.c",
+"len": 33,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006670",
+"name": "FUN_10006670",
+"src": "Win95/Sndstrm2.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006680",
+"name": "FUN_10006680",
+"src": "Win95/Sndstrm2.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100066C0",
+"name": "FUN_100066c0",
+"src": "Win95/Sndstrm2.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100066F0",
+"name": "FUN_100066f0",
+"src": "Win95/Sndstrm2.c",
+"len": 4,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006700",
+"name": "FUN_10006700",
+"src": "Win95/Sndstrm2.c",
+"len": 210,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100067E0",
+"name": "FUN_100067e0",
+"src": "Win95/Sndstrm2.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006810",
+"name": "FUN_10006810",
+"src": "Win95/Sndstrm2.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006830",
+"name": "FUN_10006830",
+"src": "Win95/Sndstrm2.c",
+"len": 13,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006840",
+"name": "FUN_10006840",
+"src": "Win95/Sndstrm2.c",
+"len": 17,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006860",
+"name": "FUN_10006860",
+"src": "Win95/pc_sndtrans.c",
+"len": 32,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006880",
+"name": "FUN_10006880",
+"src": "Win95/pc_sndtrans.c",
+"len": 17,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100068A0",
+"name": "FUN_100068a0",
+"src": "Win95/pc_sndtrans.c",
+"len": 110,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006910",
+"name": "FUN_10006910",
+"src": "Win95/pc_sndtrans.c",
+"len": 774,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10006C20",
+"name": "FUN_10006c20",
+"src": "Win95/pc_sndtrans.c",
+"len": 78,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006C70",
+"name": "FUN_10006c70",
+"src": "Win95/pc_sndtrans.c",
+"len": 183,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006D30",
+"name": "FUN_10006d30",
+"src": "Win95/pc_sndtrans.c",
+"len": 387,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006EC0",
+"name": "FUN_10006ec0",
+"src": "Win95/pc_sndtrans.c",
+"len": 80,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006F10",
+"name": "FUN_10006f10",
+"src": "Win95/pc_sndtrans.c",
+"len": 40,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006F40",
+"name": "FUN_10006f40",
+"src": "Win95/pc_sndtrans.c",
+"len": 95,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006FA0",
+"name": "FUN_10006fa0",
+"src": "Win95/pc_sndtrans.c",
+"len": 24,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006FC0",
+"name": "FUN_10006fc0",
+"src": "Win95/pc_sndtrans.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10006FF0",
+"name": "FUN_10006ff0",
+"src": "Win95/pc_sndtrans.c",
+"len": 22,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007010",
+"name": "FUN_10007010",
+"src": "Win95/pc_sndtrans.c",
+"len": 22,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007030",
+"name": "FUN_10007030",
+"src": "Win95/pc_sndtrans.c",
+"len": 30,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007050",
+"name": "FUN_10007050",
+"src": "sndvirt.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007090",
+"name": "FUN_10007090",
+"src": "sndvirt.c",
+"len": 129,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007120",
+"name": "FUN_10007120",
+"src": "sndvirt.c",
+"len": 87,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007180",
+"name": "FUN_10007180",
+"src": "sndvirt.c",
+"len": 91,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100071E0",
+"name": "FUN_100071e0",
+"src": "sndvirt.c",
+"len": 310,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007320",
+"name": "FUN_10007320",
+"src": "sndvirt.c",
+"len": 106,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007390",
+"name": "FUN_10007390",
+"src": "sndvirt.c",
+"len": 115,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007410",
+"name": "FUN_10007410",
+"src": "sndvirt.c",
+"len": 168,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100074C0",
+"name": "FUN_100074c0",
+"src": "sndvirt.c",
+"len": 133,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007550",
+"name": "FUN_10007550",
+"src": "sndvirt.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007570",
+"name": "FUN_10007570",
+"src": "sndvirt.c",
+"len": 54,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100075B0",
+"name": "FUN_100075b0",
+"src": "sndvirt.c",
+"len": 525,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100077C0",
+"name": "FUN_100077c0",
+"src": "sndvirt.c",
+"len": 165,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007870",
+"name": "FUN_10007870",
+"src": "sndvirt.c",
+"len": 178,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007930",
+"name": "FUN_10007930",
+"src": "sndvirt.c",
+"len": 385,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007AC0",
+"name": "FUN_10007ac0",
+"src": "sndvirt.c",
+"len": 38,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007AF0",
+"name": "FUN_10007af0",
+"src": "sndvirt.c",
+"len": 156,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007B90",
+"name": "FUN_10007b90",
+"src": "sndvirt.c",
+"len": 113,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007C10",
+"name": "FUN_10007c10",
+"src": "sndvirt.c",
+"len": 100,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007C80",
+"name": "FUN_10007c80",
+"src": "sndvirt.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007CA0",
+"name": "FUN_10007ca0",
+"src": "sndvirt.c",
+"len": 43,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007CD0",
+"name": "FUN_10007cd0",
+"src": "sndvirt.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007CF0",
+"name": "FUN_10007cf0",
+"src": "sndvirt.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007D10",
+"name": "FUN_10007d10",
+"src": "sndvirt.c",
+"len": 169,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007DC0",
+"name": "FUN_10007dc0",
+"src": "sndvirt.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007DD0",
+"name": "FUN_10007dd0",
+"src": "sndvirt.c",
+"len": 91,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007E30",
+"name": "FUN_10007e30",
+"src": "sndvirt.c",
+"len": 31,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007E50",
+"name": "FUN_10007e50",
+"src": "sndvirt.c",
+"len": 12,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10007E60",
+"name": "FUN_10007e60",
+"src": "sndwave.c",
+"len": 1084,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100082A0",
+"name": "FUN_100082a0",
+"src": "sndwave.c",
+"len": 11,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100082B0",
+"name": "FUN_100082b0",
+"src": "sndwave.c",
+"len": 71,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008300",
+"name": "FUN_10008300",
+"src": "sndwave.c",
+"len": 12,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008310",
+"name": "FUN_10008310",
+"src": "sndwave.c",
+"len": 20,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008330",
+"name": "FUN_10008330",
+"src": "sndwave.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008360",
+"name": "FUN_10008360",
+"src": "sndwave.c",
+"len": 134,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100083F0",
+"name": "FUN_100083f0",
+"src": "sndwave.c",
+"len": 134,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008480",
+"name": "FUN_10008480",
+"src": "sndwave.c",
+"len": 624,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100086F0",
+"name": "FUN_100086f0",
+"src": "sndwave.c",
+"len": 684,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100089A0",
+"name": "FUN_100089a0",
+"src": "sndwave.c",
+"len": 320,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10008AE0",
+"name": "FUN_10008ae0",
+"src": "sndwave.c",
+"len": 70,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008B30",
+"name": "FUN_10008b30",
+"src": "sndwave.c",
+"len": 30,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008B50",
+"name": "SND_fn_vGetTargetLabelSample",
+"src": "sndwave.c",
+"len": 24,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008B70",
+"name": "SND_fn_vSetupTargetSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008B80",
+"name": "SND_fn_bCanSetupTargetSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008B90",
+"name": "FUN_10008b90",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008BA0",
+"name": "FUN_10008ba0",
+"src": "sndwave.c",
+"len": 37,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008BD0",
+"name": "FUN_10008bd0",
+"src": "sndwave.c",
+"len": 130,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10008C60",
+"name": "FUN_10008c60",
+"src": "sndwave.c",
+"len": 47,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008C90",
+"name": "FUN_10008c90",
+"src": "sndwave.c",
+"len": 568,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008ED0",
+"name": "FUN_10008ed0",
+"src": "sndwave.c",
+"len": 107,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008F40",
+"name": "FUN_10008f40",
+"src": "sndwave.c",
+"len": 31,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10008F60",
+"name": "FUN_10008f60",
+"src": "sndwave.c",
+"len": 480,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10009140",
+"name": "FUN_10009140",
+"src": "sndwave.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009150",
+"name": "FUN_10009150",
+"src": "sndwave.c",
+"len": 95,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100091B0",
+"name": "FUN_100091b0",
+"src": "sndwave.c",
+"len": 147,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009250",
+"name": "FUN_10009250",
+"src": "sndwave.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009260",
+"name": "FUN_10009260",
+"src": "sndwave.c",
+"len": 349,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100093C0",
+"name": "FUN_100093c0",
+"src": "sndwave.c",
+"len": 982,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100097A0",
+"name": "FUN_100097a0",
+"src": "sndwave.c",
+"len": 214,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009880",
+"name": "FUN_10009880",
+"src": "sndwave.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100098A0",
+"name": "FUN_100098a0",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100098B0",
+"name": "FUN_100098b0",
+"src": "sndwave.c",
+"len": 312,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100099F0",
+"name": "FUN_100099f0",
+"src": "sndwave.c",
+"len": 76,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009A40",
+"name": "FUN_10009a40",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009A50",
+"name": "FUN_10009a50",
+"src": "sndwave.c",
+"len": 441,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009C10",
+"name": "FUN_10009c10",
+"src": "sndwave.c",
+"len": 4,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009C20",
+"name": "FUN_10009c20",
+"src": "sndwave.c",
+"len": 134,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009CB0",
+"name": "FUN_10009cb0",
+"src": "sndwave.c",
+"len": 171,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009D60",
+"name": "SND_fn_vSetReverseSample",
+"src": "sndwave.c",
+"len": 98,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009DD0",
+"name": "SND_fn_bGetReverseSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009DE0",
+"name": "SND_fn_vSetDolbySample",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009DF0",
+"name": "SND_fn_bGetDolbySample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009E00",
+"name": "SND_fn_lPlaySample",
+"src": "sndwave.c",
+"len": 64,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009E40",
+"name": "SND_fn_vRemoveCallbackSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009E50",
+"name": "SND_fn_bSetParamSample",
+"src": "sndwave.c",
+"len": 30,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009E70",
+"name": "SND_fn_bTestIsPlayingSample",
+"src": "sndwave.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009EA0",
+"name": "SND_fn_vStopSample",
+"src": "sndwave.c",
+"len": 53,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009EE0",
+"name": "SND_fn_vPauseSample",
+"src": "sndwave.c",
+"len": 45,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009F10",
+"name": "SND_fn_vResumeSample",
+"src": "sndwave.c",
+"len": 41,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009F40",
+"name": "SND_fn_vSetStereoSample",
+"src": "sndwave.c",
+"len": 10,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009F50",
+"name": "SND_fn_bGetStereoSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10009F60",
+"name": "SND_fn_iInitSample",
+"src": "sndwave.c",
+"len": 360,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x1000A0D0",
+"name": "SND_fn_bTestInitSample",
+"src": "sndwave.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A0E0",
+"name": "SND_fn_vDesInitSample",
+"src": "sndwave.c",
+"len": 138,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A170",
+"name": "SND_fn_iInitBnkSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A180",
+"name": "SND_fn_bTestInitBnkSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A190",
+"name": "SND_fn_vDesInitBnkSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A1A0",
+"name": "SND_fn_vDesInitAllBnkSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A1B0",
+"name": "SND_fn_vSetEffectSample",
+"src": "sndwave.c",
+"len": 128,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A230",
+"name": "SND_fn_vUnLoadResSample",
+"src": "sndwave.c",
+"len": 41,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A260",
+"name": "SND_fn_vConvertResDiskToMemSample",
+"src": "sndwave.c",
+"len": 271,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A370",
+"name": "SND_fn_bLoadResScriptSample",
+"src": "sndwave.c",
+"len": 138,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A400",
+"name": "SND_fn_bLoadResBinarySample",
+"src": "sndwave.c",
+"len": 136,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A490",
+"name": "SND_fn_bIsResLoadedSample",
+"src": "sndwave.c",
+"len": 30,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A4B0",
+"name": "SND_fn_tdGetResForVoiceSample",
+"src": "sndwave.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A4D0",
+"name": "FUN_1000a4d0",
+"src": "sndwave.c",
+"len": 18,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000A4F0",
+"name": "FUN_1000a4f0",
+"src": "sndwave.c",
+"len": 548,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x1000A720",
+"name": "FUN_1000a720",
+"src": "sndwave.c",
+"len": 605,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x1000A980",
+"name": "SND_fn_lCreateNewBufferSample",
+"src": "sndwave.c",
+"len": 123,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AA00",
+"name": "SND_fn_vSetParamBufferSample",
+"src": "sndwave.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AA40",
+"name": "SND_fn_vDeleteBufferSample",
+"src": "sndwave.c",
+"len": 213,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AB20",
+"name": "SND_fn_vPauseBufferSample",
+"src": "sndwave.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AB40",
+"name": "SND_fn_vResumeBufferSample",
+"src": "sndwave.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AB60",
+"name": "SND_fn_pvGetPtrBufferSample",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AB70",
+"name": "SND_fn_rGetPosBufferSample",
+"src": "sndwave.c",
+"len": 64,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000ABB0",
+"name": "SND_fn_lCreateNewBufferExSample",
+"src": "sndwave.c",
+"len": 68,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC00",
+"name": "SND_fn_lGetPosBufferExSample",
+"src": "sndwave.c",
+"len": 4,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC10",
+"name": "SND_fn_lPushBufferExSample",
+"src": "sndwave.c",
+"len": 4,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC20",
+"name": "SND_fn_lPlayTransitionSample",
+"src": "sndwave.c",
+"len": 4,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC30",
+"name": "SND_fn_bSetParamTransitionSample",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC40",
+"name": "SND_fn_bSetNextTransitionSample",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC50",
+"name": "SND_fn_bDoTransitionWithFadeSample",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC60",
+"name": "SND_fn_bDoTransitionWithFadeSample2",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC70",
+"name": "SND_fn_vStopTransitionSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC80",
+"name": "SND_fn_vPauseTransitionSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AC90",
+"name": "SND_fn_vResumeTransitionSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000ACA0",
+"name": "SND_fn_bCanFreeDataSample",
+"src": "sndwave.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000ACB0",
+"name": "FUN_1000acb0",
+"src": "sndwave.c",
+"len": 125,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AD30",
+"name": "SND_fn_vReleaseDriverSample",
+"src": "sndwave.c",
+"len": 25,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AD50",
+"name": "SND_fn_vForceReleaseDriverSample",
+"src": "sndwave.c",
+"len": 25,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AD70",
+"name": "SND_fn_vRestoreDriverSample",
+"src": "sndwave.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000ADA0",
+"name": "SND_fn_vForceRestoreDriverSample",
+"src": "sndwave.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000ADD0",
+"name": "SND_fn_rGetPosSample",
+"src": "sndwave.c",
+"len": 66,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AE20",
+"name": "SND_fn_rGetLengthSample",
+"src": "sndwave.c",
+"len": 47,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AE50",
+"name": "SND_fn_vSetSoundVolumeSample",
+"src": "sndwave.c",
+"len": 47,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AE80",
+"name": "SND_fn_ucGetSoundVolumeSample",
+"src": "sndwave.c",
+"len": 25,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AEA0",
+"name": "SND_fn_vSynchroSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AEB0",
+"name": "SND_fn_vSetNbVoiceWishedSample",
+"src": "sndwave.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AEC0",
+"name": "SND_fn_lGetNbVoiceOptimumSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AED0",
+"name": "SND_fn_lGetNbVoiceWishedSample",
+"src": "sndwave.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AEE0",
+"name": "SND_fn_bIsResourceLoopingSample",
+"src": "sndwave.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AEF0",
+"name": "FUN_1000aef0",
+"src": "sndwave.c",
+"len": 17,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000AF10",
+"name": "FUN_1000af10",
+"src": "pc_mixervol.c",
+"len": 430,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B0C0",
+"name": "FUN_1000b0c0",
+"src": "pc_mixervol.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B0D0",
+"name": "FUN_1000b0d0",
+"src": "pc_mixervol.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B0E0",
+"name": "FUN_1000b0e0",
+"src": "pc_mixervol.c",
+"len": 97,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B150",
+"name": "FUN_1000b150",
+"src": "pc_mixervol.c",
+"len": 80,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B1A0",
+"name": "FUN_1000b1a0",
+"src": "pc_mixervol.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B1B0",
+"name": "FUN_1000b1b0",
+"src": "pc_mixervol.c",
+"len": 37,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B1E0",
+"name": "SND_fn_vParam3Dto2D",
+"src": "Sndxd.c",
+"len": 717,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B4B0",
+"name": "SND_fn_rGetNormeSxd",
+"src": "Sndxd.c",
+"len": 206,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B580",
+"name": "new_sample_sxd",
+"src": "Sndxd.c",
+"len": 172,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B630",
+"name": "del_sample_actif",
+"src": "Sndxd.c",
+"len": 91,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B690",
+"name": "SND_fn_lPlaySxd",
+"src": "Sndxd.c",
+"len": 227,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B780",
+"name": "SND_fn_vRemoveCallbackSxd",
+"src": "Sndxd.c",
+"len": 101,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B7F0",
+"name": "SND_fn_bSetParamSxd",
+"src": "Sndxd.c",
+"len": 161,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B8A0",
+"name": "SND_fn_bTestIsPlayingSxd",
+"src": "Sndxd.c",
+"len": 120,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B920",
+"name": "SND_fn_vStopSxd",
+"src": "Sndxd.c",
+"len": 152,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000B9C0",
+"name": "SND_fn_vPauseSxd",
+"src": "Sndxd.c",
+"len": 101,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BA30",
+"name": "SND_fn_vResumeSxd",
+"src": "Sndxd.c",
+"len": 101,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BAA0",
+"name": "SND_fn_vConvertResDiskToMemSxd",
+"src": "Sndxd.c",
+"len": 47,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BAD0",
+"name": "SND_fn_bLoadResScriptSxd",
+"src": "Sndxd.c",
+"len": 160,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BB70",
+"name": "SND_fn_bLoadResBinarySxd",
+"src": "Sndxd.c",
+"len": 188,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BC30",
+"name": "SND_fn_vUnLoadResSxd",
+"src": "Sndxd.c",
+"len": 81,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BC90",
+"name": "SND_fn_bIsResLoadedSxd",
+"src": "Sndxd.c",
+"len": 65,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BCE0",
+"name": "SND_fn_bIsResourceLoopingSxd",
+"src": "Sndxd.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BD20",
+"name": "SND_fn_rGetPosSxd",
+"src": "Sndxd.c",
+"len": 104,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BD90",
+"name": "SND_fn_rGetLengthSxd",
+"src": "Sndxd.c",
+"len": 104,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BE00",
+"name": "SND_fn_bCheckVersionResourceSxd",
+"src": "Sndxd.c",
+"len": 65,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BE50",
+"name": "SND_fn_vSetSoundVolumeSxd",
+"src": "Sndxd.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BE60",
+"name": "SND_fn_ucGetSoundVolumeSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BE70",
+"name": "SND_fn_vSetStereoSxd",
+"src": "Sndxd.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BE80",
+"name": "SND_fn_bGetStereoSxd",
+"src": "Sndxd.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BE90",
+"name": "SND_fn_vSetReverseStereoSxd",
+"src": "Sndxd.c",
+"len": 24,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BEB0",
+"name": "SND_fn_bGetReverseStereoSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BEC0",
+"name": "SND_fn_iInitSxd",
+"src": "Sndxd.c",
+"len": 279,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BFE0",
+"name": "SND_fn_bTestInitSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000BFF0",
+"name": "SND_fn_vDesInitSxd",
+"src": "Sndxd.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C020",
+"name": "FUN_1000c020",
+"src": "Sndxd.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C030",
+"name": "SND_fn_vSetEffectSxd",
+"src": "Sndxd.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C040",
+"name": "SND_fn_vSetDopplerFactorSxd",
+"src": "Sndxd.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C050",
+"name": "SND_fn_lCreateMicroSxd",
+"src": "Sndxd.c",
+"len": 215,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C130",
+"name": "SND_fn_vSetMicroParamSxd",
+"src": "Sndxd.c",
+"len": 145,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C1D0",
+"name": "SND_fn_vDestroyMicroSxd",
+"src": "Sndxd.c",
+"len": 112,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C240",
+"name": "SND_fn_lCreateNewBufferSxd",
+"src": "Sndxd.c",
+"len": 122,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C2C0",
+"name": "SND_fn_vSetParamBufferSxd",
+"src": "Sndxd.c",
+"len": 47,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C2F0",
+"name": "SND_fn_vDeleteBufferSxd",
+"src": "Sndxd.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C320",
+"name": "SND_fn_vPauseBufferSxd",
+"src": "Sndxd.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C350",
+"name": "SND_fn_vResumeBufferSxd",
+"src": "Sndxd.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C380",
+"name": "SND_fn_pvGetPtrBufferSxd",
+"src": "Sndxd.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C3B0",
+"name": "SND_fn_rGetPosBufferSxd",
+"src": "Sndxd.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C3F0",
+"name": "SND_fn_lCreateNewBufferExSxd",
+"src": "Sndxd.c",
+"len": 128,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C470",
+"name": "SND_fn_lGetPosBufferExSxd",
+"src": "Sndxd.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C4B0",
+"name": "SND_fn_lPushBufferExSxd",
+"src": "Sndxd.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C4E0",
+"name": "SND_fn_lPlayTransitionSxd",
+"src": "Sndxd.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C4F0",
+"name": "SND_fn_lPlayTransitionExSxd",
+"src": "Sndxd.c",
+"len": 221,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C5D0",
+"name": "SND_fn_bSetParamTransitionSxd",
+"src": "Sndxd.c",
+"len": 144,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C660",
+"name": "SND_fn_bSetNextTransitionSxd",
+"src": "Sndxd.c",
+"len": 88,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C6C0",
+"name": "SND_fn_bDoTransitionWithFadeSxd",
+"src": "Sndxd.c",
+"len": 88,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C720",
+"name": "SND_fn_bDoTransitionWithFadeSxd2",
+"src": "Sndxd.c",
+"len": 103,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C790",
+"name": "SND_fn_vStopTransitionSxd",
+"src": "Sndxd.c",
+"len": 71,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C7E0",
+"name": "SND_fn_vPauseTransitionSxd",
+"src": "Sndxd.c",
+"len": 71,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C830",
+"name": "SND_fn_vResumeTransitionSxd",
+"src": "Sndxd.c",
+"len": 71,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C880",
+"name": "SND_fn_vReleaseDriverSxd",
+"src": "Sndxd.c",
+"len": 15,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C890",
+"name": "SND_fn_vRestoreDriverSxd",
+"src": "Sndxd.c",
+"len": 15,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C8A0",
+"name": "SND_fn_vForceReleaseDriverSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C8B0",
+"name": "SND_fn_vForceRestoreDriverSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C8C0",
+"name": "SND_fn_vGetTargetLabelSxd",
+"src": "Sndxd.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C8E0",
+"name": "SND_fn_vSetupTargetSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C8F0",
+"name": "SND_fn_bCanSetupTargetSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C900",
+"name": "SND_fn_vSynchroSxd",
+"src": "Sndxd.c",
+"len": 19,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C920",
+"name": "SND_fn_iInitBnkSxd",
+"src": "Sndxd.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C930",
+"name": "SND_fn_bTestInitBnkSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C940",
+"name": "SND_fn_vDesInitBnkSxd",
+"src": "Sndxd.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C950",
+"name": "SND_fn_vDesInitAllBnkSxd",
+"src": "Sndxd.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C960",
+"name": "SND_fn_vSetDefaultRollOffSxd",
+"src": "Sndxd.c",
+"len": 30,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000C980",
+"name": "SND_pc_fn_vRefreshStackBuffer",
+"src": "Sndxd.c",
+"len": 371,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CB00",
+"name": "SND_pc_fn_lCreateStackBuffer",
+"src": "Sndxd.c",
+"len": 165,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CBB0",
+"name": "SND_pc_fn_rGetPosStackBuffer",
+"src": "Sndxd.c",
+"len": 86,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CC10",
+"name": "SND_pc_fn_lPushStackBuffer",
+"src": "Sndxd.c",
+"len": 206,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CCE0",
+"name": "SND_pc_fn_vSetParamStackBuffer",
+"src": "Sndxd.c",
+"len": 18,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CD00",
+"name": "SND_pc_fn_vDeleteStackBuffer",
+"src": "Sndxd.c",
+"len": 145,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CDA0",
+"name": "SND_pc_fn_vPauseStackBuffer",
+"src": "Sndxd.c",
+"len": 13,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CDB0",
+"name": "SND_pc_fn_vResumeStackBuffer",
+"src": "Sndxd.c",
+"len": 13,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CDC0",
+"name": "SND_pc_fn_lGetPosStackBuffer",
+"src": "Sndxd.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CDD0",
+"name": "SND_pc_fn_eGetAdpcmOrPcmFormat",
+"src": "Sndxd.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CDE0",
+"name": "SND_fn_vSetNbVoiceWishedSxd",
+"src": "Sndxd.c",
+"len": 59,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CE20",
+"name": "SND_fn_eGetMainFormatSxd",
+"src": "Sndxd.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CE40",
+"name": "SND_fn_lGetNbVoiceWishedSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CE50",
+"name": "SND_fn_lGetNbVoiceOptimumSxd",
+"src": "Sndxd.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CE60",
+"name": "SND_fn_bSetResourceStaticVolumeSxd",
+"src": "Sndxd.c",
+"len": 104,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CED0",
+"name": "SND_fn_lPlaySxdWave",
+"src": "sndxdwav.c",
+"len": 57,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF10",
+"name": "SND_fn_vRemoveCallbackSxdWave",
+"src": "sndxdwav.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF20",
+"name": "SND_fn_bSetParamSxdWave",
+"src": "sndxdwav.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF50",
+"name": "SND_fn_bTestIsPlayingSxdWave",
+"src": "sndxdwav.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF60",
+"name": "SND_fn_vStopSxdWave",
+"src": "sndxdwav.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF70",
+"name": "SND_fn_vPauseSxdWave",
+"src": "sndxdwav.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF80",
+"name": "SND_fn_vResumeSxdWave",
+"src": "sndxdwav.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CF90",
+"name": "SND_fn_iInitSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CFA0",
+"name": "SND_fn_bTestInitSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CFB0",
+"name": "SND_fn_vDesInitSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CFC0",
+"name": "SND_fn_vSetDopplerFactorSxdWave",
+"src": "sndxdwav.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CFD0",
+"name": "SND_fn_vCreateMicroSxdWave",
+"src": "sndxdwav.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CFE0",
+"name": "SND_fn_vSetMicroParamSxdWave",
+"src": "sndxdwav.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000CFF0",
+"name": "SND_fn_vDestroyMicroSxdWave",
+"src": "sndxdwav.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D000",
+"name": "SND_fn_bLoadResScriptSxdWave",
+"src": "sndxdwav.c",
+"len": 19,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D020",
+"name": "SND_fn_bLoadResBinarySxdWave",
+"src": "sndxdwav.c",
+"len": 24,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D040",
+"name": "SND_fn_vConvertResDiskToMemSxdWave",
+"src": "sndxdwav.c",
+"len": 24,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D060",
+"name": "SND_fn_vUnLoadResSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D070",
+"name": "SND_fn_bIsResLoadedSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D080",
+"name": "SND_fn_lCreateNewBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 76,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D0D0",
+"name": "SND_fn_vSetParamBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 64,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D110",
+"name": "SND_fn_vDeleteBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 38,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D140",
+"name": "SND_fn_vPauseBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D150",
+"name": "SND_fn_vResumeBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D160",
+"name": "SND_fn_pvGetPtrBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D170",
+"name": "SND_fn_rGetPosBufferSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D180",
+"name": "SND_fn_lCreateNewBufferExSxdWave",
+"src": "sndxdwav.c",
+"len": 61,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D1C0",
+"name": "SND_fn_lGetPosBufferExSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D1D0",
+"name": "SND_fn_lPushBufferExSxdWave",
+"src": "sndxdwav.c",
+"len": 19,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D1F0",
+"name": "SND_fn_vReleaseDriverSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D200",
+"name": "SND_fn_vRestoreDriverSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D210",
+"name": "SND_fn_vForceReleaseDriverSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D220",
+"name": "SND_fn_vForceRestoreDriverSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D230",
+"name": "SND_fn_rGetPosSxdWave",
+"src": "sndxdwav.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D240",
+"name": "SND_fn_rGetLengthSxdWave",
+"src": "sndxdwav.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D250",
+"name": "SND_fn_vGetTargetLabelSxdWave",
+"src": "sndxdwav.c",
+"len": 19,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D270",
+"name": "SND_fn_vSetupTargetSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D280",
+"name": "SND_fn_bCanSetupTargetSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D290",
+"name": "SND_fn_vSetReverseStereoSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D2A0",
+"name": "SND_fn_bGetReverseStereoSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D2B0",
+"name": "SND_fn_vSetEffectSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D2C0",
+"name": "SND_fn_vSetSoundVolumeSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D2D0",
+"name": "SND_fn_ucGetSoundVolumeSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D2E0",
+"name": "SND_fn_vSynchroSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D2F0",
+"name": "SND_fn_vSetDefaultRollOffSxdWave",
+"src": "sndxdwav.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D300",
+"name": "SND_fn_bCheckVersionResourceSxdWave",
+"src": "sndxdwav.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D310",
+"name": "SND_fn_vSetNbVoiceWishedSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D320",
+"name": "SND_fn_lGetNbVoiceOptimumSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D330",
+"name": "SND_fn_lGetNbVoiceWishedSxdWave",
+"src": "sndxdwav.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D340",
+"name": "SND_fn_bIsResourceLoopingSxdWave",
+"src": "sndxdwav.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D350",
+"name": "SND_fn_b3DOneShootShouldBeConvertedSxdWave",
+"src": "sndxdwav.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x1000D360",
+"name": "SND_fn_bSetResourceStaticVolumeSxdWave",
+"src": "sndxdwav.c",
+"len": 19,
+"verdict": "EXACT"
+}
+]

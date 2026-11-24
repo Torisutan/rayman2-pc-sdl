@@ -61,3 +61,25 @@ python tools/build_glidx6.py --vc5 <MSVC5 dir> --vc6 <VC6 dir> --gli <game>/DLL/
 The default build is the original driver. Code under `#ifdef GLI_DX6_FIXES` holds fixes (Windows 10
 window handling, NULL guards, diagnostics) that are not part of the original; the byte-match build
 leaves `GLI_DX6_FIXES` undefined.
+
+## WAVMWBVR.dll
+
+The sound driver (`DLL/WAVMWBVR.dll`) uses the same MSVC 5.0 SP3 compiler with the static C runtime
+(`/O2 /Gy /MT`) and LINK 5.10 (`/DLL /DEBUG`, base `0x10000000`). Its MMX mixer is MASM source: it needs
+`ml.exe` 6.1x (Visual C++ 6.0 SP5 or the Processor Pack ship it as `VC98/Bin/ml.exe`), which assembles
+to OMF objects that LINK converts, as in the original build.
+
+```
+python tools/build_wavmw.py --vc5 <MSVC5 dir> --ml <path to ml.exe> --wav <game>/DLL/WAVMWBVR.dll --check
+```
+
+| Output | Contents |
+|---|---|
+| `build/WAVMWBVR/WAVMWBVR.DLL` | The DLL. Copy it over `DLL/WAVMWBVR.dll` in the game folder (keep a backup) to run it |
+| `build/WAVMWBVR/WAVMWBVR.map` | LINK map |
+
+With `--wav`, the fields the linker takes from the build machine (link time stamp, PDB path, output
+path in the debug directory) are copied from your DLL after linking; nothing else is. `--check`
+compares every function of `WAVMWBVR.dll/status.json` at its link address with your DLL, relocated
+operands masked, reports regressions of byte-exact functions and counts the differing bytes of the
+whole file.
