@@ -12,6 +12,7 @@ and started there (it expects the game folder as its own folder and working dire
   python tools/run.py EXE --shot 10,20          screen captures at those seconds (build/run/shots)
   python tools/run.py EXE --mode 1440x1080      display mode written into the sandbox's ubi.ini
   python tools/run.py EXE --keys 12:esc,13:down key presses at those seconds (DirectInput scancodes)
+  python tools/run.py EXE --ini GLI_DllFile=GliDX6  a key of the sandbox's ubi.ini set (repeatable)
 
 The direct level load writes the level-change request into the engine structure, as the engine's
 own level change does (GAM_fn_vAskToChangeLevel): szNextLevelName, the mode-6 save flag, then
@@ -61,12 +62,22 @@ def mirror(dst, src):
             os.link(s, d)
 
 
+def set_ini(ini, key, value):
+    """KEY=value in the sandbox's ubi.ini (replaced, or added to its first section)."""
+    lines = open(ini).read().splitlines()
+    hit = [i for i, l in enumerate(lines) if l.split("=", 1)[0].strip().lower() == key.lower()]
+    if hit:
+        lines[hit[0]] = "%s=%s" % (key, value)
+    else:
+        first = next(i for i, l in enumerate(lines) if l.startswith("["))
+        lines.insert(first + 1, "%s=%s" % (key, value))
+    open(ini, "w").write("".join(l + chr(10) for l in lines))
+
+
 def set_mode(ini, mode):
     """GLI_Mode line of the sandbox's ubi.ini set to mode ("WxH")."""
     w, h = (int(v) for v in mode.lower().split("x"))
-    lines = open(ini).read().splitlines()
-    lines = [("GLI_Mode=1 - %d x %d x 32" % (w, h)) if l.startswith("GLI_Mode=") else l for l in lines]
-    open(ini, "w").write("".join(l + chr(10) for l in lines))
+    set_ini(ini, "GLI_Mode", "1 - %d x %d x 32" % (w, h))
 
 
 SCAN = {"esc": 0x01, "enter": 0x1C, "space": 0x39, "up": 0xE048, "down": 0xE050, "left": 0xE04B,
@@ -230,6 +241,8 @@ def main():
     ap.add_argument("--map", help="LINK map of EXE (default: EXE.map, else Rayman2.map beside it)")
     ap.add_argument("--mode", help="display mode WxH (default: the install's ubi.ini)")
     ap.add_argument("--keys", default="", help="comma-separated SECONDS:KEY (name or hex scancode)")
+    ap.add_argument("--ini", action="append", default=[], metavar="KEY=VALUE",
+                    help="set a key of the sandbox's ubi.ini (repeatable)")
     ap.add_argument("--keep", action="store_true", help="leave the game running at the end")
     a = ap.parse_args()
     map_path = a.map or os.path.splitext(os.path.abspath(a.exe))[0] + ".map"
@@ -241,6 +254,8 @@ def main():
     exe = build_sandbox(os.path.abspath(a.exe))
     if a.mode:
         set_mode(os.path.join(BOX, "ubi.ini"), a.mode)
+    for kv in a.ini:
+        set_ini(os.path.join(BOX, "ubi.ini"), *kv.split("=", 1))
     keys = sorted((float(t), k) for t, k in (e.split(":") for e in a.keys.split(",") if e))
     shots = sorted(float(s) for s in a.shot.split(",") if s)
     if shots:
