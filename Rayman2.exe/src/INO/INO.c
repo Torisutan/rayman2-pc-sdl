@@ -2,6 +2,11 @@
 #include "GLI/Memory.h"
 #include "INO/INO_globals.h"
 #include "INO/dinput_dx6.h"
+/* With USE_SDL the DirectInput parts (the blocks fenced #ifndef USE_SDL) are in
+   INO/sdl_ino.c; the device layer stays shared */
+#ifdef USE_SDL
+#include "INO/INO_sdl.h"
+#endif /* USE_SDL */
 
 /* 0x00509DE0 */
 INO_tdhDevice INO_pc_a_hDevices_storage[INO_C_wNbMaxDevice];
@@ -201,6 +206,7 @@ short __cdecl INO_fn_wReadAllDevices(unsigned short uwType, short wMode)
     return sResult;
 }
 
+#ifndef USE_SDL
 /* 0x004955B0 */
 short __cdecl INO_fn_wGetNbDevices(unsigned short uwType)
 {
@@ -221,6 +227,7 @@ short __cdecl INO_fn_wGetNbDevices(unsigned short uwType)
     }
     return (short)iCount;
 }
+#endif /* USE_SDL */
 
 /* 0x00494CF0 */
 short __cdecl INO_fn_wInit(HINSTANCE hInstance, HWND hWindow)
@@ -365,6 +372,7 @@ short __cdecl INO_pc_wCheckInitReturnZero(void *_pvIgnored)
     return 0;
 }
 
+#ifndef USE_SDL
 /* 0x00495540 */
 void __cdecl INO_pc_fn_vReleaseDirectInput(void)
 {
@@ -385,6 +393,7 @@ void __cdecl INO_pc_fn_vReleaseDirectInput(void)
         INO_pc_g_pDirectInput = (void *)0;
     }
 }
+#endif /* USE_SDL */
 
 /* 0x00494D50 */
 void __cdecl INO_pc_fn_vShutdown(void)
@@ -402,6 +411,7 @@ void __cdecl INO_pc_fn_vShutdown(void)
     INO_pc_g_bInited = 0;
 }
 
+#ifndef USE_SDL
 /* 0x00495170 */
 int __stdcall INO_pc_bEnumDeviceCallback(void *lpddi, void *pvRef)
 {
@@ -1101,6 +1111,7 @@ do_read:
     pState->ucStatus &= (unsigned char)~INO_C_ucAcquired;
     return 0;
 }
+#endif /* USE_SDL */
 
 /* 0x00496270 */
 short __cdecl INO_fn_wAddActiveKey(short wKey)
@@ -1210,6 +1221,7 @@ int __cdecl INO_pc_fn_iReadKeyboardFrame(INO_tdstDevice *pDevice)
     return 1;
 }
 
+#ifndef USE_SDL
 static long ino_pc_ClampMouseAxis(INO_tdstDevice *pDevice, long lAxis)
 {
     long v = (long)(INO_pc_pfn_GetMouseAxis(pDevice) * lAxis);
@@ -1312,6 +1324,7 @@ short __cdecl INO_pc_wReadMouseDI(INO_tdstDevice *hDevice)
     }
     return 1;
 }
+#endif /* USE_SDL */
 
 unsigned long __cdecl INO_pc_ulGetHistoricRecordFirstDword(INO_tdstDevice *pDevice, short wHistoryNum)
 {
@@ -1624,6 +1637,7 @@ short __cdecl INO_pc_wReadJoystickDemo(INO_tdstDevice *pDevice)
     return 1;
 }
 
+#ifndef USE_SDL
 /* 0x00496DE0 */
 short __cdecl INO_pc_wReadJoystickDI(INO_tdstDevice *pDevice)
 {
@@ -1746,3 +1760,4 @@ short __cdecl INO_pc_wReadJoystickDI(INO_tdstDevice *pDevice)
     }
     return 1;
 }
+#endif /* USE_SDL */

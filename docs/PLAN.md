@@ -421,7 +421,20 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    driver left the window without a caption (`SDL_SetWindowBordered`); a borderless SDL window
    gets no non-client area. Measured: the OpenGL focus test returns fullscreen (screenshot,
    taskbar hidden); Direct3D 6 unchanged; regression identical (SDL).
-5. `INO` backend for keyboard, mouse and gamepad, writing into the existing device state.
+5. **Done (2026-11-24): `INO` backend through SDL** (`INO/sdl_ino.c`, `INO/INO_sdl.h`,
+   DEVIATIONS 16). The device layer of `INO/INO.c` stays shared (devices, historic records, key
+   frames, demo readers); its DirectInput parts are fenced `#ifndef USE_SDL`, and `INO_sdl.h`
+   maps their names for the shared code to the SDL functions, so the call sites stay. Keyboard:
+   SDL's keyboard state through a `DIK_` -> SDL scancode table (the set-1 scan codes, as SDL's
+   own Windows table), same active key list; AZERTY found as on PC (the key at Q's place gives
+   'a'). Mouse: relative motion, wheel, four buttons. Gamepads: one joystick device per SDL
+   gamepad present at init, laid out as DirectInput shows an XInput gamepad. As with
+   DirectInput's foreground mode no device gives input while the window has no keyboard focus.
+   The regression hooks still replace the readers (`port/regress.c`). Measured: regression
+   identical (SDL; MSVC, clang-cl and VC5 + define with the fences); no SDL-build object
+   references DirectInput or the keyboard layout functions; live (OpenGL, Morb_00): Esc opens the
+   in-game menu, Down (an extended key) moves its selection. Not tested: mouse (enabled only by a
+   data command) and gamepads (none attached).
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.
 7. Sound (below) at any point, independently.
@@ -491,8 +504,15 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - **Big-endian targets (Wii U):** the data files are little-endian. The choices are byte-swapping
   at load time, which needs type information for every relocated block, or an offline data
   converter. Decide it when Phase 4's portability list exists.
-- **Key codes:** whether the bindings in `ubi.ini` and the level data are DirectInput scan codes
-  decides the input backend's mapping. Unchecked.
+- **Key codes (decided 2026-11-24): DirectInput key codes on every target.** Checked: the
+  original engine's key constants are `DIK_` codes (`C_ucKey_1 = DIK_1`, ...) and its script key table (key name -> value, compiled into the level data)
+  uses them, with an AZERTY/QWERTY swap table beside it. In the exe IPT indexes the 256-byte
+  keyboard state directly with the key values of the entry elements (`IPT_Kwan.c`,
+  `IPT_Hist.c`); `ubi.ini` holds no bindings. The input backends map their own key codes to
+  `DIK_` (SDL: scancode table in `INO/sdl_ino.c`).
+- **Gamepad triggers:** DirectInput puts an XInput gamepad's two triggers on one Z axis, and the
+  PC reader turns "Z down" into button 5. Which trigger moves Z which way is unchecked (needs a
+  gamepad on the DirectInput build); until then the SDL backend leaves Z centred.
 - **Direct3D 6 driver:** 26 of its 130 functions do not match their original bytes yet; which of
   them behave differently is unchecked.
 - **Memory:** PSP has 32-64 MB in total. Measure MMG's block budgets per level before

@@ -147,9 +147,11 @@ endif()
 if(R2_USE_SDL)
   find_package(SDL3 CONFIG REQUIRED)
   # Window, events and engine loop on the main thread, beside GAM/pc_winmain.c's Win32 parts;
-  # timer counters beside the PC ones (GLI/cpu_timer.c, GLI/timer_sub2.c).
+  # timer counters beside the PC ones (GLI/cpu_timer.c, GLI/timer_sub2.c); input devices beside
+  # INO/INO.c's DirectInput parts.
   list(APPEND R2_SOURCES ${R2_DIR}/src/GAM/sdl_main.c)
   list(APPEND R2_SOURCES ${R2_DIR}/src/TMR/sdl_timer.c)
+  list(APPEND R2_SOURCES ${R2_DIR}/src/INO/sdl_ino.c)
   list(APPEND R2_FORK_DEFINES USE_SDL)
 endif()
 
