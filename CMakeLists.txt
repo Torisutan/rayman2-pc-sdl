@@ -162,6 +162,14 @@ target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include $<$<COMPILE_LANGUAG
 # Win32 APIs that way.
 # RAYMAN2_WINDOW_ICON: the window class loads icon group 1 of Rayman2.rc (DEVIATIONS 12).
 target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT RAYMAN2_WINDOW_ICON ${R2_FORK_DEFINES})
+# WIN32: the Windows target macro (docs/PLAN.md "Platform macros"). MSVC got it only from CMake's
+# default flags, clang-cl did not.
+if(WIN32)
+  target_compile_definitions(Rayman2 PRIVATE WIN32)
+  if(TARGET GliDX6vf)
+    target_compile_definitions(GliDX6vf PRIVATE WIN32)
+  endif()
+endif()
 # Debug (--config Debug): CMake's /Od /RTC1 instead, to run the regression with run-time checks
 # (docs/BUGS.md). /O2 would conflict with /RTC1.
 target_compile_options(Rayman2 PRIVATE $<$<NOT:$<CONFIG:Debug>>:/O2 /Gy>)
