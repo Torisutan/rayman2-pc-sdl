@@ -566,24 +566,52 @@ its condition.
 | `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
 
 - New code goes beside the original branch. Fence by what the code depends on: Win32-only code
-  by the target (`#ifdef WIN32 ... #endif /* WIN32 */`, never `_WIN32` in engine files), a
-  backend choice by its `USE_` macro (`#ifdef USE_SDL ... #else ... #endif /* USE_SDL */`).
-  `#ifndef USE_SDL` alone does not mean "Win32": it stops holding once a non-Windows target exists.
+  in fork files by the target (`#ifdef WIN32 ... #endif /* WIN32 */`, never `_WIN32`; the CMake
+  build defines `WIN32` for every Windows target), a backend choice by its `USE_` macro
+  (`#ifdef USE_SDL ... #else ... #endif /* USE_SDL */`). In upstream files the Win32 code stays
+  the `#else` branch (the VC5 reference build does not define `WIN32`). `#ifndef USE_SDL` alone
+  does not mean "Win32": it stops holding once a non-Windows target exists.
 
 **Platform glue (decided 2026-11-25).** Below the seams (files, ini, locks, semaphores, tick
 counts, `Sleep`, thread ids) shared code calls module-owned names, not system API names:
-- each module gets neutral macros or functions in its own header (`SNA_M_...`, `FIL_M_...`,
-  `GAM_M_...`, `TMR_M_...`; final names chosen from the original engine's naming in the first
-  step and listed here), with one branch per platform: `FILE_MODE_C_WIN95` / `WIN32` maps them to
-  the Win32 call, the other branch to the C runtime or the SDL backend;
+- each module gets neutral macros or functions in its own header (names below), with one
+  branch per platform. In headers the decomp shares, the Win32 branch is the `#else`, as in the
+  original engine (`#if (defined(U64) || defined(NITRO) || defined(PSX))` ... `#else` Win32 in
+  its MMG header): the VC5 reference build defines neither `WIN32` nor `USE_SDL`, only the
+  compiler's `_WIN32`. The other branches come first (`USE_SDL`, `GAMECONSOLE`, or
+  `FILE_MODE_C_WIN95` unset for the C runtime);
 - the call sites use the neutral name. Under VC5 the Win32 branch expands to the same call, so
   the change is byte-neutral and belongs in the decomp (arrives through upstream); the fork adds
   only the non-Win32 branches;
 - neutral types for handles and results (`SNA_tdhFile`, ...), so the non-Win32 branches compile
   without `windows.h`;
-- replaces the current Win32 name renames (`MMG/SNA_file.h`, `FIL/FIL_ini.h`,
-  `GAM/GAM_DrawSem.h`, `TMR/sdl_timer.h`). No new renames meanwhile. A pre-commit check rejects
-  added lines that `#define` a Win32 API name.
+- SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
+  not SDL itself (today `MMG/CpaMmg.h` calls SDL's mutex functions directly);
+- replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
+  rejects added lines that `#define` a Win32 API name, except the 19 existing ones (allow list,
+  shrinks with each migration).
+
+Inventory (25.11.2026; system calls in the SDL build measured per object with the import list of
+the game's binaries; sound left to Sound, below):
+
+| Module | Today | Users | Neutral name | Name from |
+|---|---|---|---|---|
+| MMG lock | rename of the 4 critical section calls (`MMG/CpaMmg.h`) | `MMG_alloc.c`, `MMG_module.c`, `MMG_pool_alloc.c`, `MMG_pubaccess.c`, `SAI_Priv.c` (to check which call them) | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_MmgCriticalSection` (the fork's `g_csMmg`) | original engine (empty on the consoles) |
+| MMG memory | rename of `GlobalAlloc`/`GlobalFree` (`MMG/CpaMmg.h`) | same files | `CPA_MALLOC`, `CPA_FREE` (exist already); `GMEM_ZEROINIT` users to check | original engine |
+| ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
+| SNA level files | rename of 6 file calls (`MMG/SNA_file.h`) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
+| FIL ini | rename of `Get/WritePrivateProfileStringA` (`FIL/FIL_ini.h`) | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
+| GAM draw lock | rename of `WaitForSingleObject`/`ReleaseSemaphore` (`GAM/GAM_DrawSem.h`) | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore` | fork |
+| TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` (fork file: calls the TMR function directly) | `TMR_M_ulGetTickCount` | fork |
+| GLI driver binding | rename of `LoadLibraryA`/`GetProcAddress` (`GLI/Init_Gli.c`) | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
+| GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
+| GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
+| Saves | `CopyFileA`, `DeleteFileA`, `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA` direct (`GAM_save_slot.obj`); `DeleteFileA` (`SAI_Save.obj`) | save slots, SAI | open, with the per-user folder (PLAN "User folder") | |
+| Misc direct | `GetTempPathA` (`GAM_init.obj`), `ShellExecuteA` (`Procedure.obj`), `FreeLibrary`/`GetClientRect` (shared part of `pc_winmain.obj`) | | open: one line each at migration | |
+| Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetWindowLongA`, `SetErrorMode`, under `WIN32`), `regress.obj` (Windows tool) | | stays, fenced `WIN32` | |
+
+Order: TMR, GAM draw lock, MMG lock and memory, FIL, SNA, GLI, ERM; the rest with the targets
+that need them.
 Why: a rename keeps the Win32 types at every call site (a `windows.h` stand-in on Linux and the
 consoles, i.e. Win32 emulation), reroutes every call of that name in the file (an upstream merge
 that adds an unrelated `WaitForSingleObject` would silently reach the SDL semaphore), and depends
