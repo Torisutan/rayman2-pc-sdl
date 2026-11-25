@@ -444,8 +444,8 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    **Done (2026-11-24): timers under `USE_SDL`** (`TMR/sdl_timer.c`, DEVIATIONS 15). The PC timer
    functions of `GLI/cpu_timer.c` and `GLI/timer_sub2.c` are fenced; the SDL file gives
    `fn_vTimerGetCounter`, `fn_ulTimerTickPerSecond`, `fn_ulTimerEventTickPerSecond` as the original
-   console timer code does, and `GetTickCount` (`TMR/sdl_timer.h`, for `RND.c` and
-   `GLI_fastload.c`). Channels: 0 milliseconds, 1 and 2 SDL's performance counter. Checked:
+   console timer code does. `GetTickCount` (`RND.c`, `GLI_fastload.c`) is the system's on
+   `WIN32` and `TMR/sdl_timer.c`'s elsewhere (rename dropped 2026-11-25). Channels: 0 milliseconds, 1 and 2 SDL's performance counter. Checked:
    the engine creates only channel-1 timers (`Basic.c`, `GLD.c`) and the Direct3D 6 driver reads
    channel 1 through `TimerGetCounter`; channel 2 (the time stamp counter, its rate measured by a
    one-second busy wait in `TMR_pc_fn_ulCalibrateTscFreq` at init) is read by nothing in the exe.
@@ -454,7 +454,8 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    PC path stays as it is. Measured: regression identical (SDL, MSVC, clang-cl, VC5 + define);
    the SDL build starts without the one-second busy wait (Morb_00 run: menu at 1.2 s, level at
    3.6 s, plays); no SDL object imports
-   `timeGetTime`, `GetTickCount`, `QueryPerformance*` or `timeBeginPeriod`.
+   `timeGetTime`, `QueryPerformance*` or `timeBeginPeriod` (`GetTickCount` again since 2026-11-25:
+   `RND.obj`, `GLI_fastload.obj`).
 
    **Done (2026-11-24): MMG lock under `USE_SDL`.** `g_csMmg` takes the original engine's
    `TypeCriticalSection` (`MMG/MMG_alloc.h`): an SDL mutex, reentrant as the critical section.
@@ -590,8 +591,8 @@ counts, `Sleep`, thread ids) shared code calls module-owned names, not system AP
 - SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
   not SDL itself;
 - replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
-  rejects added lines that `#define` a Win32 API name, except the 1 left (19 at first; allow list,
-  shrinks with each migration).
+  rejects added lines that `#define` a Win32 API name, none left (19 at first; the allow list is
+  empty since the TMR step).
 
 Inventory (25.11.2026; system calls in the SDL build measured per object with the import list of
 the game's binaries; sound left to Sound, below):
@@ -604,7 +605,7 @@ the game's binaries; sound left to Sound, below):
 | SNA level files | **done** (5e07224): C runtime branch in `MMG/SNA_pc.h` without `FILE_MODE_C_WIN95` -> `MMG/SNA_file.c` (handle `void *`); the fork's no-protection branches in `SNA_reloc.c` use the names too; the callers' Win32 values through the decomp's `SNA_pc_C_*` (merge of e027e35: fork branch gives the same numbers, `SNA_file.c`'s local copies dropped) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
 | FIL ini | **done** (cf740d7): C runtime branch in `FIL/FIL_pc.h` without `FILE_MODE_C_WIN95` -> `FIL/FIL_ini.c`; `SND.c`'s 17 calls converted in the decomp too (6d31e2b), the fork's text dropped for upstream's | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
 | GAM draw lock | **done**: empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy; SDL semaphore and window-side waits in `sdl_main.c` gone; driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
-| TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
+| TMR tick count | **done**: rename dropped; `GetTickCount` declared and defined in `TMR/sdl_timer.[ch]` only `#ifndef WIN32` | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
 | GLI driver binding | **done** (109cdcf): `USE_GLI_DX6` branch in `GLI/GLI_pc.h` -> `GLI/GLI_linkdrv.c` (linked-in drivers, DLL fallback), Win32 `#else`; `Init_Gli.c` identical to upstream | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
 | GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
