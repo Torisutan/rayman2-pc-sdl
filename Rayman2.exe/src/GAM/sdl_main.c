@@ -40,10 +40,10 @@ long __cdecl GLI_xIsGliInit(void);
 extern void          __cdecl SND_fn_vReleaseDriverSound(void);   /* 0x00453790 */
 extern void          __cdecl SND_fn_vRestoreDriverSound(void);   /* 0x004537A0 */
 extern long          __cdecl GLD_bSetFullScreenModeForDevice(short hDev,
-                                                             unsigned long ulWidth,
-                                                             unsigned long ulHeight,
-                                                             unsigned long ulBpp,
-                                                             unsigned long ulHWnd);
+                                                             DWORD ulWidth,
+                                                             DWORD ulHeight,
+                                                             DWORD ulBpp,
+                                                             HWND  hWnd);
 extern long          __cdecl GLD_bSwapDeviceMode(short hDev, int bRebuildMode);
 extern long          __cdecl GLD_bSwapToWindowedMode(short hDev, int bRebuildMode);
 extern void          __cdecl FUN_0045edf0(void);
@@ -125,7 +125,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateEnterFullScreen(int iFlag)
                                          GAM_pc_fn_ulGetDisplayWidth(),
                                          GAM_pc_fn_ulGetDisplayHeight(),
                                          0x10,
-                                         (unsigned long)(*g_hWnd)) != 0 )
+                                         (HWND)(*g_hWnd)) != 0 )
     {
         if ( GLD_bSwapDeviceMode(hDevice, iFlag) != 0 )
         {
@@ -164,7 +164,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateExitToWindowed(int iFlag)
                                          GAM_pc_fn_ulGetDisplayWidth(),
                                          GAM_pc_fn_ulGetDisplayHeight(),
                                          0x10,
-                                         (unsigned long)(*g_hWnd)) != 0 )
+                                         (HWND)(*g_hWnd)) != 0 )
     {
         if ( GLD_bSwapToWindowedMode(hDevice, iFlag) != 0 )
         {
