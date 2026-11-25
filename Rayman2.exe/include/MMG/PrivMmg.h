@@ -31,4 +31,15 @@ typedef struct tdstCurrentModeInfo_{
         void *p_vTdstBlockInfoOrTdstDynInfo;
 }tdstCurrentModeInfo;
 
+#include "SND/snddef.h"
+#ifndef FILE_MODE_C_WIN95
+/* System memory of the MMG blocks from the C runtime (docs/PLAN.md Phase 5, step 3) */
+#include <stdlib.h>
+#define CPA_MALLOC(size)	malloc(size)
+#define CPA_FREE(ptr)		free(ptr)
+#else /* original Win32 */
+#define CPA_MALLOC(size)	GlobalAlloc(GMEM_FIXED,size)
+#define CPA_FREE(ptr)		GlobalFree(ptr)
+#endif /* FILE_MODE_C_WIN95 */
+
 #endif

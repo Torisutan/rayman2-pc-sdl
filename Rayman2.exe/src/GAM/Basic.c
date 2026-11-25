@@ -16,6 +16,7 @@ extern void GLI_xAdjustCameraToViewport(short hDevice, short hViewport, struct G
 
 #include <stdlib.h>
 #include <string.h>
+#include "GAM/GAM_pc_DrawLock.h"
 
 void fn_vChangeEngineMode(GAM_tdeEngineMode ucMode)
 {
@@ -356,7 +357,7 @@ void fn_vChangeViewportRatio(unsigned long ulMode, MTH_tdxReal xRatio)
     struct GLI_tdstCamera_ *p_stCam;
 
     /* 0x5004CC */
-    WaitForSingleObject((HANDLE)GAM_g_stEngineStructure.hDrawSem, INFINITE);
+    GAM_pc_M_ulWaitDrawSemaphore((HANDLE)GAM_g_stEngineStructure.hDrawSem);
 
     /* 0x00405010 */
     if (ulMode == 1)
@@ -380,7 +381,7 @@ void fn_vChangeViewportRatio(unsigned long ulMode, MTH_tdxReal xRatio)
         }
     }
 
-    ReleaseSemaphore((HANDLE)GAM_g_stEngineStructure.hDrawSem, 1, NULL);
+    GAM_pc_M_bReleaseDrawSemaphore((HANDLE)GAM_g_stEngineStructure.hDrawSem);
 }
 
 #include "GAM/PlayAnim.h"

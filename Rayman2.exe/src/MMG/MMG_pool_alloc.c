@@ -4,9 +4,10 @@
 #include <stdint.h>
 
 #include "MMG/MMG_alloc.h"
-#include "MMG/CpaMmg.h"   /* CPA_MALLOC: C runtime memory without FILE_MODE_C_WIN95 */
 #include "MMG/MMG_globals.h"
 #include "ERM/CpaError.h"
+#include "MMG/CpaMmg.h"
+#include "MMG/PrivMmg.h"
 
 /* 0x516148 */
 uint8_t MMG_g_ucActiveMode;
@@ -66,14 +67,14 @@ void *__cdecl fn_p_vDynAlloc(uint32_t ulSize, unsigned char ucChannel)
         return NULL;
     }
 
-    EnterCriticalSection(&g_csMmg);
+    Mmg_MEnterCriticalSection();
 
     if ((ulSize & 3u) != 0) {
         ulSize = (ulSize & 0xfffffffcu) + 4u;
     }
 
     ulDwordCount = (ulSize >> 2) + 1u;
-    pAlloc = (uint32_t *)GlobalAlloc(0, ulDwordCount * 4u);
+    pAlloc = (uint32_t *)CPA_MALLOC(ulDwordCount * 4u);
     pAligned = pAlloc;
     if (((uintptr_t)pAlloc & 3u) != 0) {
         pAligned = (uint32_t *)((((uintptr_t)pAlloc) & ~(uintptr_t)3u) + 4u);
@@ -85,24 +86,21 @@ void *__cdecl fn_p_vDynAlloc(uint32_t ulSize, unsigned char ucChannel)
 
     if (pAlloc == NULL) {
         ERM_fn_vUpdateLastError(0x1d, MMG_g_ucErrorContext, 0, 0x20, -1, 0xff, 0xff, 0);
-        LeaveCriticalSection(&g_csMmg);
+        Mmg_MLeaveCriticalSection();
         return NULL;
     }
 
     *pAlloc = ulDwordCount;
-    LeaveCriticalSection(&g_csMmg);
+    Mmg_MLeaveCriticalSection();
     return pAlloc + 1;
 }
 
 void __cdecl fn_vDynFree(void *pUser, unsigned char ucChannel)
 {
-    EnterCriticalSection(&g_csMmg);
-    GlobalFree((HGLOBAL)((uint8_t *)pUser - 4));
-    LeaveCriticalSection(&g_csMmg);
+    Mmg_MEnterCriticalSection();
+    CPA_FREE((HGLOBAL)((uint8_t *)pUser - 4));
+    Mmg_MLeaveCriticalSection();
 }
-
-#include "MMG/CpaMmg.h"
-#include "MMG/PrivMmg.h"
 
 #ifndef M_CheckPointer
 #define M_CheckPointer(a)

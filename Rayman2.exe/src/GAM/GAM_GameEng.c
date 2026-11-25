@@ -762,7 +762,9 @@ static const unsigned char GAM_g_ucEraseBackground_storage = 1;
 #ifndef USE_SDL   /* GAM/GAM_DrawSem.h */
 __declspec(dllimport) unsigned long __stdcall WaitForSingleObject(void *hHandle, unsigned long dwMilliseconds);
 #endif /* USE_SDL */
-#define GAM_pc_WaitForSingleObject  WaitForSingleObject
+
+#define GAM_pc_M_ulWaitDrawSemaphore(hSemaphore)   WaitForSingleObject((hSemaphore), 0xFFFFFFFF)
+#define GAM_pc_M_bReleaseDrawSemaphore(hSemaphore) ReleaseSemaphore((hSemaphore), 1, 0)
 
 /* 0x0044C440 */
 extern void __cdecl FUN_0044c440(void);
@@ -855,7 +857,7 @@ void GAM_fn_vEngine(void)
             (float)(unsigned long)GAM_g_ulUsefulDeltaTime / (GAM_g_xFrameLength * 1000.0f));
     }
 
-    GAM_pc_WaitForSingleObject(GAM_g_hDrawSemaphore, 0xFFFFFFFF);
+    GAM_pc_M_ulWaitDrawSemaphore(GAM_g_hDrawSemaphore);
 
     if (GLD_bFlipDeviceWithSynchro(hDevice3D, 0xfe) == 0)
     {
@@ -921,7 +923,6 @@ void GAM_fn_vEngine(void)
 #ifndef USE_SDL   /* GAM/GAM_DrawSem.h */
 __declspec(dllimport) int __stdcall ReleaseSemaphore(void *hSemaphore, long lReleaseCount, long *lpPreviousCount);
 #endif /* USE_SDL */
-#define GAM_pc_ReleaseSemaphore  ReleaseSemaphore
 
 void fn_vDisplayAll(void)
 {
@@ -939,7 +940,7 @@ void fn_vDisplayAll(void)
     /* 0x403290 */
     CAM_vDisplayInfo();
 
-    GAM_pc_ReleaseSemaphore(GAM_g_hDrawSemaphore, 1, NULL);
+    GAM_pc_M_bReleaseDrawSemaphore(GAM_g_hDrawSemaphore);
 
     GLI_pc_fn_vEndScene(GAM_g_hDevice3D);
 }

@@ -1,6 +1,7 @@
 #include "GLI/ui_state.h"
 #include "GLI/GLI_globals.h"
 #include <windows.h>
+#include "GAM/GAM_pc_DrawLock.h"
 #include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 #include "TMP/TmpMem.h"
 #include "ERM/CpaError.h"
@@ -52,7 +53,7 @@ void __cdecl GLI_pc_fn_vShowProgressUiImage(char *p_stUiObject)
     if (_stricmp(p_stUiObject, GLI_pc_g_stProgressUi.szName) != 0) {
         FUN_0045fbf0(p_stUiObject, p_stUiObject, ((GLI_pc_tdstProgressUi *)p_stUiObject)->lFormatKind);
     }
-    WaitForSingleObject((HANDLE)GLI_pc_g_hOverlaySemaphore, INFINITE);
+    GAM_pc_M_ulWaitDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
     GLD_bGetViewportAttributes(GLI_pc_g_uwOverlayDevice, GLI_pc_g_uwOverlayViewport, a_ulAttrib);
     GLI_pc_fn_vWrite16bBitmapToBackBuffer(((GLI_pc_tdstProgressUi *)p_stUiObject)->p_vBuffer,
                                           ((GLI_pc_tdstProgressUi *)p_stUiObject)->lBufferDimC,
@@ -60,7 +61,7 @@ void __cdecl GLI_pc_fn_vShowProgressUiImage(char *p_stUiObject)
                                           a_ulAttrib[10], a_ulAttrib[8],
                                           a_ulAttrib[11], a_ulAttrib[9]);
     GLD_bFlipDeviceWithSynchro(GLI_pc_g_uwOverlayDevice, 0xff);
-    ReleaseSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore, 1, NULL);
+    GAM_pc_M_bReleaseDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
 }
 
 void __cdecl FUN_0045ec40(void)
@@ -69,7 +70,7 @@ void __cdecl FUN_0045ec40(void)
     unsigned long a_ulRect[28];
     unsigned long ulSize;
 
-    WaitForSingleObject((HANDLE)GLI_pc_g_hOverlaySemaphore, INFINITE);
+    GAM_pc_M_ulWaitDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
 
     FIL_fn_vInitGlobalHandleToFileInConcatFile();
 
@@ -83,5 +84,5 @@ void __cdecl FUN_0045ec40(void)
     GLI_pc_g_lOverlayBufferDimC = (long)a_ulRect[3];
     GLI_pc_g_lOverlayBufferDim8 = (long)a_ulRect[2];
 
-    ReleaseSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore, 1, NULL);
+    GAM_pc_M_bReleaseDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
 }

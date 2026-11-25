@@ -4,17 +4,13 @@
 
 #include "MMG/MMG_globals.h"
 #include "MMG/MMG_alloc.h"
-#include "MMG/CpaMmg.h"   /* CPA_MALLOC: C runtime memory without FILE_MODE_C_WIN95 */
 #include "ERM/CpaError.h"
+#include "MMG/CpaMmg.h"
+#include "MMG/PrivMmg.h"
 
 #define Mmg_g_ucModuleId MMG_g_ucErmChannelId
 
 #define g_d_stCurrentModeInfo (g_p_d_stCurrentModeInfo)  /* 0x50b1e8 */
-
-#define C_uwAllocSize            (4)
-#define C_uwShiftAllocSize       (2)
-#define C_ucMallocHeaderSize     (1)
-#define C_ucMallocFooterSize     (0)
 
 void *fn_p_vDynAlloc(uint32_t ulSize, unsigned char ucChannel);
 void  fn_vDynFree(void *pUser, unsigned char ucChannel);
@@ -30,8 +26,7 @@ void __cdecl Mmg_fn_v_InitMmg(unsigned char ucModuleId,
     (void)ulMaxNbDynamicMalloc;
 
     if (ucMaxBlocksNb > 0) {
-        pulFill = (unsigned long *)GlobalAlloc(GMEM_FIXED,
-                                               (unsigned long)ucMaxBlocksNb << 4);
+        pulFill = (unsigned long *)CPA_MALLOC((unsigned long)ucMaxBlocksNb << 4);
         g_a_p_stMmgModuleBlocksInfo[ucModuleId] =
             (struct tdstBlockInfoPriv *)pulFill;
 
@@ -62,12 +57,12 @@ void *__cdecl fn_p_vDynRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned
     unsigned long *p_uaSizeMalloc;
     long           lDiffSize;
 
-    EnterCriticalSection(&g_csMmg);
+    Mmg_MEnterCriticalSection();
 
     if (ulSize == 0) {
 
         fn_vDynFree(p_vMemBlock, ucChannel);
-        LeaveCriticalSection(&g_csMmg);
+        Mmg_MLeaveCriticalSection();
         return ((void *)0);
     }
 
@@ -82,7 +77,7 @@ void *__cdecl fn_p_vDynRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned
 
     if (lDiffSize == 0) {
 
-        LeaveCriticalSection(&g_csMmg);
+        Mmg_MLeaveCriticalSection();
         return (p_vMemBlock);
     }
     else if (lDiffSize > 0) {
@@ -96,7 +91,7 @@ void *__cdecl fn_p_vDynRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned
 
         fn_vDynFree(p_vMemBlock, ucChannel);
 
-        LeaveCriticalSection(&g_csMmg);
+        Mmg_MLeaveCriticalSection();
         return ((void *)p_uaTmp);
     }
     else {
@@ -109,14 +104,12 @@ void *__cdecl fn_p_vDynRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned
 
         fn_vDynFree(p_vMemBlock, ucChannel);
 
-        LeaveCriticalSection(&g_csMmg);
+        Mmg_MLeaveCriticalSection();
         return ((void *)p_uaTmp);
     }
 }
 
-#include "MMG/CpaMmg.h"
-#include "MMG/PrivMmg.h"
-
+/* 0x00442b60 */
 void * fn_p_vStaRealloc (void *p_vMemBlock, unsigned long ulSize, unsigned char ucChannel){
         tdstBlockInfoPriv * p_stMyBlockInfo = (tdstBlockInfoPriv *) ((tdstCurrentModeInfo *) g_d_stCurrentModeInfo)[ucChannel].p_vTdstBlockInfoOrTdstDynInfo;
         unitAlloc * p_uaTmp;

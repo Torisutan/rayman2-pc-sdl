@@ -6,6 +6,7 @@
 #include <intrin.h>
 
 #include "MMG/SNA.h"
+#include "MMG/SNA_pc.h"
 #include "MMG/SNA_file.h"   /* C-ANSI file mode: file calls to the C runtime */
 #include "MMG/MMG_globals.h"
 
@@ -160,9 +161,9 @@ unsigned char __cdecl SNA_pc_bOpenFile(const char *_szPath, char _cMode,
     case 1:
         dwCreationDisposition = 2;
         dwDesiredAccess       = 0x40000000;
-        dwAttrs = GetFileAttributesA(_szPath);
+        dwAttrs = SNA_pc_M_ulGetFileAttributes(_szPath);
         if ((dwAttrs & 1) != 0) {
-            SetFileAttributesA(_szPath, dwAttrs & 0xFFFFFFFEu);
+            SNA_pc_M_bSetFileAttributes(_szPath, dwAttrs & 0xFFFFFFFEu);
         }
         break;
     case 2:
@@ -192,9 +193,8 @@ unsigned char __cdecl SNA_pc_bOpenFile(const char *_szPath, char _cMode,
     } else
 #endif /* RAYMAN2_NO_PROTECTION */
     {
-        p_stStream->hFile = CreateFileA(_szPath, dwDesiredAccess, 0, NULL,
-                                        dwCreationDisposition, 0x80  ,
-                                        NULL);
+        p_stStream->hFile = SNA_pc_M_hOpenFile(_szPath, dwDesiredAccess, dwCreationDisposition,
+                                               0x80  );
     }
     p_stStream->ulValid = (p_stStream->hFile != INVALID_HANDLE_VALUE);
     return (unsigned char)p_stStream->ulValid;
@@ -231,7 +231,7 @@ unsigned char __cdecl SNA_pc_bCloseFile(void *_p_stFile)
         return (unsigned char)(bOk == 0);
     }
 #endif /* RAYMAN2_NO_PROTECTION */
-    bOk = CloseHandle(p_stStream->hFile);
+    bOk = SNA_pc_M_bCloseFile(p_stStream->hFile);
     p_stStream->hFile = INVALID_HANDLE_VALUE;
     return (unsigned char)(bOk == 0);
 }
@@ -244,8 +244,7 @@ unsigned char __cdecl SNA_pc_bRawReadPlain(void *_p_vBuffer, size_t _ulBytes,
     DWORD     dwBytesRead;
     BOOL      bOk;
 
-    bOk = ReadFile(p_stStream->hFile, _p_vBuffer, (DWORD)_ulBytes,
-                   &dwBytesRead, NULL);
+    bOk = SNA_pc_M_bReadFile(p_stStream->hFile, _p_vBuffer, (DWORD)_ulBytes, &dwBytesRead);
     p_stStream->ulValid = (unsigned long)bOk;
     return (unsigned char)(dwBytesRead == (DWORD)_ulBytes);
 }
@@ -260,8 +259,7 @@ unsigned char __cdecl SNA_pc_bRawReadDecode(void *_p_vBuffer, size_t _ulBytes,
     DWORD          dwBytesRead;
     BOOL           bOk;
 
-    bOk = ReadFile(p_stStream->hFile, _p_vBuffer, (DWORD)_ulBytes,
-                   &dwBytesRead, NULL);
+    bOk = SNA_pc_M_bReadFile(p_stStream->hFile, _p_vBuffer, (DWORD)_ulBytes, &dwBytesRead);
     p_stStream->ulValid = (unsigned long)bOk;
     if (dwBytesRead != (DWORD)_ulBytes) {
         return 0;
@@ -397,5 +395,5 @@ unsigned long __cdecl SNA_pc_ulSeek(void *_p_stFile, long _lDistance, int _iOrig
         return dwResult;
     }
 #endif /* RAYMAN2_NO_PROTECTION */
-    return SetFilePointer(p_stStream->hFile, _lDistance, NULL, dwMoveMethod);
+    return SNA_pc_M_ulSeekFile(p_stStream->hFile, _lDistance, dwMoveMethod);
 }

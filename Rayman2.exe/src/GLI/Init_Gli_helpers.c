@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include "FIL/FIL_pc.h"
 #include "FIL/FIL_ini.h"   /* C-ANSI file mode: ini calls to the C runtime */
 
 #include "GLI/sprite.h"
@@ -171,7 +172,7 @@ void __cdecl GLI_pc_fn_vReadIniString(const char *szSection, const char *szKey,
     strcpy(acPath, ".");   /* ubi.ini in the working directory (the game folder) */
 #endif /* RAYMAN2_LOCAL_UBIINI */
     strcat(acPath, GLI_PC_UBIINI_NAME);
-    GetPrivateProfileStringA(szSection, szKey, szReturnBuf, szReturnBuf, ulSize, acPath);
+    FIL_pc_M_ulGetProfileString(szSection, szKey, szReturnBuf, szReturnBuf, ulSize, acPath);
 }
 
 void __cdecl GLI_pc_fn_vWriteIniString(const char *szSection, const char *szKey,
@@ -184,7 +185,7 @@ void __cdecl GLI_pc_fn_vWriteIniString(const char *szSection, const char *szKey,
     strcpy(acPath, ".");   /* ubi.ini in the working directory (the game folder) */
 #endif /* RAYMAN2_LOCAL_UBIINI */
     strcat(acPath, GLI_PC_UBIINI_NAME);
-    WritePrivateProfileStringA(szSection, szKey, szValue, acPath);
+    FIL_pc_M_bWriteProfileString(szSection, szKey, szValue, acPath);
 }
 
 /* 0x00409c80 */

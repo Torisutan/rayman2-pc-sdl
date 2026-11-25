@@ -1359,7 +1359,7 @@ void __cdecl GLI_pc_fn_vWrite16bBitmapToBackBuffer(void *p_vBuffer, long lPitch,
         (p_vBuffer, lPitch, lHeight, lArg4, lArg5, lArg6, lArg7);
 }
 
-/* 0x0045eed0 */
+#include "GAM/GAM_pc_DrawLock.h"
 void __cdecl GLI_RefreshUiSurfaceIfVisible(char *ui_object)
 {
     unsigned long a_ulViewAttr[0x1c];
@@ -1381,14 +1381,14 @@ void __cdecl GLI_RefreshUiSurfaceIfVisible(char *ui_object)
         return;
     }
     hSemaphore = GLI_pc_g_hOverlaySemaphore;
-    WaitForSingleObject(hSemaphore, INFINITE);
+    GAM_pc_M_ulWaitDrawSemaphore(hSemaphore);
     GLD_bGetViewportAttributes(GLI_pc_g_uwOverlayDevice, GLI_pc_g_uwOverlayViewport, a_ulViewAttr);
     GLI_pc_fn_vWrite16bBitmapToBackBuffer(p_stUi->p_vBuffer, p_stUi->lBufferDimC, p_stUi->lBufferDim8,
                                           (long)a_ulViewAttr[0xa], (long)a_ulViewAttr[8],
                                           (long)a_ulViewAttr[0xb], (long)a_ulViewAttr[9]);
     GLD_bFlipDeviceWithSynchro(GLI_pc_g_uwOverlayDevice, 0xff);
     hSemaphore = GLI_pc_g_hOverlaySemaphore;
-    ReleaseSemaphore(hSemaphore, 1, NULL);
+    GAM_pc_M_bReleaseDrawSemaphore(hSemaphore);
 }
 
 /* 0x0045efb0 */

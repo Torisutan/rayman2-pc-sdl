@@ -14,7 +14,9 @@
 #include "MMG/MMG_globals.h"
 #include "GEO/GEO_globals.h"
 #include "MMG/SNA_reloc.h"
+#include "MMG/SNA_pc.h"
 #include "MMG/SNA.h"
+#include "FIL/FIL_pc.h"
 #include "MMG/SNA_file.h"   /* C-ANSI file mode: file calls to the C runtime */
 #include "FIL/FIL_ini.h"   /* C-ANSI file mode: ini calls to the C runtime */
 #include "FIL/File.h"
@@ -527,9 +529,9 @@ void FUN_0044f870(unsigned long ulArg)
     /* 0x0044f530 */
     GAM_pc_fn_vOpenDsbFile((int)ulArg, GAM_INIT_szRbMode);
     GAM_pc_g_stExternalCtrlFile.ulValid =
-        (unsigned long)ReadFile(GAM_pc_g_stExternalCtrlFile.hFile,
-                                &GAM_pc_g_stExternalCtrlFile.uKey.ulState,
-                                4, &ulArg, NULL);
+        (unsigned long)SNA_pc_M_bReadFile(GAM_pc_g_stExternalCtrlFile.hFile,
+                                          &GAM_pc_g_stExternalCtrlFile.uKey.ulState,
+                                          4, &ulArg);
 }
 
 extern long __cdecl GLI_fnl_InitDll(void);
@@ -691,20 +693,20 @@ static void FUN_00405a30(void)
     strcat(szIniPath, UBIINI_FILE);                              /* 0x0049f40c */
 
     /* 0x4a6abc */
-    GetPrivateProfileStringA(UBIINI_SEC_GLI, UBIINI_K_DLLFILE, UBIINI_EMPTY, szValue, 0xff, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GLI, UBIINI_K_DLLFILE, UBIINI_EMPTY, szValue, 0xff, szIniPath);
     GLI_fnv_SetDllFileName(szValue);   /* 0x00421e60 */
-    GetPrivateProfileStringA(UBIINI_SEC_GLI, UBIINI_K_DLL, UBIINI_EMPTY, szValue, 0xff, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GLI, UBIINI_K_DLL, UBIINI_EMPTY, szValue, 0xff, szIniPath);
     GLI_fnv_SetDllName(szValue);   /* 0x00421e80 */
-    GetPrivateProfileStringA(UBIINI_SEC_GLI, UBIINI_K_DRIVER, UBIINI_EMPTY, szValue, 0xff, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GLI, UBIINI_K_DRIVER, UBIINI_EMPTY, szValue, 0xff, szIniPath);
     GLI_fnv_SetDriverName(szValue);     /* 0x00421eb0 */
-    GetPrivateProfileStringA(UBIINI_SEC_GLI, UBIINI_K_DEVICE, UBIINI_EMPTY, szValue, 0xff, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GLI, UBIINI_K_DEVICE, UBIINI_EMPTY, szValue, 0xff, szIniPath);
     GLI_fnv_SetDeviceName(szValue);     /* 0x00421ee0 */
-    GetPrivateProfileStringA(UBIINI_SEC_GLI, UBIINI_K_MODE, UBIINI_EMPTY, szValue, 0xff, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GLI, UBIINI_K_MODE, UBIINI_EMPTY, szValue, 0xff, szIniPath);
     GLI_fnv_SetModeByString(szValue);           /* 0x00421f10 */
-    GetPrivateProfileStringA(UBIINI_SEC_GLI, UBIINI_K_TEXMEM, UBIINI_D_AGP, szValue, 0xff, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GLI, UBIINI_K_TEXMEM, UBIINI_D_AGP, szValue, 0xff, szIniPath);
     GLI_pc_fn_vParseTexturesMemIni(szValue);    /* 0x00424ef0 */
 
-    GetPrivateProfileStringA(UBIINI_SEC_GAME, UBIINI_K_PARTRATE, UBIINI_D_MEDIUM, szValue, 0x104, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GAME, UBIINI_K_PARTRATE, UBIINI_D_MEDIUM, szValue, 0x104, szIniPath);
     if (_stricmp(szValue, UBIINI_V_NULL) == 0)                   /* 0x0049f450 */
         FUN_00414e70(0.0f);                  /* 0x00414e70 */
     bHasRate = 0;
@@ -724,9 +726,9 @@ static void FUN_00405a30(void)
         FUN_00414e70(xRate);                 /* 0x00414e70 */
 
     /* 0x0049f430 */
-    GetPrivateProfileStringA(UBIINI_SEC_GAME, UBIINI_K_SOUNDHD, UBIINI_D_ZERO, szValue, 0x104, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GAME, UBIINI_K_SOUNDHD, UBIINI_D_ZERO, szValue, 0x104, szIniPath);
     sscanf(szValue, "%d", &GAM_pc_g_lSoundOnHD);
-    GetPrivateProfileStringA(UBIINI_SEC_GAME, UBIINI_K_COMPLETE, UBIINI_D_ONE, szValue, 0x104, szIniPath);
+    FIL_pc_M_ulGetProfileString(UBIINI_SEC_GAME, UBIINI_K_COMPLETE, UBIINI_D_ONE, szValue, 0x104, szIniPath);
     sscanf(szValue, "%d", &GAM_pc_g_lComplete);
 }
 

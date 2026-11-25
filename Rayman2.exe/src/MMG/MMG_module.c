@@ -4,8 +4,8 @@
 #include "MMG/MMG_globals.h"
 #include "MMG/MMG_module.h"
 #include "MMG/MMG_alloc.h"
-#include "MMG/CpaMmg.h"   /* CPA_MALLOC: C runtime memory without FILE_MODE_C_WIN95 */
 #include "ERM/CpaError.h"
+#include "MMG/PrivMmg.h"
 
 typedef struct Mmg_tdstBlockInfoPriv_PC {
     char *p_cBeginBlock;
@@ -22,13 +22,10 @@ typedef struct Mmg_tdstBlockHeaderWithoutFree {
 
 #define C_uwAllocSize                       4
 #define C_uwShiftAllocSize                  2
-#define C_ucFreeHeaderSize                  2
-#define C_FirstFreeValueForBlockWithoutFree ((char *)0xFFFFFFFF)
 #define C_BlockWithoutFreeFlag              1
 #define C_FillTheBlockWithCleanKeyFlag      2
 #define C_Check_OverflowFlag                8
 #define C_uaCleanKey                        0xAAAAAAAA
-#define C_uaCleanKeyForBlockWithoutFree     0xAA
 #define C_SizeOfOverflowCheckKey            4
 
 #define Mmg_g_ucModuleId                    MMG_g_ucErmChannelId
@@ -54,7 +51,7 @@ void __cdecl Mmg_fn_vDeleteBlock(
 
     (void)ucModuleId;
 
-    GlobalFree(p_stMyBlockInfo->p_cBeginBlock);
+    CPA_FREE(p_stMyBlockInfo->p_cBeginBlock);
     p_stMyBlockInfo->p_cBeginBlock = (char *)C_p_cBlockNotValidKey;
 }
 
@@ -91,7 +88,7 @@ void __cdecl Mmg_fn_vInitSpecificBlock(
 
     Mmg_M_BigBoundSize(_ulSize, ucAlignment);
 
-    p_cBegin = (char *)GlobalAlloc(GMEM_FIXED, _ulSize);
+    p_cBegin = (char *)CPA_MALLOC(_ulSize);
 
     ulI = (unsigned long)p_cBegin;
     Mmg_M_BigBoundSize(ulI, ucAlignment);
@@ -228,7 +225,7 @@ void __cdecl Mmg_fn_v_StopMmg(unsigned char ucModuleId)
             }
         }
 
-        GlobalFree(g_a_p_stMmgModuleBlocksInfo[ucModuleId]);
+        CPA_FREE(g_a_p_stMmgModuleBlocksInfo[ucModuleId]);
         g_a_p_stMmgModuleBlocksInfo[ucModuleId] = NULL;
     }
 }

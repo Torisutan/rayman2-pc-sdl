@@ -5,8 +5,9 @@
 #include "MMG/MMG_module.h"
 #include "MMG/MMG_pubaccess.h"
 #include "MMG/MMG_alloc.h"
-#include "MMG/CpaMmg.h"   /* CPA_MALLOC: C runtime memory without FILE_MODE_C_WIN95 */
 #include "ERM/CpaError.h"
+#include "MMG/CpaMmg.h"
+#include "MMG/PrivMmg.h"
 
 typedef struct tdstBlockInfoPriv_PC {
     void *p_cBeginBlock;
@@ -61,7 +62,7 @@ unsigned char __cdecl Mmg_fn_ucGiveChannelId(unsigned long ulThreadId,
     unsigned char    bFound = 0;
     tdstChannelInfo *p_stChannelInfo = MMG_M_p_TabChannelInfo + 1;
 
-    EnterCriticalSection(&g_csMmg);
+    Mmg_MEnterCriticalSection();
 
     while (ucI < g_stMmgGeneralChannelInfo_storage.ucNbChannelUsed &&
            !bFound &&
@@ -84,7 +85,7 @@ unsigned char __cdecl Mmg_fn_ucGiveChannelId(unsigned long ulThreadId,
         }
     }
 
-    LeaveCriticalSection(&g_csMmg);
+    Mmg_MLeaveCriticalSection();
     return ucI;
 }
 
@@ -94,11 +95,10 @@ void __cdecl Mmg_fn_vFirstInitMmgModule(unsigned char ucMaxNbChannel)
     unsigned char ucI;
 
     g_p_d_stCurrentModeInfo =
-        (uint8_t *)GlobalAlloc(GMEM_FIXED, (unsigned long)ucMaxNbChannel * 8);
+        (uint8_t *)CPA_MALLOC((unsigned long)ucMaxNbChannel * 8);
 
     MMG_M_p_TabChannelInfo =
-        (tdstChannelInfo *)GlobalAlloc(GMEM_FIXED,
-                                       (unsigned long)ucMaxNbChannel * 8);
+        (tdstChannelInfo *)CPA_MALLOC((unsigned long)ucMaxNbChannel * 8);
 
     for (ucI = 0; ucI < C_ucNbOfMaxModule; ucI++) {
         g_a_p_stMmgModuleBlocksInfo[ucI] = NULL;
@@ -107,7 +107,7 @@ void __cdecl Mmg_fn_vFirstInitMmgModule(unsigned char ucMaxNbChannel)
     g_stMmgGeneralChannelInfo_storage.ucMaxNbChannel  = ucMaxNbChannel;
     g_stMmgGeneralChannelInfo_storage.ucNbChannelUsed = 1;
 
-    InitializeCriticalSection(&g_csMmg);
+    Mmg_MCreateCriticalSection();
 }
 
 /* 0x00443420 */
@@ -119,12 +119,12 @@ void __cdecl Mmg_fn_vStopMmgModule(void)
         Mmg_fn_v_StopMmg(ucI);
     }
 
-    DeleteCriticalSection(&g_csMmg);
+    Mmg_MDeleteCriticalSection();
 
-    GlobalFree((HGLOBAL)g_p_d_stCurrentModeInfo);
+    CPA_FREE((HGLOBAL)g_p_d_stCurrentModeInfo);
     g_p_d_stCurrentModeInfo = NULL;
 
-    GlobalFree((HGLOBAL)MMG_M_p_TabChannelInfo);
+    CPA_FREE((HGLOBAL)MMG_M_p_TabChannelInfo);
     MMG_M_p_TabChannelInfo = NULL;
 }
 
