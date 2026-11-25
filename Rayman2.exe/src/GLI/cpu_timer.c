@@ -37,7 +37,7 @@ void __cdecl fn_vTimerGetCounter(short channel, LARGE_INTEGER *p_stOut)
 #ifdef RAYMAN2_REGRESS
     if (REGRESS_fn_bGetCounter(channel, p_stOut))
         return;
-#endif
+#endif /* RAYMAN2_REGRESS */
 
     switch (channel) {
     case 0:

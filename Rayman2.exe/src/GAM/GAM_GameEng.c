@@ -764,6 +764,7 @@ static const unsigned char GAM_g_ucEraseBackground_storage = 1;
 #define GAM_pc_M_bReleaseDrawSemaphore(hSemaphore)
 #else /* original Win32 */
 __declspec(dllimport) unsigned long __stdcall WaitForSingleObject(void *hHandle, unsigned long dwMilliseconds);
+__declspec(dllimport) int __stdcall ReleaseSemaphore(void *hSemaphore, long lReleaseCount, long *lpPreviousCount);
 
 #define GAM_pc_M_ulWaitDrawSemaphore(hSemaphore)   WaitForSingleObject((hSemaphore), 0xFFFFFFFF)
 #define GAM_pc_M_bReleaseDrawSemaphore(hSemaphore) ReleaseSemaphore((hSemaphore), 1, 0)
@@ -922,10 +923,6 @@ void GAM_fn_vEngine(void)
             GLI_pc_fn_bSubmitAngleQuad(hCamSector, hCamera, GAM_g_p_stViewportAttr);
     }
 }
-
-#ifndef USE_SDL   /* original Win32: the draw lock */
-__declspec(dllimport) int __stdcall ReleaseSemaphore(void *hSemaphore, long lReleaseCount, long *lpPreviousCount);
-#endif /* USE_SDL */
 
 void fn_vDisplayAll(void)
 {

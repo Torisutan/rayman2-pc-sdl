@@ -574,6 +574,18 @@ its condition.
   (`#ifdef USE_SDL ... #else ... #endif /* USE_SDL */`). In upstream files the Win32 code stays
   the `#else` branch (the VC5 reference build does not define `WIN32`). `#ifndef USE_SDL` alone
   does not mean "Win32": it stops holding once a non-Windows target exists.
+- Fences classified (25.11.2026). In upstream files every `USE_SDL` fence is a backend choice
+  with its counterpart in an SDL file: `pc_winmain.c` (window, message loop, engine thread ->
+  `GAM/sdl_main.c`), `INO.c` (DirectInput -> `INO/sdl_ino.c`), `cpu_timer.c`, `timer_sub2.c`
+  (-> `TMR/sdl_timer.c`), the draw lock (`GAM_pc_DrawLock.h`, `GAM_GameEng.c`, its
+  `ReleaseSemaphore` declaration now in the Win32 `#else`), the MMG lock (`CpaMmg.h`,
+  `MMG_alloc.h`). Fork files: the Win32 calls of `sdl_main.c` fenced `WIN32` (single-instance
+  mutex, `SetErrorMode`, the Windows-folder `ubi.ini`; other targets take the game folder until
+  "User folder"); `GLI_linkdrv.[ch]` stay Win32 as a whole (Direct3D 6 only exists there): the
+  `WIN32` fence for the DLL fallback and neutral handle types come with the second linked-in
+  driver (`USE_GLI_GL`), not before. Fork `#endif`s name their condition; file-local macros
+  carry the module prefix (`SNA_M_bIsNoFile`, `GLI_M_LinkedProc`), as the original's
+  `<MOD>_M_*`. Measured: all objects of the five builds identical except the COFF time stamp.
 
 **Platform glue (decided 2026-11-25).** Below the seams (files, ini, locks, semaphores, tick
 counts, `Sleep`, thread ids) shared code calls module-owned names, not system API names:
@@ -611,7 +623,7 @@ the game's binaries; sound left to Sound, below):
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
 | Saves | `CopyFileA`, `DeleteFileA`, `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA` direct (`GAM_save_slot.obj`); `DeleteFileA` (`SAI_Save.obj`) | save slots, SAI | open, with the per-user folder (PLAN "User folder") | |
 | Misc direct | `GetTempPathA` (`GAM_init.obj`), `ShellExecuteA` (`Procedure.obj`), `FreeLibrary`/`GetClientRect` (shared part of `pc_winmain.obj`) | | open: one line each at migration | |
-| Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetWindowLongA`, `SetErrorMode`, under `WIN32`), `regress.obj` (Windows tool) | | stays, fenced `WIN32` | |
+| Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetLastError`, `GetWindowLongA`, `SetErrorMode`, `GetWindowsDirectoryA`, `CreateDirectoryA`, under `WIN32`), `regress.obj` (Windows tool) | | stays, fenced `WIN32` | |
 
 Order: TMR first (fork only, no call-site change), then MMG lock and memory, GAM draw lock, FIL,
 SNA, GLI once their call sites carry the names (asked of the decomp on 25.11.2026; if it declines
@@ -751,6 +763,10 @@ relative to sound and the GL driver is the user's call.
 
 ## Open decisions
 - Platform layer: see Phase 5, open decisions.
+- Backend function names (asked 25.11.2026): the SDL backends are `MMG_sdl_fn_*`, the C runtime
+  backends `FIL_pc_fn_*C`, `SNA_pc_fn_*C`. The C runtime ones are not PC-only (consoles take
+  them), so `_pc_` misleads; the original sources at hand have no model. Candidate:
+  `<MOD>_fn_*` without `_pc` and without the `C` suffix. Rename only after the user decides.
 - Cross-build bit equality: does anything need it (demo playback, save data that stores
   positions)? Unchecked; per-target arithmetic (Phase 2, modern build reference) assumes not.
 - Big-endian data: swap at load time or convert offline.

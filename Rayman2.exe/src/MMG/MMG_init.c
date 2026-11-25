@@ -961,7 +961,7 @@ L_body:
 #ifdef RAYMAN2_REGRESS
     if (REGRESS_fn_bActive())
         uSeed = REGRESS_C_ulLcgSeed;
-#endif
+#endif /* RAYMAN2_REGRESS */
     pTable = MMG_pc_g_uLcgPool.a_ulWord;
 
     for (i = 0x119; i != 0; i--) {

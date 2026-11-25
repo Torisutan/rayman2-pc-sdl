@@ -15,4 +15,4 @@ int  __cdecl REGRESS_fn_bGetCounter(short channel, LARGE_INTEGER *p_stOut);
 /* Fixed seeds while a run is active. */
 #define REGRESS_C_ulLcgSeed   0x12345678u
 #define REGRESS_C_ulRandSeed  0xDEADBEEFu
-#endif
+#endif /* RAYMAN2_REGRESS */

@@ -559,7 +559,7 @@ void FUN_00401160(void)
     }
 #ifdef RAYMAN2_REGRESS
     REGRESS_fn_vBeforeFrame();
-#endif
+#endif /* RAYMAN2_REGRESS */
     fn_vOneTrame();             /* 0x004049E0 */
 }
 #endif /* USE_SDL */

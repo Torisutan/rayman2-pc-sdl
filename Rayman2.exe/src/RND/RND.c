@@ -25,7 +25,7 @@ void __cdecl RND_fn_vComputeRandomTable(void)
         srand(REGRESS_fn_bActive() ? REGRESS_C_ulRandSeed : GetTickCount());
 #else
         srand(GetTickCount());
-#endif
+#endif /* RAYMAN2_REGRESS */
 
     RND_g_stRandomStructure.ulMaxValueInTable = 0;
     for (i = 0; i < RND_g_stRandomStructure.ulSizeOfTable; i++) {

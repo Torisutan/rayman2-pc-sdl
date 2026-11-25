@@ -690,7 +690,7 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
     FILE *p_stFile;
     int   iResult = -1;
 
-#ifndef RAYMAN2_LOCAL_UBIINI
+#if defined(WIN32) && !defined(RAYMAN2_LOCAL_UBIINI)
     GetWindowsDirectoryA(szIniPath, 0x104);
     strcat(szIniPath, "\\UbiSoft");
     if ( _access(szIniPath, 0) != 0 )
@@ -698,8 +698,10 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
         CreateDirectoryA(szIniPath, NULL);
     }
 #else
-    strcpy(szIniPath, ".");   /* ubi.ini in the working directory (the game folder) */
-#endif /* RAYMAN2_LOCAL_UBIINI */
+    /* ubi.ini in the working directory (the game folder); other targets too, until the
+       user folder is decided (docs/PLAN.md "User folder") */
+    strcpy(szIniPath, ".");
+#endif /* WIN32 && !RAYMAN2_LOCAL_UBIINI */
     strcat(szIniPath, "\\ubi.ini");
     if ( _access(szIniPath, 0) != 0 )
     {
@@ -716,11 +718,13 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
         return -1;
     }
 
+#ifdef WIN32
     CreateMutexA(NULL, TRUE, "RAYMAN2EXE");
     if ( GetLastError() == ERROR_ALREADY_EXISTS )
     {
         return -1;
     }
+#endif /* WIN32 */
 
     SDL_SetMainReady();
     if ( !SDL_Init(SDL_INIT_VIDEO) )
@@ -738,7 +742,9 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
     *g_hInstance = hInstance;
     strcpy(GAM_g_szCmdLine, p_szCmdLine);
 
+#ifdef WIN32
     SetErrorMode(SEM_FAILCRITICALERRORS);
+#endif /* WIN32 */
 
     MMG_fn_vInit(1);
 
