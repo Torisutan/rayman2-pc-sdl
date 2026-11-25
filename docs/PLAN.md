@@ -498,7 +498,7 @@ its condition.
   `GAM/sdl_main.c`), `INO.c` (DirectInput -> `INO/sdl_ino.c`), `cpu_timer.c`, `timer_sub2.c`
   (-> `TMR/sdl_timer.c`), the draw lock (`GAM_pc_DrawLock.h`, `GAM_GameEng.c`, its
   `ReleaseSemaphore` declaration now in the Win32 `#else`), the MMG lock (`CpaMmg.h`,
-  `MMG_alloc.h`). Fork files: the Win32 calls of `sdl_main.c` fenced `WIN32` (single-instance
+  `MMG_alloc.h`), `Erm_fn_iMessageBox` (`ERM/CpaError.c` -> `ERM/sdl_erm.c`). Fork files: the Win32 calls of `sdl_main.c` fenced `WIN32` (single-instance
   mutex, `SetErrorMode`, the Windows-folder `ubi.ini`; other targets take the game folder until
   "User folder"); `GLI_linkdrv.[ch]` stay Win32 as a whole (Direct3D 6 only exists there): the
   `WIN32` fence for the DLL fallback and neutral handle types come with the second linked-in
@@ -538,7 +538,7 @@ the game's binaries; sound left to Sound, below):
 |---|---|---|---|---|
 | MMG lock | **done** (f628850): `USE_SDL` branch in `MMG/CpaMmg.h` -> `MMG/sdl_mmg.c` (`MMG_fn_*`), Win32 `#else` | MMG allocators | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_csMmg` | original engine (empty on the consoles) |
 | MMG memory | **done** (f628850): C runtime branch in `MMG/PrivMmg.h` without `FILE_MODE_C_WIN95` | MMG allocators | `CPA_MALLOC`, `CPA_FREE` | original engine |
-| ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
+| ERM | **done** (729219e): `Erm_fn_iMessageBox` per platform, as the original (whole function per platform; its consoles print and return 0): Win32 the `#else` of a `USE_SDL` fence in `ERM/CpaError.c`, SDL in `ERM/sdl_erm.c` (`SDL_ShowMessageBox`, parent the focused window; stderr and 0 if SDL cannot show it). Style and result keep the Win32 encoding on every target: the callers pass numbers (`0x40035`, `0x40010`) and test numbers (2 = cancel); `sdl_erm.c` spells them `ERM_C_*`, no `MB_*`/`ID*` outside Win32 (the original's consoles declared `MB_*` in their types header with values of their own and ignored them) | `GAM_init.c`, `GLI/Cache.c` (CD and driver messages) | `Erm_fn_iMessageBox` | original engine |
 | SNA level files | **done** (5e07224, e027e35): C runtime branch in `MMG/SNA_pc.h` without `FILE_MODE_C_WIN95` -> `MMG/SNA_file.c` (`SNA_fn_*`, handle `void *`); Win32 values through `SNA_pc_C_*` | `SNA.c`, `SNA_reloc.c` (also the fork's no-protection branches), `GAM_init.c` | `SNA_pc_M_hOpenFile`, `_bReadFile`, `_ulSeekFile`, `_bCloseFile`, `_ulGetFileAttributes`, `_bSetFileAttributes`; type `SNA_tdhFile` | fork, shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd` (SNA's own source is not at hand) |
 | FIL ini | **done** (cf740d7, 6d31e2b): C runtime branch in `FIL/FIL_pc.h` without `FILE_MODE_C_WIN95` -> `FIL/FIL_ini.c` (`FIL_fn_*`) | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_pc_M_ulGetProfileString`, `FIL_pc_M_bWriteProfileString` | fork |
 | GAM draw lock | **done** (f12d3b2): empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy (an include there changes a function's bytes); the driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_pc_M_ulWaitDrawSemaphore`, `GAM_pc_M_bReleaseDrawSemaphore`; **empty** with one engine thread: the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0) | fork |
