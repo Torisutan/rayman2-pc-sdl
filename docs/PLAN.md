@@ -433,8 +433,8 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
      popup itself (`SetWindowLongA`); SDL 3.4 puts its own style back whenever the window leaves
      the minimized state, so on focus loss SDL is told whether the driver left the window without
      a caption (`SDL_SetWindowBordered`).
-   - Still Win32 in the SDL build outside SND (open for Linux): `Sleep` (seven files) and the rows
-     of the platform glue inventory below.
+   - Still Win32 in the SDL build outside SND (open for Linux): `Sleep` on the engine-thread path
+     of `Init_Gli.c` and the rows of the platform glue inventory below.
 
    **Focus test with the Direct3D 6 driver (2026-11-24; dec93b9, d752d75).** Original retail exe,
    VC5 + define and the MSVC Win32 build behave alike on this system (16 bpp under

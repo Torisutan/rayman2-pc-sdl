@@ -7,10 +7,10 @@ say so.
 | Version | Milestone | Status |
 |---|---|---|
 | v0.1 | Modern Windows build, protection removed, DPI aware, widescreen | **done** |
-| v0.2 | Cleanup and original bugs fixed | next |
-| v0.3 | Solid codebase, portability inventory | planned |
+| v0.2 | Cleanup and original bugs fixed | mostly done |
+| v0.3 | Solid codebase, portability inventory | next |
 | v0.4 | Own sound drivers (no retail sound DLLs) | planned |
-| v0.5 | Platform layer and own renderer (no retail DLLs at all) | planned |
+| v0.5 | Platform layer and own renderer (no retail DLLs at all) | in progress |
 | v0.6 | Frame rate decoupled from game logic | planned |
 | v1.0 | Windows (32- and 64-bit) and Linux | planned |
 | later | macOS | in scope, postponed |
@@ -25,6 +25,8 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
 [CHANGELOG.md](../CHANGELOG.md).
 
 ## v0.2: cleanup and bug fixes (PLAN Phases 2-3)
+Left: delete the excluded protection code; the widescreen window tests. Everything else below
+is done.
 - Exclude the remaining unreferenced protection code, then delete the excluded code.
   Exclusion done (2026-11-23); deletion still to do.
 - clang-cl builds every file (inline asm it rejects, prototype mismatches).
@@ -40,10 +42,19 @@ folder, regression harness, DPI awareness, widescreen (Hor+ 3D, 4:3 UI). See
   and the retail DPI settings; `local.json` needs only `vc6` for this build.
 
 ## v0.3: solid codebase (PLAN Phase 4)
+Next. A first playtest of the SDL and Win32 builds is done (`docs/PLAYTEST.md`); its open
+finding (save slots) is part of this milestone.
+- A wider regression first: several levels and recorded input, so input and gameplay are
+  covered, not only the first frames of one level without input. Everything below is measured
+  against it.
 - Warnings cleaned at a high level, static analysis, AddressSanitizer runs of the regression
   sequence.
-- Remaining raw struct offsets and casts replaced by typed fields.
+- Math: the original engine's C branch beside its x86 asm is selected per target (asm only on
+  32-bit x86), each target checked against its own baseline.
+- Remaining raw struct offsets and casts replaced by typed fields, first the engine globals the
+  renderer driver reads (the prerequisite for an own renderer).
 - `docs/PORTABILITY.md`: every endianness, pointer-size and packing assumption, where it is made.
+- Save slots: the slot copy and sort functions compared with the retail game.
 
 ## v0.4: sound (PLAN "Sound")
 The game-side `SND` module stays. The sample driver (`WAVMWBVR.dll`, software mixer, 3D samples,
@@ -56,8 +67,17 @@ output of a scripted scene.
 - Backends behind the engine's existing seams: renderer (`GLI_DRV`), input (`INO`), files (`FIL`),
   timers (`TMR`), plus window, events and threads (today in `GAM/pc_winmain.c`).
 - An in-tree OpenGL / GLES renderer; no retail DLL needed any more.
+- Backend library (decided 2026-11-24): SDL3 on Windows, Linux, macOS and PSP; SDL2 on Wii U.
 - First step done (2026-11-24): the decompiled Direct3D 6 renderer is linked into the exe and
   selected by `ubi.ini` like a DLL; other renderers still load from the `DLL` folder.
+- Done on Windows (2026-11-24/25, build option `R2_USE_SDL`): window, events and the engine loop
+  on one thread, input (keyboard, mouse, gamepads), timers and locks through SDL; level data,
+  ini files and memory through the C runtime; shared code calls module-owned names instead of
+  the Win32 API, in the original engine's style. The SDL build still calls 49 Win32 functions,
+  37 of them in sound (v0.4); the rest are save slots, a few single calls and the Direct3D 6
+  driver itself.
+- Open: the own OpenGL renderer (after the typed fields of v0.3), the remaining single calls,
+  the first non-Windows build.
 - 64-bit x86 build.
 
 ## v0.6: frame rate decoupled from game logic
@@ -105,6 +125,5 @@ PSP (memory budget to measure first) and Wii U (big-endian data: swap at load ti
 offline).
 
 ## Open decisions
-- Backend library: SDL3, SDL2 or native code per platform.
 - Big-endian data: swap at load time or convert offline.
 - License: none so far, same as upstream.
