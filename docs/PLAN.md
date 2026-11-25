@@ -409,7 +409,7 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    | Alt, `SC_KEYMENU`, screensaver / monitor power swallowed; screensaver off for the run | user, system | SDL does it (keeps `SC_KEYMENU` from the menu loop, screensaver off while video is up) |
    | Power suspend / resume: engine thread suspended under the draw lock, sound paused | `WM_POWERBROADCAST` | not needed: one thread, the system suspends the process |
    | Minimum track size (`WM_GETMINMAXINFO`), `WM_MOVE`/`WM_SIZE` swallowed during play | system | not carried over (window chrome only) |
-   | Draw semaphore around viewport/camera changes and flips (`GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, the progress screen in `Texture.c`/`ui_state.c`); `"DrawSem"` given to the driver | both threads | nothing to guard; kept as an object (no wait ever blocks). Neither the Direct3D 6 driver nor GOG's `GliOGLvf.dll` waits on `"DrawSem"` |
+   | Draw semaphore around viewport/camera changes and flips (`GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, the progress screen in `Texture.c`/`ui_state.c`); `"DrawSem"` given to the driver | both threads | nothing to guard: no draw lock (`GAM/GAM_pc_DrawLock.h` empty under `USE_SDL`), `fn_hGetDrawSemaphore` gives NULL as on the original's consoles. Neither the Direct3D 6 driver nor GOG's `GliOGLvf.dll` waits on, releases or closes `"DrawSem"` (no wait or semaphore function in either binary; both start with it NULL), so they get NULL |
 
    Outside `pc_winmain.c` the API is used by: `GAM_engine.c` (`fn_hGetDrawSemaphore`,
    `GAM_pc_fn_vGetAppContext` for the sound init), `GAM_init.c` (`GAM_pc_fn_hGetAppInstance` for
@@ -468,7 +468,7 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    prototypes of the two are fenced. The renderer driver still gets it as `"DrawSem"` and does
    not wait on it (above). Measured: regression identical (SDL, MSVC, clang-cl, VC5 + define);
    in the SDL build only `SndThrd.obj` imports `WaitForSingleObject`, nothing
-   `ReleaseSemaphore`/`CreateSemaphoreA`.
+   `ReleaseSemaphore`/`CreateSemaphoreA`. Replaced (platform glue, below): no draw lock at all.
    Still Win32 in the SDL build outside SND (Windows-only for now, open for Linux): `Sleep` (seven
    files), `GetCurrentThreadId` for the MMG channel of the calling thread (`GLD.c`), the
    single-instance mutex `RAYMAN2EXE` (`sdl_main.c`), and `SetEvent` in `GLI_FatalExitOrSleep`,
@@ -588,7 +588,7 @@ counts, `Sleep`, thread ids) shared code calls module-owned names, not system AP
 - SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
   not SDL itself;
 - replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
-  rejects added lines that `#define` a Win32 API name, except the 13 left (19 at first; allow list,
+  rejects added lines that `#define` a Win32 API name, except the 11 left (19 at first; allow list,
   shrinks with each migration).
 
 Inventory (25.11.2026; system calls in the SDL build measured per object with the import list of
@@ -601,7 +601,7 @@ the game's binaries; sound left to Sound, below):
 | ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
 | SNA level files | rename of 6 file calls (`MMG/SNA_file.h`) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
 | FIL ini | rename of `Get/WritePrivateProfileStringA` (`FIL/FIL_ini.h`) | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
-| GAM draw lock | rename of `WaitForSingleObject`/`ReleaseSemaphore` (`GAM/GAM_DrawSem.h`) | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
+| GAM draw lock | **done**: empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy; SDL semaphore and window-side waits in `sdl_main.c` gone; driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
 | TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
 | GLI driver binding | rename of `LoadLibraryA`/`GetProcAddress` (`GLI/Init_Gli.c`) | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
 | GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |

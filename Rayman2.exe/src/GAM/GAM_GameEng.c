@@ -20,7 +20,6 @@
 #include "GAM/GAM_globals.h"
 #include "SCT/SectExt.h"
 #include "GAM/AlwAct.h"
-#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 
 extern void *__cdecl fn_p_stDynamGetDynamics(void *h_Dynam);
 /* 0x0042DE30 */
@@ -759,12 +758,16 @@ static const unsigned char GAM_g_ucEraseBackground_storage = 1;
 #define GAM_g_ucEraseBackground     (GAM_g_ucEraseBackground_storage)
 #define GAM_g_ucMirrorDisplayMode   GAM_g_bInGameMenu   /* 0x004B9BC8 */
 
-#ifndef USE_SDL   /* GAM/GAM_DrawSem.h */
+#if defined(USE_SDL)
+/* As GAM/GAM_pc_DrawLock.h: one engine thread, no draw lock */
+#define GAM_pc_M_ulWaitDrawSemaphore(hSemaphore)
+#define GAM_pc_M_bReleaseDrawSemaphore(hSemaphore)
+#else /* original Win32 */
 __declspec(dllimport) unsigned long __stdcall WaitForSingleObject(void *hHandle, unsigned long dwMilliseconds);
-#endif /* USE_SDL */
 
 #define GAM_pc_M_ulWaitDrawSemaphore(hSemaphore)   WaitForSingleObject((hSemaphore), 0xFFFFFFFF)
 #define GAM_pc_M_bReleaseDrawSemaphore(hSemaphore) ReleaseSemaphore((hSemaphore), 1, 0)
+#endif /* USE_SDL */
 
 /* 0x0044C440 */
 extern void __cdecl FUN_0044c440(void);
@@ -920,7 +923,7 @@ void GAM_fn_vEngine(void)
     }
 }
 
-#ifndef USE_SDL   /* GAM/GAM_DrawSem.h */
+#ifndef USE_SDL   /* original Win32: the draw lock */
 __declspec(dllimport) int __stdcall ReleaseSemaphore(void *hSemaphore, long lReleaseCount, long *lpPreviousCount);
 #endif /* USE_SDL */
 

@@ -9,7 +9,6 @@
 #include "GLI/ui_reset_redraw.h"
 #include <string.h>
 #include <windows.h>
-#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 #ifdef RAYMAN2_WIDESCREEN
 #include "GLI/GLI_ratio.h"
 #endif /* RAYMAN2_WIDESCREEN */

@@ -2,7 +2,6 @@
 #include "GLI/GLI_globals.h"
 #include <windows.h>
 #include "GAM/GAM_pc_DrawLock.h"
-#include "GAM/GAM_DrawSem.h"   /* USE_SDL: the draw semaphore calls to the SDL semaphore */
 #include "TMP/TmpMem.h"
 #include "ERM/CpaError.h"
 #include "FIL/File.h"
