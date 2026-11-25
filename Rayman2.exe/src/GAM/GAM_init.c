@@ -103,7 +103,7 @@ unsigned char __cdecl FUN_0044f4f0(void)
 /* 0x0044f510 */
 void __cdecl GAM_pc_fn_vCloseExternalCtrlFile(void)
 {
-    if (GAM_pc_g_stExternalCtrlFile.hFile != INVALID_HANDLE_VALUE)
+    if (GAM_pc_g_stExternalCtrlFile.hFile != SNA_pc_C_hInvalidFile)
         SNA_pc_bCloseFile(&GAM_pc_g_stExternalCtrlFile);
 }
 
@@ -476,7 +476,7 @@ void __cdecl GAM_pc_fn_vOpenDsbFile(int lMode, const char *szOpenMode)
     char szOrig[256];
     char cMode;
 
-    if (GAM_pc_g_stExternalCtrlFile.hFile != INVALID_HANDLE_VALUE)
+    if (GAM_pc_g_stExternalCtrlFile.hFile != SNA_pc_C_hInvalidFile)
     {
         GAM_pc_fn_vCloseExternalCtrlFile();
     }
@@ -734,7 +734,7 @@ static void FUN_00405a30(void)
 unsigned long __cdecl GAM_pc_fn_ulReadExternalCtrlCmd(void)
 {
     unsigned long ulWord;
-    if (GAM_pc_g_stExternalCtrlFile.hFile == INVALID_HANDLE_VALUE)
+    if (GAM_pc_g_stExternalCtrlFile.hFile == SNA_pc_C_hInvalidFile)
         return 0xffffffff;
     if (GAM_pc_g_stExternalCtrlFile.ulValid == 0)
         return 0xffff;

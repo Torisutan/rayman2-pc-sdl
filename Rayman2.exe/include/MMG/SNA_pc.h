@@ -3,10 +3,22 @@
 
 #include "SND/snddef.h"
 #ifndef FILE_MODE_C_WIN95
-/* Level data files on the C runtime's streams (MMG/SNA_file.c). The callers pass the Win32
-   values (access, creation, attributes, seek origin) and test the Win32 results, so the
-   functions take and give those values. */
+/* Level data files on the C runtime's streams (MMG/SNA_file.c). The values keep the Win32
+   numbers of the other branch (the seek origins keep End = Current + 1, SNA.c relies on it);
+   creation and attributes have no C runtime meaning. */
 typedef void *SNA_pc_tdhFile;
+
+#define SNA_pc_C_hInvalidFile           ((SNA_pc_tdhFile)(long)-1)
+#define SNA_pc_C_ulAccessRead           0x80000000UL
+#define SNA_pc_C_ulAccessWrite          0x40000000UL
+#define SNA_pc_C_ulOpenExisting         3UL
+#define SNA_pc_C_ulCreateAlways         2UL
+#define SNA_pc_C_ulAttributeNormal      0x80UL
+#define SNA_pc_C_ulAttributeReadOnly    0x01UL
+#define SNA_pc_C_ulSeekBegin            0UL
+#define SNA_pc_C_ulSeekCurrent          1UL
+#define SNA_pc_C_ulSeekEnd              2UL
+
 SNA_pc_tdhFile __cdecl SNA_pc_fn_hOpenFileC(const char *szPath, unsigned long ulAccess);
 int __cdecl SNA_pc_fn_bReadFileC(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned long ulBytes,
                                  unsigned long *p_ulRead);
@@ -27,6 +39,17 @@ int __cdecl SNA_pc_fn_bSetFileAttributesC(const char *szPath, unsigned long ulAt
     SNA_pc_fn_bSetFileAttributesC((szPath), (ulAttributes))
 #else /* original Win32 */
 typedef HANDLE SNA_pc_tdhFile;
+
+#define SNA_pc_C_hInvalidFile           INVALID_HANDLE_VALUE
+#define SNA_pc_C_ulAccessRead           GENERIC_READ
+#define SNA_pc_C_ulAccessWrite          GENERIC_WRITE
+#define SNA_pc_C_ulOpenExisting         OPEN_EXISTING
+#define SNA_pc_C_ulCreateAlways         CREATE_ALWAYS
+#define SNA_pc_C_ulAttributeNormal      FILE_ATTRIBUTE_NORMAL
+#define SNA_pc_C_ulAttributeReadOnly    FILE_ATTRIBUTE_READONLY
+#define SNA_pc_C_ulSeekBegin            FILE_BEGIN
+#define SNA_pc_C_ulSeekCurrent          FILE_CURRENT
+#define SNA_pc_C_ulSeekEnd              FILE_END
 
 #define SNA_pc_M_hOpenFile(szPath, ulAccess, ulCreation, ulFlags) \
     CreateFileA((szPath), (ulAccess), 0, NULL, (ulCreation), (ulFlags), NULL)

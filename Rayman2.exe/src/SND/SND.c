@@ -84,7 +84,6 @@ t_SND_PerTypeRealFn     g_pfn_SND_GetPosCD;
 #include "SND/sndplay.h"
 #include "SND/sndspace.h"
 #include "SND/sndldbin.h"
-#include "FIL/FIL_pc.h"
 
 /* 0x004B8C98 */
 void __cdecl SND_fn_vPauseSound(void)
@@ -2011,6 +2010,7 @@ long __cdecl SND_fn_lAddObjectTypeSound2(void *ptrfct, void *lLine)
 }
 
 #include <windows.h>
+#include "FIL/FIL_pc.h"
 #include "SND/sndfile.h"
 #include "ERM/CpaError.h"
 #include "MMG/MMG_alloc.h"

@@ -383,7 +383,7 @@ int __cdecl SNA_pc_vLoadAndRelocate(char *_szFile)
     char           a_cTemp[256];
     unsigned char  ucOk;
     unsigned long  ulMainHeader = 0;
-    DWORD          dwRead = 0;
+    unsigned long  ulRead = 0;
     int            iReadOk;
     unsigned long  ulModule;
     unsigned long  ulBlock;
@@ -416,7 +416,7 @@ int __cdecl SNA_pc_vLoadAndRelocate(char *_szFile)
         }
     }
 
-    iReadOk = SNA_pc_M_bReadFile(((SNA_pc_tdstStream *)a_ucStream)->hFile, &ulMainHeader, 4, &dwRead);
+    iReadOk = SNA_pc_M_bReadFile(((SNA_pc_tdstStream *)a_ucStream)->hFile, &ulMainHeader, 4, &ulRead);
 
     if (SNA_g_pGptContext != NULL) {
         SNA_pc_vFreeGptTable(SNA_g_pGptContext);
@@ -554,19 +554,21 @@ void __cdecl SNA_pc_vOpenGptFile(char *_szPath)
     char a_cTemp[256];
 
     SNA_pc_vInitLoadLists();
-    SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, GENERIC_READ, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL);
-    if (SNA_g_hGptFile == INVALID_HANDLE_VALUE) {
+    SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                                        SNA_pc_C_ulAttributeNormal);
+    if (SNA_g_hGptFile == SNA_pc_C_hInvalidFile) {
         strcpy(a_cTemp, _szPath);
         sprintf(_szPath, SNA_C_szFmtCd, (int)SNA_g_cCdDriveLetter, a_cTemp);
-        SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, GENERIC_READ, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL);
-        while (SNA_g_hGptFile == INVALID_HANDLE_VALUE) {
+        SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                                            SNA_pc_C_ulAttributeNormal);
+        while (SNA_g_hGptFile == SNA_pc_C_hInvalidFile) {
             int iResponse = SNA_p_iAskInsertCd(SNA_C_szInsertCd,
                                                SNA_C_szInsertCd, 0x40035);
             if (iResponse == 2) {
                 SNA_p_vOnCdPromptAbort();
             }
-            SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, GENERIC_READ, OPEN_EXISTING,
-                                                FILE_ATTRIBUTE_NORMAL);
+            SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                                                SNA_pc_C_ulAttributeNormal);
         }
         strcpy(_szPath, a_cTemp);
     }

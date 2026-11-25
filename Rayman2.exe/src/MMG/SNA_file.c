@@ -21,17 +21,12 @@
 
 #include "MMG/SNA_pc.h"
 
-/* The Win32 values the callers pass and test */
-#define SNA_pc_C_ulWriteAccess  0x40000000UL                /* write access (else read) */
-#define SNA_pc_C_hNoFile        ((SNA_pc_tdhFile)(long)-1)  /* failed open */
-#define SNA_pc_C_ulSeekFailed   0xFFFFFFFFUL                /* failed seek */
-#define SNA_pc_C_ulSeekBegin    0UL                         /* seek origins */
-#define SNA_pc_C_ulSeekCurrent  1UL
-#define SNA_pc_C_ulSeekEnd      2UL
+/* A failed seek (the Win32 branch gives INVALID_SET_FILE_POINTER; no caller tests it) */
+#define SNA_pc_C_ulSeekFailed   0xFFFFFFFFUL
 
 /* A handle that is no open file (NULL, failed open): the Win32 calls fail on it and do
    nothing, while the C runtime would stop the process */
-#define M_SNA_bIsNoFile(hFile)  ((hFile) == NULL || (hFile) == SNA_pc_C_hNoFile)
+#define M_SNA_bIsNoFile(hFile)  ((hFile) == NULL || (hFile) == SNA_pc_C_hInvalidFile)
 
 /*
  ----------------------------------------------------------------------------------------
@@ -43,9 +38,9 @@
  */
 SNA_pc_tdhFile __cdecl SNA_pc_fn_hOpenFileC(const char *szPath, unsigned long ulAccess)
 {
-    FILE *p_stFile = fopen(szPath, (ulAccess & SNA_pc_C_ulWriteAccess) ? "wb" : "rb");
+    FILE *p_stFile = fopen(szPath, (ulAccess & SNA_pc_C_ulAccessWrite) ? "wb" : "rb");
 
-    return p_stFile != NULL ? (SNA_pc_tdhFile)p_stFile : SNA_pc_C_hNoFile;
+    return p_stFile != NULL ? (SNA_pc_tdhFile)p_stFile : SNA_pc_C_hInvalidFile;
 }
 
 /*
