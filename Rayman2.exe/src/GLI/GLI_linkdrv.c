@@ -93,7 +93,7 @@ static const GLI_pc_tdstLinkedDriver GLI_pc_a_stLinkedDrivers[] =
 
 #define GLI_pc_C_lNbLinkedDrivers  ((long)(sizeof(GLI_pc_a_stLinkedDrivers) / sizeof(GLI_pc_a_stLinkedDrivers[0])))
 
-/* The driver GLI_pc_fn_hLoadDriver returned last when it is linked in, else NULL */
+/* The driver GLI_fn_hLoadDriver returned last when it is linked in, else NULL */
 static const GLI_pc_tdstLinkedDriver *GLI_pc_g_p_stLinkedDriver = NULL;
 
 /*
@@ -102,7 +102,7 @@ static const GLI_pc_tdstLinkedDriver *GLI_pc_g_p_stLinkedDriver = NULL;
                   own module handle (it lives there) and its DllMain work done once.
  ----------------------------------------------------------------------------------------
  */
-HMODULE __stdcall GLI_pc_fn_hLoadDriver(const char *szFileName)
+HMODULE __stdcall GLI_fn_hLoadDriver(const char *szFileName)
 {
     long lDriver;
 
@@ -121,11 +121,11 @@ HMODULE __stdcall GLI_pc_fn_hLoadDriver(const char *szFileName)
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : GetProcAddress for the driver GLI_pc_fn_hLoadDriver returned last.
+  Description   : GetProcAddress for the driver GLI_fn_hLoadDriver returned last.
                   A name the linked-in driver does not have gives NULL, as for a DLL.
  ----------------------------------------------------------------------------------------
  */
-FARPROC __stdcall GLI_pc_fn_pfnGetDriverProc(HMODULE hDriver, const char *szName)
+FARPROC __stdcall GLI_fn_pfnGetDriverProc(HMODULE hDriver, const char *szName)
 {
     const GLI_pc_tdstLinkedProc *p_stProc;
 

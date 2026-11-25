@@ -19,24 +19,24 @@ typedef void *SNA_pc_tdhFile;
 #define SNA_pc_C_ulSeekCurrent          1UL
 #define SNA_pc_C_ulSeekEnd              2UL
 
-SNA_pc_tdhFile __cdecl SNA_pc_fn_hOpenFileC(const char *szPath, unsigned long ulAccess);
-int __cdecl SNA_pc_fn_bReadFileC(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned long ulBytes,
+SNA_pc_tdhFile __cdecl SNA_fn_hOpenFile(const char *szPath, unsigned long ulAccess);
+int __cdecl SNA_fn_bReadFile(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned long ulBytes,
                                  unsigned long *p_ulRead);
-unsigned long __cdecl SNA_pc_fn_ulSeekFileC(SNA_pc_tdhFile hFile, long lDistance,
+unsigned long __cdecl SNA_fn_ulSeekFile(SNA_pc_tdhFile hFile, long lDistance,
                                             unsigned long ulOrigin);
-int __cdecl SNA_pc_fn_bCloseFileC(SNA_pc_tdhFile hFile);
-unsigned long __cdecl SNA_pc_fn_ulGetFileAttributesC(const char *szPath);
-int __cdecl SNA_pc_fn_bSetFileAttributesC(const char *szPath, unsigned long ulAttributes);
+int __cdecl SNA_fn_bCloseFile(SNA_pc_tdhFile hFile);
+unsigned long __cdecl SNA_fn_ulGetFileAttributes(const char *szPath);
+int __cdecl SNA_fn_bSetFileAttributes(const char *szPath, unsigned long ulAttributes);
 #define SNA_pc_M_hOpenFile(szPath, ulAccess, ulCreation, ulFlags) \
-    SNA_pc_fn_hOpenFileC((szPath), (ulAccess))
+    SNA_fn_hOpenFile((szPath), (ulAccess))
 #define SNA_pc_M_bReadFile(hFile, p_vBuffer, ulBytes, p_ulRead) \
-    SNA_pc_fn_bReadFileC((hFile), (p_vBuffer), (ulBytes), (p_ulRead))
+    SNA_fn_bReadFile((hFile), (p_vBuffer), (ulBytes), (p_ulRead))
 #define SNA_pc_M_ulSeekFile(hFile, lDistance, ulOrigin) \
-    SNA_pc_fn_ulSeekFileC((hFile), (lDistance), (ulOrigin))
-#define SNA_pc_M_bCloseFile(hFile) SNA_pc_fn_bCloseFileC(hFile)
-#define SNA_pc_M_ulGetFileAttributes(szPath) SNA_pc_fn_ulGetFileAttributesC(szPath)
+    SNA_fn_ulSeekFile((hFile), (lDistance), (ulOrigin))
+#define SNA_pc_M_bCloseFile(hFile) SNA_fn_bCloseFile(hFile)
+#define SNA_pc_M_ulGetFileAttributes(szPath) SNA_fn_ulGetFileAttributes(szPath)
 #define SNA_pc_M_bSetFileAttributes(szPath, ulAttributes) \
-    SNA_pc_fn_bSetFileAttributesC((szPath), (ulAttributes))
+    SNA_fn_bSetFileAttributes((szPath), (ulAttributes))
 #else /* original Win32 */
 typedef HANDLE SNA_pc_tdhFile;
 

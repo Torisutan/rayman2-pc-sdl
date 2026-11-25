@@ -46,7 +46,7 @@ typedef struct FIL_pc_tdstIniText_
                   cannot be read
  ----------------------------------------------------------------------------------------
  */
-static char *FIL_pc_fn_p_cLoadIni(const char *szFileName, long *p_lSize)
+static char *FIL_fn_p_cLoadIni(const char *szFileName, long *p_lSize)
 {
     FILE *p_stFile = fopen(szFileName, "rb");
     char *d_cText;
@@ -74,7 +74,7 @@ static char *FIL_pc_fn_p_cLoadIni(const char *szFileName, long *p_lSize)
   Description   : Length of the line at p_cLine without its end; *p_p_cNext = next line
  ----------------------------------------------------------------------------------------
  */
-static long FIL_pc_fn_lLineLength(const char *p_cLine, const char *p_cEnd, const char **p_p_cNext)
+static long FIL_fn_lLineLength(const char *p_cLine, const char *p_cEnd, const char **p_p_cNext)
 {
     const char *p_cScan = p_cLine;
 
@@ -86,7 +86,7 @@ static long FIL_pc_fn_lLineLength(const char *p_cLine, const char *p_cEnd, const
     return (long)(p_cScan - p_cLine);
 }
 
-static void FIL_pc_fn_vTrim(const char **p_p_cText, long *p_lLength)
+static void FIL_fn_vTrim(const char **p_p_cText, long *p_lLength)
 {
     while ( *p_lLength > 0 && (**p_p_cText == ' ' || **p_p_cText == '\t') )
     {
@@ -102,20 +102,20 @@ static void FIL_pc_fn_vTrim(const char **p_p_cText, long *p_lLength)
   Description   : What the line is; its section name, or its key name and value
  ----------------------------------------------------------------------------------------
  */
-static long FIL_pc_fn_lParseIniLine(const char *p_cLine, long lLength,
+static long FIL_fn_lParseIniLine(const char *p_cLine, long lLength,
                                     const char **p_p_cName, long *p_lName,
                                     const char **p_p_cValue, long *p_lValue)
 {
     long lChar;
 
-    FIL_pc_fn_vTrim(&p_cLine, &lLength);
+    FIL_fn_vTrim(&p_cLine, &lLength);
     if ( lLength > 0 && p_cLine[0] == '[' )
     {
         for ( lChar = 1 ; lChar < lLength && p_cLine[lChar] != ']' ; lChar++ )
             ;
         *p_p_cName = p_cLine + 1;
         *p_lName   = lChar - 1;
-        FIL_pc_fn_vTrim(p_p_cName, p_lName);
+        FIL_fn_vTrim(p_p_cName, p_lName);
         return FIL_pc_C_lIniSection;
     }
     for ( lChar = 0 ; lChar < lLength && p_cLine[lChar] != '=' ; lChar++ )
@@ -125,10 +125,10 @@ static long FIL_pc_fn_lParseIniLine(const char *p_cLine, long lLength,
 
     *p_p_cName  = p_cLine;
     *p_lName    = lChar;
-    FIL_pc_fn_vTrim(p_p_cName, p_lName);
+    FIL_fn_vTrim(p_p_cName, p_lName);
     *p_p_cValue = p_cLine + lChar + 1;
     *p_lValue   = lLength - lChar - 1;
-    FIL_pc_fn_vTrim(p_p_cValue, p_lValue);
+    FIL_fn_vTrim(p_p_cValue, p_lValue);
     if ( *p_lValue >= 2 && ((*p_p_cValue)[0] == '"' || (*p_p_cValue)[0] == '\'')
       && (*p_p_cValue)[*p_lValue - 1] == (*p_p_cValue)[0] )
     {
@@ -139,7 +139,7 @@ static long FIL_pc_fn_lParseIniLine(const char *p_cLine, long lLength,
 }
 
 /* Name of lLength characters equal to szName, without case */
-static int FIL_pc_fn_bSameName(const char *p_cName, long lLength, const char *szName)
+static int FIL_fn_bSameName(const char *p_cName, long lLength, const char *szName)
 {
     long lChar;
 
@@ -154,7 +154,7 @@ static int FIL_pc_fn_bSameName(const char *p_cName, long lLength, const char *sz
 }
 
 /* One string into szReturn, cut to fit: the characters copied */
-static unsigned long FIL_pc_fn_ulCopyString(char *szReturn, unsigned long ulSize,
+static unsigned long FIL_fn_ulCopyString(char *szReturn, unsigned long ulSize,
                                             const char *p_cText, long lLength)
 {
     unsigned long ulCopy = (unsigned long)lLength < ulSize - 1 ? (unsigned long)lLength : ulSize - 1;
@@ -171,7 +171,7 @@ static unsigned long FIL_pc_fn_ulCopyString(char *szReturn, unsigned long ulSize
                   the list ended, *p_ulPos = ulSize - 2.
  ----------------------------------------------------------------------------------------
  */
-static int FIL_pc_fn_bAddToList(char *szReturn, unsigned long ulSize, unsigned long *p_ulPos,
+static int FIL_fn_bAddToList(char *szReturn, unsigned long ulSize, unsigned long *p_ulPos,
                                 const char *p_cName, long lLength)
 {
     if ( *p_ulPos + (unsigned long)lLength + 2 >= ulSize )
@@ -195,7 +195,7 @@ static int FIL_pc_fn_bAddToList(char *szReturn, unsigned long ulSize, unsigned l
   Description   : GetPrivateProfileStringA
  ----------------------------------------------------------------------------------------
  */
-unsigned long __cdecl FIL_pc_fn_ulGetProfileStringC(const char *szSection, const char *szKey,
+unsigned long __cdecl FIL_fn_ulGetProfileString(const char *szSection, const char *szKey,
                                                     const char *szDefault, char *szReturn,
                                                     unsigned long ulSize, const char *szFileName)
 {
@@ -219,7 +219,7 @@ unsigned long __cdecl FIL_pc_fn_ulGetProfileStringC(const char *szSection, const
         lLength--;
     d_cDefault[lLength] = '\0';
 
-    d_cText = FIL_pc_fn_p_cLoadIni(szFileName, &lSize);
+    d_cText = FIL_fn_p_cLoadIni(szFileName, &lSize);
     p_cLine = (d_cText != NULL) ? d_cText : "";
     p_cEnd  = p_cLine + lSize;
 
@@ -235,29 +235,29 @@ unsigned long __cdecl FIL_pc_fn_ulGetProfileStringC(const char *szSection, const
         {
             for ( ; p_cLine < p_cEnd && !bFull ; p_cLine = p_cNext )
             {
-                lLength = FIL_pc_fn_lLineLength(p_cLine, p_cEnd, &p_cNext);
-                lType = FIL_pc_fn_lParseIniLine(p_cLine, lLength, &p_cName, &lName, &p_cValue, &lValue);
+                lLength = FIL_fn_lLineLength(p_cLine, p_cEnd, &p_cNext);
+                lType = FIL_fn_lParseIniLine(p_cLine, lLength, &p_cName, &lName, &p_cValue, &lValue);
                 if ( lType == FIL_pc_C_lIniSection )
                 {
                     if ( szSection == NULL )
-                        bFull = !FIL_pc_fn_bAddToList(szReturn, ulSize, &ulPos, p_cName, lName);
+                        bFull = !FIL_fn_bAddToList(szReturn, ulSize, &ulPos, p_cName, lName);
                     else if ( bInSection )
                         break;                  /* only the first section of that name */
                     else
                     {
-                        bInSection = FIL_pc_fn_bSameName(p_cName, lName, szSection);
+                        bInSection = FIL_fn_bSameName(p_cName, lName, szSection);
                         bSectionSeen |= bInSection;
                     }
                 }
                 else if ( lType == FIL_pc_C_lIniKey && szSection != NULL && bInSection )
-                    bFull = !FIL_pc_fn_bAddToList(szReturn, ulSize, &ulPos, p_cName, lName);
+                    bFull = !FIL_fn_bAddToList(szReturn, ulSize, &ulPos, p_cName, lName);
             }
             if ( !bFull )
                 szReturn[ulPos] = '\0';
             ulResult = ulPos;
             /* no such file, or no such section: the default, as for a value */
             if ( szSection == NULL ? d_cText == NULL : !bSectionSeen )
-                ulResult = FIL_pc_fn_ulCopyString(szReturn, ulSize, d_cDefault, (long)strlen(d_cDefault));
+                ulResult = FIL_fn_ulCopyString(szReturn, ulSize, d_cDefault, (long)strlen(d_cDefault));
         }
     }
     else
@@ -266,22 +266,22 @@ unsigned long __cdecl FIL_pc_fn_ulGetProfileStringC(const char *szSection, const
         ulResult = (unsigned long)-1;
         for ( ; p_cLine < p_cEnd ; p_cLine = p_cNext )
         {
-            lLength = FIL_pc_fn_lLineLength(p_cLine, p_cEnd, &p_cNext);
-            lType = FIL_pc_fn_lParseIniLine(p_cLine, lLength, &p_cName, &lName, &p_cValue, &lValue);
+            lLength = FIL_fn_lLineLength(p_cLine, p_cEnd, &p_cNext);
+            lType = FIL_fn_lParseIniLine(p_cLine, lLength, &p_cName, &lName, &p_cValue, &lValue);
             if ( lType == FIL_pc_C_lIniSection )
             {
                 if ( bInSection )
                     break;                      /* only the first section of that name */
-                bInSection = FIL_pc_fn_bSameName(p_cName, lName, szSection);
+                bInSection = FIL_fn_bSameName(p_cName, lName, szSection);
             }
-            else if ( lType == FIL_pc_C_lIniKey && bInSection && FIL_pc_fn_bSameName(p_cName, lName, szKey) )
+            else if ( lType == FIL_pc_C_lIniKey && bInSection && FIL_fn_bSameName(p_cName, lName, szKey) )
             {
-                ulResult = FIL_pc_fn_ulCopyString(szReturn, ulSize, p_cValue, lValue);
+                ulResult = FIL_fn_ulCopyString(szReturn, ulSize, p_cValue, lValue);
                 break;
             }
         }
         if ( ulResult == (unsigned long)-1 )
-            ulResult = FIL_pc_fn_ulCopyString(szReturn, ulSize, d_cDefault, (long)strlen(d_cDefault));
+            ulResult = FIL_fn_ulCopyString(szReturn, ulSize, d_cDefault, (long)strlen(d_cDefault));
     }
 
     free(d_cText);
@@ -290,7 +290,7 @@ unsigned long __cdecl FIL_pc_fn_ulGetProfileStringC(const char *szSection, const
 }
 
 /* lLength characters inserted into the text at lPos */
-static int FIL_pc_fn_bInsertText(FIL_pc_tdstIniText *p_stText, long lPos, const char *p_cText, long lLength)
+static int FIL_fn_bInsertText(FIL_pc_tdstIniText *p_stText, long lPos, const char *p_cText, long lLength)
 {
     if ( p_stText->lLength + lLength + 1 > p_stText->lCapacity )
     {
@@ -309,14 +309,14 @@ static int FIL_pc_fn_bInsertText(FIL_pc_tdstIniText *p_stText, long lPos, const 
 }
 
 #define M_FIL_bAppendText(p_stTo, p_cFrom, lFrom) \
-    FIL_pc_fn_bInsertText((p_stTo), (p_stTo)->lLength, (p_cFrom), (lFrom))
+    FIL_fn_bInsertText((p_stTo), (p_stTo)->lLength, (p_cFrom), (lFrom))
 
 /* Line end of the lines WritePrivateProfileStringA writes, whatever the file uses */
 #define FIL_pc_C_szIniEol  "\r\n"
 #define FIL_pc_C_lIniEol   2
 
 /* "key=value" and a line end inserted at lPos, after a line end of its own if the text there has none */
-static int FIL_pc_fn_bInsertKey(FIL_pc_tdstIniText *p_stText, long lPos, const char *p_cKey, long lKey,
+static int FIL_fn_bInsertKey(FIL_pc_tdstIniText *p_stText, long lPos, const char *p_cKey, long lKey,
                                 const char *szValue)
 {
     long lValue = (long)strlen(szValue);
@@ -324,15 +324,15 @@ static int FIL_pc_fn_bInsertKey(FIL_pc_tdstIniText *p_stText, long lPos, const c
 
     if ( lPos > 0 && p_stText->d_cText[lPos - 1] != '\n' )
     {
-        bOk  = FIL_pc_fn_bInsertText(p_stText, lPos, FIL_pc_C_szIniEol, FIL_pc_C_lIniEol);
+        bOk  = FIL_fn_bInsertText(p_stText, lPos, FIL_pc_C_szIniEol, FIL_pc_C_lIniEol);
         lPos += FIL_pc_C_lIniEol;
     }
-    bOk = bOk && FIL_pc_fn_bInsertText(p_stText, lPos, p_cKey, lKey);
+    bOk = bOk && FIL_fn_bInsertText(p_stText, lPos, p_cKey, lKey);
     lPos += lKey;
-    bOk = bOk && FIL_pc_fn_bInsertText(p_stText, lPos++, "=", 1);
-    bOk = bOk && FIL_pc_fn_bInsertText(p_stText, lPos, szValue, lValue);
+    bOk = bOk && FIL_fn_bInsertText(p_stText, lPos++, "=", 1);
+    bOk = bOk && FIL_fn_bInsertText(p_stText, lPos, szValue, lValue);
     lPos += lValue;
-    return bOk && FIL_pc_fn_bInsertText(p_stText, lPos, FIL_pc_C_szIniEol, FIL_pc_C_lIniEol);
+    return bOk && FIL_fn_bInsertText(p_stText, lPos, FIL_pc_C_szIniEol, FIL_pc_C_lIniEol);
 }
 
 /*
@@ -344,7 +344,7 @@ static int FIL_pc_fn_bInsertKey(FIL_pc_tdstIniText *p_stText, long lPos, const c
                   name is touched. Written lines end in "\r\n", as Win32 writes them.
  ----------------------------------------------------------------------------------------
  */
-int __cdecl FIL_pc_fn_bWriteProfileStringC(const char *szSection, const char *szKey,
+int __cdecl FIL_fn_bWriteProfileString(const char *szSection, const char *szKey,
                                            const char *szValue, const char *szFileName)
 {
     FIL_pc_tdstIniText stText = { NULL, 0, 0 };
@@ -358,22 +358,22 @@ int __cdecl FIL_pc_fn_bWriteProfileStringC(const char *szSection, const char *sz
         return 0;
     bAdd = (szKey != NULL && szValue != NULL);
 
-    d_cText = FIL_pc_fn_p_cLoadIni(szFileName, &lSize);
+    d_cText = FIL_fn_p_cLoadIni(szFileName, &lSize);
     p_cLine = (d_cText != NULL) ? d_cText : "";
     p_cEnd  = p_cLine + lSize;
 
     for ( ; p_cLine < p_cEnd && bOk ; p_cLine = p_cNext )
     {
-        lLength = FIL_pc_fn_lLineLength(p_cLine, p_cEnd, &p_cNext);
-        lType = FIL_pc_fn_lParseIniLine(p_cLine, lLength, &p_cName, &lName, &p_cValue, &lValue);
+        lLength = FIL_fn_lLineLength(p_cLine, p_cEnd, &p_cNext);
+        lType = FIL_fn_lParseIniLine(p_cLine, lLength, &p_cName, &lName, &p_cValue, &lValue);
         if ( lType == FIL_pc_C_lIniSection )
         {
             if ( bInSection && bAdd && !bDone )
             {
-                bOk  = FIL_pc_fn_bInsertKey(&stText, lInsertPos, szKey, (long)strlen(szKey), szValue);
+                bOk  = FIL_fn_bInsertKey(&stText, lInsertPos, szKey, (long)strlen(szKey), szValue);
                 bDone = 1;
             }
-            bInSection = !bSectionSeen && FIL_pc_fn_bSameName(p_cName, lName, szSection);
+            bInSection = !bSectionSeen && FIL_fn_bSameName(p_cName, lName, szSection);
             bSectionSeen |= bInSection;
             if ( bInSection && szKey == NULL )
                 continue;                       /* the whole section goes */
@@ -382,7 +382,7 @@ int __cdecl FIL_pc_fn_bWriteProfileStringC(const char *szSection, const char *sz
         {
             if ( szKey == NULL )
                 continue;
-            if ( lType == FIL_pc_C_lIniKey && !bDone && FIL_pc_fn_bSameName(p_cName, lName, szKey) )
+            if ( lType == FIL_pc_C_lIniKey && !bDone && FIL_fn_bSameName(p_cName, lName, szKey) )
             {
                 bDone = 1;
                 if ( szValue != NULL )
@@ -408,7 +408,7 @@ int __cdecl FIL_pc_fn_bWriteProfileStringC(const char *szSection, const char *sz
             lInsertPos = stText.lLength;
     }
     if ( bOk && bInSection && bAdd && !bDone )
-        bOk = FIL_pc_fn_bInsertKey(&stText, lInsertPos, szKey, (long)strlen(szKey), szValue);
+        bOk = FIL_fn_bInsertKey(&stText, lInsertPos, szKey, (long)strlen(szKey), szValue);
     if ( bOk && !bSectionSeen && bAdd )
     {
         if ( stText.lLength > 0 && stText.d_cText[stText.lLength - 1] != '\n' )
@@ -417,7 +417,7 @@ int __cdecl FIL_pc_fn_bWriteProfileStringC(const char *szSection, const char *sz
                   && M_FIL_bAppendText(&stText, szSection, (long)strlen(szSection))
                   && M_FIL_bAppendText(&stText, "]", 1)
                   && M_FIL_bAppendText(&stText, FIL_pc_C_szIniEol, FIL_pc_C_lIniEol)
-                  && FIL_pc_fn_bInsertKey(&stText, stText.lLength, szKey, (long)strlen(szKey), szValue);
+                  && FIL_fn_bInsertKey(&stText, stText.lLength, szKey, (long)strlen(szKey), szValue);
     }
     /* Win32 ends the file it rewrites with a line end, even when nothing else changed */
     if ( bOk && stText.lLength > 0 && stText.d_cText[stText.lLength - 1] != '\n' )

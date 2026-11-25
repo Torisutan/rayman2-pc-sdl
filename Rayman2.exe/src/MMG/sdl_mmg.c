@@ -21,7 +21,7 @@
   Description   : Create the MMG lock (InitializeCriticalSection on PC)
  ----------------------------------------------------------------------------------------
  */
-void __cdecl MMG_sdl_fn_vCreateCriticalSection(void)
+void __cdecl MMG_fn_vCreateCriticalSection(void)
 {
     g_csMmg = SDL_CreateMutex();
 }
@@ -31,7 +31,7 @@ void __cdecl MMG_sdl_fn_vCreateCriticalSection(void)
   Description   : Take the MMG lock (EnterCriticalSection on PC)
  ----------------------------------------------------------------------------------------
  */
-void __cdecl MMG_sdl_fn_vEnterCriticalSection(void)
+void __cdecl MMG_fn_vEnterCriticalSection(void)
 {
     SDL_LockMutex(g_csMmg);
 }
@@ -41,7 +41,7 @@ void __cdecl MMG_sdl_fn_vEnterCriticalSection(void)
   Description   : Give the MMG lock back (LeaveCriticalSection on PC)
  ----------------------------------------------------------------------------------------
  */
-void __cdecl MMG_sdl_fn_vLeaveCriticalSection(void)
+void __cdecl MMG_fn_vLeaveCriticalSection(void)
 {
     SDL_UnlockMutex(g_csMmg);
 }
@@ -51,7 +51,7 @@ void __cdecl MMG_sdl_fn_vLeaveCriticalSection(void)
   Description   : Delete the MMG lock (DeleteCriticalSection on PC)
  ----------------------------------------------------------------------------------------
  */
-void __cdecl MMG_sdl_fn_vDeleteCriticalSection(void)
+void __cdecl MMG_fn_vDeleteCriticalSection(void)
 {
     SDL_DestroyMutex(g_csMmg);
     g_csMmg = NULL;

@@ -586,6 +586,11 @@ its condition.
   driver (`USE_GLI_GL`), not before. Fork `#endif`s name their condition; file-local macros
   carry the module prefix (`SNA_M_bIsNoFile`, `GLI_M_LinkedProc`), as the original's
   `<MOD>_M_*`. Measured: all objects of the five builds identical except the COFF time stamp.
+- Backend function names (decided 25.11.2026, as the original engine: its file functions are
+  `SND_fn_*` whatever the file mode, the platform only in branches and file names):
+  `<MOD>_fn_*`, no platform infix, no suffix. `FIL_fn_ulGetProfileString`, `SNA_fn_hOpenFile`,
+  `MMG_fn_vEnterCriticalSection`, `GLI_fn_hLoadDriver`, ... (were `FIL_pc_fn_*C`,
+  `SNA_pc_fn_*C`, `MMG_sdl_fn_*`, `GLI_pc_fn_*`). The decomp's own `<MOD>_pc_*` names stay.
 
 **Platform glue (decided 2026-11-25).** Below the seams (files, ini, locks, semaphores, tick
 counts, `Sleep`, thread ids) shared code calls module-owned names, not system API names:
@@ -763,10 +768,6 @@ relative to sound and the GL driver is the user's call.
 
 ## Open decisions
 - Platform layer: see Phase 5, open decisions.
-- Backend function names (asked 25.11.2026): the SDL backends are `MMG_sdl_fn_*`, the C runtime
-  backends `FIL_pc_fn_*C`, `SNA_pc_fn_*C`. The C runtime ones are not PC-only (consoles take
-  them), so `_pc_` misleads; the original sources at hand have no model. Candidate:
-  `<MOD>_fn_*` without `_pc` and without the `C` suffix. Rename only after the user decides.
 - Cross-build bit equality: does anything need it (demo playback, save data that stores
   positions)? Unchecked; per-target arithmetic (Phase 2, modern build reference) assumes not.
 - Big-endian data: swap at load time or convert offline.

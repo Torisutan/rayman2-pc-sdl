@@ -32,14 +32,14 @@
 
 #if defined(USE_SDL)
 /* The MMG lock with USE_SDL: an SDL mutex in g_csMmg (MMG/sdl_mmg.c) */
-void __cdecl MMG_sdl_fn_vCreateCriticalSection(void);
-void __cdecl MMG_sdl_fn_vEnterCriticalSection(void);
-void __cdecl MMG_sdl_fn_vLeaveCriticalSection(void);
-void __cdecl MMG_sdl_fn_vDeleteCriticalSection(void);
-#define Mmg_MCreateCriticalSection() MMG_sdl_fn_vCreateCriticalSection()
-#define Mmg_MEnterCriticalSection() MMG_sdl_fn_vEnterCriticalSection()
-#define Mmg_MLeaveCriticalSection() MMG_sdl_fn_vLeaveCriticalSection()
-#define Mmg_MDeleteCriticalSection() MMG_sdl_fn_vDeleteCriticalSection()
+void __cdecl MMG_fn_vCreateCriticalSection(void);
+void __cdecl MMG_fn_vEnterCriticalSection(void);
+void __cdecl MMG_fn_vLeaveCriticalSection(void);
+void __cdecl MMG_fn_vDeleteCriticalSection(void);
+#define Mmg_MCreateCriticalSection() MMG_fn_vCreateCriticalSection()
+#define Mmg_MEnterCriticalSection() MMG_fn_vEnterCriticalSection()
+#define Mmg_MLeaveCriticalSection() MMG_fn_vLeaveCriticalSection()
+#define Mmg_MDeleteCriticalSection() MMG_fn_vDeleteCriticalSection()
 #else /* original Win32 */
 #define Mmg_MCreateCriticalSection() InitializeCriticalSection (&g_csMmg)
 #define Mmg_MEnterCriticalSection() EnterCriticalSection (&g_csMmg)

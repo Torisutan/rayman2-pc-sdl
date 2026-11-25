@@ -36,7 +36,7 @@
                   change what is read.
  ----------------------------------------------------------------------------------------
  */
-SNA_pc_tdhFile __cdecl SNA_pc_fn_hOpenFileC(const char *szPath, unsigned long ulAccess)
+SNA_pc_tdhFile __cdecl SNA_fn_hOpenFile(const char *szPath, unsigned long ulAccess)
 {
     FILE *p_stFile = fopen(szPath, (ulAccess & SNA_pc_C_ulAccessWrite) ? "wb" : "rb");
 
@@ -49,7 +49,7 @@ SNA_pc_tdhFile __cdecl SNA_pc_fn_hOpenFileC(const char *szPath, unsigned long ul
                   error
  ----------------------------------------------------------------------------------------
  */
-int __cdecl SNA_pc_fn_bReadFileC(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned long ulBytes,
+int __cdecl SNA_fn_bReadFile(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned long ulBytes,
                                  unsigned long *p_ulRead)
 {
     FILE  *p_stFile = (FILE *)hFile;
@@ -73,7 +73,7 @@ int __cdecl SNA_pc_fn_bReadFileC(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned
                   end; the new position, or SNA_pc_C_ulSeekFailed
  ----------------------------------------------------------------------------------------
  */
-unsigned long __cdecl SNA_pc_fn_ulSeekFileC(SNA_pc_tdhFile hFile, long lDistance,
+unsigned long __cdecl SNA_fn_ulSeekFile(SNA_pc_tdhFile hFile, long lDistance,
                                             unsigned long ulOrigin)
 {
     FILE *p_stFile = (FILE *)hFile;
@@ -98,11 +98,11 @@ unsigned long __cdecl SNA_pc_fn_ulSeekFileC(SNA_pc_tdhFile hFile, long lDistance
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : Close a file of SNA_pc_fn_hOpenFileC (0 for no file, as Win32 gives for
+  Description   : Close a file of SNA_fn_hOpenFile (0 for no file, as Win32 gives for
                   NULL: closing a stream that never opened is a no-op)
  ----------------------------------------------------------------------------------------
  */
-int __cdecl SNA_pc_fn_bCloseFileC(SNA_pc_tdhFile hFile)
+int __cdecl SNA_fn_bCloseFile(SNA_pc_tdhFile hFile)
 {
     if ( SNA_M_bIsNoFile(hFile) )
         return 0;
@@ -115,13 +115,13 @@ int __cdecl SNA_pc_fn_bCloseFileC(SNA_pc_tdhFile hFile)
                   SNA_pc_bOpenFile has no read-only bit to clear.
  ----------------------------------------------------------------------------------------
  */
-unsigned long __cdecl SNA_pc_fn_ulGetFileAttributesC(const char *szPath)
+unsigned long __cdecl SNA_fn_ulGetFileAttributes(const char *szPath)
 {
     (void)szPath;
     return 0;
 }
 
-int __cdecl SNA_pc_fn_bSetFileAttributesC(const char *szPath, unsigned long ulAttributes)
+int __cdecl SNA_fn_bSetFileAttributes(const char *szPath, unsigned long ulAttributes)
 {
     (void)szPath; (void)ulAttributes;
     return 1;
