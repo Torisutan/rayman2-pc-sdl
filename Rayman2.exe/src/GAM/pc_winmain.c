@@ -719,6 +719,7 @@ int FUN_00402580(MSG *p_msg)
 /* 0x510BF0 */
 void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
 {
+#ifndef RAYMAN2_NO_PROTECTION   /* table and PSAPI handle of the protection's private imports */
     /* 0x0049C080 */
     typedef void (__stdcall *pfn_iat_t)(void *);
 
@@ -743,6 +744,7 @@ void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
         FreeLibrary((HMODULE)(void *)(unsigned int)g_p_ulMMGTable[2]);
     }
 #endif /* RAYMAN2_FIX_BUGS */
+#endif /* RAYMAN2_NO_PROTECTION */
 }
 
 /* 0x00401D40 */
