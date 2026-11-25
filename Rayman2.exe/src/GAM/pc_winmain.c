@@ -29,7 +29,7 @@ __declspec(dllimport) DWORD WINAPI timeGetTime(void);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "port/regress.h"
+#include "app/regress.h"
 
 /* 0x0049f07c */
 HINSTANCE g_hInstance_storage = (HINSTANCE)-1;

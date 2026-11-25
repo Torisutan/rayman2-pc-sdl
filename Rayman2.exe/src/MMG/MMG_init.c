@@ -6,7 +6,7 @@
 #include "MMG/MMG_globals.h"
 
 #include "GAM/GAM_globals.h"
-#include "port/regress.h"
+#include "app/regress.h"
 
 #ifndef RAYMAN2_NO_PROTECTION   /* private import resolver, code pool, kernel32 search, process enumeration */
 #define g_ulLCGState   MMG_g_ulLCGState

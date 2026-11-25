@@ -57,7 +57,7 @@ foreach(i RANGE ${R2_TU_LAST})
   # matching; the modern build uses one codegen for every TU.
 endforeach()
 
-# ---- resources: own icon and manifest (src/port/Rayman2.rc); the icon is generated ------------
+# ---- resources: own icon and manifest (src/app/Rayman2.rc); the icon is generated ------------
 set(R2_ICO ${CMAKE_BINARY_DIR}/Rayman2.ico)
 add_custom_command(
   OUTPUT ${R2_ICO}
@@ -65,8 +65,8 @@ add_custom_command(
   DEPENDS ${CMAKE_SOURCE_DIR}/tools/make_icon.py
   COMMENT "Generating Rayman2.ico"
   VERBATIM)
-set(R2_RC ${R2_DIR}/src/port/Rayman2.rc)
-set_source_files_properties(${R2_RC} PROPERTIES OBJECT_DEPENDS "${R2_ICO};${R2_DIR}/src/port/Rayman2.manifest")
+set(R2_RC ${R2_DIR}/src/app/Rayman2.rc)
+set_source_files_properties(${R2_RC} PROPERTIES OBJECT_DEPENDS "${R2_ICO};${R2_DIR}/src/app/Rayman2.manifest")
 
 # ---- exports: the sound driver DLLs call back into these ---------------------------------------
 file(STRINGS ${R2_DIR}/exports.txt R2_EXPORTS)
@@ -78,11 +78,11 @@ foreach(e ${R2_EXPORTS})
   endif()
 endforeach()
 
-# ---- fork-only code (Rayman2.exe/src/port), each part behind its own define ----------------------
-option(R2_REGRESS "Compile in the regression harness (src/port/regress.c; inactive unless R2_REGRESS_OUT is set)" ON)
+# ---- fork-only code (Rayman2.exe/src/app), each part behind its own define -----------------------
+option(R2_REGRESS "Compile in the regression harness (src/app/regress.c; inactive unless R2_REGRESS_OUT is set)" ON)
 set(R2_FORK_DEFINES)
 if(R2_REGRESS)
-  list(APPEND R2_SOURCES ${R2_DIR}/src/port/regress.c)
+  list(APPEND R2_SOURCES ${R2_DIR}/src/app/regress.c)
   list(APPEND R2_FORK_DEFINES RAYMAN2_REGRESS)
 endif()
 option(R2_NO_PROTECTION "Exclude the copy protection (RAYMAN2_NO_PROTECTION, docs/PLAN.md Phase 2)" ON)

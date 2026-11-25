@@ -1,4 +1,4 @@
-"""Write the modern build's icon (Rayman2.exe/src/port/Rayman2.rc includes it).
+"""Write the modern build's icon (Rayman2.exe/src/app/Rayman2.rc includes it).
 
 The design is simple geometry, drawn here so no opaque binary sits in the tree: a rounded square
 with a blue gradient and a gold ring. One PNG image per size (16, 32, 48, 256 px), packed into

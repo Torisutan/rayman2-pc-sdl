@@ -2,7 +2,7 @@
 """Regression run: same input, same engine state hash per frame, in any build.
 
 The exe must be built with the harness (RAYMAN2_REGRESS: CMake option R2_REGRESS, on by default;
-tools/build_ref.py for the VC5 reference). See Rayman2.exe/src/port/regress.c for what is pinned
+tools/build_ref.py for the VC5 reference). See Rayman2.exe/src/app/regress.c for what is pinned
 and hashed.
 
   python tools/regress.py run EXE OUT [--level Morb_00] [--frames 1800] [--input SCRIPT]

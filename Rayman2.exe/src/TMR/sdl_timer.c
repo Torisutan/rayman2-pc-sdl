@@ -26,7 +26,7 @@
 #include "GLI/cpu_timer.h"
 #include "TMR/TMR_types.h"
 #include "TMR/sdl_timer.h"
-#include "port/regress.h"
+#include "app/regress.h"
 
 /*
  ----------------------------------------------------------------------------------------

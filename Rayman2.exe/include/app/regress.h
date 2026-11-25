@@ -1,5 +1,5 @@
 #pragma once
-/* Regression harness (fork-only, compiled with RAYMAN2_REGRESS). See src/port/regress.c. */
+/* Regression harness (fork-only, compiled with RAYMAN2_REGRESS). See src/app/regress.c. */
 
 #ifdef RAYMAN2_REGRESS
 #include <windows.h>

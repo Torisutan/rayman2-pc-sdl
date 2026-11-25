@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <string.h>
 #include "ERM/CpaError.h"
-#include "port/regress.h"
+#include "app/regress.h"
 
 #ifndef USE_SDL   /* the SDL counterpart of the PC timer functions: TMR/sdl_timer.c */
 __declspec(dllimport) DWORD __stdcall timeGetTime(void);

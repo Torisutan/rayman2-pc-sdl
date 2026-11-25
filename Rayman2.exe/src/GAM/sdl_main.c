@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "port/regress.h"
+#include "app/regress.h"
 
 void __cdecl MMG_fn_vInit(int bInitMMG);
 long __cdecl GLI_xIsGliInit(void);

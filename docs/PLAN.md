@@ -66,7 +66,7 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
   merges clean; the code is deleted later. Measured chain: VC5 cracked = VC5 + define on every
   game field (protection state such as the LCG leaves the hash), then VC5 + define = modern +
   define.
-- **Regression harness.** `Rayman2.exe/src/port/regress.c` (`RAYMAN2_REGRESS`), `tools/regress.py`,
+- **Regression harness.** `Rayman2.exe/src/app/regress.c` (`RAYMAN2_REGRESS`), `tools/regress.py`,
   `tools/build_ref.py`. Two runs of the VC5 cracked build on Morb_00 (1860 frames) are identical.
 - **Regression run:** load a fixed level, play a recorded input sequence for N frames, and hash
   the engine state each frame (engine structure, main character position, random state). The

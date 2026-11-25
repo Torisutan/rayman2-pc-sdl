@@ -2,7 +2,7 @@
 """VC5 reference build of this fork: tools/build.py (upstream, unchanged) plus the fork-only code.
 
 Upstream's build compiles exactly Rayman2.exe/tu.json. The fork's own translation units
-(Rayman2.exe/src/port) and defines are added here instead, so tu.json and build.py stay as
+(Rayman2.exe/src/app) and defines are added here instead, so tu.json and build.py stay as
 upstream has them.
 
   python tools/build_ref.py [--crack] [--out build/ref] [--define NAME ...]
@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import build  # noqa: E402
 
-FORK_TUS = ["src/port/regress.c", "src/GLI/GLI_ratio.c", "src/GLI/GLI_fastload.c"]   # empty without their define
+FORK_TUS = ["src/app/regress.c", "src/GLI/GLI_ratio.c", "src/GLI/GLI_fastload.c"]   # empty without their define
 
 
 def main():
