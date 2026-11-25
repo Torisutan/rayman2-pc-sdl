@@ -251,7 +251,7 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   1/50 of its width: `GLI_RefreshUiSurfaceIfVisible` copies the vignette to the back buffer and
   waits for a synchronised flip (`GLD_bFlipDeviceWithSynchro`), up to ~50 times per load.
 - **Change.** The bar is still drawn into its buffer at every step; the refresh runs at most once
-  per 100 ms (`GLI_pc_C_ulProgressRefreshPeriod`, `GLI/GLI_fastload.c`). The end of the load
+  per 100 ms (`GLI_C_ulProgressRefreshPeriod`, `GLI/GLI_fastload.c`). The end of the load
   shows the full image again (`FUN_0045edf0`), so the screen always ends on the full bar.
   DEVIATIONS 10.
 - **Measured (2026-11-23, `tools/run.py --level`, mode-6 request to level playing, 3 runs, 0.1 s
@@ -574,21 +574,21 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - SDL stays out of the engine: it is called only from backend files behind the seams. The Wii U
   build needs SDL2 equivalents of the SDL3 calls those files make; keeping SDL to these files
   keeps that difference small (a few `#if` in them, or an SDL2 variant of a backend file).
-- **Original engine style for backend code**, as it writes its platform code: one backend
-  file per module beside the PC one, named after the backend as the PC files are after theirs
-  (`GAM/pc_winmain.c` -> `GAM/sdl_main.c`, `INO` reader beside `INO_pc_Read*`); functions keep
-  the module prefix with the backend in place of `pc` (`INO_sdl_...`, `GAM_sdl_...`; open since
-  the backend naming decision of 25.11.2026, see Open decisions), Hungarian
-  type prefixes, `/* */` comments, file headers and description blocks as in the fork's other
-  files; the whole file fenced `#ifdef USE_SDL ... #endif /* USE_SDL */`, its PC counterpart
-  `#ifndef USE_SDL` with the original code untouched.
-
+- **Original engine style for backend code**, as its console files are written (the DS and
+  U64 share `<MOD>/Specif/u_*.c`, chosen by `#if`): one backend file per module beside the PC
+  one, the backend in the file name (`GAM/pc_winmain.c` -> `GAM/sdl_main.c`, `INO/sdl_ino.c`);
+  the platform is never in a prefix. Names as the original writes them (counted in its sources):
+  a function that stands in for a PC function keeps its name (`fn_vTimerGetCounter` in both
+  timer files); other external functions `<MOD>_fn_*`; file-static functions `fn_*`; file-static
+  globals `gs_*`, shared globals `g_*`; file constants `C_*`, header constants `<MOD>_C_*`;
+  macros `<MOD>_M_*`; types `<MOD>_tdst*`. A platform word appears only inside a name whose value
+  is the platform's own (the original's `g_uNextNitroCache`, `Nitro_Init3D`; here
+  `gs_p_stSDLWindow`, `INO_fn_wReadMouseSDL` beside the decomp's `INO_pc_wReadMouseDI`).
+  Hungarian type prefixes, `/* */` comments, file headers and description blocks as in the
+  fork's other files; the whole file fenced `#ifdef USE_SDL ... #endif /* USE_SDL */`, its PC
+  counterpart `#ifndef USE_SDL` with the original code untouched. The decomp's own names
+  (`<MOD>_pc_*`) stay as they are.
 **Open decisions.**
-- **SDL file names (asked 25.11.2026).** The backend functions behind module headers are
-  `<MOD>_fn_*` now, without a platform, as the original names its functions. The SDL files'
-  own functions and globals still carry `sdl` (`GAM_sdl_fn_*`, `GAM_sdl_g_*` in `sdl_main.c`,
-  `INO_sdl_*`), per the 24.11 style rule above. Rename them too (`GAM_fn_*`, ...), or keep
-  `sdl` for file-local code of a backend file? Decide with the user.
 - **64-bit data (decided: in scope, 2026-11-24).** `WIN64` and `OSX` need it. The level files store
   32-bit pointers, so every pointer-carrying structure loaded from level data has to be widened at
   load. How (per-type load tables or an offline converter, as for big-endian data) is open; decide

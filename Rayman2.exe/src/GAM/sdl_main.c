@@ -56,40 +56,40 @@ void FUN_00401050(void);
 unsigned long FUN_00401b20(void);
 void GAM_pc_fn_vChooseTheGoodDesInit(void);
 
-#define GAM_SDL_SZ_WNDCLASS       "Rayman2"
-#define GAM_SDL_SZ_WNDTITLE       "Rayman II"
-#define GAM_SDL_SZ_PAUSE_TITLE    "Rayman2 - pause"
-#define GAM_SDL_SZ_RESTORE_TITLE  "Rayman2 - restoring data... please wait"
+#define C_szWndClass       "Rayman2"
+#define C_szWndTitle       "Rayman II"
+#define C_szPauseTitle     "Rayman2 - pause"
+#define C_szRestoreTitle   "Rayman2 - restoring data... please wait"
 
 /* The window (*g_hWnd is its HWND on Windows, the SDL window itself elsewhere) */
-static SDL_Window *GAM_sdl_g_p_stWindow = NULL;
+static SDL_Window *gs_p_stSDLWindow = NULL;
 
 /* SDL event type of the requests GAM_pc_fn_vPostWindowCmd posts (user.code = the command) */
-static Uint32 GAM_sdl_g_ulWindowCmdEvent = 0;
+static Uint32 gs_ulSDLWindowCmdEvent = 0;
 
 /* The engine events, as flags: EXEFRAMEEVT starts set, the others clear */
-static int GAM_sdl_g_bEventExeFrame = 1;
-static int GAM_sdl_g_bEventExit     = 0;
-static int GAM_sdl_g_bEventIsDead   = 0;
-static int GAM_sdl_g_bEventIsPaused = 0;
-static int GAM_sdl_g_bEventPulse    = 0;
+static int gs_bEventExeFrame = 1;
+static int gs_bEventExit     = 0;
+static int gs_bEventIsDead   = 0;
+static int gs_bEventIsPaused = 0;
+static int gs_bEventPulse    = 0;
 
 /* Focus and pause state, as in pc_winmain.c */
-static unsigned long GAM_sdl_g_ulPauseFlag       = 1;
-static unsigned long GAM_sdl_g_ulPausePending    = 1;
-static unsigned long GAM_sdl_g_ulPauseFlagMirror = 0;
-static unsigned long GAM_sdl_g_ulDebounce2s      = 0;
-static unsigned long GAM_sdl_g_ulDebounce30s     = 0;
-static unsigned long GAM_sdl_g_ulPendingCompan   = 1;
-static int           GAM_sdl_g_bDesktopNot16Bpp  = 0;
-static void         *GAM_sdl_g_a4_pfnEngineCallback[4];
+static unsigned long gs_ulPauseFlag       = 1;
+static unsigned long gs_ulPausePending    = 1;
+static unsigned long gs_ulPauseFlagMirror = 0;
+static unsigned long gs_ulDebounce2s      = 0;
+static unsigned long gs_ulDebounce30s     = 0;
+static unsigned long gs_ulPendingCompan   = 1;
+static int           gs_bDesktopNot16Bpp  = 0;
+static void         *gs_a4_pfnEngineCallback[4];
 
 /*
  ----------------------------------------------------------------------------------------
   Description   : Milliseconds for the focus debounce (timeGetTime in pc_winmain.c)
  ----------------------------------------------------------------------------------------
  */
-static unsigned long GAM_sdl_fn_ulGetTime(void)
+static unsigned long fn_ulGetTime(void)
 {
     return (unsigned long)SDL_GetTicks();
 }
@@ -99,11 +99,11 @@ static unsigned long GAM_sdl_fn_ulGetTime(void)
   Description   : Window title (SetWindowTextA + UpdateWindow in pc_winmain.c)
  ----------------------------------------------------------------------------------------
  */
-static void GAM_sdl_fn_vSetTitle(const char *szTitle)
+static void fn_vSetTitle(const char *szTitle)
 {
-    if ( GAM_sdl_g_p_stWindow != NULL )
+    if ( gs_p_stSDLWindow != NULL )
     {
-        SDL_SetWindowTitle(GAM_sdl_g_p_stWindow, szTitle);
+        SDL_SetWindowTitle(gs_p_stSDLWindow, szTitle);
     }
 }
 
@@ -129,7 +129,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateEnterFullScreen(int iFlag)
     {
         if ( GLD_bSwapDeviceMode(hDevice, iFlag) != 0 )
         {
-            GAM_sdl_g_ulPauseFlag = 0;
+            gs_ulPauseFlag = 0;
             if ( (unsigned char)GAM_fn_ucGetEngineMode() != E_EM_ModeStoppingProgram )
             {
                 GAM_fn_vActualizeAllGameViewportSize();
@@ -176,7 +176,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateExitToWindowed(int iFlag)
             {
                 FUN_0045edf0();
             }
-            GAM_sdl_g_ulPauseFlag = 1;
+            gs_ulPauseFlag = 1;
             return 1;
         }
     }
@@ -197,29 +197,29 @@ unsigned long GAM_pc_fn_vDispatchWmActivate(void)
         return 0;
     }
 
-    if ( GAM_sdl_g_ulPauseFlag != 0 )
+    if ( gs_ulPauseFlag != 0 )
     {
         GAM_pc_fn_vHandleActivateEnterFullScreen(0);
         GAM_g_stEngineStructure.eInputMode = 1;
-        if ( GAM_sdl_g_p_stWindow != NULL )
+        if ( gs_p_stSDLWindow != NULL )
         {
-            GAM_sdl_fn_vSetTitle(GAM_SDL_SZ_PAUSE_TITLE);
+            fn_vSetTitle(C_szPauseTitle);
 #ifdef WIN32
             /* A fullscreen driver may have made the window a popup (GOG's OpenGL driver
                does). SDL is told: it puts its own style back when the window leaves the
                minimized state, and the game would return in a captioned window. */
-            SDL_SetWindowBordered(GAM_sdl_g_p_stWindow,
+            SDL_SetWindowBordered(gs_p_stSDLWindow,
                                   (GetWindowLongA((HWND)(*g_hWnd), GWL_STYLE) & WS_CAPTION) != 0);
 #endif /* WIN32 */
-            SDL_MinimizeWindow(GAM_sdl_g_p_stWindow);
+            SDL_MinimizeWindow(gs_p_stSDLWindow);
         }
     }
     else
     {
-        if ( GAM_sdl_g_p_stWindow != NULL
-             && (SDL_GetWindowFlags(GAM_sdl_g_p_stWindow) & SDL_WINDOW_MINIMIZED) )
+        if ( gs_p_stSDLWindow != NULL
+             && (SDL_GetWindowFlags(gs_p_stSDLWindow) & SDL_WINDOW_MINIMIZED) )
         {
-            SDL_RestoreWindow(GAM_sdl_g_p_stWindow);
+            SDL_RestoreWindow(gs_p_stSDLWindow);
         }
         GAM_pc_fn_vHandleActivateExitToWindowed(0);
     }
@@ -238,25 +238,25 @@ unsigned long __cdecl GAM_pc_fn_vEnterPauseOnDeactivate(int iReDispatch)
     unsigned long ulNow;
     unsigned long ulPauseFlag;
 
-    if ( GAM_sdl_g_ulPausePending == 0 )
+    if ( gs_ulPausePending == 0 )
     {
         return 0;
     }
 
-    ulNow = GAM_sdl_fn_ulGetTime();
-    if ( GAM_sdl_g_ulPendingCompan != 0 && (ulNow - GAM_sdl_g_ulDebounce30s) < 30000 )
+    ulNow = fn_ulGetTime();
+    if ( gs_ulPendingCompan != 0 && (ulNow - gs_ulDebounce30s) < 30000 )
     {
         return 1;
     }
-    if ( (ulNow - GAM_sdl_g_ulDebounce2s) < 2000 )
+    if ( (ulNow - gs_ulDebounce2s) < 2000 )
     {
         return 1;
     }
 
     GAM_pc_fn_vResumeEngineThread();
-    ulPauseFlag = GAM_sdl_g_ulPauseFlag;
-    GAM_sdl_g_ulPausePending    = 0;
-    GAM_sdl_g_ulPauseFlagMirror = ulPauseFlag;
+    ulPauseFlag = gs_ulPauseFlag;
+    gs_ulPausePending    = 0;
+    gs_ulPauseFlagMirror = ulPauseFlag;
 
     if ( iReDispatch != 0 && ulPauseFlag != 0 )
     {
@@ -264,7 +264,7 @@ unsigned long __cdecl GAM_pc_fn_vEnterPauseOnDeactivate(int iReDispatch)
     }
 
     GAM_g_stEngineStructure.eInputMode = 1;
-    GAM_sdl_fn_vSetTitle(GAM_SDL_SZ_PAUSE_TITLE);
+    fn_vSetTitle(C_szPauseTitle);
     SND_fn_vReleaseDriverSound();
     return 0;
 }
@@ -276,19 +276,19 @@ unsigned long __cdecl GAM_pc_fn_vEnterPauseOnDeactivate(int iReDispatch)
  */
 int GAM_pc_fn_vRestoreEngineOnActivate(void)
 {
-    if ( GAM_sdl_g_ulPausePending == 0 && GAM_sdl_g_p_stWindow != NULL )
+    if ( gs_ulPausePending == 0 && gs_p_stSDLWindow != NULL )
     {
-        GAM_sdl_fn_vSetTitle(GAM_SDL_SZ_RESTORE_TITLE);
-        GAM_sdl_g_ulPausePending = 1;
-        if ( GAM_sdl_g_ulPauseFlagMirror != 0 && GAM_sdl_g_ulPauseFlag == 0 )
+        fn_vSetTitle(C_szRestoreTitle);
+        gs_ulPausePending = 1;
+        if ( gs_ulPauseFlagMirror != 0 && gs_ulPauseFlag == 0 )
         {
             GAM_pc_fn_vDispatchWmActivate();
         }
         GAM_g_stEngineStructure.eInputMode = 0;
-        GAM_sdl_fn_vSetTitle(GAM_SDL_SZ_WNDCLASS);
+        fn_vSetTitle(C_szWndClass);
         SND_fn_vRestoreDriverSound();
         GAM_pc_fn_vEngineEventControl(3);
-        GAM_sdl_g_ulDebounce2s = GAM_sdl_fn_ulGetTime();
+        gs_ulDebounce2s = fn_ulGetTime();
     }
     return 0;
 }
@@ -301,8 +301,8 @@ int GAM_pc_fn_vRestoreEngineOnActivate(void)
  */
 void GAM_pc_fn_vResumeAfterFocusReturn(void)
 {
-    if ( GLI_xIsGliInit() == 0 || GAM_sdl_g_ulPauseFlag == 0
-         || GAM_sdl_g_ulPausePending == 0 )
+    if ( GLI_xIsGliInit() == 0 || gs_ulPauseFlag == 0
+         || gs_ulPausePending == 0 )
     {
         return;
     }
@@ -320,7 +320,7 @@ unsigned long GAM_pc_fn_vProbeDisplayBpp(void)
 {
     const SDL_DisplayMode *p_stMode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
 
-    GAM_sdl_g_bDesktopNot16Bpp = (p_stMode == NULL || SDL_BITSPERPIXEL(p_stMode->format) != 16);
+    gs_bDesktopNot16Bpp = (p_stMode == NULL || SDL_BITSPERPIXEL(p_stMode->format) != 16);
     return 1;
 }
 
@@ -334,17 +334,17 @@ void GAM_pc_fn_vEngineEventControl(unsigned short uwCmd)
     switch ( uwCmd )
     {
         case 1:
-            GAM_sdl_g_bEventExeFrame = 0;
-            GAM_sdl_g_bEventExit     = 1;
+            gs_bEventExeFrame = 0;
+            gs_bEventExit     = 1;
             break;
         case 2:
-            GAM_sdl_g_bEventExeFrame = 0;
+            gs_bEventExeFrame = 0;
             break;
         case 3:
-            GAM_sdl_g_bEventExeFrame = 1;
+            gs_bEventExeFrame = 1;
             break;
         case 4:
-            GAM_sdl_g_bEventPulse = 1;
+            gs_bEventPulse = 1;
             break;
     }
 }
@@ -369,13 +369,13 @@ void GAM_pc_fn_vPostWindowCmd(unsigned short uwCmd)
 {
     SDL_Event stEvent;
 
-    if ( GAM_sdl_g_ulWindowCmdEvent == 0 || (uwCmd != 0x22 && uwCmd != 0x25) )
+    if ( gs_ulSDLWindowCmdEvent == 0 || (uwCmd != 0x22 && uwCmd != 0x25) )
     {
         return;
     }
 
     SDL_zero(stEvent);
-    stEvent.type      = GAM_sdl_g_ulWindowCmdEvent;
+    stEvent.type      = gs_ulSDLWindowCmdEvent;
     stEvent.user.code = uwCmd;
     SDL_PushEvent(&stEvent);
 }
@@ -444,8 +444,8 @@ void FUN_00401080(void)
  */
 int __cdecl GAM_pc_fn_bAreBothEventsIdle(void)
 {
-    return GAM_sdl_g_bEventExeFrame == 0 && GAM_sdl_g_bEventExit == 0
-           && GAM_sdl_g_bEventPulse == 0;
+    return gs_bEventExeFrame == 0 && gs_bEventExit == 0
+           && gs_bEventPulse == 0;
 }
 
 /*
@@ -455,7 +455,7 @@ int __cdecl GAM_pc_fn_bAreBothEventsIdle(void)
  */
 void GAM_pc_fn_vEngineThreadExit(void)
 {
-    GAM_sdl_g_bEventIsDead = 1;
+    gs_bEventIsDead = 1;
 }
 
 /*
@@ -465,7 +465,7 @@ void GAM_pc_fn_vEngineThreadExit(void)
  */
 int FUN_00401100(void)
 {
-    if ( GAM_sdl_g_bEventExit )
+    if ( gs_bEventExit )
     {
         return 1;
     }
@@ -479,7 +479,7 @@ int FUN_00401100(void)
  */
 int FUN_00401130(void)
 {
-    if ( GAM_sdl_g_bEventExit )
+    if ( gs_bEventExit )
     {
         fn_vChangeEngineMode(E_EM_ModeStoppingProgram);
         return 1;
@@ -494,7 +494,7 @@ int FUN_00401130(void)
  */
 void GAM_pc_fn_vSignalEngineAndPostQuit(void)
 {
-    GAM_sdl_g_ulPausePending = 0;
+    gs_ulPausePending = 0;
     SND_fn_vReleaseDriverSound();
     GAM_pc_fn_vEngineEventControl(1);
 }
@@ -504,14 +504,14 @@ void GAM_pc_fn_vSignalEngineAndPostQuit(void)
   Description   : One SDL event, as GAM_fn_WndProc treats its Win32 counterpart
  ----------------------------------------------------------------------------------------
  */
-static void GAM_sdl_fn_vDispatchEvent(const SDL_Event *p_stEvent)
+static void fn_vDispatchEvent(const SDL_Event *p_stEvent)
 {
-    if ( p_stEvent->type == GAM_sdl_g_ulWindowCmdEvent && GAM_sdl_g_ulWindowCmdEvent != 0 )
+    if ( p_stEvent->type == gs_ulSDLWindowCmdEvent && gs_ulSDLWindowCmdEvent != 0 )
     {
         switch ( p_stEvent->user.code )
         {
             case 0x22:
-                if ( GAM_sdl_g_ulPauseFlag == 0 && GAM_sdl_g_ulPausePending != 0 )
+                if ( gs_ulPauseFlag == 0 && gs_ulPausePending != 0 )
                 {
                     GAM_pc_fn_vDispatchWmActivate();
                 }
@@ -558,13 +558,13 @@ static void GAM_sdl_fn_vDispatchEvent(const SDL_Event *p_stEvent)
   Description   : The window events since the last frame
  ----------------------------------------------------------------------------------------
  */
-static void GAM_sdl_fn_vPumpEvents(void)
+static void fn_vPumpEvents(void)
 {
     SDL_Event stEvent;
 
     while ( SDL_PollEvent(&stEvent) )
     {
-        GAM_sdl_fn_vDispatchEvent(&stEvent);
+        fn_vDispatchEvent(&stEvent);
     }
 }
 
@@ -581,10 +581,10 @@ void __cdecl GAM_pc_fn_vWaitForEitherEngineEvent(void)
     {
         if ( SDL_WaitEvent(&stEvent) )
         {
-            GAM_sdl_fn_vDispatchEvent(&stEvent);
+            fn_vDispatchEvent(&stEvent);
         }
     }
-    GAM_sdl_g_bEventPulse = 0;
+    gs_bEventPulse = 0;
 }
 
 /*
@@ -598,19 +598,19 @@ void FUN_00401160(void)
     GAM_g_stEngineStructure.hGLDViewport = FUN_00401350(0);
     GAM_g_stEngineStructure.hDrawSem     = fn_hGetDrawSemaphore();
 
-    GAM_sdl_fn_vPumpEvents();
+    fn_vPumpEvents();
 
     if ( GAM_pc_fn_bAreBothEventsIdle() != 0 )
     {
-        GAM_sdl_g_bEventIsPaused = 1;
+        gs_bEventIsPaused = 1;
         fn_vSetEngineInPaused();
         GAM_pc_fn_vWaitForEitherEngineEvent();
         fn_vResetEngineFromPaused();
-        GAM_sdl_g_bEventIsPaused = 0;
+        gs_bEventIsPaused = 0;
     }
     else
     {
-        GAM_sdl_g_bEventPulse = 0;
+        gs_bEventPulse = 0;
     }
 #ifdef RAYMAN2_REGRESS
     REGRESS_fn_vBeforeFrame();
@@ -625,18 +625,18 @@ void FUN_00401160(void)
  */
 void GAM_pc_fn_vChooseTheGoodInit(void)
 {
-    GAM_sdl_g_ulPendingCompan = 1;
+    gs_ulPendingCompan = 1;
 
-    GAM_sdl_g_a4_pfnEngineCallback[1] = (void *)SND_PrintUsedStaticMemory;
-    GAM_sdl_g_a4_pfnEngineCallback[0] = (void *)SND_PrintUsedStaticMemory;
-    GAM_sdl_g_a4_pfnEngineCallback[3] = (void *)SND_PrintUsedStaticMemory;
-    GAM_sdl_g_a4_pfnEngineCallback[2] = (void *)SND_PrintUsedStaticMemory;
+    gs_a4_pfnEngineCallback[1] = (void *)SND_PrintUsedStaticMemory;
+    gs_a4_pfnEngineCallback[0] = (void *)SND_PrintUsedStaticMemory;
+    gs_a4_pfnEngineCallback[3] = (void *)SND_PrintUsedStaticMemory;
+    gs_a4_pfnEngineCallback[2] = (void *)SND_PrintUsedStaticMemory;
 
-    GAM_sdl_g_ulDebounce30s = GAM_sdl_fn_ulGetTime();
+    gs_ulDebounce30s = fn_ulGetTime();
 
     GAM_fn_vChooseTheGoodInit();
 
-    GAM_sdl_g_ulPendingCompan = 0;
+    gs_ulPendingCompan = 0;
 }
 
 /*
@@ -651,20 +651,20 @@ int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
 {
     (void)hInstance; (void)iShowCmd;
 
-    GAM_sdl_g_p_stWindow = SDL_CreateWindow(GAM_SDL_SZ_WNDTITLE, 0x140, 200,
+    gs_p_stSDLWindow = SDL_CreateWindow(C_szWndTitle, 0x140, 200,
                                              SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
-    if ( GAM_sdl_g_p_stWindow == NULL )
+    if ( gs_p_stSDLWindow == NULL )
     {
         return 0;
     }
 
 #ifdef WIN32
-    *g_hWnd = (HANDLE)SDL_GetPointerProperty(SDL_GetWindowProperties(GAM_sdl_g_p_stWindow),
+    *g_hWnd = (HANDLE)SDL_GetPointerProperty(SDL_GetWindowProperties(gs_p_stSDLWindow),
                                              SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 #else
     /* No Win32 window: the engine and its linked-in driver get SDL's window as their HWND,
        which the target's types header declares (as the original's console headers do) */
-    *g_hWnd = (HANDLE)GAM_sdl_g_p_stWindow;
+    *g_hWnd = (HANDLE)gs_p_stSDLWindow;
 #endif /* WIN32 */
     if ( *g_hWnd == NULL )
     {
@@ -675,7 +675,7 @@ int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
     {
         return 0;
     }
-    SDL_ShowWindow(GAM_sdl_g_p_stWindow);
+    SDL_ShowWindow(gs_p_stSDLWindow);
     return 1;
 }
 
@@ -735,7 +735,7 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
     {
         return -1;
     }
-    GAM_sdl_g_ulWindowCmdEvent = SDL_RegisterEvents(1);
+    gs_ulSDLWindowCmdEvent = SDL_RegisterEvents(1);
 
     if ( GAM_pc_fn_bInitDisplayAndSync() == 0 )
     {
@@ -768,9 +768,9 @@ int __stdcall GAM_pc_fn_WinMain(HINSTANCE hInstance,
         iResult = 0;
     }
 
-    if ( GAM_sdl_g_p_stWindow != NULL )
+    if ( gs_p_stSDLWindow != NULL )
     {
-        SDL_DestroyWindow(GAM_sdl_g_p_stWindow);
+        SDL_DestroyWindow(gs_p_stSDLWindow);
     }
     SDL_Quit();
     return iResult;

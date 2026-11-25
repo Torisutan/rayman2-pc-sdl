@@ -22,7 +22,7 @@
 #include "MMG/SNA_pc.h"
 
 /* A failed seek (the Win32 branch gives INVALID_SET_FILE_POINTER; no caller tests it) */
-#define SNA_pc_C_ulSeekFailed   0xFFFFFFFFUL
+#define C_ulSeekFailed   0xFFFFFFFFUL
 
 /* A handle that is no open file (NULL, failed open): the Win32 calls fail on it and do
    nothing, while the C runtime would stop the process */
@@ -70,7 +70,7 @@ int __cdecl SNA_fn_bReadFile(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned lon
 /*
  ----------------------------------------------------------------------------------------
   Description   : Seek with a 32-bit distance from the start, the current position or the
-                  end; the new position, or SNA_pc_C_ulSeekFailed
+                  end; the new position, or C_ulSeekFailed
  ----------------------------------------------------------------------------------------
  */
 unsigned long __cdecl SNA_fn_ulSeekFile(SNA_pc_tdhFile hFile, long lDistance,
@@ -81,19 +81,19 @@ unsigned long __cdecl SNA_fn_ulSeekFile(SNA_pc_tdhFile hFile, long lDistance,
     long  lPosition;
 
     if ( SNA_M_bIsNoFile(hFile) )
-        return SNA_pc_C_ulSeekFailed;
+        return C_ulSeekFailed;
 
     switch ( ulOrigin )
     {
     case SNA_pc_C_ulSeekBegin:   iOrigin = SEEK_SET; break;
     case SNA_pc_C_ulSeekCurrent: iOrigin = SEEK_CUR; break;
     case SNA_pc_C_ulSeekEnd:     iOrigin = SEEK_END; break;
-    default:                     return SNA_pc_C_ulSeekFailed;
+    default:                     return C_ulSeekFailed;
     }
     if ( fseek(p_stFile, lDistance, iOrigin) != 0 )
-        return SNA_pc_C_ulSeekFailed;
+        return C_ulSeekFailed;
     lPosition = ftell(p_stFile);
-    return lPosition < 0 ? SNA_pc_C_ulSeekFailed : (unsigned long)lPosition;
+    return lPosition < 0 ? C_ulSeekFailed : (unsigned long)lPosition;
 }
 
 /*

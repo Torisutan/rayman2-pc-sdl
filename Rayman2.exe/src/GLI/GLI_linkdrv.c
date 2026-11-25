@@ -20,23 +20,23 @@
 #include <string.h>
 
 /* One entry point of a linked-in driver */
-typedef struct GLI_pc_tdstLinkedProc_
+typedef struct GLI_tdstLinkedProc_
 {
     const char *szName;
     FARPROC     pfnProc;
-} GLI_pc_tdstLinkedProc;
+} GLI_tdstLinkedProc;
 
 /* A linked-in driver: the file name it replaces, what its DllMain does, its entry points */
-typedef struct GLI_pc_tdstLinkedDriver_
+typedef struct GLI_tdstLinkedDriver_
 {
     const char                  *szFileName;
     void                        (__cdecl *p_fn_vAttach)(void);
-    const GLI_pc_tdstLinkedProc *d_stProcs;
-} GLI_pc_tdstLinkedDriver;
+    const GLI_tdstLinkedProc *d_stProcs;
+} GLI_tdstLinkedDriver;
 
 #define GLI_M_LinkedProc(Name)  { #Name, (FARPROC)Name }
 
-static const GLI_pc_tdstLinkedProc GLI_pc_a_stDX6Procs[] =
+static const GLI_tdstLinkedProc gs_a_stDX6Procs[] =
 {
     GLI_M_LinkedProc(GLI_DRV_bBeginScene),
     GLI_M_LinkedProc(GLI_DRV_bEndScene),
@@ -86,15 +86,15 @@ static const GLI_pc_tdstLinkedProc GLI_pc_a_stDX6Procs[] =
 #undef GLI_M_LinkedProc
 
 /* File names as GLI_fnv_SetDllFileName builds them ("dll/%s%s.dll") */
-static const GLI_pc_tdstLinkedDriver GLI_pc_a_stLinkedDrivers[] =
+static const GLI_tdstLinkedDriver gs_a_stLinkedDrivers[] =
 {
-    { "dll/GliDX6vf.dll", GLI_vInitDllInfo, GLI_pc_a_stDX6Procs }
+    { "dll/GliDX6vf.dll", GLI_vInitDllInfo, gs_a_stDX6Procs }
 };
 
-#define GLI_pc_C_lNbLinkedDrivers  ((long)(sizeof(GLI_pc_a_stLinkedDrivers) / sizeof(GLI_pc_a_stLinkedDrivers[0])))
+#define C_lNbLinkedDrivers  ((long)(sizeof(gs_a_stLinkedDrivers) / sizeof(gs_a_stLinkedDrivers[0])))
 
 /* The driver GLI_fn_hLoadDriver returned last when it is linked in, else NULL */
-static const GLI_pc_tdstLinkedDriver *GLI_pc_g_p_stLinkedDriver = NULL;
+static const GLI_tdstLinkedDriver *gs_p_stLinkedDriver = NULL;
 
 /*
  ----------------------------------------------------------------------------------------
@@ -106,13 +106,13 @@ HMODULE __stdcall GLI_fn_hLoadDriver(const char *szFileName)
 {
     long lDriver;
 
-    GLI_pc_g_p_stLinkedDriver = NULL;
-    for ( lDriver = 0 ; lDriver < GLI_pc_C_lNbLinkedDrivers ; lDriver++ )
+    gs_p_stLinkedDriver = NULL;
+    for ( lDriver = 0 ; lDriver < C_lNbLinkedDrivers ; lDriver++ )
     {
-        if ( _stricmp(szFileName, GLI_pc_a_stLinkedDrivers[lDriver].szFileName) == 0 )
+        if ( _stricmp(szFileName, gs_a_stLinkedDrivers[lDriver].szFileName) == 0 )
         {
-            GLI_pc_g_p_stLinkedDriver = &GLI_pc_a_stLinkedDrivers[lDriver];
-            GLI_pc_g_p_stLinkedDriver->p_fn_vAttach();
+            gs_p_stLinkedDriver = &gs_a_stLinkedDrivers[lDriver];
+            gs_p_stLinkedDriver->p_fn_vAttach();
             return GetModuleHandleA(NULL);
         }
     }
@@ -127,12 +127,12 @@ HMODULE __stdcall GLI_fn_hLoadDriver(const char *szFileName)
  */
 FARPROC __stdcall GLI_fn_pfnGetDriverProc(HMODULE hDriver, const char *szName)
 {
-    const GLI_pc_tdstLinkedProc *p_stProc;
+    const GLI_tdstLinkedProc *p_stProc;
 
-    if ( GLI_pc_g_p_stLinkedDriver == NULL )
+    if ( gs_p_stLinkedDriver == NULL )
         return GetProcAddress(hDriver, szName);
 
-    for ( p_stProc = GLI_pc_g_p_stLinkedDriver->d_stProcs ; p_stProc->szName != NULL ; p_stProc++ )
+    for ( p_stProc = gs_p_stLinkedDriver->d_stProcs ; p_stProc->szName != NULL ; p_stProc++ )
     {
         if ( strcmp(szName, p_stProc->szName) == 0 )
             return p_stProc->pfnProc;

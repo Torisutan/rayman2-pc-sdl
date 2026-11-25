@@ -20,63 +20,63 @@
 #include "INO/INO.h"
 
 /**********************************************************************************************/
-/* Name: INO_sdl_bInit */
+/* Name: INO_fn_bInitSDLInput */
 /* Goal: Gamepad subsystem, the gamepads present now (DirectInput enumerates them once at */
 /*       init as well), mouse wheel events. The arguments are unused. */
 /**********************************************************************************************/
-short __cdecl INO_sdl_bInit(HINSTANCE hInstance, HWND hWindow);
+short __cdecl INO_fn_bInitSDLInput(HINSTANCE hInstance, HWND hWindow);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_fn_vRelease */
+/* Name: INO_fn_vReleaseSDLInput */
 /* Goal: Gamepads closed, gamepad subsystem and wheel events released */
 /**********************************************************************************************/
-void __cdecl INO_sdl_fn_vRelease(void);
+void __cdecl INO_fn_vReleaseSDLInput(void);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_wAssignDevice */
+/* Name: INO_fn_wAssignDeviceSlot */
 /* Goal: A device to a free slot of its type (keyboard, mouse, the next gamepad): read */
 /*       function, caps and status set. The slot, or -1. */
 /**********************************************************************************************/
-short __cdecl INO_sdl_wAssignDevice(INO_tdstDevice *pDevice);
+short __cdecl INO_fn_wAssignDeviceSlot(INO_tdstDevice *pDevice);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_wReleaseDevice */
+/* Name: INO_fn_wReleaseDeviceSlot */
 /* Goal: The slot of a device freed (its gamepad closed) */
 /**********************************************************************************************/
-short __cdecl INO_sdl_wReleaseDevice(INO_tdstDevice *pDevice);
+short __cdecl INO_fn_wReleaseDeviceSlot(INO_tdstDevice *pDevice);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_wRefreshDeviceCaps */
+/* Name: INO_fn_wRefreshDeviceCaps */
 /* Goal: Connected status of a device: 1 when connected */
 /**********************************************************************************************/
-short __cdecl INO_sdl_wRefreshDeviceCaps(INO_tdstDevice *pDevice);
+short __cdecl INO_fn_wRefreshDeviceCaps(INO_tdstDevice *pDevice);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_ulTranslateKeyToAscii */
+/* Name: INO_fn_ulTranslateKeyToAscii */
 /* Goal: Character of a key code in the current keyboard layout, no modifier applied, */
 /*       0 for a key without one */
 /**********************************************************************************************/
-unsigned int __cdecl INO_sdl_ulTranslateKeyToAscii(unsigned int uiKey, INO_tdstDevice *pDevice);
+unsigned int __cdecl INO_fn_ulTranslateKeyToAscii(unsigned int uiKey, INO_tdstDevice *pDevice);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_wReadMouse */
+/* Name: INO_fn_wReadMouseSDL */
 /* Goal: Mouse motion since the last read, wheel and buttons into the mouse state */
 /**********************************************************************************************/
-short __cdecl INO_sdl_wReadMouse(INO_tdstDevice *pDevice);
+short __cdecl INO_fn_wReadMouseSDL(INO_tdstDevice *pDevice);
 
 /**********************************************************************************************/
-/* Name: INO_sdl_wReadJoystick */
+/* Name: INO_fn_wReadJoystickSDL */
 /* Goal: Gamepad axes and buttons into the joystick state */
 /**********************************************************************************************/
-short __cdecl INO_sdl_wReadJoystick(INO_tdstDevice *pDevice);
+short __cdecl INO_fn_wReadJoystickSDL(INO_tdstDevice *pDevice);
 
-#define INO_pc_bInitDirectInput            INO_sdl_bInit
-#define INO_pc_fn_vReleaseDirectInput      INO_sdl_fn_vRelease
-#define INO_pc_wAssignDeviceSlot           INO_sdl_wAssignDevice
-#define INO_pc_wReleaseDeviceSlot          INO_sdl_wReleaseDevice
-#define INO_pc_wRefreshDeviceCaps          INO_sdl_wRefreshDeviceCaps
-#define INO_pc_ulTranslateScanCodeToAscii  INO_sdl_ulTranslateKeyToAscii
-#define INO_pc_wReadMouseDI                INO_sdl_wReadMouse
-#define INO_pc_wReadJoystickDI             INO_sdl_wReadJoystick
+#define INO_pc_bInitDirectInput            INO_fn_bInitSDLInput
+#define INO_pc_fn_vReleaseDirectInput      INO_fn_vReleaseSDLInput
+#define INO_pc_wAssignDeviceSlot           INO_fn_wAssignDeviceSlot
+#define INO_pc_wReleaseDeviceSlot          INO_fn_wReleaseDeviceSlot
+#define INO_pc_wRefreshDeviceCaps          INO_fn_wRefreshDeviceCaps
+#define INO_pc_ulTranslateScanCodeToAscii  INO_fn_ulTranslateKeyToAscii
+#define INO_pc_wReadMouseDI                INO_fn_wReadMouseSDL
+#define INO_pc_wReadJoystickDI             INO_fn_wReadJoystickSDL
 
 #endif /* USE_SDL */

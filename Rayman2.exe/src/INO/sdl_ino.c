@@ -42,15 +42,15 @@ float __cdecl INO_pc_xGetMouseAxis(INO_tdstDevice *pDevice);
 
 extern unsigned short INO_pc_g_a_wActiveKey_storage[];    /* INO/INO.c */
 
-#define INO_sdl_C_wMaxActiveKey   0x80
-#define INO_sdl_C_lWheelDelta     120
-#define INO_sdl_C_ucNbMouseButton 4
-#define INO_sdl_C_ucNbPadButton   10
-#define INO_sdl_C_lAxisMax        65535
+#define C_wMaxActiveKey   0x80
+#define C_lWheelDelta     120
+#define C_ucNbMouseButton 4
+#define C_ucNbPadButton   10
+#define C_lAxisMax        65535
 
 /* Key code (DIK_) -> SDL scancode; the PC set-1 scan codes, as SDL's own Windows table,
    except 0x45 NumLock and 0xC5 Pause, which DirectInput tells apart that way */
-static const unsigned short INO_sdl_a_uwKeyToScancode[256] =
+static const unsigned short gs_a_uwKeyToSDLScancode[256] =
 {
     [0x01] = SDL_SCANCODE_ESCAPE,       [0x02] = SDL_SCANCODE_1,
     [0x03] = SDL_SCANCODE_2,            [0x04] = SDL_SCANCODE_3,
@@ -108,7 +108,7 @@ static const unsigned short INO_sdl_a_uwKeyToScancode[256] =
 };
 
 /* Gamepad buttons in DirectInput's order for an XInput gamepad */
-static const SDL_GamepadButton INO_sdl_a_eGamepadButton[INO_sdl_C_ucNbPadButton] =
+static const SDL_GamepadButton gs_a_eSDLGamepadButton[C_ucNbPadButton] =
 {
     SDL_GAMEPAD_BUTTON_SOUTH,      SDL_GAMEPAD_BUTTON_EAST,
     SDL_GAMEPAD_BUTTON_WEST,       SDL_GAMEPAD_BUTTON_NORTH,
@@ -117,35 +117,35 @@ static const SDL_GamepadButton INO_sdl_a_eGamepadButton[INO_sdl_C_ucNbPadButton]
     SDL_GAMEPAD_BUTTON_LEFT_STICK, SDL_GAMEPAD_BUTTON_RIGHT_STICK,
 };
 
-typedef struct INO_sdl_tdstSlot_
+typedef struct INO_tdstSlot_
 {
     INO_tdstDevice *p_stDevice;
     SDL_Gamepad    *p_stGamepad;
-} INO_sdl_tdstSlot;
+} INO_tdstSlot;
 
-static INO_sdl_tdstSlot  INO_sdl_g_a_stSlot[INO_C_wNbMaxDevice];
-static SDL_JoystickID    INO_sdl_g_a_xGamepadId[INO_C_wNbMaxDevice];
-static short             INO_sdl_g_wNbGamepad;
-static short             INO_sdl_g_bInited;
-static float             INO_sdl_g_xWheel;
+static INO_tdstSlot      gs_a_stSlot[INO_C_wNbMaxDevice];
+static SDL_JoystickID    gs_a_xSDLGamepadId[INO_C_wNbMaxDevice];
+static short             gs_wNbGamepad;
+static short             gs_bInited;
+static float             gs_xWheel;
 
 /*
  ----------------------------------------------------------------------------------------
   Description   : Wheel events, added up until the next mouse read
  ----------------------------------------------------------------------------------------
  */
-static bool SDLCALL INO_sdl_bWatchEvent(void *p_vUserData, SDL_Event *p_stEvent)
+static bool SDLCALL fn_bWatchEvent(void *p_vUserData, SDL_Event *p_stEvent)
 {
     (void)p_vUserData;
     if ( p_stEvent->type == SDL_EVENT_MOUSE_WHEEL )
     {
         if ( p_stEvent->wheel.direction == SDL_MOUSEWHEEL_FLIPPED )
         {
-            INO_sdl_g_xWheel -= p_stEvent->wheel.y;
+            gs_xWheel -= p_stEvent->wheel.y;
         }
         else
         {
-            INO_sdl_g_xWheel += p_stEvent->wheel.y;
+            gs_xWheel += p_stEvent->wheel.y;
         }
     }
     return true;
@@ -156,7 +156,7 @@ static bool SDLCALL INO_sdl_bWatchEvent(void *p_vUserData, SDL_Event *p_stEvent)
   Description   : Whether the devices may give input (DirectInput's foreground mode)
  ----------------------------------------------------------------------------------------
  */
-static int INO_sdl_bHasFocus(void)
+static int fn_bHasFocus(void)
 {
     return SDL_GetKeyboardFocus() != NULL;
 }
@@ -166,13 +166,13 @@ static int INO_sdl_bHasFocus(void)
   Description   : The slot of a device, or -1
  ----------------------------------------------------------------------------------------
  */
-static short INO_sdl_wFindSlot(INO_tdstDevice *pDevice)
+static short fn_wFindSlot(INO_tdstDevice *pDevice)
 {
     short wSlot;
 
     for ( wSlot = 0; wSlot < INO_C_wNbMaxDevice; wSlot++ )
     {
-        if ( INO_sdl_g_a_stSlot[wSlot].p_stDevice == pDevice )
+        if ( gs_a_stSlot[wSlot].p_stDevice == pDevice )
         {
             return wSlot;
         }
@@ -185,7 +185,7 @@ static short INO_sdl_wFindSlot(INO_tdstDevice *pDevice)
   Description   : Gamepad subsystem, gamepads present now, wheel events
  ----------------------------------------------------------------------------------------
  */
-short __cdecl INO_sdl_bInit(HINSTANCE hInstance, HWND hWindow)
+short __cdecl INO_fn_bInitSDLInput(HINSTANCE hInstance, HWND hWindow)
 {
     SDL_JoystickID *p_xId;
     int             iCount;
@@ -193,14 +193,14 @@ short __cdecl INO_sdl_bInit(HINSTANCE hInstance, HWND hWindow)
 
     (void)hInstance; (void)hWindow;
 
-    if ( INO_sdl_g_bInited )
+    if ( gs_bInited )
     {
         return 1;
     }
 
-    SDL_memset(INO_sdl_g_a_stSlot, 0, sizeof(INO_sdl_g_a_stSlot));
-    INO_sdl_g_wNbGamepad = 0;
-    INO_sdl_g_xWheel     = 0.0f;
+    SDL_memset(gs_a_stSlot, 0, sizeof(gs_a_stSlot));
+    gs_wNbGamepad = 0;
+    gs_xWheel     = 0.0f;
 
     /* Without gamepads the keyboard and the mouse still work */
     if ( SDL_InitSubSystem(SDL_INIT_GAMEPAD) )
@@ -209,46 +209,46 @@ short __cdecl INO_sdl_bInit(HINSTANCE hInstance, HWND hWindow)
         if ( p_xId != NULL )
         {
             /* The keyboard and the mouse take a slot each */
-            for ( i = 0; i < iCount && INO_sdl_g_wNbGamepad < INO_C_wNbMaxDevice - 2; i++ )
+            for ( i = 0; i < iCount && gs_wNbGamepad < INO_C_wNbMaxDevice - 2; i++ )
             {
-                INO_sdl_g_a_xGamepadId[INO_sdl_g_wNbGamepad++] = p_xId[i];
+                gs_a_xSDLGamepadId[gs_wNbGamepad++] = p_xId[i];
             }
             SDL_free(p_xId);
         }
     }
 
-    SDL_AddEventWatch(INO_sdl_bWatchEvent, NULL);
-    INO_sdl_g_bInited = 1;
+    SDL_AddEventWatch(fn_bWatchEvent, NULL);
+    gs_bInited = 1;
     return 1;
 }
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : Everything INO_sdl_bInit took, given back
+  Description   : Everything INO_fn_bInitSDLInput took, given back
  ----------------------------------------------------------------------------------------
  */
-void __cdecl INO_sdl_fn_vRelease(void)
+void __cdecl INO_fn_vReleaseSDLInput(void)
 {
     short wSlot;
 
-    if ( !INO_sdl_g_bInited )
+    if ( !gs_bInited )
     {
         return;
     }
     for ( wSlot = 0; wSlot < INO_C_wNbMaxDevice; wSlot++ )
     {
-        if ( INO_sdl_g_a_stSlot[wSlot].p_stDevice != NULL )
+        if ( gs_a_stSlot[wSlot].p_stDevice != NULL )
         {
-            INO_sdl_wReleaseDevice(INO_sdl_g_a_stSlot[wSlot].p_stDevice);
+            INO_fn_wReleaseDeviceSlot(gs_a_stSlot[wSlot].p_stDevice);
         }
     }
-    SDL_RemoveEventWatch(INO_sdl_bWatchEvent, NULL);
+    SDL_RemoveEventWatch(fn_bWatchEvent, NULL);
     if ( SDL_WasInit(SDL_INIT_GAMEPAD) )
     {
         SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
     }
-    INO_sdl_g_wNbGamepad = 0;
-    INO_sdl_g_bInited    = 0;
+    gs_wNbGamepad = 0;
+    gs_bInited    = 0;
 }
 
 /*
@@ -259,7 +259,7 @@ void __cdecl INO_sdl_fn_vRelease(void)
  */
 short __cdecl INO_fn_wGetNbDevices(unsigned short uwType)
 {
-    if ( !INO_sdl_g_bInited )
+    if ( !gs_bInited )
     {
         return 0;
     }
@@ -269,7 +269,7 @@ short __cdecl INO_fn_wGetNbDevices(unsigned short uwType)
         case INO_C_uwMouse:
             return 1;
         case INO_C_uwJoystick:
-            return INO_sdl_g_wNbGamepad;
+            return gs_wNbGamepad;
         default:
             return 0;
     }
@@ -281,7 +281,7 @@ short __cdecl INO_fn_wGetNbDevices(unsigned short uwType)
                   (INO_pc_wSetupKeyboardDI)
  ----------------------------------------------------------------------------------------
  */
-static short INO_sdl_wSetupKeyboard(INO_tdstDevice *pDevice)
+static short fn_wSetupKeyboard(INO_tdstDevice *pDevice)
 {
     short          wKey;
     unsigned int   uiIndex;
@@ -289,7 +289,7 @@ static short INO_sdl_wSetupKeyboard(INO_tdstDevice *pDevice)
 
     pDevice->p_stState->ucStatus |= INO_C_ucConnected;
 
-    for ( uiIndex = 0; uiIndex < INO_sdl_C_wMaxActiveKey; uiIndex++ )
+    for ( uiIndex = 0; uiIndex < C_wMaxActiveKey; uiIndex++ )
     {
         INO_pc_g_a_wActiveKey_storage[uiIndex] = 0;
     }
@@ -321,7 +321,7 @@ static short INO_sdl_wSetupKeyboard(INO_tdstDevice *pDevice)
     INO_fn_wAddActiveKey(0xDD);
 
     /* AZERTY when the key at Q's place gives an 'a' */
-    ucProbe = (unsigned char)INO_sdl_ulTranslateKeyToAscii(0x10, pDevice);
+    ucProbe = (unsigned char)INO_fn_ulTranslateKeyToAscii(0x10, pDevice);
     ((INO_tdstKeyboardCaps *)pDevice->p_stCaps)->wIsAzerty =
         (unsigned short)(ucProbe == 0x61 || ucProbe == 0x41);
     return 1;
@@ -333,10 +333,10 @@ static short INO_sdl_wSetupKeyboard(INO_tdstDevice *pDevice)
                   PC setup
  ----------------------------------------------------------------------------------------
  */
-static short INO_sdl_wSetupMouse(INO_tdstDevice *pDevice)
+static short fn_wSetupMouse(INO_tdstDevice *pDevice)
 {
     pDevice->p_stState->ucStatus |= INO_C_ucConnected;
-    pDevice->p_stCaps->ucNbButtons = INO_sdl_C_ucNbMouseButton;
+    pDevice->p_stCaps->ucNbButtons = C_ucNbMouseButton;
     pDevice->p_stState->ucStatus &= (unsigned char)~INO_C_ucGLDLink;
     return 1;
 }
@@ -346,7 +346,7 @@ static short INO_sdl_wSetupMouse(INO_tdstDevice *pDevice)
   Description   : Gamepad: opened, caps as for DirectInput's view of an XInput gamepad
  ----------------------------------------------------------------------------------------
  */
-static short INO_sdl_wSetupJoystick(INO_tdstDevice *pDevice, short wSlot)
+static short fn_wSetupJoystick(INO_tdstDevice *pDevice, short wSlot)
 {
     INO_pc_tdstAxisDeviceCaps *pCaps;
     short                      wUsed;
@@ -354,13 +354,13 @@ static short INO_sdl_wSetupJoystick(INO_tdstDevice *pDevice, short wSlot)
     short                      wPad;
 
     /* The next gamepad found at init that no slot has yet */
-    for ( wPad = 0; wPad < INO_sdl_g_wNbGamepad; wPad++ )
+    for ( wPad = 0; wPad < gs_wNbGamepad; wPad++ )
     {
         for ( wUsed = 0; wUsed < INO_C_wNbMaxDevice; wUsed++ )
         {
-            if ( INO_sdl_g_a_stSlot[wUsed].p_stGamepad != NULL
-                 && SDL_GetGamepadID(INO_sdl_g_a_stSlot[wUsed].p_stGamepad)
-                    == INO_sdl_g_a_xGamepadId[wPad] )
+            if ( gs_a_stSlot[wUsed].p_stGamepad != NULL
+                 && SDL_GetGamepadID(gs_a_stSlot[wUsed].p_stGamepad)
+                    == gs_a_xSDLGamepadId[wPad] )
             {
                 break;
             }
@@ -370,32 +370,32 @@ static short INO_sdl_wSetupJoystick(INO_tdstDevice *pDevice, short wSlot)
             break;
         }
     }
-    if ( wPad == INO_sdl_g_wNbGamepad )
+    if ( wPad == gs_wNbGamepad )
     {
         return 0;
     }
 
-    INO_sdl_g_a_stSlot[wSlot].p_stGamepad = SDL_OpenGamepad(INO_sdl_g_a_xGamepadId[wPad]);
-    if ( INO_sdl_g_a_stSlot[wSlot].p_stGamepad == NULL )
+    gs_a_stSlot[wSlot].p_stGamepad = SDL_OpenGamepad(gs_a_xSDLGamepadId[wPad]);
+    if ( gs_a_stSlot[wSlot].p_stGamepad == NULL )
     {
         return 0;
     }
-    if ( SDL_GamepadConnected(INO_sdl_g_a_stSlot[wSlot].p_stGamepad) )
+    if ( SDL_GamepadConnected(gs_a_stSlot[wSlot].p_stGamepad) )
     {
         pDevice->p_stState->ucStatus |= INO_C_ucConnected;
     }
 
     pCaps = (INO_pc_tdstAxisDeviceCaps *)pDevice->p_stCaps;
-    pCaps->stDev.ucNbButtons = INO_sdl_C_ucNbPadButton;
+    pCaps->stDev.ucNbButtons = C_ucNbPadButton;
     pCaps->ucNbAxes = 5;
     pCaps->ucNbPOVs = 1;
     /* X, Y, Z, Rx, Ry; Rz absent. Range 0..65535: centre, half range, quarter range
        as INO_pc_wSetupJoystickDI derives them */
     for ( wAxis = 0; wAxis < 5; wAxis++ )
     {
-        pCaps->a_stAxis[wAxis].m_lCenter    = INO_sdl_C_lAxisMax >> 1;
-        pCaps->a_stAxis[wAxis].m_lRange     = INO_sdl_C_lAxisMax >> 1;
-        pCaps->a_stAxis[wAxis].m_lThreshold = INO_sdl_C_lAxisMax >> 2;
+        pCaps->a_stAxis[wAxis].m_lCenter    = C_lAxisMax >> 1;
+        pCaps->a_stAxis[wAxis].m_lRange     = C_lAxisMax >> 1;
+        pCaps->a_stAxis[wAxis].m_lThreshold = C_lAxisMax >> 2;
         pCaps->stDev.ulCapsFlags |= 1UL << wAxis;
     }
     return 1;
@@ -406,31 +406,31 @@ static short INO_sdl_wSetupJoystick(INO_tdstDevice *pDevice, short wSlot)
   Description   : A device to a free slot: read function, caps, status
  ----------------------------------------------------------------------------------------
  */
-short __cdecl INO_sdl_wAssignDevice(INO_tdstDevice *pDevice)
+short __cdecl INO_fn_wAssignDeviceSlot(INO_tdstDevice *pDevice)
 {
     short wSlot;
     short wSetup;
 
-    wSlot = INO_sdl_wFindSlot(NULL);
+    wSlot = fn_wFindSlot(NULL);
     if ( wSlot < 0 )
     {
         return -1;
     }
-    INO_sdl_g_a_stSlot[wSlot].p_stDevice = pDevice;
+    gs_a_stSlot[wSlot].p_stDevice = pDevice;
 
     switch ( pDevice->uwType & 0xFF )
     {
         case INO_C_uwMouse:
             pDevice->pfnRead = INO_pc_ReadMouse;
-            wSetup = INO_sdl_wSetupMouse(pDevice);
+            wSetup = fn_wSetupMouse(pDevice);
             break;
         case INO_C_uwKeyboard:
             pDevice->pfnRead = INO_pc_ReadKeyboard;
-            wSetup = INO_sdl_wSetupKeyboard(pDevice);
+            wSetup = fn_wSetupKeyboard(pDevice);
             break;
         case INO_C_uwJoystick:
             pDevice->pfnRead = INO_pc_ReadJoystick;
-            wSetup = INO_sdl_wSetupJoystick(pDevice, wSlot);
+            wSetup = fn_wSetupJoystick(pDevice, wSlot);
             break;
         default:
             wSetup = 0;
@@ -439,11 +439,11 @@ short __cdecl INO_sdl_wAssignDevice(INO_tdstDevice *pDevice)
 
     if ( wSetup == 0 )
     {
-        INO_sdl_g_a_stSlot[wSlot].p_stDevice = NULL;
+        gs_a_stSlot[wSlot].p_stDevice = NULL;
         return -1;
     }
 
-    if ( INO_sdl_bHasFocus() )
+    if ( fn_bHasFocus() )
     {
         pDevice->p_stState->ucStatus |= INO_C_ucAcquired;
     }
@@ -459,20 +459,20 @@ short __cdecl INO_sdl_wAssignDevice(INO_tdstDevice *pDevice)
   Description   : The slot of a device freed
  ----------------------------------------------------------------------------------------
  */
-short __cdecl INO_sdl_wReleaseDevice(INO_tdstDevice *pDevice)
+short __cdecl INO_fn_wReleaseDeviceSlot(INO_tdstDevice *pDevice)
 {
-    short wSlot = INO_sdl_wFindSlot(pDevice);
+    short wSlot = fn_wFindSlot(pDevice);
 
     if ( wSlot < 0 )
     {
         return 0;
     }
-    if ( INO_sdl_g_a_stSlot[wSlot].p_stGamepad != NULL )
+    if ( gs_a_stSlot[wSlot].p_stGamepad != NULL )
     {
-        SDL_CloseGamepad(INO_sdl_g_a_stSlot[wSlot].p_stGamepad);
+        SDL_CloseGamepad(gs_a_stSlot[wSlot].p_stGamepad);
     }
-    INO_sdl_g_a_stSlot[wSlot].p_stDevice  = NULL;
-    INO_sdl_g_a_stSlot[wSlot].p_stGamepad = NULL;
+    gs_a_stSlot[wSlot].p_stDevice  = NULL;
+    gs_a_stSlot[wSlot].p_stGamepad = NULL;
     return 1;
 }
 
@@ -481,17 +481,17 @@ short __cdecl INO_sdl_wReleaseDevice(INO_tdstDevice *pDevice)
   Description   : Connected status: keyboard and mouse always, a gamepad while SDL has it
  ----------------------------------------------------------------------------------------
  */
-short __cdecl INO_sdl_wRefreshDeviceCaps(INO_tdstDevice *pDevice)
+short __cdecl INO_fn_wRefreshDeviceCaps(INO_tdstDevice *pDevice)
 {
-    short             wSlot = INO_sdl_wFindSlot(pDevice);
+    short             wSlot = fn_wFindSlot(pDevice);
     INO_tdstDevState *pState = pDevice->p_stState;
 
     if ( wSlot < 0 )
     {
         return 0;
     }
-    if ( INO_sdl_g_a_stSlot[wSlot].p_stGamepad != NULL
-         && !SDL_GamepadConnected(INO_sdl_g_a_stSlot[wSlot].p_stGamepad) )
+    if ( gs_a_stSlot[wSlot].p_stGamepad != NULL
+         && !SDL_GamepadConnected(gs_a_stSlot[wSlot].p_stGamepad) )
     {
         pState->ucStatus &= (unsigned char)~INO_C_ucConnected;
         return 0;
@@ -507,7 +507,7 @@ short __cdecl INO_sdl_wRefreshDeviceCaps(INO_tdstDevice *pDevice)
                   on, keypad operators always; other keys from SDL's keymap.
  ----------------------------------------------------------------------------------------
  */
-unsigned int __cdecl INO_sdl_ulTranslateKeyToAscii(unsigned int uiKey, INO_tdstDevice *pDevice)
+unsigned int __cdecl INO_fn_ulTranslateKeyToAscii(unsigned int uiKey, INO_tdstDevice *pDevice)
 {
     SDL_Scancode eScancode;
     SDL_Keycode  xKey;
@@ -515,11 +515,11 @@ unsigned int __cdecl INO_sdl_ulTranslateKeyToAscii(unsigned int uiKey, INO_tdstD
 
     (void)pDevice;
 
-    if ( uiKey >= 256 || INO_sdl_a_uwKeyToScancode[uiKey] == 0 )
+    if ( uiKey >= 256 || gs_a_uwKeyToSDLScancode[uiKey] == 0 )
     {
         return 0;
     }
-    eScancode = (SDL_Scancode)INO_sdl_a_uwKeyToScancode[uiKey];
+    eScancode = (SDL_Scancode)gs_a_uwKeyToSDLScancode[uiKey];
     bNumLock  = (SDL_GetModState() & SDL_KMOD_NUM) != 0;
 
     switch ( eScancode )
@@ -561,7 +561,7 @@ short __cdecl INO_fn_wReadKeyboard(INO_tdstDevice *hDevice)
     unsigned char         *pBuf;
     int                    iKey;
 
-    if ( (pState->ucStatus & INO_C_ucConnected) == 0 || INO_sdl_wFindSlot(hDevice) < 0 )
+    if ( (pState->ucStatus & INO_C_ucConnected) == 0 || fn_wFindSlot(hDevice) < 0 )
     {
         return 0;
     }
@@ -569,7 +569,7 @@ short __cdecl INO_fn_wReadKeyboard(INO_tdstDevice *hDevice)
     hDevice->ulLastTimeCount += 1;
     pState->wCurrentTab = (unsigned short)(1 - (short)pState->wCurrentTab);
 
-    if ( !INO_sdl_bHasFocus() )
+    if ( !fn_bHasFocus() )
     {
         pState->ucStatus &= (unsigned char)~INO_C_ucAcquired;
         return 0;
@@ -581,8 +581,8 @@ short __cdecl INO_fn_wReadKeyboard(INO_tdstDevice *hDevice)
     pBuf    = pState->a_ucTabKey[pState->wCurrentTab];
     for ( iKey = 0; iKey < 256; iKey++ )
     {
-        pBuf[iKey] = (INO_sdl_a_uwKeyToScancode[iKey] != 0
-                      && p_bKeys[INO_sdl_a_uwKeyToScancode[iKey]]) ? INO_C_ucKeyDown : 0;
+        pBuf[iKey] = (gs_a_uwKeyToSDLScancode[iKey] != 0
+                      && p_bKeys[gs_a_uwKeyToSDLScancode[iKey]]) ? INO_C_ucKeyDown : 0;
     }
     return 1;
 }
@@ -593,7 +593,7 @@ short __cdecl INO_fn_wReadKeyboard(INO_tdstDevice *hDevice)
                   (as the PC reader clamps it)
  ----------------------------------------------------------------------------------------
  */
-static long INO_sdl_lClampMouseAxis(INO_tdstDevice *pDevice, long lAxis)
+static long fn_lClampMouseAxis(INO_tdstDevice *pDevice, long lAxis)
 {
     long lValue = (long)(INO_pc_xGetMouseAxis(pDevice) * lAxis);
 
@@ -613,7 +613,7 @@ static long INO_sdl_lClampMouseAxis(INO_tdstDevice *pDevice, long lAxis)
   Description   : Mouse read: motion since the last read, wheel, buttons
  ----------------------------------------------------------------------------------------
  */
-short __cdecl INO_sdl_wReadMouse(INO_tdstDevice *pDevice)
+short __cdecl INO_fn_wReadMouseSDL(INO_tdstDevice *pDevice)
 {
     INO_pc_tdstMouseState *pstMouse = (INO_pc_tdstMouseState *)pDevice->p_stState;
     SDL_MouseButtonFlags   ulSdlButtons;
@@ -621,26 +621,26 @@ short __cdecl INO_sdl_wReadMouse(INO_tdstDevice *pDevice)
     float                  xDy;
     long                   lWheel;
 
-    if ( (pstMouse->ucStatus & INO_C_ucConnected) == 0 || INO_sdl_wFindSlot(pDevice) < 0 )
+    if ( (pstMouse->ucStatus & INO_C_ucConnected) == 0 || fn_wFindSlot(pDevice) < 0 )
     {
         return 0;
     }
 
     /* Read always, so that motion while unfocused is not handed out later */
     ulSdlButtons = SDL_GetRelativeMouseState(&xDx, &xDy);
-    lWheel = (long)(INO_sdl_g_xWheel * INO_sdl_C_lWheelDelta);
-    INO_sdl_g_xWheel = 0.0f;
+    lWheel = (long)(gs_xWheel * C_lWheelDelta);
+    gs_xWheel = 0.0f;
 
-    if ( !INO_sdl_bHasFocus() )
+    if ( !fn_bHasFocus() )
     {
         pstMouse->ucStatus &= (unsigned char)~INO_C_ucAcquired;
         return 0;
     }
     pstMouse->ucStatus = (unsigned char)((pstMouse->ucStatus & ~INO_C_ucAccessError) | INO_C_ucAcquired);
 
-    pstMouse->lRawX = INO_sdl_lClampMouseAxis(pDevice, (long)xDx);
-    pstMouse->lRawY = INO_sdl_lClampMouseAxis(pDevice, (long)xDy);
-    pstMouse->lRawZ = INO_sdl_lClampMouseAxis(pDevice, lWheel);
+    pstMouse->lRawX = fn_lClampMouseAxis(pDevice, (long)xDx);
+    pstMouse->lRawY = fn_lClampMouseAxis(pDevice, (long)xDy);
+    pstMouse->lRawZ = fn_lClampMouseAxis(pDevice, lWheel);
 
     pstMouse->ulButtons = 0;
     if ( ulSdlButtons & SDL_BUTTON_LMASK )  pstMouse->ulButtons |= 1u << 0;
@@ -655,7 +655,7 @@ short __cdecl INO_sdl_wReadMouse(INO_tdstDevice *pDevice)
   Description   : A gamepad axis (-32768..32767) as a DirectInput axis (0..65535)
  ----------------------------------------------------------------------------------------
  */
-static long INO_sdl_lPadAxis(SDL_Gamepad *p_stGamepad, SDL_GamepadAxis eAxis)
+static long fn_lPadAxis(SDL_Gamepad *p_stGamepad, SDL_GamepadAxis eAxis)
 {
     return (long)SDL_GetGamepadAxis(p_stGamepad, eAxis) + 32768;
 }
@@ -665,7 +665,7 @@ static long INO_sdl_lPadAxis(SDL_Gamepad *p_stGamepad, SDL_GamepadAxis eAxis)
   Description   : Gamepad read: axes relative to their centre, buttons
  ----------------------------------------------------------------------------------------
  */
-short __cdecl INO_sdl_wReadJoystick(INO_tdstDevice *pDevice)
+short __cdecl INO_fn_wReadJoystickSDL(INO_tdstDevice *pDevice)
 {
     INO_pc_tdstJoyState       *pstJoy = (INO_pc_tdstJoyState *)pDevice->p_stState;
     INO_pc_tdstAxisDeviceCaps *pstCaps = (INO_pc_tdstAxisDeviceCaps *)pDevice->p_stCaps;
@@ -677,14 +677,14 @@ short __cdecl INO_sdl_wReadJoystick(INO_tdstDevice *pDevice)
     {
         return 0;
     }
-    wSlot = INO_sdl_wFindSlot(pDevice);
-    if ( wSlot < 0 || INO_sdl_g_a_stSlot[wSlot].p_stGamepad == NULL )
+    wSlot = fn_wFindSlot(pDevice);
+    if ( wSlot < 0 || gs_a_stSlot[wSlot].p_stGamepad == NULL )
     {
         return 0;
     }
-    p_stGamepad = INO_sdl_g_a_stSlot[wSlot].p_stGamepad;
+    p_stGamepad = gs_a_stSlot[wSlot].p_stGamepad;
 
-    if ( !INO_sdl_bHasFocus() )
+    if ( !fn_bHasFocus() )
     {
         pstJoy->ucStatus &= (unsigned char)~INO_C_ucAcquired;
         return 0;
@@ -696,17 +696,17 @@ short __cdecl INO_sdl_wReadJoystick(INO_tdstDevice *pDevice)
     }
     pstJoy->ucStatus = (unsigned char)((pstJoy->ucStatus & ~INO_C_ucAccessError) | INO_C_ucAcquired);
 
-    pstJoy->a_lAxis[0] = INO_sdl_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_LEFTX) - pstCaps->a_stAxis[0].m_lCenter;
-    pstJoy->a_lAxis[1] = INO_sdl_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_LEFTY) - pstCaps->a_stAxis[1].m_lCenter;
+    pstJoy->a_lAxis[0] = fn_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_LEFTX) - pstCaps->a_stAxis[0].m_lCenter;
+    pstJoy->a_lAxis[1] = fn_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_LEFTY) - pstCaps->a_stAxis[1].m_lCenter;
     pstJoy->a_lAxis[2] = 0;
-    pstJoy->a_lAxis[3] = INO_sdl_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_RIGHTX) - pstCaps->a_stAxis[3].m_lCenter;
-    pstJoy->a_lAxis[4] = INO_sdl_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_RIGHTY) - pstCaps->a_stAxis[4].m_lCenter;
+    pstJoy->a_lAxis[3] = fn_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_RIGHTX) - pstCaps->a_stAxis[3].m_lCenter;
+    pstJoy->a_lAxis[4] = fn_lPadAxis(p_stGamepad, SDL_GAMEPAD_AXIS_RIGHTY) - pstCaps->a_stAxis[4].m_lCenter;
     pstJoy->a_lAxis[5] = 0;
 
     pstJoy->ulButtons = 0UL;
-    for ( i = 0; i < INO_sdl_C_ucNbPadButton && i < pDevice->p_stCaps->ucNbButtons; i++ )
+    for ( i = 0; i < C_ucNbPadButton && i < pDevice->p_stCaps->ucNbButtons; i++ )
     {
-        if ( SDL_GetGamepadButton(p_stGamepad, INO_sdl_a_eGamepadButton[i]) )
+        if ( SDL_GetGamepadButton(p_stGamepad, gs_a_eSDLGamepadButton[i]) )
         {
             pstJoy->ulButtons |= 1UL << i;
         }

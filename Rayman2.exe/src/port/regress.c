@@ -44,9 +44,6 @@ extern unsigned char GAM_pc_g_ucMode6SaveFlag_storage;                /* GAM/GAM
 #define REGRESS_C_lSettleFrames    60
 #define REGRESS_C_ulMaxScriptLines 512
 
-#define E_EM_ModeChangeLevel 6
-#define E_EM_ModePlaying     9
-
 typedef struct REGRESS_tdstScriptLine_
 {
     long          lFirst;
@@ -55,18 +52,18 @@ typedef struct REGRESS_tdstScriptLine_
     int           iNbKeys;
 } REGRESS_tdstScriptLine;
 
-static int            s_iActive = -1;            /* -1 = environment not read yet */
-static FILE          *s_p_stOut;
-static FILE          *s_p_stRecord;
-static char           s_szLevel[GAM_C_MAX_NAME_LEVEL];
-static long           s_lFrames = 1800;
-static unsigned long  s_ulFrame;                 /* frames started so far (virtual clock) */
-static long           s_lPlayingFrames;          /* menu frames played before the request */
-static int            s_bRequested;
-static long           s_lLevelStart = -1;        /* s_ulFrame of the level's first frame */
-static REGRESS_tdstScriptLine s_a_stScript[REGRESS_C_ulMaxScriptLines];
-static int            s_iNbScript;
-static INO_tdfn_wMethod s_a_pfnRealRead[INO_C_wNbMaxDevice];
+static int            gs_iActive = -1;            /* -1 = environment not read yet */
+static FILE          *gs_p_stOut;
+static FILE          *gs_p_stRecord;
+static char           gs_szLevel[GAM_C_MAX_NAME_LEVEL];
+static long           gs_lFrames = 1800;
+static unsigned long  gs_ulFrame;                 /* frames started so far (virtual clock) */
+static long           gs_lPlayingFrames;          /* menu frames played before the request */
+static int            gs_bRequested;
+static long           gs_lLevelStart = -1;        /* gs_ulFrame of the level's first frame */
+static REGRESS_tdstScriptLine gs_a_stScript[REGRESS_C_ulMaxScriptLines];
+static int            gs_iNbScript;
+static INO_tdfn_wMethod gs_a_pfnRealRead[INO_C_wNbMaxDevice];
 
 static const struct { const char *szName; unsigned char ucCode; } s_a_stKeyName[] = {
     { "ESC", 0x01 }, { "ENTER", 0x1C }, { "SPACE", 0x39 }, { "A", 0x1E }, { "Q", 0x10 },
@@ -105,8 +102,8 @@ static void REGRESS_fn_vLoadScript(const char *szPath)
     if (p_stFile == NULL) {
         return;
     }
-    while (fgets(szLine, sizeof(szLine), p_stFile) != NULL && s_iNbScript < REGRESS_C_ulMaxScriptLines) {
-        REGRESS_tdstScriptLine *p_stLine = &s_a_stScript[s_iNbScript];
+    while (fgets(szLine, sizeof(szLine), p_stFile) != NULL && gs_iNbScript < REGRESS_C_ulMaxScriptLines) {
+        REGRESS_tdstScriptLine *p_stLine = &gs_a_stScript[gs_iNbScript];
         char *p_cHash = strchr(szLine, '#');
         char  szKeys[200];
         char *szTok;
@@ -122,7 +119,7 @@ static void REGRESS_fn_vLoadScript(const char *szPath)
                 p_stLine->iNbKeys++;
             }
         }
-        s_iNbScript++;
+        gs_iNbScript++;
     }
     fclose(p_stFile);
 }
@@ -130,29 +127,29 @@ static void REGRESS_fn_vLoadScript(const char *szPath)
 int __cdecl REGRESS_fn_bActive(void)
 {
     char szBuf[MAX_PATH];
-    if (s_iActive >= 0) {
-        return s_iActive;
+    if (gs_iActive >= 0) {
+        return gs_iActive;
     }
-    s_iActive = 0;
+    gs_iActive = 0;
     if (!REGRESS_fn_bEnv("R2_REGRESS_OUT", szBuf, sizeof(szBuf))) {
         return 0;
     }
-    s_p_stOut = fopen(szBuf, "wt");
-    if (s_p_stOut == NULL) {
+    gs_p_stOut = fopen(szBuf, "wt");
+    if (gs_p_stOut == NULL) {
         return 0;
     }
     if (REGRESS_fn_bEnv("R2_REGRESS_LEVEL", szBuf, sizeof(szBuf))) {
-        strncpy(s_szLevel, szBuf, sizeof(s_szLevel) - 1);
+        strncpy(gs_szLevel, szBuf, sizeof(gs_szLevel) - 1);
     }
     if (REGRESS_fn_bEnv("R2_REGRESS_FRAMES", szBuf, sizeof(szBuf))) {
-        s_lFrames = atol(szBuf);
+        gs_lFrames = atol(szBuf);
     }
     if (REGRESS_fn_bEnv("R2_REGRESS_RECORD", szBuf, sizeof(szBuf))) {
-        s_p_stRecord = fopen(szBuf, "wt");
+        gs_p_stRecord = fopen(szBuf, "wt");
     } else if (REGRESS_fn_bEnv("R2_REGRESS_INPUT", szBuf, sizeof(szBuf))) {
         REGRESS_fn_vLoadScript(szBuf);
     }
-    s_iActive = 1;
+    gs_iActive = 1;
     return 1;
 }
 
@@ -164,7 +161,7 @@ int __cdecl REGRESS_fn_bGetCounter(short channel, LARGE_INTEGER *p_stOut)
     if (!REGRESS_fn_bActive() || channel < 0 || channel > 2) {
         return 0;
     }
-    ullTicks = (unsigned __int64)s_ulFrame * TMR_a3_ulTimerFrequency[channel] / REGRESS_C_ulFps;
+    ullTicks = (unsigned __int64)gs_ulFrame * TMR_a3_ulTimerFrequency[channel] / REGRESS_C_ulFps;
     p_stOut->QuadPart = (__int64)ullTicks;
     return 1;
 }
@@ -190,7 +187,7 @@ static int REGRESS_fn_iDeviceIndex(INO_tdstDevice *hDevice)
 
 static long REGRESS_fn_lScriptFrame(void)
 {
-    return s_lLevelStart < 0 ? -1 : (long)(s_ulFrame - 1) - s_lLevelStart;
+    return gs_lLevelStart < 0 ? -1 : (long)(gs_ulFrame - 1) - gs_lLevelStart;
 }
 
 /* What a successful INO_fn_wReadKeyboard does, with the key buffer from the script. */
@@ -210,10 +207,10 @@ static short REGRESS_fn_wReadKeyboardScript(INO_tdstDevice *hDevice)
     p_stState->ucStatus &= (unsigned char)~INO_C_ucAccessError;
     p_ucBuf = p_stState->a_ucTabKey[p_stState->wCurrentTab];
     memset(p_ucBuf, 0, 256);
-    for (i = 0; i < s_iNbScript; i++) {
-        if (lFrame >= s_a_stScript[i].lFirst && lFrame <= s_a_stScript[i].lLast) {
-            for (k = 0; k < s_a_stScript[i].iNbKeys; k++) {
-                p_ucBuf[s_a_stScript[i].a_ucKey[k]] = INO_C_ucKeyDown;
+    for (i = 0; i < gs_iNbScript; i++) {
+        if (lFrame >= gs_a_stScript[i].lFirst && lFrame <= gs_a_stScript[i].lLast) {
+            for (k = 0; k < gs_a_stScript[i].iNbKeys; k++) {
+                p_ucBuf[gs_a_stScript[i].a_ucKey[k]] = INO_C_ucKeyDown;
             }
         }
     }
@@ -225,24 +222,24 @@ static short REGRESS_fn_wReadKeyboardRecord(INO_tdstDevice *hDevice)
 {
     INO_tdstKeyboardState *p_stState = (INO_tdstKeyboardState *)hDevice->p_stState;
     int   iIndex = REGRESS_fn_iDeviceIndex(hDevice);
-    short wRet = (iIndex >= 0 && s_a_pfnRealRead[iIndex] != NULL) ? s_a_pfnRealRead[iIndex](hDevice) : 0;
+    short wRet = (iIndex >= 0 && gs_a_pfnRealRead[iIndex] != NULL) ? gs_a_pfnRealRead[iIndex](hDevice) : 0;
     long  lFrame = REGRESS_fn_lScriptFrame();
     unsigned char *p_ucBuf = p_stState->a_ucTabKey[p_stState->wCurrentTab];
     int   i, bFirst = 1;
 
-    if (lFrame < 0 || s_p_stRecord == NULL) {
+    if (lFrame < 0 || gs_p_stRecord == NULL) {
         return wRet;
     }
     for (i = 0; i < 256; i++) {
         if (p_ucBuf[i] & INO_C_ucKeyDown) {
-            fprintf(s_p_stRecord, bFirst ? "%ld %ld 0x%02X" : ",0x%02X", lFrame, lFrame, i);
+            fprintf(gs_p_stRecord, bFirst ? "%ld %ld 0x%02X" : ",0x%02X", lFrame, lFrame, i);
             if (bFirst) {
                 bFirst = 0;
             }
         }
     }
     if (!bFirst) {
-        fputc('\n', s_p_stRecord);
+        fputc('\n', gs_p_stRecord);
     }
     return wRet;
 }
@@ -257,12 +254,12 @@ static void REGRESS_fn_vHookDevices(void)
             continue;
         }
         if (INO_M_uwType(hDevice) == INO_C_uwKeyboard) {
-            pfnOurs = s_p_stRecord ? REGRESS_fn_wReadKeyboardRecord : REGRESS_fn_wReadKeyboardScript;
+            pfnOurs = gs_p_stRecord ? REGRESS_fn_wReadKeyboardRecord : REGRESS_fn_wReadKeyboardScript;
         } else {
             pfnOurs = REGRESS_fn_wReadNothing;
         }
         if (hDevice->pfnRead != pfnOurs) {
-            s_a_pfnRealRead[i] = hDevice->pfnRead;
+            gs_a_pfnRealRead[i] = hDevice->pfnRead;
             hDevice->pfnRead = pfnOurs;
         }
     }
@@ -270,9 +267,9 @@ static void REGRESS_fn_vHookDevices(void)
 
 /* ---- state hash --------------------------------------------------------------------------- */
 
-static unsigned __int64 s_ullHash;
-static char             s_szLine[2048];
-static int              s_iLineLen;
+static unsigned __int64 gs_ullHash;
+static char             gs_szLine[2048];
+static int              gs_iLineLen;
 
 static unsigned long REGRESS_fn_ulFnv32(const void *p_vData, unsigned long ulSize)
 {
@@ -286,7 +283,7 @@ static unsigned long REGRESS_fn_ulFnv32(const void *p_vData, unsigned long ulSiz
 
 static void REGRESS_fn_vAddText(const char *szName, const char *szValue)
 {
-    s_iLineLen += _snprintf(s_szLine + s_iLineLen, sizeof(s_szLine) - s_iLineLen, " %s=%s", szName, szValue);
+    gs_iLineLen += _snprintf(gs_szLine + gs_iLineLen, sizeof(gs_szLine) - gs_iLineLen, " %s=%s", szName, szValue);
 }
 
 /* A field: into the frame hash, and onto the line as its own 32-bit digest. */
@@ -297,7 +294,7 @@ static void REGRESS_fn_vAddField(const char *szName, const void *p_vData, unsign
     char szValue[16];
     unsigned long i;
     for (i = 0; i < ulSize; i++) {
-        s_ullHash = (s_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
+        gs_ullHash = (gs_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
     }
     sprintf(szValue, "%08lx", ulDigest);
     REGRESS_fn_vAddText(szName, szValue);
@@ -311,8 +308,8 @@ static void REGRESS_fn_vHashFrame(void)
     GAM_tdstEngineTimerStructure *p_stTimer = &p_stEng->stEngineTimer;
     char szValue[64];
 
-    s_ullHash = 0xCBF29CE484222325ui64;
-    s_iLineLen = 0;
+    gs_ullHash = 0xCBF29CE484222325ui64;
+    gs_iLineLen = 0;
 
     sprintf(szValue, "%u", (unsigned)p_stEng->eEngineMode);
     REGRESS_fn_vAddText("mode", szValue);
@@ -359,24 +356,24 @@ static void REGRESS_fn_vHashFrame(void)
 static void REGRESS_fn_vScenario(void)
 {
     GAM_tdstEngineStructure *p_stEng = &GAM_g_stEngineStructure;
-    if (s_szLevel[0] == 0) {
-        if (s_lLevelStart < 0 && p_stEng->eEngineMode == E_EM_ModePlaying) {
-            s_lLevelStart = (long)s_ulFrame;           /* no level asked: script from the menu */
+    if (gs_szLevel[0] == 0) {
+        if (gs_lLevelStart < 0 && p_stEng->eEngineMode == E_EM_ModePlaying) {
+            gs_lLevelStart = (long)gs_ulFrame;           /* no level asked: script from the menu */
         }
         return;
     }
-    if (!s_bRequested) {
+    if (!gs_bRequested) {
         if (p_stEng->eEngineMode != E_EM_ModePlaying) {
-            s_lPlayingFrames = 0;
-        } else if (++s_lPlayingFrames >= REGRESS_C_lSettleFrames) {
-            strcpy(p_stEng->szNextLevelName, s_szLevel);
+            gs_lPlayingFrames = 0;
+        } else if (++gs_lPlayingFrames >= REGRESS_C_lSettleFrames) {
+            strcpy(p_stEng->szNextLevelName, gs_szLevel);
             GAM_pc_g_ucMode6SaveFlag_storage = 0;
             p_stEng->eEngineMode = E_EM_ModeChangeLevel;
-            s_bRequested = 1;
+            gs_bRequested = 1;
         }
-    } else if (s_lLevelStart < 0 && p_stEng->eEngineMode == E_EM_ModePlaying
-               && _stricmp(p_stEng->szLevelName, s_szLevel) == 0) {
-        s_lLevelStart = (long)s_ulFrame;
+    } else if (gs_lLevelStart < 0 && p_stEng->eEngineMode == E_EM_ModePlaying
+               && _stricmp(p_stEng->szLevelName, gs_szLevel) == 0) {
+        gs_lLevelStart = (long)gs_ulFrame;
     }
 }
 
@@ -385,20 +382,20 @@ void __cdecl REGRESS_fn_vBeforeFrame(void)
     if (!REGRESS_fn_bActive()) {
         return;
     }
-    if (s_ulFrame > 0) {
+    if (gs_ulFrame > 0) {
         REGRESS_fn_vHashFrame();
-        fprintf(s_p_stOut, "%lu %016I64x%s\n", s_ulFrame - 1, s_ullHash, s_szLine);
+        fprintf(gs_p_stOut, "%lu %016I64x%s\n", gs_ulFrame - 1, gs_ullHash, gs_szLine);
     }
-    if (s_lLevelStart >= 0 && (long)s_ulFrame - s_lLevelStart >= s_lFrames) {
-        fclose(s_p_stOut);
-        if (s_p_stRecord != NULL) {
-            fclose(s_p_stRecord);
+    if (gs_lLevelStart >= 0 && (long)gs_ulFrame - gs_lLevelStart >= gs_lFrames) {
+        fclose(gs_p_stOut);
+        if (gs_p_stRecord != NULL) {
+            fclose(gs_p_stRecord);
         }
         ExitProcess(0);
     }
     REGRESS_fn_vScenario();
     REGRESS_fn_vHookDevices();
-    s_ulFrame++;
+    gs_ulFrame++;
 }
 
 #endif /* RAYMAN2_REGRESS */

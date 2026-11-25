@@ -76,7 +76,7 @@ typedef struct GLI_tdstSafeAreaBox_
     GLI_tdeSafeAreaAnchor eAnchor;
 } GLI_tdstSafeAreaBox;
 
-static GLI_tdstSafeAreaBox GLI_gs_a_stSafeAreaBox[GLI_C_lMaxSafeAreaBoxes];
+static GLI_tdstSafeAreaBox gs_a_stSafeAreaBox[GLI_C_lMaxSafeAreaBoxes];
 
 void GLI_fn_vResetSafeAreaBoxes(void)
 {
@@ -84,8 +84,8 @@ void GLI_fn_vResetSafeAreaBoxes(void)
 
     for ( lKey = 0 ; lKey < GLI_C_lMaxSafeAreaBoxes ; lKey++ )
     {
-        GLI_gs_a_stSafeAreaBox[lKey].lGroup  = -1;
-        GLI_gs_a_stSafeAreaBox[lKey].eAnchor = GLI_C_eSafeAreaCentre;
+        gs_a_stSafeAreaBox[lKey].lGroup  = -1;
+        gs_a_stSafeAreaBox[lKey].eAnchor = GLI_C_eSafeAreaCentre;
     }
 }
 
@@ -95,7 +95,7 @@ void GLI_fn_vAddSafeAreaBox(long lKey, MTH_tdxReal xLeft, MTH_tdxReal xTop, MTH_
 
     if ( lKey < 0 || lKey >= GLI_C_lMaxSafeAreaBoxes )
         return;
-    p_stBox = &GLI_gs_a_stSafeAreaBox[lKey];
+    p_stBox = &gs_a_stSafeAreaBox[lKey];
     p_stBox->xLeft   = xLeft;
     p_stBox->xTop    = xTop;
     p_stBox->xRight  = xRight;
@@ -122,36 +122,36 @@ void GLI_fn_vComputeSafeAreaAnchors(MTH_tdxReal xFull)
     /* groups: merge the groups of every two touching boxes */
     for ( i = 0 ; i < GLI_C_lMaxSafeAreaBoxes ; i++ )
     {
-        if ( GLI_gs_a_stSafeAreaBox[i].lGroup < 0 )
+        if ( gs_a_stSafeAreaBox[i].lGroup < 0 )
             continue;
         for ( j = i + 1 ; j < GLI_C_lMaxSafeAreaBoxes ; j++ )
         {
-            if ( GLI_gs_a_stSafeAreaBox[j].lGroup < 0
-              || GLI_gs_a_stSafeAreaBox[j].lGroup == GLI_gs_a_stSafeAreaBox[i].lGroup
-              || !GLI_fn_bSafeAreaBoxesTouch( &GLI_gs_a_stSafeAreaBox[i], &GLI_gs_a_stSafeAreaBox[j] ) )
+            if ( gs_a_stSafeAreaBox[j].lGroup < 0
+              || gs_a_stSafeAreaBox[j].lGroup == gs_a_stSafeAreaBox[i].lGroup
+              || !GLI_fn_bSafeAreaBoxesTouch( &gs_a_stSafeAreaBox[i], &gs_a_stSafeAreaBox[j] ) )
                 continue;
-            lOld = GLI_gs_a_stSafeAreaBox[j].lGroup;
-            lNew = GLI_gs_a_stSafeAreaBox[i].lGroup;
+            lOld = gs_a_stSafeAreaBox[j].lGroup;
+            lNew = gs_a_stSafeAreaBox[i].lGroup;
             for ( k = 0 ; k < GLI_C_lMaxSafeAreaBoxes ; k++ )
-                if ( GLI_gs_a_stSafeAreaBox[k].lGroup == lOld )
-                    GLI_gs_a_stSafeAreaBox[k].lGroup = lNew;
+                if ( gs_a_stSafeAreaBox[k].lGroup == lOld )
+                    gs_a_stSafeAreaBox[k].lGroup = lNew;
         }
     }
 
     /* anchor of each group, from its extent; a group is labelled with the key of one of its boxes */
     for ( i = 0 ; i < GLI_C_lMaxSafeAreaBoxes ; i++ )
     {
-        if ( GLI_gs_a_stSafeAreaBox[i].lGroup != i )
+        if ( gs_a_stSafeAreaBox[i].lGroup != i )
             continue;
-        xLeft  = GLI_gs_a_stSafeAreaBox[i].xLeft;
-        xRight = GLI_gs_a_stSafeAreaBox[i].xRight;
+        xLeft  = gs_a_stSafeAreaBox[i].xLeft;
+        xRight = gs_a_stSafeAreaBox[i].xRight;
         for ( k = 0 ; k < GLI_C_lMaxSafeAreaBoxes ; k++ )
-            if ( GLI_gs_a_stSafeAreaBox[k].lGroup == i )
+            if ( gs_a_stSafeAreaBox[k].lGroup == i )
             {
-                if ( GLI_gs_a_stSafeAreaBox[k].xLeft < xLeft )
-                    xLeft = GLI_gs_a_stSafeAreaBox[k].xLeft;
-                if ( GLI_gs_a_stSafeAreaBox[k].xRight > xRight )
-                    xRight = GLI_gs_a_stSafeAreaBox[k].xRight;
+                if ( gs_a_stSafeAreaBox[k].xLeft < xLeft )
+                    xLeft = gs_a_stSafeAreaBox[k].xLeft;
+                if ( gs_a_stSafeAreaBox[k].xRight > xRight )
+                    xRight = gs_a_stSafeAreaBox[k].xRight;
             }
 
         if ( xLeft <= xThird && xRight <= xHalf )
@@ -162,8 +162,8 @@ void GLI_fn_vComputeSafeAreaAnchors(MTH_tdxReal xFull)
             eAnchor = GLI_C_eSafeAreaCentre;
 
         for ( k = 0 ; k < GLI_C_lMaxSafeAreaBoxes ; k++ )
-            if ( GLI_gs_a_stSafeAreaBox[k].lGroup == i )
-                GLI_gs_a_stSafeAreaBox[k].eAnchor = eAnchor;
+            if ( gs_a_stSafeAreaBox[k].lGroup == i )
+                gs_a_stSafeAreaBox[k].eAnchor = eAnchor;
     }
 }
 
@@ -172,7 +172,7 @@ void GLI_fn_vSetSafeAreaAnchorOfBox(long lKey)
     if ( lKey < 0 || lKey >= GLI_C_lMaxSafeAreaBoxes )
         GLI_g_eSafeAreaAnchor = GLI_C_eSafeAreaCentre;
     else
-        GLI_g_eSafeAreaAnchor = GLI_gs_a_stSafeAreaBox[lKey].eAnchor;
+        GLI_g_eSafeAreaAnchor = gs_a_stSafeAreaBox[lKey].eAnchor;
 }
 
 /*
@@ -183,8 +183,8 @@ void GLI_fn_vSetSafeAreaAnchorOfBox(long lKey)
                   is kept between calls (the loading screen redraws at each progress step).
  ----------------------------------------------------------------------------------------
  */
-static unsigned short *GLI_gs_p_uwBandBuffer = NULL;
-static long            GLI_gs_lBandBufferSize = 0;
+static unsigned short *gs_p_uwBandBuffer  = NULL;
+static long            gs_lBandBufferSize = 0;
 
 void *GLI_fn_p_vSqueezeBitmapToSafeArea(void *p_vBuffer, long lWidth, long lHeight)
 {
@@ -198,18 +198,18 @@ void *GLI_fn_p_vSqueezeBitmapToSafeArea(void *p_vBuffer, long lWidth, long lHeig
     lBandLeft = (lWidth - lBandWidth) >> 1;
 
     lSize = lWidth * lHeight * (long)sizeof(unsigned short);
-    if ( lSize > GLI_gs_lBandBufferSize )
+    if ( lSize > gs_lBandBufferSize )
     {
-        p_uwDest = (unsigned short *)realloc( GLI_gs_p_uwBandBuffer, (size_t)lSize );
+        p_uwDest = (unsigned short *)realloc( gs_p_uwBandBuffer, (size_t)lSize );
         if ( p_uwDest == NULL )
             return p_vBuffer;
-        GLI_gs_p_uwBandBuffer  = p_uwDest;
-        GLI_gs_lBandBufferSize = lSize;
+        gs_p_uwBandBuffer  = p_uwDest;
+        gs_lBandBufferSize = lSize;
     }
 
-    memset( GLI_gs_p_uwBandBuffer, 0, (size_t)lSize );
+    memset( gs_p_uwBandBuffer, 0, (size_t)lSize );
     p_uwSource = (unsigned short *)p_vBuffer;
-    p_uwDest   = GLI_gs_p_uwBandBuffer + lBandLeft;
+    p_uwDest   = gs_p_uwBandBuffer + lBandLeft;
     for ( lLine = 0 ; lLine < lHeight ; lLine++ )
     {
         for ( lColumn = 0 ; lColumn < lBandWidth ; lColumn++ )
@@ -218,7 +218,7 @@ void *GLI_fn_p_vSqueezeBitmapToSafeArea(void *p_vBuffer, long lWidth, long lHeig
         p_uwDest   += lWidth;
     }
 
-    return GLI_gs_p_uwBandBuffer;
+    return gs_p_uwBandBuffer;
 }
 
 #endif /* RAYMAN2_WIDESCREEN */

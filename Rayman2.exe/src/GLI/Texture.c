@@ -1335,7 +1335,7 @@ unsigned int __cdecl GLI_AddToProgressBar(int lIncrement)
         if (ulNewPos > ulLastPos && ulNewPos - ulLastPos > (ulSpan / 10) / 5) {
             GLI_FillProgressBarSpan((int)&GLI_pc_g_stProgressUi, ulLastPos, ulNewPos);
 #ifdef RAYMAN2_FAST_LOADING
-            GLI_pc_fn_vRefreshProgressUiIfDue((char *)&GLI_pc_g_stProgressUi); /* bounded rate, the bar is in the buffer */
+            GLI_fn_vRefreshProgressUiIfDue((char *)&GLI_pc_g_stProgressUi); /* bounded rate, the bar is in the buffer */
 #else
             GLI_RefreshUiSurfaceIfVisible((char *)&GLI_pc_g_stProgressUi);
 #endif /* RAYMAN2_FAST_LOADING */
