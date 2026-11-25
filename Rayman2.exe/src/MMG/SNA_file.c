@@ -26,7 +26,7 @@
 
 /* A handle that is no open file (NULL, failed open): the Win32 calls fail on it and do
    nothing, while the C runtime would stop the process */
-#define M_SNA_bIsNoFile(hFile)  ((hFile) == NULL || (hFile) == SNA_pc_C_hInvalidFile)
+#define SNA_M_bIsNoFile(hFile)  ((hFile) == NULL || (hFile) == SNA_pc_C_hInvalidFile)
 
 /*
  ----------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ int __cdecl SNA_pc_fn_bReadFileC(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned
     FILE  *p_stFile = (FILE *)hFile;
     size_t ulRead;
 
-    if ( M_SNA_bIsNoFile(hFile) )
+    if ( SNA_M_bIsNoFile(hFile) )
     {
         if ( p_ulRead != NULL )
             *p_ulRead = 0;
@@ -80,7 +80,7 @@ unsigned long __cdecl SNA_pc_fn_ulSeekFileC(SNA_pc_tdhFile hFile, long lDistance
     int   iOrigin;
     long  lPosition;
 
-    if ( M_SNA_bIsNoFile(hFile) )
+    if ( SNA_M_bIsNoFile(hFile) )
         return SNA_pc_C_ulSeekFailed;
 
     switch ( ulOrigin )
@@ -104,7 +104,7 @@ unsigned long __cdecl SNA_pc_fn_ulSeekFileC(SNA_pc_tdhFile hFile, long lDistance
  */
 int __cdecl SNA_pc_fn_bCloseFileC(SNA_pc_tdhFile hFile)
 {
-    if ( M_SNA_bIsNoFile(hFile) )
+    if ( SNA_M_bIsNoFile(hFile) )
         return 0;
     return fclose((FILE *)hFile) == 0;
 }
