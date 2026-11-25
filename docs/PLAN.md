@@ -365,8 +365,8 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
      `SND/SND.c` go to `FIL/FIL_ini.c` (`FIL/FIL_ini.h`). A differential test against the Win32
      functions (1043 reads, 234 writes on `ubi.ini`, the sound ini and edge cases) gives the same
      results and file bytes, except deleting an indented key, which the engine never does;
-   - MMG system memory: the original `CPA_MALLOC`/`CPA_FREE` in `MMG/CpaMmg.h`, `GlobalAlloc`
-     or `malloc`.
+   - MMG system memory: the original `CPA_MALLOC`/`CPA_FREE` (`MMG/PrivMmg.h` since f628850),
+     `GlobalAlloc` or `malloc`.
    The call sites stay as they are: each file includes the header that maps the Win32 names.
    Measured (Morb_00, 1860 frames): identical against `modern_baseline.txt` with and without
    `R2_C_RUNTIME`, VC5 + define identical against `np_b`. With `R2_C_RUNTIME` no object imports
@@ -456,8 +456,8 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
 
    **Done (2026-11-24): MMG lock under `USE_SDL`.** `g_csMmg` takes the original engine's
    `TypeCriticalSection` (`MMG/MMG_alloc.h`): an SDL mutex, reentrant as the critical section.
-   `MMG/CpaMmg.h` maps the Win32 critical section calls of the MMG files to it, as it maps their
-   `GlobalAlloc` (step 3); the call sites stay. No other file that includes `CpaMmg.h` uses a
+   Since f628850 through the original `Mmg_M*CriticalSection` names (`MMG/CpaMmg.h`, `USE_SDL`
+   branch calling `MMG/sdl_mmg.c`; see "Platform glue"). No other file that includes `CpaMmg.h` uses a
    critical section (`SND/SndThrd.c` keeps its own, Win32, see Sound). Measured: regression
    identical (SDL, MSVC, clang-cl, VC5 + define); only `SndThrd.obj` imports the critical section
    functions in the SDL build.
@@ -586,9 +586,9 @@ counts, `Sleep`, thread ids) shared code calls module-owned names, not system AP
 - neutral types for handles and results (`SNA_tdhFile`, ...), so the non-Win32 branches compile
   without `windows.h`;
 - SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
-  not SDL itself (today `MMG/CpaMmg.h` calls SDL's mutex functions directly);
+  not SDL itself;
 - replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
-  rejects added lines that `#define` a Win32 API name, except the 19 existing ones (allow list,
+  rejects added lines that `#define` a Win32 API name, except the 13 left (19 at first; allow list,
   shrinks with each migration).
 
 Inventory (25.11.2026; system calls in the SDL build measured per object with the import list of
@@ -596,8 +596,8 @@ the game's binaries; sound left to Sound, below):
 
 | Module | Today | Users | Neutral name | Name from |
 |---|---|---|---|---|
-| MMG lock | rename of the 4 critical section calls (`MMG/CpaMmg.h`) | `MMG_alloc.c`, `MMG_module.c`, `MMG_pool_alloc.c`, `MMG_pubaccess.c`, `SAI_Priv.c` (to check which call them) | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_MmgCriticalSection` (the fork's `g_csMmg`) | original engine (empty on the consoles) |
-| MMG memory | rename of `GlobalAlloc`/`GlobalFree` (`MMG/CpaMmg.h`) | same files | `CPA_MALLOC`, `CPA_FREE` (exist already); `GMEM_ZEROINIT` users to check | original engine |
+| MMG lock | **done** (f628850): `USE_SDL` branch -> `MMG/sdl_mmg.c`, Win32 `#else` | `MMG_alloc.c`, `MMG_module.c`, `MMG_pool_alloc.c`, `MMG_pubaccess.c`, `SAI_Priv.c` (to check which call them) | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_MmgCriticalSection` (the fork's `g_csMmg`) | original engine (empty on the consoles) |
+| MMG memory | **done** (f628850): C runtime branch in `MMG/PrivMmg.h` without `FILE_MODE_C_WIN95`; no `GMEM_ZEROINIT` site | same files | `CPA_MALLOC`, `CPA_FREE` (exist already); `GMEM_ZEROINIT` users to check | original engine |
 | ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
 | SNA level files | rename of 6 file calls (`MMG/SNA_file.h`) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
 | FIL ini | rename of `Get/WritePrivateProfileStringA` (`FIL/FIL_ini.h`) | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
@@ -613,7 +613,15 @@ the game's binaries; sound left to Sound, below):
 Order: TMR first (fork only, no call-site change), then MMG lock and memory, GAM draw lock, FIL,
 SNA, GLI once their call sites carry the names (asked of the decomp on 25.11.2026; if it declines
 the names without an original source, the fork changes those call sites itself); ERM and the
-rest with the targets that need them.
+rest with the targets that need them. The decomp delivered all six on 25.11.2026 (merge f628850),
+named `<MOD>_pc_M_*` for the fork-named rows (`SNA_pc_M_hOpenFile`, `FIL_pc_M_ulGetProfileString`,
+`GAM_pc_M_ulWaitDrawSemaphore`, `GLI_pc_M_hLoadDriver`, ...; headers `MMG/SNA_pc.h`,
+`FIL/FIL_pc.h`, `GAM/GAM_pc_DrawLock.h`, `GLI/GLI_pc.h`); until each is migrated, the fork's
+rename still applies to the Win32 call the macro expands to. `GAM_GameEng.c` carries its own copy
+of the draw lock defines (an include there changes a function's bytes): migrate it too.
+Measured for MMG: regression identical (MSVC, SDL, `R2_C_RUNTIME` vs `modern_baseline.txt`,
+clang-cl vs `clang_baseline.txt`, VC5 + define vs `np_b`); SDL's MMG objects import neither
+critical section nor `GlobalAlloc`.
 Why: a rename keeps the Win32 types at every call site (a `windows.h` stand-in on Linux and the
 consoles, i.e. Win32 emulation), reroutes every call of that name in the file (an upstream merge
 that adds an unrelated `WaitForSingleObject` would silently reach the SDL semaphore), and depends
