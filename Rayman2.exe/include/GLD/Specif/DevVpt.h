@@ -20,8 +20,8 @@ typedef struct GLD_tdstDeviceAttributes_
     unsigned long dwFullScreenModeX;
     unsigned long dwFullScreenModeY;
     unsigned long dwFullScreenModeBpp;
-    HANDLE        hFullScreenModeWnd;
-    HANDLE        hNormalModeWnd;
+    HWND          hFullScreenModeWnd;
+    HWND          hNormalModeWnd;
     BOOL          bFullScreen;
     unsigned int  uiTypeDriver;
     POINT         pClientOnPrimary;

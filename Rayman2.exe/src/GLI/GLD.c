@@ -155,10 +155,10 @@ long __cdecl GLD_bClearDevice(short hDev)
 }
 
 long __cdecl GLD_bSetFullScreenModeForDevice(GLD_tdhDevice hDev,
-                                          unsigned long ulWidth,
-                                          unsigned long ulHeight,
-                                          unsigned long ulBpp,
-                                          unsigned long ulHWnd)
+                                          DWORD ulWidth,
+                                          DWORD ulHeight,
+                                          DWORD ulBpp,
+                                          HWND hWnd)
 {
     struct GLD_stDevice *p_stDevice = (struct GLD_stDevice *)GLD_pc_pGetDevice((short)hDev);
     if (!p_stDevice) {
@@ -167,7 +167,7 @@ long __cdecl GLD_bSetFullScreenModeForDevice(GLD_tdhDevice hDev,
     p_stDevice->stDevAttrib.dwFullScreenModeX = ulWidth;
     p_stDevice->stDevAttrib.dwFullScreenModeY = ulHeight;
     p_stDevice->stDevAttrib.dwFullScreenModeBpp = ulBpp;
-    p_stDevice->stDevAttrib.hFullScreenModeWnd = (HANDLE)ulHWnd;
+    p_stDevice->stDevAttrib.hFullScreenModeWnd = hWnd;
     return 1;
 }
 
@@ -180,24 +180,23 @@ long __cdecl GLD_bSwapToWindowedMode(short hDev, int bRebuildMode)
     *(volatile unsigned long *)GLD_ADDR_720C = 1;
 
     {
-        unsigned long *p_ulDevice =
-            (unsigned long *)GLD_pc_pGetDevice((short)hDev);
-        if (!p_ulDevice) {
+        GLD_tdstDevice *p_stDev = (GLD_tdstDevice *)GLD_pc_pGetDevice((short)hDev);
+        if (!p_stDev) {
             *(volatile unsigned long *)GLD_ADDR_720C = 0;
             return 0;
         }
-        p_ulDevice[0xc] = 1;
+        p_stDev->stDevAttrib.bFullScreen = 1;
 
         if (bRebuildMode == 0) {
-            (*(void (__cdecl **)(unsigned long, int))&GLI_DRV_g_vActivateGli)(p_ulDevice[0xb], 1);
+            (*(void (__cdecl **)(HWND, int))&GLI_DRV_g_vActivateGli)(p_stDev->stDevAttrib.hNormalModeWnd, 1);
             *(volatile unsigned long *)GLD_ADDR_720C = 0;
             return 1;
         }
 
         {
             long lResult;
-            (*(void (__cdecl **)(unsigned long))&GLI_DRV_g_vPrepareForGliFullScreen)(p_ulDevice[10]);
-            lResult = GLD_pc_bRecreateDevice(hDev, p_ulDevice);
+            (*(void (__cdecl **)(HWND))&GLI_DRV_g_vPrepareForGliFullScreen)(p_stDev->stDevAttrib.hFullScreenModeWnd);
+            lResult = GLD_pc_bRecreateDevice(hDev, (unsigned long *)p_stDev);
             *(volatile unsigned long *)GLD_ADDR_720C = 0;
             return lResult;
         }
@@ -212,28 +211,27 @@ long __cdecl GLD_bSwapDeviceMode(short hDev, int bRebuildMode)
     *(volatile unsigned long *)GLD_ADDR_720C = 1;
 
     {
-        unsigned long *p_ulDevice =
-            (unsigned long *)GLD_pc_pGetDevice((short)hDev);
-        if (!p_ulDevice) {
+        GLD_tdstDevice *p_stDev = (GLD_tdstDevice *)GLD_pc_pGetDevice((short)hDev);
+        if (!p_stDev) {
             *(volatile unsigned long *)GLD_ADDR_720C = 0;
             return 0;
         }
-        p_ulDevice[0xc] = 0;
+        p_stDev->stDevAttrib.bFullScreen = 0;
 
         if (bRebuildMode == 0) {
-            (*(void (__cdecl **)(unsigned long, int))&GLI_DRV_g_vActivateGli)(p_ulDevice[0xb], 0);
+            (*(void (__cdecl **)(HWND, int))&GLI_DRV_g_vActivateGli)(p_stDev->stDevAttrib.hNormalModeWnd, 0);
             *(volatile unsigned long *)GLD_ADDR_720C = 0;
             return 1;
         }
 
         {
-            long lPrepOk = (*(long (__cdecl **)(unsigned long))&GLI_DRV_g_bPrepareForGliWindowed)(p_ulDevice[0xb]);
+            long lPrepOk = (*(long (__cdecl **)(HWND))&GLI_DRV_g_bPrepareForGliWindowed)(p_stDev->stDevAttrib.hNormalModeWnd);
             if (lPrepOk == 0) {
                 *(volatile unsigned long *)GLD_ADDR_720C = 0;
                 return 0;
             }
             {
-                long lResult = GLD_pc_bRecreateDevice(hDev, p_ulDevice);
+                long lResult = GLD_pc_bRecreateDevice(hDev, (unsigned long *)p_stDev);
                 *(volatile unsigned long *)GLD_ADDR_720C = 0;
                 return lResult;
             }
@@ -530,7 +528,7 @@ long __cdecl GLD_pc_bRecreateDevice(short hDev, unsigned long *p_ulDevice)
                                "GLD_bDeleteDevice failed");
         return 0;
     }
-    if (GLD_bCreateDevice(stAttrib.a, &hDev) == 0) {
+    if (GLD_bCreateDevice((GLD_tdstDeviceAttributes *)&stAttrib, &hDev) == 0) {
         *(volatile unsigned long *)GLD_ADDR_720C = 0;
         GLD_pc_fn_vDebugReport("GLD - DevVpt", " GLD_bSwapDeviceMode",
                                "GLD_bCreateDevice failed");
@@ -589,7 +587,7 @@ long __cdecl GLD_fn_bChangeDeviceDisplayMode(GLD_tdhDevice hDev)
                                "GLD_bDeleteDevice failed");
         return 0;
     }
-    if (GLD_bCreateDevice(stAttrib.a, &hDev) == 0) {
+    if (GLD_bCreateDevice((GLD_tdstDeviceAttributes *)&stAttrib, &hDev) == 0) {
         *(volatile unsigned long *)GLD_ADDR_720C = 0;
         GLD_pc_fn_vDebugReport("GLD - DevVpt", " GLD_fn_bChangeDeviceDisplayMode",
                                "GLD_bCreateDevice failed");
@@ -835,7 +833,7 @@ long __cdecl GLD_pc_lFindFreeDeviceHandle(short *p_hDev)
     return 0;
 }
 
-long __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs, short *p_hDev)
+long __cdecl GLD_bCreateDevice(GLD_tdstDeviceAttributes *pstDevAttrib, short *p_hDev)
 {
     int            iInitOk;
     short          sScan;
@@ -843,8 +841,8 @@ long __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs, short *p_hDev)
     DWORD          ulTid;
     unsigned char  ucChannel;
 
-    if (p_ulDevAttribs[0xb] == 0) { p_ulDevAttribs[0xb] = p_ulDevAttribs[10]; }
-    if (p_ulDevAttribs[10] == 0) { p_ulDevAttribs[10] = p_ulDevAttribs[0xb]; }
+    if (pstDevAttrib->hNormalModeWnd == 0) { pstDevAttrib->hNormalModeWnd = pstDevAttrib->hFullScreenModeWnd; }
+    if (pstDevAttrib->hFullScreenModeWnd == 0) { pstDevAttrib->hFullScreenModeWnd = pstDevAttrib->hNormalModeWnd; }
 
     if (GLD_pc_g_ulFirstTimeInit != 0) {
         iInitOk = GLD_pc_bFirstTimeInit();
@@ -854,12 +852,12 @@ long __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs, short *p_hDev)
         GLD_pc_g_ulFirstTimeInit = 0;
     }
 
-    if (p_ulDevAttribs[0xc] != 0) {
+    if (pstDevAttrib->bFullScreen != 0) {
         for (sScan = 0; sScan < 0x10; sScan++) {
             GLD_tdstDevice *p_stExistingDev = ((GLD_tdstDevice **)GLD_pc_g_a_pDeviceTable)[sScan];
             if (p_stExistingDev != NULL &&
                 p_stExistingDev->stDevAttrib.bFullScreen != 0) {
-                p_ulDevAttribs[0xc] = 0;
+                pstDevAttrib->bFullScreen = 0;
                 break;
             }
         }
@@ -874,8 +872,8 @@ long __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs, short *p_hDev)
 
     memset(pDevice, 0, 0xc0);
 
-    p_ulDevAttribs[1] = p_ulDevAttribs[7];
-    *p_ulDevAttribs   = p_ulDevAttribs[8];
+    pstDevAttrib->dwWidth  = pstDevAttrib->dwFullScreenModeX;
+    pstDevAttrib->dwHeight = pstDevAttrib->dwFullScreenModeY;
 
     {
         GLD_pc_lFindFreeDeviceHandle(p_hDev);
@@ -883,12 +881,12 @@ long __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs, short *p_hDev)
 
     ((int **)GLD_pc_g_a_pDeviceTable)[*p_hDev] = pDevice;
 
-    p_ulDevAttribs[2] = 0x39a3d70au;
-    p_ulDevAttribs[3] = 0x39a3d70au;
-    p_ulDevAttribs[4] = 0;
-    p_ulDevAttribs[5] = 0xffffffffu;
+    pstDevAttrib->xInvPixelDimensionX = 0.0003125f;
+    pstDevAttrib->xInvPixelDimensionY = 0.0003125f;
+    pstDevAttrib->p_cVirtualScreen    = NULL;
+    pstDevAttrib->lPitch              = -1;
 
-    memcpy(pDevice, p_ulDevAttribs, 0x60);
+    memcpy(pDevice, pstDevAttrib, 0x60);
 
     pDevice[0x28] = 0;
 

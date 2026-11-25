@@ -1642,14 +1642,14 @@
 "name": "fn_vTreatDynamicHierarchy",
 "src": "src/GAM/GAM_GameEng.c",
 "len": 585,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x0040AA10",
 "name": "fn_vTreatDynamicHierarchyOfPlatForms",
 "src": "src/GAM/GAM_GameEng.c",
 "len": 379,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0040AB90",
@@ -6982,7 +6982,7 @@
 "addr": "0x00425240",
 "name": "GLI_pc_fn_vColorKeyNeighborhoodPassB",
 "src": "src/GLI/Texture.c",
-"len": 665,
+"len": 679,
 "verdict": "MISMATCH"
 },
 {
@@ -7830,7 +7830,7 @@
 "name": "GLI_pc_ulVerifyTextureIsReallyAlpha",
 "src": "src/GLI/cluster3_texture_table.c",
 "len": 42,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x0042C280",
@@ -15914,7 +15914,7 @@
 "addr": "0x0045F030",
 "name": "GLI_BlendPixelIntoUiSurface",
 "src": "src/GLI/Texture.c",
-"len": 1007,
+"len": 889,
 "verdict": "MISMATCH"
 },
 {
@@ -15949,7 +15949,7 @@
 "addr": "0x0045FB90",
 "name": "GLI_pc_fn_szStristr",
 "src": "src/GLI/Init_Gli_helpers.c",
-"len": 104,
+"len": 94,
 "verdict": "MISMATCH"
 },
 {

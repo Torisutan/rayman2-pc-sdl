@@ -141,10 +141,10 @@ void __cdecl GAM_pc_fn_vSetDisplayFullScreen(unsigned long bFullScreen)
 #ifndef USE_SDL
 /* 0x00401820 */
 extern long          __cdecl GLD_bSetFullScreenModeForDevice(short hDev,
-                                                         unsigned long ulWidth,
-                                                         unsigned long ulHeight,
-                                                         unsigned long ulBpp,
-                                                         unsigned long ulHWnd);
+                                                         DWORD ulWidth,
+                                                         DWORD ulHeight,
+                                                         DWORD ulBpp,
+                                                         HWND  hWnd);
 extern long          __cdecl GLD_bSwapDeviceMode(short hDev, int bRebuildMode);
 extern long          __cdecl GLD_bSwapToWindowedMode(short hDev, int bRebuildMode);
 extern void          __cdecl FUN_0045edf0(void);
@@ -168,7 +168,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateEnterFullScreen(int param_1)
                                     GAM_pc_fn_ulGetDisplayWidth(),
                                     GAM_pc_fn_ulGetDisplayHeight(),
                                     0x10,
-                                    (unsigned long)(*g_hWnd)) != 0)
+                                    (HWND)(*g_hWnd)) != 0)
     {
         if (GLD_bSwapDeviceMode(*(unsigned short *)p_hDevice, param_1) != 0)
         {
@@ -208,7 +208,7 @@ unsigned long __cdecl GAM_pc_fn_vHandleActivateExitToWindowed(int param_1)
                                     GAM_pc_fn_ulGetDisplayWidth(),
                                     GAM_pc_fn_ulGetDisplayHeight(),
                                     0x10,
-                                    (unsigned long)(*g_hWnd)) != 0)
+                                    (HWND)(*g_hWnd)) != 0)
     {
         if (GLD_bSwapToWindowedMode(*(unsigned short *)p_hDevice, param_1) != 0)
         {
@@ -1112,7 +1112,8 @@ unsigned long __cdecl GLI_fn_lDisplayModeHeight(void);
 struct GLI_tdstCamera_;
 void          GLI_xAdjustCameraToViewport(short hDevice,
                                    short hViewport, struct GLI_tdstCamera_ *p_stCam);
-long          __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs,
+#include "GLD/Specif/DevVpt.h"
+long          __cdecl GLD_bCreateDevice(GLD_tdstDeviceAttributes *pstDevAttrib,
                                         short *p_hDev);
 long          __cdecl GLD_bCreateViewport(short          hDev,
                                           unsigned long *p_ulViewAttribs,
@@ -1126,7 +1127,7 @@ int __cdecl fn_bCreateMainDisplayScreen(void)
 {
     unsigned long *const p_ulHwndGoneFlag    = &GAM_pc_g_ulHwndGoneFlag;  /* 0x004a6aa8 */
 
-    unsigned long  aDevAttribs[24];
+    GLD_tdstDeviceAttributes stDevAttrib;
     unsigned long  aVpAttribs[28];
     RECT           rect;
 
@@ -1142,15 +1143,15 @@ int __cdecl fn_bCreateMainDisplayScreen(void)
 
     GetClientRect((HWND)*g_hWnd, &rect);
 
-    aDevAttribs[0xc] = (*p_ulHwndGoneFlag == 0);
-    aDevAttribs[7]   = GAM_pc_fn_ulGetDisplayWidth();
-    aDevAttribs[8]   = GAM_pc_fn_ulGetDisplayHeight();
-    aDevAttribs[0xa] = (unsigned long)*g_hWnd;
-    aDevAttribs[0xb] = (unsigned long)*g_hWnd;
-    aDevAttribs[9]   = 0x10;
-    aDevAttribs[0xd] = 10;
+    stDevAttrib.bFullScreen         = (*p_ulHwndGoneFlag == 0);
+    stDevAttrib.dwFullScreenModeX   = GAM_pc_fn_ulGetDisplayWidth();
+    stDevAttrib.dwFullScreenModeY   = GAM_pc_fn_ulGetDisplayHeight();
+    stDevAttrib.hFullScreenModeWnd  = (HWND)*g_hWnd;
+    stDevAttrib.hNormalModeWnd      = (HWND)*g_hWnd;
+    stDevAttrib.dwFullScreenModeBpp = 0x10;
+    stDevAttrib.uiTypeDriver        = 10;
 
-    if (GLD_bCreateDevice(aDevAttribs, p_hDevice) == 0)
+    if (GLD_bCreateDevice(&stDevAttrib, p_hDevice) == 0)
         return 0;
 
     aVpAttribs[0x15] = 1000;

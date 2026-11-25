@@ -23,12 +23,6 @@ long __cdecl GLD_bClearDevice(short hDev);
 long __cdecl GLD_bSetBackgroundColorForDevice(GLD_tdhDevice hDev,
                                               unsigned long crRGBA);
 
-long __cdecl GLD_bSetFullScreenModeForDevice(GLD_tdhDevice hDev,
-                                          unsigned long ulWidth,
-                                          unsigned long ulHeight,
-                                          unsigned long ulBpp,
-                                          unsigned long ulHWnd);
-
 long __cdecl GLD_bSwapToWindowedMode(short hDev, int bRebuildMode);
 
 long __cdecl GLD_bSwapDeviceMode(short hDev, int bRebuildMode);
@@ -46,7 +40,8 @@ long __cdecl GLD_bCreateViewport(GLD_tdhDevice  hDev,
 /* 0x00420a80 */
 long __cdecl GLD_bGetViewportAttributes(GLD_tdhDevice hNotUsed, GLD_tdhViewport hVP, void *pstViewAttrib);
 
-long __cdecl GLD_bCreateDevice(unsigned long *p_ulDevAttribs, short *p_hDev);
+struct GLD_tdstDeviceAttributes_;
+long __cdecl GLD_bCreateDevice(struct GLD_tdstDeviceAttributes_ *pstDevAttrib, short *p_hDev);
 
 /* 0x00420630 */
 long __cdecl GLD_pc_lFindFreeDeviceHandle(short *p_hDev);
