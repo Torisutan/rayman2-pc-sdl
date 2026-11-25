@@ -61,7 +61,7 @@ void GAM_pc_fn_vChooseTheGoodDesInit(void);
 #define GAM_SDL_SZ_PAUSE_TITLE    "Rayman2 - pause"
 #define GAM_SDL_SZ_RESTORE_TITLE  "Rayman2 - restoring data... please wait"
 
-/* The window (its HWND is *g_hWnd on Windows) */
+/* The window (*g_hWnd is its HWND on Windows, the SDL window itself elsewhere) */
 static SDL_Window *GAM_sdl_g_p_stWindow = NULL;
 
 /* SDL event type of the requests GAM_pc_fn_vPostWindowCmd posts (user.code = the command) */
@@ -661,6 +661,10 @@ int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
 #ifdef WIN32
     *g_hWnd = (HANDLE)SDL_GetPointerProperty(SDL_GetWindowProperties(GAM_sdl_g_p_stWindow),
                                              SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+#else
+    /* No Win32 window: the engine and its linked-in driver get SDL's window as their HWND,
+       which the target's types header declares (as the original's console headers do) */
+    *g_hWnd = (HANDLE)GAM_sdl_g_p_stWindow;
 #endif /* WIN32 */
     if ( *g_hWnd == NULL )
     {

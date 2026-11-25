@@ -335,8 +335,15 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
 - the driver reads the engine's `GLI_tdstInternalGlobalValuesFor3dEngine` by raw offsets (63 sites
   in the Direct3D 6 driver), so a new driver needs the typed struct first (Phase 4, typed fields);
 - four entry points take an `HWND` (`xInitDriver`, `bPrepareForGliWindowed`,
-  `vPrepareForGliFullScreen`, `vActivateGli`) and GLD keeps the window as `unsigned long`: an
-  opaque window handle type is needed, for 64-bit as well;
+  `vPrepareForGliFullScreen`, `vActivateGli`). Decided 25.11.2026, as the original engine: the
+  type stays `HWND` on every target, no new handle type. The original's console builds declare
+  `HWND` themselves (`typedef int HWND;` in a console types header under `NITRO` / `U64`); a
+  non-Windows target of the fork declares it pointer-sized in its types header, and
+  `GAM/sdl_main.c` puts SDL's window in it there (on Windows the window's real `HWND`). Left:
+  GLD keeps the window as `unsigned long` (device attributes `[0xa]`/`[0xb]`, the original's
+  `hFullScreenModeWnd` / `hNormalModeWnd`, both `HWND`; `GLD.c` calls the three entry points
+  with `unsigned long`), which truncates on 64-bit: asked of the decomp (25.11.2026, byte-neutral
+  under VC5 where `HWND` is 4 bytes);
 - DirectDraw-shaped parts carry over: `bLockDevice` is bound but never called by the exe; display
   mode enumeration, windowed-mode variants and texture pixel-format negotiation (565/4444/1555
   callbacks) map to GL, GX2 and GU;
@@ -624,6 +631,7 @@ the game's binaries; sound left to Sound, below):
 | GAM draw lock | **done**: empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy; SDL semaphore and window-side waits in `sdl_main.c` gone; driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
 | TMR tick count | **done**: rename dropped; `GetTickCount` declared and defined in `TMR/sdl_timer.[ch]` only `#ifndef WIN32` | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
 | GLI driver binding | **done** (109cdcf): `USE_GLI_DX6` branch in `GLI/GLI_pc.h` -> `GLI/GLI_linkdrv.c` (linked-in drivers, DLL fallback), Win32 `#else`; `Init_Gli.c` identical to upstream | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
+| GLI window handle | **decided**: `HWND` on every target, as the original (console types headers declare it); GLD's `unsigned long` window fields asked of the decomp | `GLD.c`, `Init_Gli.c`, `pc_winmain.c`, `sdl_main.c` | `HWND` | original engine |
 | GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
 | Saves | `CopyFileA`, `DeleteFileA`, `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA` direct (`GAM_save_slot.obj`); `DeleteFileA` (`SAI_Save.obj`) | save slots, SAI | open, with the per-user folder (PLAN "User folder") | |
@@ -778,5 +786,6 @@ relative to sound and the GL driver is the user's call.
   and never released; it needs driver release, a new window (Direct3D 6 changes the window's
   styles, an SDL GL context needs an OpenGL window) and all textures uploaded again. Unchecked:
   whether the engine can reload its textures, and whether the options menu is built in level
-  data (then a new entry needs a data change or a menu of the fork's own). Prerequisite either
-  way: an opaque window handle in `GLI_DRV` instead of `HWND` (Phase 5).
+  data (then a new entry needs a data change or a menu of the fork's own). The window handle
+  stays `HWND` (Phase 5, `GLI_DRV` interface): a linked-in GL driver on Windows gets the real
+  `HWND` (SDL can wrap it), elsewhere SDL's window.
