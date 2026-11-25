@@ -20,6 +20,12 @@ int __cdecl FIL_fn_bWriteProfileString(const char *szSection, const char *szKey,
     WritePrivateProfileStringA((szSection), (szKey), (szValue), (szIniPath))
 #endif /* FILE_MODE_C_WIN95 */
 
+#ifndef FILE_MODE_C_WIN95
+/* The temp folder on the C runtime (FIL/FIL_path.c) */
+unsigned long __cdecl FIL_fn_ulGetTempPath(unsigned long ulSize, char *szOut);
+#define FIL_pc_M_ulGetTempPath(ulSize, szOut) FIL_fn_ulGetTempPath((ulSize), (szOut))
+#else /* original Win32 */
 #define FIL_pc_M_ulGetTempPath(ulSize, szOut) GetTempPathA((ulSize), (szOut))
+#endif /* FILE_MODE_C_WIN95 */
 
 #endif
