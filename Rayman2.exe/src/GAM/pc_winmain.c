@@ -1131,7 +1131,9 @@ int __cdecl fn_bCreateMainDisplayScreen(void)
 
     GLD_tdstDeviceAttributes stDevAttrib;
     unsigned long  aVpAttribs[28];
+#ifndef USE_SDL
     RECT           rect;
+#endif /* USE_SDL */
 
     if (GLI_pc_bInitDisplayModes() == 0)
         exit(-1);
@@ -1143,7 +1145,10 @@ int __cdecl fn_bCreateMainDisplayScreen(void)
 
     GAM_pc_fn_vSetDisplayFullScreen(GLI_fn_lIsFullScreenMode());
 
+#ifndef USE_SDL
+    /* the rectangle is not read; the SDL window has no Win32 client area to ask */
     GetClientRect((HWND)*g_hWnd, &rect);
+#endif /* USE_SDL */
 
     stDevAttrib.bFullScreen         = (*p_ulHwndGoneFlag == 0);
     stDevAttrib.dwFullScreenModeX   = GAM_pc_fn_ulGetDisplayWidth();
