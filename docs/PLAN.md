@@ -590,7 +590,7 @@ counts, `Sleep`, thread ids) shared code calls module-owned names, not system AP
 - SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
   not SDL itself;
 - replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
-  rejects added lines that `#define` a Win32 API name, except the 3 left (19 at first; allow list,
+  rejects added lines that `#define` a Win32 API name, except the 1 left (19 at first; allow list,
   shrinks with each migration).
 
 Inventory (25.11.2026; system calls in the SDL build measured per object with the import list of
@@ -605,7 +605,7 @@ the game's binaries; sound left to Sound, below):
 | FIL ini | **done** (cf740d7): C runtime branch in `FIL/FIL_pc.h` without `FILE_MODE_C_WIN95` -> `FIL/FIL_ini.c`; `SND.c`'s 17 calls converted in the decomp too (6d31e2b), the fork's text dropped for upstream's | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
 | GAM draw lock | **done**: empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy; SDL semaphore and window-side waits in `sdl_main.c` gone; driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
 | TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
-| GLI driver binding | rename of `LoadLibraryA`/`GetProcAddress` (`GLI/Init_Gli.c`) | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
+| GLI driver binding | **done** (109cdcf): `USE_GLI_DX6` branch in `GLI/GLI_pc.h` -> `GLI/GLI_linkdrv.c` (linked-in drivers, DLL fallback), Win32 `#else`; `Init_Gli.c` identical to upstream | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
 | GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
 | Saves | `CopyFileA`, `DeleteFileA`, `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA` direct (`GAM_save_slot.obj`); `DeleteFileA` (`SAI_Save.obj`) | save slots, SAI | open, with the per-user folder (PLAN "User folder") | |
