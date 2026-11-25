@@ -8,7 +8,6 @@
 #include "MMG/SNA_reloc.h"
 #include "MMG/SNA.h"
 #include "MMG/SNA_pc.h"
-#include "MMG/SNA_file.h"   /* C-ANSI file mode: file calls to the C runtime */
 #include "MMG/MMG_pubaccess.h"
 #include "MMG/MMG_globals.h"
 #include "GAM/GAM_types.h"
@@ -766,7 +765,7 @@ BOOL __stdcall SNA_pc_fn_bReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD dwToRead
     }
     return bResult;
 #else
-    return ReadFile(hFile, lpBuffer, dwToRead, lpRead, lpOverlapped);
+    return SNA_pc_M_bReadFile(hFile, lpBuffer, dwToRead, lpRead);   /* lpOverlapped: NULL */
 #endif /* RAYMAN2_NO_PROTECTION */
 }
 
@@ -942,15 +941,15 @@ void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
         return;
     }
     sprintf(a_cPath, SNA_pc_szFmtLevels, SNA_p_pcGetBaseDir(), SNA_pc_a_pszLevelFile[0]);
-    hFile = CreateFileA(a_cPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = SNA_pc_M_hOpenFile(a_cPath, GENERIC_READ, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL);
     if (hFile == INVALID_HANDLE_VALUE) {
         return;
     }
 
     /* eight header words, each (word - a) ^ b with a += c, b += d after every word */
-    ReadFile(hFile, a_ulHdr, 0x10, &dwRead, NULL);
+    SNA_pc_M_bReadFile(hFile, a_ulHdr, 0x10, &dwRead);
     for (i = 0; i < 8; i++) {
-        ReadFile(hFile, &ulWord, 4, &dwRead, NULL);
+        SNA_pc_M_bReadFile(hFile, &ulWord, 4, &dwRead);
         a_ulValue[i] = (ulWord - a_ulHdr[0]) ^ a_ulHdr[1];
         a_ulHdr[0] += a_ulHdr[2];
         a_ulHdr[1] += a_ulHdr[3];
@@ -961,7 +960,7 @@ void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
     SNA_pc_g_ulUnitDenominator = a_ulValue[5];
     SNA_pc_g_lOffsetBase       = (long)a_ulValue[6];
     SNA_pc_g_ulOffsetMul       = a_ulValue[7];
-    CloseHandle(hFile);
+    SNA_pc_M_bCloseFile(hFile);
 }
 #endif /* RAYMAN2_NO_PROTECTION */
 
@@ -989,8 +988,9 @@ HANDLE __stdcall SNA_pc_fn_hCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess
     }
     return hResult;
 #else
-    return CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes,
-                       dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+    /* the callers pass share 0, no security, no template */
+    return SNA_pc_M_hOpenFile(lpFileName, dwDesiredAccess, dwCreationDisposition,
+                              dwFlagsAndAttributes);
 #endif /* RAYMAN2_NO_PROTECTION */
 }
 
@@ -1015,7 +1015,7 @@ DWORD __stdcall SNA_pc_fn_dwSetFilePointer(HANDLE hFile, LONG lDistanceToMove,
     }
     return dwResult;
 #else
-    return SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
+    return SNA_pc_M_ulSeekFile(hFile, lDistanceToMove, dwMoveMethod);   /* no high part: NULL */
 #endif /* RAYMAN2_NO_PROTECTION */
 }
 
@@ -1089,7 +1089,7 @@ unsigned char __cdecl SNA_pc_bOpenEmbeddedSna(void *_p_stFile)
     if (hFile == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    SetFilePointer(hFile, (LONG)ulOffset, NULL, 0);
+    SNA_pc_M_ulSeekFile(hFile, (LONG)ulOffset, 0);
 
     SNA_pc_vInitStream(6, _p_stFile);
     SNA_pc_g_a_ucLoadKey[3] = (unsigned char)~SNA_pc_g_a_ucLoadKey[2];
@@ -1305,7 +1305,7 @@ HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset)
     double         dFloor2;
 
     sprintf(a_cPath, SNA_pc_szFmtLevels, SNA_p_pcGetBaseDir(), SNA_pc_a_pszLevelFile[0]);
-    hFile = CreateFileA(a_cPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = SNA_pc_M_hOpenFile(a_cPath, GENERIC_READ, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL);
     if (hFile == INVALID_HANDLE_VALUE) {
         return hFile;
     }
@@ -1330,12 +1330,12 @@ HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset)
     dFloor2 = floor((double)i64Ival * (dFloor1 * 1e-6));
     lPos = (long)dFloor2 * (long)SNA_pc_g_ulOffsetMul + SNA_pc_g_lOffsetBase;
 
-    SetFilePointer(hFile, lPos, NULL, 0);
-    ReadFile(hFile, a_ulHdr, 0x10, &dwRead, NULL);
+    SNA_pc_M_ulSeekFile(hFile, lPos, 0);
+    SNA_pc_M_bReadFile(hFile, a_ulHdr, 0x10, &dwRead);
     a_ulHdr[0] += a_ulHdr[2] * ulCount;
     a_ulHdr[1] += a_ulHdr[3] * ulCount;
-    SetFilePointer(hFile, (LONG)(ulCount * 4), NULL, 1);
-    ReadFile(hFile, &ulWord, 4, &dwRead, NULL);
+    SNA_pc_M_ulSeekFile(hFile, (LONG)(ulCount * 4), 1);
+    SNA_pc_M_bReadFile(hFile, &ulWord, 4, &dwRead);
     *p_ulOffset = (ulWord - a_ulHdr[0]) ^ a_ulHdr[1];
 
     /* The CD split this stream into files of (ulUnitNumerator / ulUnitDenominator) << 11 bytes

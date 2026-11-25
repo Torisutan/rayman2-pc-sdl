@@ -3,131 +3,133 @@
   Name        : SNA_file.c
   Description : Level data files in C-ANSI file mode (FILE_MODE_C_WIN95 not set)
 
-  The Win32 file calls of SNA.c, SNA_reloc.c and GAM_init.c, on the C runtime's
-  streams (MMG/SNA_file.h). A handle is the FILE pointer. Each function gives what its
-  Win32 counterpart gives for the arguments these files pass: read or create-for-write
-  opens, 32-bit seeks from the start, the current position or the end, plain closes.
+  The file calls of SNA.c, SNA_reloc.c and GAM_init.c (SNA_pc_M_* in MMG/SNA_pc.h), on
+  the C runtime's streams. A handle is the FILE pointer. Each function gives what the
+  Win32 call of the other branch gives for the arguments these files pass: read or
+  create-for-write opens, 32-bit seeks from the start, the current position or the end,
+  plain closes.
  =======================================================================================
  */
-#include <windows.h>
 #include <stdio.h>
 #include "SND/snddef.h"
 
 #ifndef FILE_MODE_C_WIN95
 
-#include "MMG/SNA_file.h"
+#ifndef RAYMAN2_NO_PROTECTION
+#error "C-ANSI file mode needs RAYMAN2_NO_PROTECTION: the protection calls the Win32 file API through its own stubs"
+#endif /* RAYMAN2_NO_PROTECTION */
 
-/* A handle that is no open file (NULL, INVALID_HANDLE_VALUE): the Win32 calls fail on it and
-   do nothing, while the C runtime would stop the process */
-#define M_SNA_bIsNoFile(hFile)  ((hFile) == NULL || (hFile) == INVALID_HANDLE_VALUE)
+#include "MMG/SNA_pc.h"
+
+/* The Win32 values the callers pass and test */
+#define SNA_pc_C_ulWriteAccess  0x40000000UL                /* write access (else read) */
+#define SNA_pc_C_hNoFile        ((SNA_pc_tdhFile)(long)-1)  /* failed open */
+#define SNA_pc_C_ulSeekFailed   0xFFFFFFFFUL                /* failed seek */
+#define SNA_pc_C_ulSeekBegin    0UL                         /* seek origins */
+#define SNA_pc_C_ulSeekCurrent  1UL
+#define SNA_pc_C_ulSeekEnd      2UL
+
+/* A handle that is no open file (NULL, failed open): the Win32 calls fail on it and do
+   nothing, while the C runtime would stop the process */
+#define M_SNA_bIsNoFile(hFile)  ((hFile) == NULL || (hFile) == SNA_pc_C_hNoFile)
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : CreateFileA: GENERIC_WRITE creates or truncates ("wb", the callers pass
-                  CREATE_ALWAYS with it), else the file is opened for reading ("rb",
-                  OPEN_EXISTING). Share mode, security, attributes and template have no
-                  C runtime equivalent and do not change what is read.
+  Description   : Write access creates or truncates ("wb", the callers create always with
+                  it), else the file is opened for reading ("rb", existing files only).
+                  Creation mode and attributes have no C runtime equivalent and do not
+                  change what is read.
  ----------------------------------------------------------------------------------------
  */
-HANDLE __cdecl SNA_pc_fn_hCreateFileC(LPCSTR szPath, DWORD dwAccess, DWORD dwShare,
-                                      LPSECURITY_ATTRIBUTES p_stSecurity, DWORD dwDisposition,
-                                      DWORD dwAttributes, HANDLE hTemplate)
+SNA_pc_tdhFile __cdecl SNA_pc_fn_hOpenFileC(const char *szPath, unsigned long ulAccess)
 {
-    FILE *p_stFile;
+    FILE *p_stFile = fopen(szPath, (ulAccess & SNA_pc_C_ulWriteAccess) ? "wb" : "rb");
 
-    (void)dwShare; (void)p_stSecurity; (void)dwDisposition; (void)dwAttributes; (void)hTemplate;
-
-    p_stFile = fopen(szPath, (dwAccess & GENERIC_WRITE) ? "wb" : "rb");
-    return p_stFile != NULL ? (HANDLE)p_stFile : INVALID_HANDLE_VALUE;
+    return p_stFile != NULL ? (SNA_pc_tdhFile)p_stFile : SNA_pc_C_hNoFile;
 }
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : ReadFile, synchronous: the bytes read go to *p_dwRead; end of file is
-                  not an error
+  Description   : Synchronous read: the bytes read go to *p_ulRead; end of file is not an
+                  error
  ----------------------------------------------------------------------------------------
  */
-BOOL __cdecl SNA_pc_fn_bReadFileC(HANDLE hFile, LPVOID p_vBuffer, DWORD dwToRead,
-                                  LPDWORD p_dwRead, LPOVERLAPPED p_stOverlapped)
+int __cdecl SNA_pc_fn_bReadFileC(SNA_pc_tdhFile hFile, void *p_vBuffer, unsigned long ulBytes,
+                                 unsigned long *p_ulRead)
 {
     FILE  *p_stFile = (FILE *)hFile;
     size_t ulRead;
 
-    (void)p_stOverlapped;
-
     if ( M_SNA_bIsNoFile(hFile) )
     {
-        if ( p_dwRead != NULL )
-            *p_dwRead = 0;
-        return FALSE;
+        if ( p_ulRead != NULL )
+            *p_ulRead = 0;
+        return 0;
     }
-    ulRead = fread(p_vBuffer, 1, dwToRead, p_stFile);
-    if ( p_dwRead != NULL )
-        *p_dwRead = (DWORD)ulRead;
-    return ferror(p_stFile) ? FALSE : TRUE;
+    ulRead = fread(p_vBuffer, 1, ulBytes, p_stFile);
+    if ( p_ulRead != NULL )
+        *p_ulRead = (unsigned long)ulRead;
+    return ferror(p_stFile) ? 0 : 1;
 }
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : SetFilePointer with a 32-bit distance (the callers pass no high part):
-                  FILE_BEGIN, FILE_CURRENT or FILE_END; the new position, or
-                  INVALID_SET_FILE_POINTER
+  Description   : Seek with a 32-bit distance from the start, the current position or the
+                  end; the new position, or SNA_pc_C_ulSeekFailed
  ----------------------------------------------------------------------------------------
  */
-DWORD __cdecl SNA_pc_fn_dwSetFilePointerC(HANDLE hFile, LONG lDistance, PLONG p_lDistanceHigh,
-                                          DWORD dwMoveMethod)
+unsigned long __cdecl SNA_pc_fn_ulSeekFileC(SNA_pc_tdhFile hFile, long lDistance,
+                                            unsigned long ulOrigin)
 {
     FILE *p_stFile = (FILE *)hFile;
     int   iOrigin;
     long  lPosition;
 
-    (void)p_lDistanceHigh;
-
     if ( M_SNA_bIsNoFile(hFile) )
-        return INVALID_SET_FILE_POINTER;
+        return SNA_pc_C_ulSeekFailed;
 
-    switch ( dwMoveMethod )
+    switch ( ulOrigin )
     {
-    case FILE_BEGIN:   iOrigin = SEEK_SET; break;
-    case FILE_CURRENT: iOrigin = SEEK_CUR; break;
-    case FILE_END:     iOrigin = SEEK_END; break;
-    default:           return INVALID_SET_FILE_POINTER;
+    case SNA_pc_C_ulSeekBegin:   iOrigin = SEEK_SET; break;
+    case SNA_pc_C_ulSeekCurrent: iOrigin = SEEK_CUR; break;
+    case SNA_pc_C_ulSeekEnd:     iOrigin = SEEK_END; break;
+    default:                     return SNA_pc_C_ulSeekFailed;
     }
     if ( fseek(p_stFile, lDistance, iOrigin) != 0 )
-        return INVALID_SET_FILE_POINTER;
+        return SNA_pc_C_ulSeekFailed;
     lPosition = ftell(p_stFile);
-    return lPosition < 0 ? INVALID_SET_FILE_POINTER : (DWORD)lPosition;
+    return lPosition < 0 ? SNA_pc_C_ulSeekFailed : (unsigned long)lPosition;
 }
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : CloseHandle for a file of SNA_pc_fn_hCreateFileC (FALSE for no file,
-                  as Win32 gives for NULL: closing a stream that never opened is a no-op)
+  Description   : Close a file of SNA_pc_fn_hOpenFileC (0 for no file, as Win32 gives for
+                  NULL: closing a stream that never opened is a no-op)
  ----------------------------------------------------------------------------------------
  */
-BOOL __cdecl SNA_pc_fn_bCloseHandleC(HANDLE hFile)
+int __cdecl SNA_pc_fn_bCloseFileC(SNA_pc_tdhFile hFile)
 {
     if ( M_SNA_bIsNoFile(hFile) )
-        return FALSE;
-    return fclose((FILE *)hFile) == 0 ? TRUE : FALSE;
+        return 0;
+    return fclose((FILE *)hFile) == 0;
 }
 
 /*
  ----------------------------------------------------------------------------------------
-  Description   : Get/SetFileAttributesA: no attributes in the C runtime. Every file reads
-                  as normal, so SNA_pc_bOpenFile has no read-only bit to clear.
+  Description   : File attributes: none in the C runtime. Every file reads as normal, so
+                  SNA_pc_bOpenFile has no read-only bit to clear.
  ----------------------------------------------------------------------------------------
  */
-DWORD __cdecl SNA_pc_fn_dwGetFileAttributesC(LPCSTR szPath)
+unsigned long __cdecl SNA_pc_fn_ulGetFileAttributesC(const char *szPath)
 {
     (void)szPath;
     return 0;
 }
 
-BOOL __cdecl SNA_pc_fn_bSetFileAttributesC(LPCSTR szPath, DWORD dwAttributes)
+int __cdecl SNA_pc_fn_bSetFileAttributesC(const char *szPath, unsigned long ulAttributes)
 {
-    (void)szPath; (void)dwAttributes;
-    return TRUE;
+    (void)szPath; (void)ulAttributes;
+    return 1;
 }
 
 #endif /* FILE_MODE_C_WIN95 */

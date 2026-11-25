@@ -360,7 +360,7 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    `FILE_MODE_C_WIN95` (set in `SND/snddef.h` as in the original engine) and forced on Windows by
    `RAYMAN2_C_RUNTIME` (CMake `R2_C_RUNTIME`, off):
    - level data files: the Win32 file calls of `SNA.c`, `SNA_reloc.c` and `GAM_init.c` go to C
-     runtime streams (`MMG/SNA_file.c`, included as `MMG/SNA_file.h`);
+     runtime streams (`MMG/SNA_file.c`, through `MMG/SNA_pc.h` since the platform glue);
    - ini files: `Get/WritePrivateProfileStringA` in `GAM_init.c`, `GLI/Init_Gli_helpers.c` and
      `SND/SND.c` go to `FIL/FIL_ini.c` (through `FIL/FIL_pc.h` since the platform glue). A
      differential test against the Win32 functions (1043 reads, 234 writes on `ubi.ini`, the
@@ -368,7 +368,8 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
      indented key, which the engine never does;
    - MMG system memory: the original `CPA_MALLOC`/`CPA_FREE` (`MMG/PrivMmg.h` since f628850),
      `GlobalAlloc` or `malloc`.
-   The call sites stay as they are: each file includes the header that maps the Win32 names.
+   The call sites stay as they are: since the platform glue each module header has a C runtime
+   branch (first done with headers that renamed the Win32 names).
    Measured (Morb_00, 1860 frames): identical against `modern_baseline.txt` with and without
    `R2_C_RUNTIME`, VC5 + define identical against `np_b`. With `R2_C_RUNTIME` no object imports
    these Win32 functions except `SND/sndfile.c`.
@@ -589,7 +590,7 @@ counts, `Sleep`, thread ids) shared code calls module-owned names, not system AP
 - SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
   not SDL itself;
 - replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
-  rejects added lines that `#define` a Win32 API name, except the 9 left (19 at first; allow list,
+  rejects added lines that `#define` a Win32 API name, except the 3 left (19 at first; allow list,
   shrinks with each migration).
 
 Inventory (25.11.2026; system calls in the SDL build measured per object with the import list of
@@ -600,7 +601,7 @@ the game's binaries; sound left to Sound, below):
 | MMG lock | **done** (f628850): `USE_SDL` branch -> `MMG/sdl_mmg.c`, Win32 `#else` | `MMG_alloc.c`, `MMG_module.c`, `MMG_pool_alloc.c`, `MMG_pubaccess.c`, `SAI_Priv.c` (to check which call them) | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_MmgCriticalSection` (the fork's `g_csMmg`) | original engine (empty on the consoles) |
 | MMG memory | **done** (f628850): C runtime branch in `MMG/PrivMmg.h` without `FILE_MODE_C_WIN95`; no `GMEM_ZEROINIT` site | same files | `CPA_MALLOC`, `CPA_FREE` (exist already); `GMEM_ZEROINIT` users to check | original engine |
 | ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
-| SNA level files | rename of 6 file calls (`MMG/SNA_file.h`) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
+| SNA level files | **done**: C runtime branch in `MMG/SNA_pc.h` without `FILE_MODE_C_WIN95` -> `MMG/SNA_file.c` (handle `void *`); the fork's no-protection branches in `SNA_reloc.c` use the names too | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
 | FIL ini | **done** (cf740d7): C runtime branch in `FIL/FIL_pc.h` without `FILE_MODE_C_WIN95` -> `FIL/FIL_ini.c`; `SND.c`'s 17 calls (not converted in the decomp: sound) changed here | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
 | GAM draw lock | **done**: empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy; SDL semaphore and window-side waits in `sdl_main.c` gone; driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
 | TMR tick count | rename of `GetTickCount` (`TMR/sdl_timer.h`) | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |

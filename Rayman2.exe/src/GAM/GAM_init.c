@@ -17,7 +17,6 @@
 #include "MMG/SNA_pc.h"
 #include "MMG/SNA.h"
 #include "FIL/FIL_pc.h"
-#include "MMG/SNA_file.h"   /* C-ANSI file mode: file calls to the C runtime */
 #include "FIL/File.h"
 #include "IPT/IPT.h"
 #include "RND/RND_globals.h"
