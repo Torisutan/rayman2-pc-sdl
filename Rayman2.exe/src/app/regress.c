@@ -22,7 +22,9 @@
  */
 #ifdef RAYMAN2_REGRESS
 
+#ifdef WIN32
 #include <windows.h>
+#endif /* WIN32 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -73,9 +75,17 @@ static const struct { const char *szName; unsigned char ucCode; } s_a_stKeyName[
 
 /* ---- environment and files ---------------------------------------------------------------- */
 
-static int REGRESS_fn_bEnv(const char *szName, char *szOut, DWORD ulSize)
+static int REGRESS_fn_bEnv(const char *szName, char *szOut, unsigned long ulSize)
 {
+#ifdef WIN32
     DWORD ulLen = GetEnvironmentVariableA(szName, szOut, ulSize);
+#else
+    const char   *szValue = getenv(szName);
+    unsigned long ulLen   = szValue != NULL ? (unsigned long)strlen(szValue) : 0;
+    if (ulLen != 0 && ulLen < ulSize) {
+        memcpy(szOut, szValue, ulLen + 1);
+    }
+#endif /* WIN32 */
     return ulLen != 0 && ulLen < ulSize;
 }
 
@@ -391,7 +401,12 @@ void __cdecl REGRESS_fn_vBeforeFrame(void)
         if (gs_p_stRecord != NULL) {
             fclose(gs_p_stRecord);
         }
+#ifdef WIN32
         ExitProcess(0);
+#else
+        /* the engine registers no atexit handler: as ExitProcess, plus a stream flush */
+        exit(0);
+#endif /* WIN32 */
     }
     REGRESS_fn_vScenario();
     REGRESS_fn_vHookDevices();
