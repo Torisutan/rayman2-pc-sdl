@@ -5,7 +5,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4RestoreNomDuSlot();
 AI_tdstNodeInterpret *__cdecl fn_p_stCode4ValideNomDuSlot();
 AI_tdstNodeInterpret *__cdecl fn_p_stMiscProtectProcedure();
 AI_tdstNodeInterpret *__cdecl fn_p_stPlayDemo();
+#if !(defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU))
 AI_tdstNodeInterpret *__cdecl fn_p_stShellExecuteProcedure();
+#endif /* LINUX || OSX || PSP || WIIU */
 
 #define AI_M_PR(f, u)  { (AI_tdp_fn_p_stProcedureFunctionPtr)(f), (u) }
 
@@ -134,7 +136,13 @@ AI_tdstProcedureEntry a_stProcedureTable[514] =   /* 0x004A43E0 */
       AI_M_PR(fn_p_stSelectDriver, 0), AI_M_PR(fn_p_stSelectDriver, 0), AI_M_PR(fn_p_stSetInStereoMode, 0),
       AI_M_PR(AI_fn_p_stPcSetSoundGlobal, 0), AI_M_PR(fn_p_stSetaturationAndBackgroundDistance, 1), AI_M_PR(fn_p_stSaveCurrentSoundRequest, 0),
       AI_M_PR(fn_p_stSaveCurrentSoundRequest, 0), AI_M_PR(fn_p_stNoneProcedure, 0), AI_M_PR(fn_p_stMiscProtectProcedure, 1),
-      AI_M_PR(fn_p_stShellExecuteProcedure, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0),
+#if defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+      /* ShellExecute: Windows only, the other targets take the dummy, as in the original engine */
+      AI_M_PR(fn_p_stNoneProcedure, 0),
+#else
+      AI_M_PR(fn_p_stShellExecuteProcedure, 0),
+#endif /* LINUX || OSX || PSP || WIIU */
+      AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0),
       AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0),
       AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0), AI_M_PR(fn_p_stCode4MagicPointsProcedures, 0),
       AI_M_PR(fn_p_stCode4AirPointsProcedures, 0), AI_M_PR(fn_p_stCode4AirPointsProcedures, 0), AI_M_PR(fn_p_stCode4AirPointsProcedures, 0),

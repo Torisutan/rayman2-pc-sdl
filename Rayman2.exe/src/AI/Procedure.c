@@ -214,6 +214,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stHitPointsMaxProcedure(
 /* 0x00470210 */
 extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
 
+#if defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+/* ShellExecute: Windows only (the procedure table takes fn_p_stNoneProcedure, AI/ConvProc.c) */
+#else
 __declspec(dllimport) void *__stdcall ShellExecuteA(void *hWnd, const char *lpOperation, const char *lpFile,
                                                     const char *lpParameters, const char *lpDirectory, int nShowCmd);
 
@@ -234,6 +237,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stShellExecuteProcedure(
     ShellExecuteA((void *)0, (const char *)0, szFile, (const char *)0, (const char *)0, 0);
     return p_stNext;
 }
+#endif /* LINUX || OSX || PSP || WIIU */
 
 /* 0x00472D60 */
 AI_tdstNodeInterpret *__cdecl fn_p_st_ACT_SetDrawFlag(
