@@ -1,8 +1,12 @@
 #include "SNDinc.h"
 
 #include "snddll.h"
+#include "snddll_pc.h"
+
+#if defined(DLLWAV_MODULE)
 
 static tduRefRes SND_pc_stDummyRes = {0};
+#endif
 
 #define SND_M_DllFunction(ret, name, n, params, args, dflt)                         \
     static char SND_pc_sz_##name[] = "_" #name "@" #n;                              \
@@ -143,6 +147,81 @@ SND_M_DllFunction(SndBool, dbgSND_fn_bSetResourceStaticVolume, 8, (long lResId, 
 SND_M_DllFunction(long, dbgSND_fn_rGetDopplerFactor, 0, (void), (), C_SNDREAL_1)
 SND_M_DllProcedure(dbgSND_fn_vSendRequestSound, 4, (void *pEvt), (pEvt))
 
+#if !defined(DLLWAV_MODULE)
+
+SND_M_DllFunction(long, SND_fn_lPlaySxd, 20, (tduRefRes res,SoundParam *par,long prio,SND_td_pfn_vSoundCallback fn_callback,long par_callback), (res,par,prio,fn_callback,par_callback), -1)
+SND_M_DllProcedure(SND_fn_vRemoveCallbackSxd, 4, (long voice), (voice))
+SND_M_DllFunction(SndBool, SND_fn_bSetParamSxd, 8, (long voice,SoundParam *par), (voice,par), FALSE)
+SND_M_DllFunction(SndBool, SND_fn_bTestIsPlayingSxd, 4, (long voice), (voice), FALSE)
+SND_M_DllProcedure(SND_fn_vStopSxd, 4, (long voice), (voice))
+SND_M_DllProcedure(SND_fn_vPauseSxd, 4, (long voice), (voice))
+SND_M_DllProcedure(SND_fn_vResumeSxd, 4, (long voice), (voice))
+SND_M_DllProcedure(SND_fn_vSetSoundVolumeSxd, 4, (unsigned char vol), (vol))
+SND_M_DllFunction(unsigned char, SND_fn_ucGetSoundVolumeSxd, 0, (), (), 0)
+SND_M_DllProcedure(SND_fn_vSetStereoSxd, 4, (SndBool active), (active))
+SND_M_DllFunction(SndBool, SND_fn_bGetStereoSxd, 0, (void), (), FALSE)
+SND_M_DllProcedure(SND_fn_vSetReverseStereoSxd, 4, (SndBool active), (active))
+SND_M_DllFunction(SndBool, SND_fn_bGetReverseStereoSxd, 0, (void), (), FALSE)
+SND_M_DllFunction(int, SND_fn_iInitSxd, 4, (SND_tdstInitStruct *pInitStruct), (pInitStruct), 0)
+SND_M_DllFunction(SndBool, SND_fn_bTestInitSxd, 0, (void), (), FALSE)
+SND_M_DllProcedure(SND_fn_vDesInitSxd, 0, (void), ())
+SND_M_DllProcedure(SND_fn_vSetEffectSxd, 4, (long num), (num))
+SND_M_DllProcedure(SND_fn_vSetDopplerFactorSxd, 4, (SndReal factor), (factor))
+SND_M_DllFunction(long, SND_fn_lCreateMicroSxd, 4, (MicroParam* par), (par), 0)
+SND_M_DllProcedure(SND_fn_vSetMicroParamSxd, 8, (long sxdId,MicroParam* par), (sxdId,par))
+SND_M_DllProcedure(SND_fn_vDestroyMicroSxd, 4, (long sxdId), (sxdId))
+SND_M_DllProcedure(SND_fn_vSynchroSxd, 0, (), ())
+SND_M_DllFunction(long, SND_fn_lCreateNewBufferSxd, 28, (unsigned long nb_samples,unsigned short uwResolution,unsigned short uwNbChannels,unsigned long ulFreq,SoundParam* par,td_pfn_vRefreshBufferClient callback,long user_id), (nb_samples,uwResolution,uwNbChannels,ulFreq,par,callback,user_id), -1)
+SND_M_DllProcedure(SND_fn_vSetParamBufferSxd, 8, (long id_buffer,SoundParam *par), (id_buffer,par))
+SND_M_DllProcedure(SND_fn_vDeleteBufferSxd, 4, (long id_buffer), (id_buffer))
+SND_M_DllProcedure(SND_fn_vPauseBufferSxd, 4, (long id_buffer), (id_buffer))
+SND_M_DllProcedure(SND_fn_vResumeBufferSxd, 4, (long id_buffer), (id_buffer))
+SND_M_DllFunction(void*, SND_fn_pvGetPtrBufferSxd, 4, (long id_buffer), (id_buffer), NULL)
+SND_M_DllFunction(SndReal, SND_fn_rGetPosBufferSxd, 4, (long id_buffer), (id_buffer), 0)
+SND_M_DllFunction(long, SND_fn_lCreateNewBufferExSxd, 16, (SND_tdstFormat* pformat,SND_tdstCallback* pCallback,SoundParam* par,long user_id), (pformat,pCallback,par,user_id), -1)
+SND_M_DllFunction(long, SND_fn_lGetPosBufferExSxd, 4, (long id_buffer), (id_buffer), 0)
+SND_M_DllFunction(long, SND_fn_lPushBufferExSxd, 8, (long id_buffer,SND_tdstStackBuffer* pStack), (id_buffer,pStack), 0)
+SND_M_DllProcedure(SND_fn_vConvertResDiskToMemSxd, 12, (tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,void* ptrBegin), (disk,mem,ptrBegin))
+SND_M_DllFunction(SndBool, SND_fn_bLoadResScriptSxd, 8, (tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem), (disk,mem), FALSE)
+SND_M_DllFunction(SndBool, SND_fn_bLoadResBinarySxd, 12, (tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,char *pDataBloc), (disk,mem,pDataBloc), FALSE)
+SND_M_DllProcedure(SND_fn_vUnLoadResSxd, 4, (tdstBlockResourceMem* mem), (mem))
+SND_M_DllFunction(SndBool, SND_fn_bIsResLoadedSxd, 4, (tdstBlockResourceMem *mem), (mem), FALSE)
+SND_M_DllFunction(SndBool, SND_fn_bIsResourceLoopingSxd, 4, (tduRefRes res), (res), FALSE)
+SND_M_DllFunction(SndReal, SND_fn_rGetPosSxd, 4, (long voice), (voice), 0)
+SND_M_DllFunction(SndReal, SND_fn_rGetLengthSxd, 4, (long voice), (voice), 0)
+SND_M_DllFunction(long, SND_fn_lPlayTransitionExSxd, 20, (tduRefRes FirstRes,tduRefRes NextRes,SND_td_pfn_vSoundCallback transition_callback,long param_callback,SoundParam* par), (FirstRes,NextRes,transition_callback,param_callback,par), -1)
+SND_M_DllFunction(SndBool, SND_fn_bSetParamTransitionSxd, 8, (long voice,SoundParam *par), (voice,par), FALSE)
+SND_M_DllFunction(SndBool, SND_fn_bSetNextTransitionSxd, 8, (long voice,tduRefRes new_res), (voice,new_res), FALSE)
+SND_M_DllFunction(SndBool, SND_fn_bDoTransitionWithFadeSxd, 8, (long voice,tduRefRes new_res), (voice,new_res), FALSE)
+SND_M_DllFunction(SndBool, SND_fn_bDoTransitionWithFadeSxd2, 12, (long voice, tduRefRes new_res, SndReal rDuration), (voice,new_res,rDuration), FALSE)
+SND_M_DllProcedure(SND_fn_vStopTransitionSxd, 4, (long voice), (voice))
+SND_M_DllProcedure(SND_fn_vPauseTransitionSxd, 4, (long voice), (voice))
+SND_M_DllProcedure(SND_fn_vResumeTransitionSxd, 4, (long voice), (voice))
+SND_M_DllProcedure(SND_fn_vReleaseDriverSxd, 0, (void), ())
+SND_M_DllProcedure(SND_fn_vRestoreDriverSxd, 0, (void), ())
+SND_M_DllProcedure(SND_fn_vForceReleaseDriverSxd, 0, (void), ())
+SND_M_DllProcedure(SND_fn_vForceRestoreDriverSxd, 0, (void), ())
+SND_M_DllProcedure(SND_fn_vGetTargetLabelSxd, 8, (char* name,int nb_char), (name,nb_char))
+SND_M_DllProcedure(SND_fn_vSetupTargetSxd, 0, (), ())
+SND_M_DllFunction(SndBool, SND_fn_bCanSetupTargetSxd, 0, (), (), FALSE)
+SND_M_DllProcedure(SND_fn_vParam3Dto2D, 8, (SoundParam *par3D,SampleParam *par2D), (par3D,par2D))
+SND_M_DllFunction(SndBool, SND_fn_bCanFreeDataSample, 0, (void), (), FALSE)
+SND_M_DllProcedure(SND_fn_vSetDefaultRollOffSxd, 4, (RollOffParam* rolloff), (rolloff))
+SND_M_DllFunction(int, SND_fn_iInitBnkSxd, 4, (long num), (num), 0)
+SND_M_DllFunction(SndBool, SND_fn_bTestInitBnkSxd, 4, (long num), (num), FALSE)
+SND_M_DllProcedure(SND_fn_vDesInitBnkSxd, 4, (long num), (num))
+SND_M_DllProcedure(SND_fn_vDesInitAllBnkSxd, 0, (void), ())
+SND_M_DllFunction(long, SND_fn_lPlayTransitionSxd, 16, (tduRefRes FirstRes,tduRefRes NextRes,SND_td_pfn_vSoundCallback transition_callback,SoundParam* par), (FirstRes,NextRes,transition_callback,par), -1)
+SND_M_DllFunction(SndBool, SND_fn_bCheckVersionResourceSxd, 4, (tdstBlockResourceDisk* disk), (disk), TRUE)
+SND_M_DllProcedure(SND_fn_vSetNbVoiceWishedSxd, 8, (tdeTypeZip ezip,long nb), (ezip,nb))
+SND_M_DllFunction(long, SND_fn_lGetNbVoiceWishedSxd, 0, (), (), 0)
+SND_M_DllFunction(long, SND_fn_lGetNbVoiceOptimumSxd, 0, (), (), 0)
+SND_M_DllFunction(tdeTypeZip, SND_fn_eGetMainFormatSxd, 0, (), (), 0)
+SND_M_DllFunction(SndBool, SND_fn_bSetResourceStaticVolumeSxd, 8, (tduRefRes res,unsigned char ucVolume), (res,ucVolume), FALSE)
+#endif
+
+#if defined(DLLWAV_MODULE)
+
 SND_M_DllFunction(SndBool, SND_fn_bCanFreeDataMPEG, 0, (void), (), FALSE)
 SND_M_DllFunction(long, SND_fn_lPlayMPEG, 20, (tduRefRes res,SampleParam *par,long prio,SND_td_pfn_vSoundCallback fn_callback,long par_callback), (res,par,prio,fn_callback,par_callback), -1)
 SND_M_DllProcedure(SND_fn_vRemoveCallbackMPEG, 4, (long voice), (voice))
@@ -190,6 +269,7 @@ SND_M_DllFunction(SndBool, SND_fn_bManageMsgForRecord, 4, (long lParam1), (lPara
 SND_M_DllFunction(int, SND_fn_iInitRecord, 4, (void *pInitStruct), (pInitStruct), 0)
 SND_M_DllProcedure(SND_fn_vDesInitRecord, 0, (void), ())
 SND_M_DllFunction(unsigned char, SND_fn_ucGetInstantVuMeterRecord, 0, (void), (), 0)
+#endif
 
 SND_M_DllProcedure(SND_fn_vLaunchSupervisater, 4, (SND_tdstInitStruct *pInitStruct), (pInitStruct))
 SND_M_DllProcedure(SND_fn_vKillSupervisater, 0, (), ())
@@ -220,6 +300,8 @@ SND_M_DllFunction(SndBool, dbgSND_fn_bDoesSupervisaterSelectResource, 0, (void),
 SND_M_DllProcedure(dbgSND_fn_vRajListesSxdVirtual2, 4, (long lParam1), (lParam1))
 SND_M_DllProcedure(dbgSND_fn_vInitListesSxdVirtual, 8, (SND_tdhVirtualModule hVirtualModule,char *szName), (hVirtualModule,szName))
 SND_M_DllProcedure(dbgSND_fn_vRefreshSupervisater, 0, (void), ())
+
+#if defined(DLLWAV_MODULE)
 
 SND_M_DllFunction(SndBool, SND_fn_bCanFreeDataADPCM, 0, (void), (), FALSE)
 SND_M_DllFunction(long, SND_fn_lPlaySxdADPCM, 20, (tduRefRes res,SoundParam *par,long prio,SND_td_pfn_vSoundCallback fn_callback,long par_callback), (res,par,prio,fn_callback,par_callback), -1)
@@ -280,8 +362,9 @@ SND_M_DllFunction(SndBool, SND_fn_bCheckVersionResourceSxdADPCM, 4, (tdstBlockRe
 SND_M_DllFunction(long, SND_fn_lGetNbVoiceWishedSxdADPCM, 0, (), (), 0)
 SND_M_DllFunction(SndBool, SND_fn_bIsLibActiveSxdADPCM, 0, (void), (), FALSE)
 SND_M_DllFunction(SndBool, SND_fn_bSetResourceStaticVolumeSxdADPCM, 8, (tduRefRes res, unsigned char ucVolume), (res,ucVolume), FALSE)
+#endif
 
-char SND_pc_szBuildDate[] = "Oct 15 1999-20:17:03";
+char SND_pc_szBuildDate[] = SND_pc_C_szBuildDate;
 char SND_pc_szVersion[] = "Moteur sonore ACP - Version M5.8.4";
 
 HMODULE SND_pc_hWavModule = NULL;
@@ -293,7 +376,7 @@ HMODULE SND_hRecordModule = NULL;
 
 static int SND_pc_s_bStaticEntryPointsLoaded = 0;
 static int SND_pc_s_bMpegEntryPointsLoaded = 0;
-int SND_pc_l26AFC = 0;
+int SND_pc_bSxdEntryPointsLoaded = 0;
 int SND_pc_l26B00 = 0;
 static int SND_pc_s_bDbgEntryPointsLoaded = 0;
 static int SND_pc_s_bAdpcmEntryPointsLoaded = 0;
@@ -412,6 +495,81 @@ void SND_DllInitEntryPoints_StaticFunctions(HMODULE hModule)
     }
 }
 
+#if !defined(DLLWAV_MODULE)
+/* 0x10004780 */
+void SND_pc_DllInitEntryPoints_SxdFunctions(HMODULE hModule)
+{
+    if (!SND_pc_bSxdEntryPointsLoaded)
+    {
+        SND_M_DllLoad(hModule, SND_fn_lPlaySxd)
+        SND_M_DllLoad(hModule, SND_fn_vRemoveCallbackSxd)
+        SND_M_DllLoad(hModule, SND_fn_bSetParamSxd)
+        SND_M_DllLoad(hModule, SND_fn_bTestIsPlayingSxd)
+        SND_M_DllLoad(hModule, SND_fn_vStopSxd)
+        SND_M_DllLoad(hModule, SND_fn_vPauseSxd)
+        SND_M_DllLoad(hModule, SND_fn_vResumeSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetSoundVolumeSxd)
+        SND_M_DllLoad(hModule, SND_fn_ucGetSoundVolumeSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetStereoSxd)
+        SND_M_DllLoad(hModule, SND_fn_bGetStereoSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetReverseStereoSxd)
+        SND_M_DllLoad(hModule, SND_fn_bGetReverseStereoSxd)
+        SND_M_DllLoad(hModule, SND_fn_iInitSxd)
+        SND_M_DllLoad(hModule, SND_fn_bTestInitSxd)
+        SND_M_DllLoad(hModule, SND_fn_vDesInitSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetDopplerFactorSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetEffectSxd)
+        SND_M_DllLoad(hModule, SND_fn_lCreateMicroSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetMicroParamSxd)
+        SND_M_DllLoad(hModule, SND_fn_vDestroyMicroSxd)
+        SND_M_DllLoad(hModule, SND_fn_lCreateNewBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetParamBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_vDeleteBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_vPauseBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_vResumeBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_pvGetPtrBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_lCreateNewBufferExSxd)
+        SND_M_DllLoad(hModule, SND_fn_lGetPosBufferExSxd)
+        SND_M_DllLoad(hModule, SND_fn_lPushBufferExSxd)
+        SND_M_DllLoad(hModule, SND_fn_vConvertResDiskToMemSxd)
+        SND_M_DllLoad(hModule, SND_fn_bLoadResScriptSxd)
+        SND_M_DllLoad(hModule, SND_fn_bLoadResBinarySxd)
+        SND_M_DllLoad(hModule, SND_fn_vUnLoadResSxd)
+        SND_M_DllLoad(hModule, SND_fn_bIsResLoadedSxd)
+        SND_M_DllLoad(hModule, SND_fn_lPlayTransitionExSxd)
+        SND_M_DllLoad(hModule, SND_fn_bSetParamTransitionSxd)
+        SND_M_DllLoad(hModule, SND_fn_bSetNextTransitionSxd)
+        SND_M_DllLoad(hModule, SND_fn_bDoTransitionWithFadeSxd)
+        SND_M_DllLoad(hModule, SND_fn_bDoTransitionWithFadeSxd2)
+        SND_M_DllLoad(hModule, SND_fn_vStopTransitionSxd)
+        SND_M_DllLoad(hModule, SND_fn_vPauseTransitionSxd)
+        SND_M_DllLoad(hModule, SND_fn_vResumeTransitionSxd)
+        SND_M_DllLoad(hModule, SND_fn_bCanFreeDataSample)
+        SND_M_DllLoad(hModule, SND_fn_vReleaseDriverSxd)
+        SND_M_DllLoad(hModule, SND_fn_vRestoreDriverSxd)
+        SND_M_DllLoad(hModule, SND_fn_vForceReleaseDriverSxd)
+        SND_M_DllLoad(hModule, SND_fn_vForceRestoreDriverSxd)
+        SND_M_DllLoad(hModule, SND_fn_rGetPosSxd)
+        SND_M_DllLoad(hModule, SND_fn_rGetLengthSxd)
+        SND_M_DllLoad(hModule, SND_fn_rGetPosBufferSxd)
+        SND_M_DllLoad(hModule, SND_fn_vGetTargetLabelSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetupTargetSxd)
+        SND_M_DllLoad(hModule, SND_fn_bCanSetupTargetSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSynchroSxd)
+        SND_M_DllLoad(hModule, SND_fn_vParam3Dto2D)
+        SND_M_DllLoad(hModule, SND_fn_vSetDefaultRollOffSxd)
+        SND_M_DllLoad(hModule, SND_fn_bCheckVersionResourceSxd)
+        SND_M_DllLoad(hModule, SND_fn_vSetNbVoiceWishedSxd)
+        SND_M_DllLoad(hModule, SND_fn_lGetNbVoiceOptimumSxd)
+        SND_M_DllLoad(hModule, SND_fn_lGetNbVoiceWishedSxd)
+        SND_M_DllLoad(hModule, SND_fn_eGetMainFormatSxd)
+        SND_M_DllLoad(hModule, SND_fn_bSetResourceStaticVolumeSxd)
+        SND_pc_bSxdEntryPointsLoaded = 1;
+    }
+}
+#endif
+
+#if defined(DLLWAV_MODULE)
 void SND_DllInitEntryPoints_MpegFunctions(HMODULE hModule)
 {
     if (!SND_pc_s_bMpegEntryPointsLoaded)
@@ -473,6 +631,7 @@ void SND_DllInitEntryPoints_RecordFunctions(HMODULE hModule)
         SND_pc_s_bRecordEntryPointsLoaded = 1;
     }
 }
+#endif
 
 void SND_DllInitEntryPoints_DbgFunctions(HMODULE hModule)
 {
@@ -510,6 +669,7 @@ void SND_DllInitEntryPoints_DbgFunctions(HMODULE hModule)
     }
 }
 
+#if defined(DLLWAV_MODULE)
 void SND_pc_DllInitEntryPoints_AdpcmFunctions(HMODULE hModule)
 {
     if (!SND_pc_s_bAdpcmEntryPointsLoaded)
@@ -575,3 +735,4 @@ void SND_pc_DllInitEntryPoints_AdpcmFunctions(HMODULE hModule)
         SND_pc_s_bAdpcmEntryPointsLoaded = 1;
     }
 }
+#endif

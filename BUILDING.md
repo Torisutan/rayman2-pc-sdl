@@ -83,3 +83,26 @@ path in the debug directory) are copied from your DLL after linking; nothing els
 compares every function of `WAVMWBVR.dll/status.json` at its link address with your DLL, relocated
 operands masked, reports regressions of byte-exact functions and counts the differing bytes of the
 whole file.
+
+## APMmxBVR.dll
+
+The ADPCM sound driver (`DLL/APMmxBVR.dll`) builds the same way (`/O2 /Gy /MT`, LINK 5.10 `/DLL`
+without debug information, base `0x10000000`); its MMX block is MASM source assembled with
+`ml.exe` **6.11d** `/coff` (it ships in the Windows 98 DDK as `bin/win98/ml.exe`). 6.11d knows no MMX
+instructions, so the sources write them as bytes with the instruction in the comment. It compiles
+`WAVMWBVR.dll/src/snddll.c` too, with `APMmxBVR.dll/include` searched before `WAVMWBVR.dll/include`.
+
+```
+python tools/build_apmmx.py --vc5 <MSVC5 dir> --ml611d <path to ml.exe 6.11d> --apm <game>/DLL/APMmxBVR.dll --check
+```
+
+| Output | Contents |
+|---|---|
+| `build/APMmxBVR/APMmxBVR.dll` | The DLL. Copy it over `DLL/APMmxBVR.dll` in the game folder (keep a backup) to run it |
+| `build/APMmxBVR/APMmxBVR.map` | LINK map |
+
+With `--apm`, the link time stamp is copied from your DLL after linking; nothing else is. ML 6.11d is
+the assembler that matches the original: it does not record itself in the objects (the original's Rich
+header, the linker's list of the tools that built the objects, names no assembler) and aligns their
+sections to 16 bytes. A later `ml.exe` assembles the same sources, but adds itself to the Rich header.
+`--check` works as for `WAVMWBVR.dll`.

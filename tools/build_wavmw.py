@@ -40,14 +40,34 @@ import build  # noqa: E402  (local.json paths)
 import objfn  # noqa: E402
 import retail  # noqa: E402
 
-DLL_DIR = os.path.join(build.ROOT, "WAVMWBVR.dll")
-SRC = os.path.join(DLL_DIR, "src")
-INC = os.path.join(DLL_DIR, "include")
-OUT = os.path.join(build.BUILD, "WAVMWBVR")
+NAME = "WAVMWBVR"       # the DLL's directory is <NAME>.dll/, the output build/<NAME>/ (tools/build_apmmx.py
+ARG = "wav"             # calls configure() for APMmxBVR.dll); ARG = the option naming your original DLL
+DLL_DIR = SRC = INC = OUT = None
+
+
+ML = "ml"               # the option naming the assembler (tools/build_apmmx.py: ml611d)
+
+
+def configure(name, arg, ml="ml"):
+    global NAME, ARG, ML, DLL_DIR, SRC, INC, OUT
+    NAME, ARG, ML = name, arg, ml
+    DLL_DIR = os.path.join(build.ROOT, name + ".dll")
+    SRC = os.path.join(DLL_DIR, "src")
+    INC = os.path.join(DLL_DIR, "include")
+    OUT = os.path.join(build.BUILD, name)
+
+
+configure(NAME, ARG)
 
 
 def load_cfg():
     return json.load(open(os.path.join(DLL_DIR, "tu.json")))
+
+
+def src_path(entry):
+    """A link_order entry's source: <NAME>.dll/src/<src>, or `path` (from the repository root) for a source
+    shared with another DLL's tree."""
+    return os.path.join(build.ROOT, entry["path"]) if "path" in entry else os.path.join(SRC, entry["src"])
 
 
 def obj_path(out, src):
@@ -55,29 +75,31 @@ def obj_path(out, src):
     return os.path.join(out, os.path.dirname(src), os.path.splitext(os.path.basename(src))[0] + ext)
 
 
-def vc5_env(a):
+def vc5_env(a, cfg):
     e = dict(os.environ)
     e["PATH"] = os.pathsep.join([os.path.join(a.vc5, "bin"), os.path.join(a.vc5, "redist"), e.get("PATH", "")])
-    e["INCLUDE"] = ";".join([INC, os.path.join(a.vc5, "include")])
+    inc = [os.path.join(build.ROOT, d) for d in cfg["include"]] if "include" in cfg else [INC]
+    e["INCLUDE"] = ";".join(inc + [os.path.join(a.vc5, "include")])
     e["LIB"] = os.path.join(a.vc5, "lib")
     return e
 
 
-def build_one(a, cfg, src, out):
+def build_one(a, cfg, entry, out):
+    src = entry["src"]
     obj = obj_path(out, src)
     os.makedirs(os.path.dirname(obj), exist_ok=True)
     if os.path.exists(obj):
         os.remove(obj)
-    path = os.path.join(SRC, src)
+    path = src_path(entry)
     if src.endswith(".c"):
         cmd = [os.path.join(a.vc5, "bin", "cl.exe")] + cfg["base_flags"] + ["/Fo" + obj, path]
     elif src.endswith(".asm"):
-        cmd = [a.ml, "/nologo", "/c", "/Cp"] + cfg["asm_flags"] + ["/Fo" + obj, path]
+        cmd = [getattr(a, ML), "/nologo", "/c", "/Cp"] + cfg["asm_flags"] + ["/Fo" + obj, path]
     elif src.endswith(".rc"):
         cmd = [os.path.join(a.vc5, "bin", "rc.exe"), "/fo" + obj, path]
     else:
         return src, "unknown source type"
-    p = subprocess.run(cmd, cwd=os.path.dirname(obj), env=vc5_env(a), capture_output=True, text=True,
+    p = subprocess.run(cmd, cwd=os.path.dirname(obj), env=vc5_env(a, cfg), capture_output=True, text=True,
                        errors="replace")
     if p.returncode == 0 and os.path.exists(obj):
         return src, None
@@ -154,9 +176,9 @@ def stamp(dll, ref):
 
 
 def check(a, out, cfg):
-    by_name = retail.read_map(os.path.join(out, "WAVMWBVR.map"))
+    by_name = retail.read_map(os.path.join(out, NAME + ".map"))
     ours_raw = open(os.path.join(out, cfg["out_name"]), "rb").read()
-    orig_raw = open(a.wav, "rb").read()
+    orig_raw = open(getattr(a, ARG), "rb").read()
     ours, orig = retail.Image(ours_raw), retail.Image(orig_raw)
     rows = json.load(open(os.path.join(DLL_DIR, "status.json")))
     exact, regressed, improved, errors = 0, [], [], []
@@ -192,20 +214,21 @@ def check(a, out, cfg):
     return not regressed
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+def main(doc=__doc__):
+    ap = argparse.ArgumentParser(description=doc, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--vc5")
-    ap.add_argument("--ml", help="ml.exe 6.1x")
-    ap.add_argument("--wav", help="your game's WAVMWBVR.dll (for --check and the header fields)")
+    ap.add_argument("--" + ML, help="ml.exe (%s)" % ("6.1x" if ML == "ml" else ML[2:]))
+    ap.add_argument("--" + ARG, help="your game's %s.dll (for --check and the header fields)" % NAME)
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--jobs", type=int, default=6)
-    a = build.resolve_paths(ap.parse_args(), need=("vc5", "ml") + (("wav",) if "--check" in sys.argv else ()))
+    a = build.resolve_paths(ap.parse_args(), need=("vc5", ML) + ((ARG,) if "--check" in sys.argv else ()))
     out = os.path.abspath(a.out)
     cfg = load_cfg()
-    srcs = [t["src"] for t in cfg["link_order"]]
+    entries = cfg["link_order"]
+    srcs = [t["src"] for t in entries]
     with cf.ThreadPoolExecutor(a.jobs) as ex:
-        fails = [r for r in ex.map(lambda s: build_one(a, cfg, s, out), srcs) if r[1]]
+        fails = [r for r in ex.map(lambda t: build_one(a, cfg, t, out), entries) if r[1]]
     print("compile: %d/%d OK" % (len(srcs) - len(fails), len(srcs)))
     for src, err in fails:
         print("  FAIL %s: %s" % (src, err))
@@ -216,16 +239,17 @@ def main():
     with open(rsp, "w") as f:
         f.write("\n".join('"%s"' % obj_path(out, s) for s in srcs) + "\n")
     cmd = [os.path.join(a.vc5, "bin", "link.exe"), "/NOLOGO", "/DLL", "/MACHINE:IX86", "/SUBSYSTEM:WINDOWS",
-           "/BASE:0x10000000", "/MAP:" + os.path.join(out, "WAVMWBVR.map"), "/OUT:" + dll] + cfg["ldflags"] + \
+           "/BASE:0x10000000", "/MAP:" + os.path.join(out, NAME + ".map"), "/OUT:" + dll] + cfg["ldflags"] + \
         ["@" + rsp] + cfg["libs"]
-    p = subprocess.run(cmd, cwd=out, env=vc5_env(a), capture_output=True, text=True, errors="replace")
+    p = subprocess.run(cmd, cwd=out, env=vc5_env(a, cfg), capture_output=True, text=True, errors="replace")
     if p.returncode or not os.path.exists(dll):
         print("LINK FAILED")
         print((p.stdout + p.stderr).strip()[-3000:])
         return 1
-    if a.wav:
-        stamp(dll, a.wav)
-    print("LINK OK -> %s (%d bytes)%s" % (dll, os.path.getsize(dll), "; header fields from " + a.wav if a.wav else ""))
+    orig = getattr(a, ARG)
+    if orig:
+        stamp(dll, orig)
+    print("LINK OK -> %s (%d bytes)%s" % (dll, os.path.getsize(dll), "; header fields from " + orig if orig else ""))
     if a.check:
         return 0 if check(a, out, cfg) else 1
     return 0

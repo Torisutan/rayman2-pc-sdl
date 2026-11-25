@@ -1,0 +1,50 @@
+{
+ "base_flags": [
+  "/nologo",
+  "/c",
+  "/O2",
+  "/Gy",
+  "/MT",
+  "/D_DLL_COMPILATION_MODE",
+  "/DVISUAL",
+  "/W3"
+ ],
+ "asm_flags": [
+  "/coff"
+ ],
+ "ldflags": [
+  "/INCREMENTAL:NO"
+ ],
+ "libs": [
+  "kernel32.lib"
+ ],
+ "out_name": "APMmxBVR.dll",
+ "link_order": [
+  {
+   "src": "APMmxBVR.rc"
+  },
+  {
+   "src": "SndAdpcm.c"
+  },
+  {
+   "src": "snddll.c",
+   "path": "WAVMWBVR.dll/src/snddll.c"
+  },
+  {
+   "src": "pc_sndxdadpcm.c"
+  },
+  {
+   "src": "mmx/mmx1_100055c0.asm"
+  },
+  {
+   "src": "mmx/mmx2_10005650.asm"
+  },
+  {
+   "src": "mmx/mmx3_10005a70.asm"
+  }
+ ],
+ "include": [
+  "APMmxBVR.dll/include",
+  "WAVMWBVR.dll/include"
+ ]
+}

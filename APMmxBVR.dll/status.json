@@ -1,0 +1,1129 @@
+[
+{
+"addr": "0x10001000",
+"name": "SND_pc_fn_vInitializeCriticalSectionADPCM",
+"src": "SndAdpcm.c",
+"len": 12,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001010",
+"name": "SND_pc_fn_vDeleteCriticalSectionADPCM",
+"src": "SndAdpcm.c",
+"len": 12,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001020",
+"name": "SND_pc_fn_vEnterCriticalSectionADPCM",
+"src": "SndAdpcm.c",
+"len": 12,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001030",
+"name": "SND_pc_fn_vLeaveCriticalSectionADPCM",
+"src": "SndAdpcm.c",
+"len": 12,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001040",
+"name": "SND_pc_fn_lOpenStreamADPCM",
+"src": "SndAdpcm.c",
+"len": 216,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001120",
+"name": "SND_pc_fn_lCloseStreamADPCM",
+"src": "SndAdpcm.c",
+"len": 37,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001150",
+"name": "FUN_10001150",
+"src": "SndAdpcm.c",
+"len": 208,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001220",
+"name": "SND_pc_fn_vSetVolumePanADPCM",
+"src": "SndAdpcm.c",
+"len": 54,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001260",
+"name": "SND_pc_fn_bIsReverseStereoADPCM",
+"src": "SndAdpcm.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001270",
+"name": "SND_pc_fn_vApplyReverseStereoADPCM",
+"src": "SndAdpcm.c",
+"len": 128,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100012F0",
+"name": "FUN_100012f0",
+"src": "SndAdpcm.c",
+"len": 99,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001360",
+"name": "FUN_10001360",
+"src": "SndAdpcm.c",
+"len": 51,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100013A0",
+"name": "FUN_100013a0",
+"src": "SndAdpcm.c",
+"len": 548,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100015D0",
+"name": "SND_pc_fn_lStopVoiceADPCM",
+"src": "SndAdpcm.c",
+"len": 289,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10001700",
+"name": "FUN_10001700",
+"src": "SndAdpcm.c",
+"len": 55,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001740",
+"name": "FUN_10001740",
+"src": "SndAdpcm.c",
+"len": 386,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x100018D0",
+"name": "FUN_100018d0",
+"src": "SndAdpcm.c",
+"len": 726,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001BB0",
+"name": "FUN_10001bb0",
+"src": "SndAdpcm.c",
+"len": 125,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001C30",
+"name": "FUN_10001c30",
+"src": "SndAdpcm.c",
+"len": 119,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001CB0",
+"name": "FUN_10001cb0",
+"src": "SndAdpcm.c",
+"len": 270,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10001DC0",
+"name": "FUN_10001dc0",
+"src": "SndAdpcm.c",
+"len": 267,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001ED0",
+"name": "SND_pc_fn_lPauseVoiceADPCM",
+"src": "SndAdpcm.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F10",
+"name": "SND_pc_fn_lResumeVoiceADPCM",
+"src": "SndAdpcm.c",
+"len": 50,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F50",
+"name": "SND_pc_fn_bIsVoicePlayingADPCM",
+"src": "SndAdpcm.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001F80",
+"name": "SND_pc_fn_lRemoveCallbackVoiceADPCM",
+"src": "SndAdpcm.c",
+"len": 57,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10001FC0",
+"name": "FUN_10001fc0",
+"src": "SndAdpcm.c",
+"len": 126,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002040",
+"name": "FUN_10002040",
+"src": "SndAdpcm.c",
+"len": 76,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002090",
+"name": "FUN_10002090",
+"src": "SndAdpcm.c",
+"len": 236,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002180",
+"name": "FUN_10002180",
+"src": "SndAdpcm.c",
+"len": 136,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002210",
+"name": "FUN_10002210",
+"src": "SndAdpcm.c",
+"len": 168,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100022C0",
+"name": "FUN_100022c0",
+"src": "SndAdpcm.c",
+"len": 90,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002320",
+"name": "FUN_10002320",
+"src": "SndAdpcm.c",
+"len": 352,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002480",
+"name": "FUN_10002480",
+"src": "SndAdpcm.c",
+"len": 84,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100024E0",
+"name": "FUN_100024e0",
+"src": "SndAdpcm.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002500",
+"name": "FUN_10002500",
+"src": "SndAdpcm.c",
+"len": 151,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100025A0",
+"name": "FUN_100025a0",
+"src": "SndAdpcm.c",
+"len": 221,
+"verdict": "MISMATCH"
+},
+{
+"addr": "0x10002680",
+"name": "FUN_10002680",
+"src": "SndAdpcm.c",
+"len": 244,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002780",
+"name": "SND_pc_fn_lPlayADPCM",
+"src": "SndAdpcm.c",
+"len": 233,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002870",
+"name": "SND_pc_fn_vRemoveCallbackADPCM",
+"src": "SndAdpcm.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100028B0",
+"name": "SND_pc_fn_bSetParamADPCM",
+"src": "SndAdpcm.c",
+"len": 69,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002900",
+"name": "SND_pc_fn_bTestIsPlayingADPCM",
+"src": "SndAdpcm.c",
+"len": 35,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002930",
+"name": "SND_pc_fn_vStopADPCM",
+"src": "SndAdpcm.c",
+"len": 55,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002970",
+"name": "SND_pc_fn_vPauseADPCM",
+"src": "SndAdpcm.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100029B0",
+"name": "SND_pc_fn_vResumeADPCM",
+"src": "SndAdpcm.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100029F0",
+"name": "SND_pc_fn_bIsResourceLoopingADPCM",
+"src": "SndAdpcm.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A00",
+"name": "SND_pc_fn_rGetPosADPCM",
+"src": "SndAdpcm.c",
+"len": 85,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002A60",
+"name": "SND_pc_fn_rGetLengthADPCM",
+"src": "SndAdpcm.c",
+"len": 80,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AB0",
+"name": "SND_pc_SND_fn_ucGetSoundVolumeSxd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AC0",
+"name": "SND_pc_fn_vSetReverseStereoADPCM",
+"src": "SndAdpcm.c",
+"len": 14,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AD0",
+"name": "SND_pc_fn_bGetReverseStereoADPCM",
+"src": "SndAdpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002AE0",
+"name": "SND_pc_fn_iInitADPCM",
+"src": "SndAdpcm.c",
+"len": 225,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BD0",
+"name": "SND_fn_bIsLibActiveSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002BE0",
+"name": "SND_pc_fn_vDesInitADPCM",
+"src": "SndAdpcm.c",
+"len": 46,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C10",
+"name": "SND_pc_fn_lCreateNewBufferADPCM",
+"src": "SndAdpcm.c",
+"len": 4,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C20",
+"name": "SND_pc_SND_fn_vDesInitAllBnkSxd_Dummy",
+"src": "snddll.c",
+"len": 1,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C30",
+"name": "SND_pc_fn_vPauseBufferADPCM",
+"src": "SndAdpcm.c",
+"len": 52,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002C70",
+"name": "SND_pc_fn_vResumeBufferADPCM",
+"src": "SndAdpcm.c",
+"len": 52,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002CB0",
+"name": "SND_pc_SND_fn_bCanFreeDataSample_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002CC0",
+"name": "SND_pc_fn_bLoadResScriptADPCM",
+"src": "SndAdpcm.c",
+"len": 192,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002D80",
+"name": "SND_pc_fn_bLoadResBinaryADPCM",
+"src": "SndAdpcm.c",
+"len": 188,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10002E40",
+"name": "SND_pc_fn_bLoadResScriptAndConvertToWAVADPCM",
+"src": "SndAdpcm.c",
+"len": 441,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003000",
+"name": "SND_pc_fn_bLoadResBinaryAndConvertToWAVADPCM",
+"src": "SndAdpcm.c",
+"len": 427,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100031B0",
+"name": "SND_pc_fn_vUnLoadResADPCM",
+"src": "SndAdpcm.c",
+"len": 48,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100031E0",
+"name": "SND_pc_fn_lPlayTransitionADPCM",
+"src": "SndAdpcm.c",
+"len": 106,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003250",
+"name": "SND_pc_fn_bSetParamTransitionADPCM",
+"src": "SndAdpcm.c",
+"len": 73,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100032A0",
+"name": "SND_pc_fn_bSetNextTransitionADPCM",
+"src": "SndAdpcm.c",
+"len": 69,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100032F0",
+"name": "SND_pc_fn_bDoTransitionWithFadeADPCM",
+"src": "SndAdpcm.c",
+"len": 67,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003340",
+"name": "SND_pc_fn_vStopTransitionADPCM",
+"src": "SndAdpcm.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003380",
+"name": "SND_pc_fn_vPauseTransitionADPCM",
+"src": "SndAdpcm.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100033C0",
+"name": "SND_pc_fn_vResumeTransitionADPCM",
+"src": "SndAdpcm.c",
+"len": 49,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003400",
+"name": "SND_pc_fn_vRefreshBufferMemoryADPCM",
+"src": "SndAdpcm.c",
+"len": 175,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100034B0",
+"name": "SND_pc_fn_vRefreshBufferStreamADPCM",
+"src": "SndAdpcm.c",
+"len": 165,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003560",
+"name": "SND_pc_fn_bCheckVersionResourceADPCM",
+"src": "SndAdpcm.c",
+"len": 135,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100035F0",
+"name": "SND_pc_fn_lGetNbVoiceWishedADPCM",
+"src": "SndAdpcm.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003600",
+"name": "FUN_10003600",
+"src": "SndAdpcm.c",
+"len": 73,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003650",
+"name": "FUN_10003650",
+"src": "SndAdpcm.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003680",
+"name": "SND_pc_fn_bSetResourceStaticVolumeADPCM",
+"src": "SndAdpcm.c",
+"len": 126,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003700",
+"name": "SND_fn_bCanFreeDataSample",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003720",
+"name": "SND_fn_vGetHModuleWav",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003740",
+"name": "SND_fn_vGetHModuleCd",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003760",
+"name": "SND_fn_vGetHModuleDbg",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003780",
+"name": "SND_fn_vGetHModuleAdpcm",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100037A0",
+"name": "SND_fn_vGetHModuleRecord",
+"src": "snddll.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100037C0",
+"name": "SND_fn_bDoTransitionWithFadeSxd",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100037F0",
+"name": "SND_pc_SND_fn_vConvertResDiskToMemSxd_Dummy",
+"src": "snddll.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003800",
+"name": "SND_pc_SND_fn_bInitBank_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003810",
+"name": "SND_fn_bCheckVersionResourceSxd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003830",
+"name": "SND_pc_SND_fn_bDoTransitionWithFadeSxd_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003840",
+"name": "SND_fn_vFreeSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003860",
+"name": "SND_pc_SND_fn_bDoTransitionWithFadeSxd2_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003870",
+"name": "SND_fn_bGetOptions",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038A0",
+"name": "SND_pc_SND_fn_bLoadDataInMemAndSwap_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038B0",
+"name": "SND_fn_vResolveFileName",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100038E0",
+"name": "SND_fn_bDoTransitionWithFadeSxd2",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003910",
+"name": "SND_fn_dwSeekFileSnd",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003940",
+"name": "SND_fn_hOpenFileReadSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003960",
+"name": "SND_fn_vCloseFileSnd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003980",
+"name": "SND_pc_SND_fn_ucDistanceToVolume_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003990",
+"name": "SND_pc_SND_fn_ucDistanceToVolumeEx_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039A0",
+"name": "SND_pc_SND_fn_bGetOptions_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039B0",
+"name": "SND_pc_SND_fn_ucPositionToPan_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039C0",
+"name": "SND_pc_SND_fn_ucPositionToDolby_Dummy",
+"src": "snddll.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039D0",
+"name": "SND_pc_SND_fn_lPlaySxd_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039E0",
+"name": "SND_pc_SND_fn_lCreateNewBufferSxd_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100039F0",
+"name": "SND_fn_vDeleteBufferSxd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A10",
+"name": "SND_fn_vPauseBufferSxd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A30",
+"name": "SND_fn_vResumeBufferSxd",
+"src": "snddll.c",
+"len": 29,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A50",
+"name": "SND_fn_lCreateNewBufferExSxd",
+"src": "snddll.c",
+"len": 44,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A80",
+"name": "SND_pc_SND_fn_lCreateNewBufferExSxd_Dummy",
+"src": "snddll.c",
+"len": 6,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003A90",
+"name": "SND_fn_vConvertResDiskToMemSxd",
+"src": "snddll.c",
+"len": 39,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003AC0",
+"name": "SND_fn_vParam3Dto2D",
+"src": "snddll.c",
+"len": 34,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003AF0",
+"name": "SND_pc_SND_fn_bCheckVersionResourceSxd_Dummy",
+"src": "snddll.c",
+"len": 8,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003B00",
+"name": "SND_pc_fn_pfnGetProcAddress",
+"src": "snddll.c",
+"len": 108,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10003B70",
+"name": "SND_DllInitEntryPoints_StaticFunctions",
+"src": "snddll.c",
+"len": 3087,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10004780",
+"name": "SND_pc_DllInitEntryPoints_SxdFunctions",
+"src": "snddll.c",
+"len": 2361,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100050C0",
+"name": "SND_fn_lPlaySxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 75,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005110",
+"name": "SND_fn_vRemoveCallbackSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005120",
+"name": "SND_fn_bSetParamSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005150",
+"name": "SND_fn_bTestIsPlayingSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005160",
+"name": "SND_fn_vStopSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005170",
+"name": "SND_fn_vPauseSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005180",
+"name": "SND_fn_vResumeSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005190",
+"name": "SND_fn_bIsResourceLoopingSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100051A0",
+"name": "SND_fn_rGetPosSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100051B0",
+"name": "SND_fn_rGetLengthSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100051C0",
+"name": "SND_fn_vDeleteBufferSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100051D0",
+"name": "SND_fn_ucGetSoundVolumeSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100051E0",
+"name": "SND_fn_vSetReverseStereoSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100051F0",
+"name": "SND_fn_bGetReverseStereoSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005200",
+"name": "SND_fn_iInitSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 54,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005240",
+"name": "SND_fn_bGetStereoSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005250",
+"name": "SND_fn_vDesInitSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005260",
+"name": "SND_fn_vCreateMicroSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005270",
+"name": "SND_fn_vDestroyMicroSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 3,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005280",
+"name": "SND_fn_lCreateNewBufferSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 85,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100052E0",
+"name": "SND_fn_vSetParamBufferSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005310",
+"name": "SND_fn_vPauseBufferSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005320",
+"name": "SND_fn_vResumeBufferSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005330",
+"name": "SND_fn_lGetPosBufferExSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005340",
+"name": "SND_fn_bLoadResScriptSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005360",
+"name": "SND_fn_bLoadResBinarySxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005380",
+"name": "SND_fn_bLoadResScriptAndConvertToWAVSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100053A0",
+"name": "SND_fn_bLoadResBinaryAndConvertToWAVSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100053C0",
+"name": "SND_fn_vUnLoadResSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100053D0",
+"name": "SND_fn_bIsResLoadedSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100053E0",
+"name": "SND_fn_lPlayTransitionSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 75,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005430",
+"name": "SND_fn_bSetParamTransitionSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 42,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005460",
+"name": "SND_fn_bSetNextTransitionSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005480",
+"name": "SND_fn_bDoTransitionWithFadeSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100054A0",
+"name": "SND_fn_bDoTransitionWithFadeSxdADPCM2",
+"src": "pc_sndxdadpcm.c",
+"len": 26,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100054C0",
+"name": "SND_fn_vStopTransitionSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100054D0",
+"name": "SND_fn_vPauseTransitionSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100054E0",
+"name": "SND_fn_vResumeTransitionSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100054F0",
+"name": "SND_fn_bCanFreeDataADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005500",
+"name": "SND_fn_vReleaseDriverSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005510",
+"name": "SND_fn_vGetTargetLabelSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005530",
+"name": "SND_fn_lCreateNewBufferExSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 46,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005560",
+"name": "SND_fn_lPushBufferExSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 21,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005580",
+"name": "SND_fn_bCheckVersionResourceSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 16,
+"verdict": "EXACT"
+},
+{
+"addr": "0x10005590",
+"name": "SND_fn_lGetNbVoiceWishedSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 5,
+"verdict": "EXACT"
+},
+{
+"addr": "0x100055A0",
+"name": "SND_fn_bSetResourceStaticVolumeSxdADPCM",
+"src": "pc_sndxdadpcm.c",
+"len": 21,
+"verdict": "EXACT"
+}
+]

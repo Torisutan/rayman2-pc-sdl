@@ -39,10 +39,10 @@ def add_path_args(ap):
 
 
 def resolve_paths(a, need=("vc5", "vc6", "gog")):
-    """Fill --vc5/--vc6/--gog (/--gli/--ml/--wav) from local.json; remember the ones given on the command line."""
+    """Fill --vc5/--vc6/--gog (/--gli/--ml/--ml611d/--wav/--apm) from local.json; remember the ones given on the command line."""
     cfg = json.load(open(LOCAL)) if os.path.exists(LOCAL) else {}
     changed = False
-    for k in ("vc5", "vc6", "gog", "gli", "ml", "wav"):
+    for k in ("vc5", "vc6", "gog", "gli", "ml", "ml611d", "wav", "apm"):
         v = getattr(a, k, None)
         if v:
             v = os.path.abspath(v)
