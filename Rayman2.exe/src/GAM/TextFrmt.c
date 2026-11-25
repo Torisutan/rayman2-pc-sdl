@@ -551,7 +551,7 @@ short __cdecl TFMT_wPositionModulesAccordingToText(
             _d_stLineResults[wCurrentLine].wEndChar = (short) (_pszText - pszInitText);
             _d_stLineResults[wCurrentLine].a_xLineOrigin[0] = xJustificationShift;
             _d_stLineResults[wCurrentLine].a_xLineOrigin[1] = MTH_C_ZERO;
-            _d_stLineResults[wCurrentLine].a_xLineOrigin[2] = _p_stStatus->xBaseCharZ  ;
+            _d_stLineResults[wCurrentLine].a_xLineOrigin[2] = (_p_stStatus->xBaseCharZ)  ;
         }
 
         if ( _pszText < pszEndText )

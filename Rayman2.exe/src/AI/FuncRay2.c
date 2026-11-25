@@ -1790,24 +1790,25 @@ static __inline HIE_tdstSuperObject *SECT_GetSectorInGraphicList(SECT_tdxHandleO
 AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-    unsigned long         eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject  *hNewSuperObjPerso;
     AI_tdstGetSetParam    stParam;
     HIE_tdstSuperObject  *hCurrentSectorPerso;
-    SECT_tdxHandleOfElementLstGraphicInteraction hGraphicElement;
     HIE_tdstSuperObject  *hGraphicSectorSO;
-    int                   i;
     int                  *hCloserSO = (int *)0;
-    unsigned long         ulCustomBitValue;
-    unsigned long         xMask = 0;
-    float                 xBestDist   = AI_FR2_xInfinitPlus;
-    float                 xPrevWeight = AI_FR2_xInfinitMinus;
-    float                 xXWeight = 0.0f, x2DWeight = 0.0f, x3DWeight = 0.0f;
-    float                 xCosXoY = 0.8944f, xSinYoZ = 0.4473f;
-    MTH3D_tdstVector      stDirection;
+    SECT_tdxHandleOfElementLstGraphicInteraction hGraphicElement;
     MTH3D_tdstVector      stMyVector;
     POS_tdstCompletePosition stGlobToPerso;
+    float                 xBestDist   = AI_FR2_xInfinitPlus;
+    unsigned long         ulCustomBitValue;
+    float                 xXWeight = 0.0f, x2DWeight = 0.0f, x3DWeight = 0.0f;
+    float                 xPrevWeight = AI_FR2_xInfinitMinus;
+    MTH3D_tdstVector      stDirection;
     MTH3D_tdstVector     *p_stActorSighting;
+    MTH3D_tdstVector     *p_stTmpVector1, *p_stTmpVector2;
+    unsigned long         xMask = 0;
+    float                 xCosXoY = 0.8944f, xSinYoZ = 0.4473f;
+    unsigned long         eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    int                   i;
+    HIE_tdstSuperObject  *hNewSuperObjPerso;
 
     fn_vGetUltraOperatorPerso(
         AI_M_pfn_fn_ucGetFunctionUltraOperator2(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
@@ -1863,7 +1864,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4PersoLePlusProche(
             else if (eFuncId == 0x6e)
             {
                 POS_tdxHandleToPosition hActorMatrix = HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso);
-                MTH3D_tdstVector *p_stTmpVector1, *p_stTmpVector2;
                 POS_fn_vGetTranslationVector( hActorMatrix, &stMyVector );
                 POS_fn_vGetRotationVector ( hActorMatrix, &p_stTmpVector1, &p_stActorSighting, &p_stTmpVector2 );
             }
@@ -1976,6 +1976,8 @@ extern unsigned char __cdecl fn_ucIsAnAlwaysModel(void *p_stEngineObject);
 #define AI_M_pfn_fn_ucIsAnAlwaysModel              fn_ucIsAnAlwaysModel
 
 #define M_ObjectGetPersonalType(p_stObject) ((p_stObject)->h_StandardGame->otObjectPersonalType)
+
+#define M_ObjectGetModelType(p_stObject) ((p_stObject)->h_StandardGame->otObjectModelType)
 /* 0x40bcc0 */
 extern void *__cdecl fn_p_stAllocateAlways(int otObjectModelType, void *p_stFather, void *_hGenerator, unsigned short uwAction, void *p_stMatrix);
 #define AI_M_pfn_fn_p_stAllocateAlways             ((void *(__cdecl *)(int, void *, void *, int, void *))&fn_p_stAllocateAlways)
@@ -2159,12 +2161,13 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4TextAffiche(
             if (fn_ucIsAnAlwaysModel(p_stEngineObject))
             {
                 POS_tdstCompletePosition stMatrix;
-                int otObjectPersonalType = M_ObjectGetPersonalType(p_stEngineObject);
+
+                int otObjectModelType = M_ObjectGetModelType(p_stEngineObject);
 
                 POS_fn_vSetIdentityMatrix(&stMatrix);
                 POS_fn_vSetTranslationVector(&stMatrix, &stVertex);
 
-                p_SuperObjPersoGenerated = (HIE_tdstSuperObject *)AI_M_pfn_fn_p_stAllocateAlways(otObjectPersonalType, gp_stDynamicWorld, p_SuperObjPerso, 0, &stMatrix);
+                p_SuperObjPersoGenerated = (HIE_tdstSuperObject *)AI_M_pfn_fn_p_stAllocateAlways(otObjectModelType, gp_stDynamicWorld, p_SuperObjPerso, 0, &stMatrix);
 
                 if ( p_SuperObjPersoGenerated != NULL )
                 {
@@ -2182,7 +2185,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4TextAffiche(
                     AI_TA_hGenerated(ucNumberOfCurrentTextAffiche) = p_SuperObjPersoGenerated;
 
                     M_Full_GetSetParam_Perso(&stParam, p_SuperObjPersoGenerated);
-                    ucPersoId = fn_ucSetDsgVar(ucPersoId, 0, AI_fr2_p_stGetMindOfSuperObj(p_SuperObjPerso), &stParam);
+                    ucPersoId = fn_ucSetDsgVar(ucPersoId, 0, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), &stParam);
 
                     if ( !ulDelay )
                     {
@@ -2319,7 +2322,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4TextAffiche(
     AI_TA_wPosInString(ucNumberOfCurrentTextAffiche)  = wPositionInString;
 
     M_Full_GetSetParam_Integer( &stParam, ulDelay );
-    ucDelayId = fn_ucSetDsgVar(ucDelayId, 0, AI_fr2_p_stGetMindOfSuperObj(p_SuperObjPerso), &stParam);
+    ucDelayId = fn_ucSetDsgVar(ucDelayId, 0, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), &stParam);
 
     M_Full_GetSetParam_Integer(p_stValue, lEvent);
     return(p_stTree);

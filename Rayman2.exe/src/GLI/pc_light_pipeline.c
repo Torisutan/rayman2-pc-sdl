@@ -785,16 +785,16 @@ extern void __cdecl GLI_pc_fn_vAddWaterDepthColorToVertices(GLI_tdstInternalGlob
                                                             long lFirstVertex,
                                                             long lNbVertices);
 
-void __cdecl GLI_pc_fn_vDispatchLightsByType(struct GLI_tdstLight_ **p_pstLights, GEO_tdstGeometricObject *p_stVtxBlk,
-                                             float *p_xOut, void *p_vUnused,
-                                             float *p_xAccum, int lCount, GLI_tdstInternalGlobalValuesFor3dEngine *p_stEngine)
+void __cdecl GLI_vSendObjectToLights(struct GLI_tdstLight_ **p_pstLights, GEO_tdstGeometricObject *p_stVtxBlk,
+                                     float *p_xOut, void *p_vUnused,
+                                     GEO_tdstColor *p_stColorRLIA, int lCount, GLI_tdstInternalGlobalValuesFor3dEngine *p_stEngine)
 {
     int lLight;
 
-    p_xAccum[0] = 0.0f;
-    p_xAccum[1] = 0.0f;
-    p_xAccum[2] = 0.0f;
-    p_xAccum[3] = 0.0f;
+    p_stColorRLIA->xR = 0.0f;
+    p_stColorRLIA->xG = 0.0f;
+    p_stColorRLIA->xB = 0.0f;
+    p_stColorRLIA->xA = 0.0f;
 
     for (lLight = 0; lLight < lCount; lLight++) {
         struct GLI_tdstLight_ *p_stLight = p_pstLights[lLight];
@@ -811,7 +811,7 @@ void __cdecl GLI_pc_fn_vDispatchLightsByType(struct GLI_tdstLight_ **p_pstLights
         }
         lType = p_stLight->lTypeOfLight;
         if (lType == 4) {
-            GLI_pc_fn_vAccumulateLightColor(p_stLight, p_stVtxBlk, p_xAccum);
+            GLI_pc_fn_vAccumulateLightColor(p_stLight, p_stVtxBlk, &p_stColorRLIA->xR);
         } else if (lType == 2) {
             GLI_pc_fn_vDispatchLightAccumulation(p_stLight, p_stVtxBlk, p_xOut, p_stEngine);
         } else if (lType == 1) {

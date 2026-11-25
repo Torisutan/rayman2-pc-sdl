@@ -925,7 +925,32 @@ void __cdecl PLA_fn_vInitAllChildInHeapNewAnim(HIE_tdstSuperObject *p_stSuperObj
     }
 }
 
-/* 0x0040E0D0 */
+#define PLA_M_vDynamicIsolateSO(hElement)                                                       \
+{                                                                                               \
+    if ((hElement)->p_stNextBrother != NULL)                                                    \
+        (hElement)->p_stNextBrother->p_stPrevBrother = (hElement)->p_stPrevBrother;             \
+    if ((hElement)->p_stPrevBrother != NULL)                                                    \
+        (hElement)->p_stPrevBrother->p_stNextBrother = (hElement)->p_stNextBrother;             \
+    if ((hElement)->p_stFather != NULL)                                                         \
+    {                                                                                           \
+        (hElement)->p_stFather->lNumberOfChildren--;                                            \
+        if ((hElement)->p_stFather->p_stFirstChild == (hElement))                               \
+            (hElement)->p_stFather->p_stFirstChild = (hElement)->p_stNextBrother;               \
+        if ((hElement)->p_stFather->p_stLastChild == (hElement))                                \
+            (hElement)->p_stFather->p_stLastChild = (hElement)->p_stPrevBrother;                \
+    }                                                                                           \
+    (hElement)->p_stNextBrother = NULL;                                                         \
+    (hElement)->p_stPrevBrother = NULL;                                                         \
+    (hElement)->p_stFather = NULL;                                                              \
+}
+
+#include "SPO/HieDef.h"
+
+#define HIE_fn_vSetSuperObjectObjectAndType(_hSprObj, _hObj, _lType) \
+{\
+  HIE_M_vSetSuperObjectMember(_hSprObj, ulTypeOfLinkedObject, _hObj ? _lType : HIE_C_ulSuperObject);\
+	HIE_M_vSetSuperObjectMember(_hSprObj, hLinkedObject.p_Void, _hObj);\
+}
 void __cdecl PLA_fn_vDoFrame(tdstAnim3d *p_stCurrentAnim, unsigned short uwCurrentFrame,
                              HIE_tdstSuperObject *p_stSuperObject)
 {
@@ -1087,7 +1112,7 @@ void __cdecl PLA_fn_vDoFrame(tdstAnim3d *p_stCurrentAnim, unsigned short uwCurre
 
                     if (p_stChannel->hZoomSupObject != NULL)
                     {
-                        HIE_fn_vSuperObjectIsolate(p_stChannel->hZoomSupObject);
+                        PLA_M_vDynamicIsolateSO(p_stChannel->hZoomSupObject);
                         PLA_fn_vReleaseSuperObjectInHeap(p_stChannel->hZoomSupObject);
                         p_stChannel->hZoomSupObject = NULL;
                     }
@@ -1170,7 +1195,7 @@ void __cdecl PLA_fn_vDoFrame(tdstAnim3d *p_stCurrentAnim, unsigned short uwCurre
 
             if (p_stChannel->hZoomSupObject)
             {
-                HIE_fn_vSuperObjectIsolate(p_stChannel->hZoomSupObject);
+                PLA_M_vDynamicIsolateSO(p_stChannel->hZoomSupObject);
                 PLA_fn_vReleaseSuperObjectInHeap(p_stChannel->hZoomSupObject);
                 p_stChannel->hZoomSupObject = NULL;
             }
@@ -1208,6 +1233,7 @@ void __cdecl PLA_fn_vDoFrame(tdstAnim3d *p_stCurrentAnim, unsigned short uwCurre
 
     PLA_fn_vRefreshGlobalMatrixUnderCharacter(p_stSuperObject);
 }
+#undef HIE_fn_vSetSuperObjectObjectAndType
 
 /* 0x00413700 */
 extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
@@ -1362,14 +1388,14 @@ void __cdecl PLA_fn_vDesInitAllChildOfCharacter(HIE_tdstSuperObject *p_stSuperOb
 
             if (p_stChannel->hZoomSupObject != NULL)
             {
-                HIE_fn_vSuperObjectIsolate(p_stChannel->hZoomSupObject);
+                PLA_M_vDynamicIsolateSO(p_stChannel->hZoomSupObject);
                 PLA_fn_vReleaseSuperObjectInHeap(p_stChannel->hZoomSupObject);
                 p_stChannel->hZoomSupObject = NULL;
             }
 
             if (p_stChannel->hSupObject != NULL)
             {
-                HIE_fn_vSuperObjectIsolate(p_stChannel->hSupObject);
+                PLA_M_vDynamicIsolateSO(p_stChannel->hSupObject);
                 PLA_fn_vReleaseSuperObjectInHeap(p_stChannel->hSupObject);
                 p_stChannel->hSupObject = NULL;
             }
@@ -1392,7 +1418,10 @@ void __cdecl PLA_fn_vDesInitAllChildOfCharacter(HIE_tdstSuperObject *p_stSuperOb
     p_stCurrentFrame3d = fn_p_st3dDataGetCurrentFrame(h_Current3dData);
 
     if (p_stCurrentFrame3d->p_stAngularSpeedMatrix != NULL)
+    {
         TMP_fn_vFree(&p_stCurrentFrame3d->p_stAngularSpeedMatrix);
+        p_stCurrentFrame3d->p_stAngularSpeedMatrix = NULL;
+    }
 
     fn_v3dDataSetCurrentHieCouples(h_Current3dData, NULL);
     fn_v3dDataSetCurrentHieNbCouples(h_Current3dData, 0);

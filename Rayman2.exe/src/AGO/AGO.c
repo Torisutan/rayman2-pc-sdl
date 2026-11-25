@@ -373,10 +373,10 @@ void AGO_vProcessAllParts(GLD_tdstViewportAttributes *p_stVpt)
     float         fAlphaTemp;
 
     AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();
-    if (AGO_g_ffLastFrameTime == 0.0f)
-        AGO_g_fTimeDifference = 0.0f;
-    else
+    if (AGO_g_ffLastFrameTime != 0.0f)
         AGO_g_fTimeDifference = AGO_g_ffFrameTime - AGO_g_ffLastFrameTime;
+    else
+        AGO_g_fTimeDifference = 0.0f;
     AGO_g_ffLastFrameTime = AGO_g_ffFrameTime;
 
     if (AGO_g_bInGameMenu && !AGO_g_LastFrozen && !AGO_g_bUsingMapMondeAGOs)

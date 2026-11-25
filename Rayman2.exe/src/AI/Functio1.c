@@ -620,26 +620,26 @@ extern unsigned long MTH_g_a2048_fInvSquareRootTable[2048];   /* 0x0050BB60 */
 
 #define AI_M_pfn_fn_p_stSkipThisArgument  fn_p_stSkipThisArgument
 
-static void AI_VAA_vQuickNormalize(float *px, float *py, float *pz)
-{
-    float         xSq    = *pz * *pz + *py * *py + *px * *px;
-    unsigned long ulBits = *(unsigned long *)&xSq;
-    int           lInv   = (int)(((0xBD800000u - (ulBits & 0x7F800000u)) >> 1) & 0x7F800000u)
-                         + *(const int *)((const char *)AI_VAA_p_lQuickInvNormTable
-                                          + ((ulBits & 0xFFE000) >> 0xB));
-    float         xInv   = *(float *)&lInv;
-    *px *= xInv; *py *= xInv; *pz *= xInv;
-}
+#define AI_VAA_vQuickNormalize(px, py, pz)   \
+    do { \
+        float         xSq_    = *(pz) * *(pz) + *(py) * *(py) + *(px) * *(px); \
+        unsigned long ulBits_ = *(unsigned long *)&xSq_; \
+        int           lInv_   = (int)(((0xBD800000u - (ulBits_ & 0x7F800000u)) >> 1) & 0x7F800000u) \
+                              + *(const int *)((const char *)AI_VAA_p_lQuickInvNormTable \
+                                               + ((ulBits_ & 0xFFE000) >> 0xB)); \
+        float         xInv_   = *(float *)&lInv_; \
+        *(px) *= xInv_; *(py) *= xInv_; *(pz) *= xInv_; \
+    } while (0)
 
-static float AI_VAA_xQuickNorm(float x, float y, float z)
-{
-    float         xSq    = z * z + y * y + x * x;
-    unsigned long ulBits = *(unsigned long *)&xSq;
-    int           lRes   = (int)((((ulBits & 0x7F800000u) + 0x3F800000u) >> 1) & 0x7F800000u)
-                         + *(const int *)((const char *)AI_VAA_p_lQuickNormTable
-                                          + ((ulBits & 0xFFE000) >> 0xB));
-    return *(float *)&lRes;
-}
+#define AI_VAA_vQuickNorm(x, y, z, xRes) \
+    do { \
+        float         xSq_    = (z) * (z) + (y) * (y) + (x) * (x); \
+        unsigned long ulBits_ = *(unsigned long *)&xSq_; \
+        int           lRes_   = (int)((((ulBits_ & 0x7F800000u) + 0x3F800000u) >> 1) & 0x7F800000u) \
+                              + *(const int *)((const char *)AI_VAA_p_lQuickNormTable \
+                                               + ((ulBits_ & 0xFFE000) >> 0xB)); \
+        (xRes) = *(float *)&lRes_; \
+    } while (0)
 
 /* 0x00479BE0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stVectorAndAngle(
@@ -728,7 +728,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stVectorAndAngle(
             xCrossX = Uy * Vz - Uz * Vy;
             xCrossY = Uz * Vx - Ux * Vz;
             xCrossZ = Ux * Vy - Uy * Vx;
-            xSin    = AI_VAA_xQuickNorm(xCrossX, xCrossY, xCrossZ);
+            AI_VAA_vQuickNorm(xCrossX, xCrossY, xCrossZ, xSin);
 
             if (ucPlan == 0)      { if (xCrossZ < 0.0f) xSin = -xSin; }
             else if (ucPlan == 1) { if (xCrossX < 0.0f) xSin = -xSin; }

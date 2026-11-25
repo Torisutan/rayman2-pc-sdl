@@ -1362,7 +1362,7 @@
 "name": "TFMT_wPositionModulesAccordingToText",
 "src": "src/GAM/TextFrmt.c",
 "len": 962,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x00408DD0",
@@ -2166,7 +2166,7 @@
 "addr": "0x0040E0D0",
 "name": "PLA_fn_vDoFrame",
 "src": "src/GAM/PlayAnim/PlayAnim.c",
-"len": 1694,
+"len": 1817,
 "verdict": "MISMATCH"
 },
 {
@@ -2264,8 +2264,8 @@
 "addr": "0x0040F840",
 "name": "PLA_fn_vDesInitAllChildOfCharacter",
 "src": "src/GAM/PlayAnim/PlayAnim.c",
-"len": 445,
-"verdict": "MISMATCH"
+"len": 482,
+"verdict": "EXACT"
 },
 {
 "addr": "0x0040FA30",
@@ -2300,7 +2300,7 @@
 "name": "PLA_fn_vSetCurrFrame",
 "src": "src/GAM/PlayAnim/PlayAnim.c",
 "len": 277,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0040FE50",
@@ -7456,7 +7456,7 @@
 },
 {
 "addr": "0x00428CB0",
-"name": "GLI_pc_fn_vDispatchLightsByType",
+"name": "GLI_vSendObjectToLights",
 "src": "src/GLI/pc_light_pipeline.c",
 "len": 250,
 "verdict": "MISMATCH"
@@ -9650,7 +9650,7 @@
 "name": "MGT_pc_fn_vUpdateMagnetTarget",
 "src": "src/MGT/MGT.c",
 "len": 216,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x004411B0",
@@ -16839,7 +16839,7 @@
 "name": "fn_p_stChangePersoHorizSighting",
 "src": "src/AI/Procedure.c",
 "len": 642,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x0046AB20",
@@ -17034,7 +17034,7 @@
 "addr": "0x0046E450",
 "name": "fn_p_stReadAnalogJoystickMario",
 "src": "src/AI/Procedure.c",
-"len": 4881,
+"len": 4879,
 "verdict": "MISMATCH"
 },
 {
@@ -17790,8 +17790,8 @@
 "addr": "0x00475680",
 "name": "fn_p_stCode4TextAffiche",
 "src": "src/AI/FuncRay2.c",
-"len": 2316,
-"verdict": "MISMATCH"
+"len": 2312,
+"verdict": "EXACT"
 },
 {
 "addr": "0x00475F90",
@@ -17832,7 +17832,7 @@
 "addr": "0x00476960",
 "name": "fn_p_stCode4PersoLePlusProche",
 "src": "src/AI/FuncRay2.c",
-"len": 1448,
+"len": 1476,
 "verdict": "MISMATCH"
 },
 {
@@ -18063,7 +18063,7 @@
 "addr": "0x00479BE0",
 "name": "fn_p_stVectorAndAngle",
 "src": "src/AI/Functio1.c",
-"len": 1011,
+"len": 1306,
 "verdict": "MISMATCH"
 },
 {

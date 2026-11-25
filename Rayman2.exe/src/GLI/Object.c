@@ -580,7 +580,7 @@ void __cdecl GLI_pc_fn_vTransformObjectVerticesSinus();       /* 0x0042D020 */
 void __cdecl GLI_pc_fn_vTransformObjectVerticesClipped();     /* 0x0042CB30 */
 void __cdecl GLI_pc_fn_vTransformObjectVertices();            /* 0x0042CEC0 */
 void __cdecl GLI_pc_fn_vSetSinusEffectVertexColors();         /* 0x00423D00 */
-void __cdecl GLI_pc_fn_vDispatchLightsByType();               /* 0x00428CB0 */
+void __cdecl GLI_vSendObjectToLights();                       /* 0x00428CB0 */
 extern unsigned long GLI_g_ul4a72b0_storage;                   /* 0x004A72B0 */
 extern int g_lActiveLightCount;                                /* 0x00503D4C */
 void __cdecl GLI_vDoMaterialSelection(
@@ -799,13 +799,13 @@ void __cdecl GLI_xSendObjectToViewportWithLights(
         }
     }
 
-    GLI_pc_fn_vDispatchLightsByType(GLI_gs_aDEF_p_CurrentListOfLight,
-                                    p_stGeo,
-                                    &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID,
-                                    &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLIS,
-                                    &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLIA,
-                                    g_lActiveLightCount,
-                                    GLI_BIG_GLOBALS);
+    GLI_vSendObjectToLights(GLI_gs_aDEF_p_CurrentListOfLight,
+                            p_stGeo,
+                            &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLID,
+                            &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLIS,
+                            &GLI_BIG_GLOBALS->GLI_aDEF_stColorsRLIA,
+                            g_lActiveLightCount,
+                            GLI_BIG_GLOBALS);
     (*(void (__cdecl **)(void *))GLI_DRV_vComputeFogEffect_PTR)(GLI_BIG_GLOBALS);
 
     if ((GLI_BIG_GLOBALS->lHierachDrawMask & 0x40000) == 0)

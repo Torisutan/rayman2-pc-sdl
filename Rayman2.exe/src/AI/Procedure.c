@@ -3749,8 +3749,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stChangePersoHorizSighting(
     }
 
     {
-        register MTH_tdxReal xInvNorm = MTH_fn_fInvSquareRootOpt(MTH3D_M_xSqrVector(&stSightVector));
-        MTH3D_M_vMulScalarVector(&stSightVector, xInvNorm, &stSightVector);
+        MTH3D_M_vMulScalarVector(&stSightVector, MTH_fn_fInvSquareRootOpt(MTH3D_M_xSqrVector(&stSightVector)), &stSightVector);
     }
 
     stXvect.xZ = 0.0f;

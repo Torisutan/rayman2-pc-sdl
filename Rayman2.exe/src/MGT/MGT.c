@@ -430,7 +430,7 @@ void __cdecl MGT_pc_fn_vUpdateMagnetTarget(int iMagnet, MS_tdxHandleToMSMagnet p
     MGT_fn_vClearTargetModificationsInfluencedBits((int)p_stTarget, 1);
     MGT_fn_vSetTargetModificationsUsed((int)p_stTarget, 0);
     fFar = fn_xMSMagnetGetFar(p_stTarget);
-    fFarSq = fFar * fFar;
+    fFarSq = MTH_M_xSqr(fFar);
     MGT_pc_fn_vClearMagnetModificationTree((int)SECT_hFatherSector);
 
     p_stSector = (struct HIE_tdstSuperObject *)fn_h_SectInfoGetCurrentSector(
