@@ -202,6 +202,10 @@ extern void (__cdecl *_imp__exit)(int iStatus);
 void __cdecl GLI_FatalExitOrSleep(void)
 {
 
+#ifdef USE_SDL
+    /* no engine thread (GAM/sdl_main.c runs the engine in the main thread, as the consoles do):
+       only the exit path below */
+#else
     if (*(long *)GAM_pc_g_hEngineThread_ADDR != -1) {
         if (GLI_xIsGliInit() != 0) {
             GLI_vCloseGli();
@@ -212,6 +216,7 @@ void __cdecl GLI_FatalExitOrSleep(void)
         Sleep(0xFFFFFFFFu);
         return;
     }
+#endif /* USE_SDL */
     GLI_RT_exit(-2);
 }
 
