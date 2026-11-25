@@ -216,6 +216,9 @@ void ERM_fn_vUpdateLastError(unsigned short uwStartOfWarningsId,
     Erm_M_PrintSeparationEnd();
 }
 
+#ifdef USE_SDL
+/* Erm_fn_iMessageBox: ERM/sdl_erm.c */
+#else
 int Erm_fn_iMessageBox(char *_szText, char *_szTitle, unsigned int _uiStyle)
 {
     HWND hWnd = g_hWndHdl4Request;
@@ -236,6 +239,7 @@ int Erm_fn_iMessageBox(char *_szText, char *_szTitle, unsigned int _uiStyle)
     else
         return MessageBox(NULL, _szText, _szTitle, _uiStyle);
 }
+#endif /* USE_SDL */
 
 void Erm_fn_vSetWndHdl4Request(HWND hWin)
 {
