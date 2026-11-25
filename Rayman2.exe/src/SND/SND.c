@@ -84,7 +84,7 @@ t_SND_PerTypeRealFn     g_pfn_SND_GetPosCD;
 #include "SND/sndplay.h"
 #include "SND/sndspace.h"
 #include "SND/sndldbin.h"
-#include "FIL/FIL_ini.h"   /* C-ANSI file mode: ini calls to the C runtime */
+#include "FIL/FIL_pc.h"
 
 /* 0x004B8C98 */
 void __cdecl SND_fn_vPauseSound(void)
@@ -2565,14 +2565,14 @@ static char SND_pc_szCpaIniPath[0x100];   /* 0x004B94B8 */
 /* 0x004593C0 */
 SndBool __stdcall SND_fn_bGetOptions(LPCSTR pszSection, LPCSTR pszKey, char *pszValue, DWORD ulSize)
 {
-    GetPrivateProfileStringA(pszSection, pszKey, "None", pszValue, ulSize, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString(pszSection, pszKey, "None", pszValue, ulSize, SND_pc_szCpaIniPath);
     return strcmp(pszValue, "None") != 0;
 }
 
 /* 0x00459440 */
 void __stdcall SND_fn_vSetOptions(LPCSTR pszSection, LPCSTR pszKey, LPCSTR pszValue)
 {
-    WritePrivateProfileStringA(pszSection, pszKey, pszValue, SND_pc_szCpaIniPath);
+    FIL_pc_M_bWriteProfileString(pszSection, pszKey, pszValue, SND_pc_szCpaIniPath);
 }
 
 #pragma intrinsic(strcmp)
@@ -2589,7 +2589,7 @@ HMODULE __cdecl SND_pc_fn_hLoadDriverDll(LPCSTR pszSection, HMODULE *phModules, 
 
     /* 0x004588B0 */
     pfn = NULL;
-    GetPrivateProfileStringA(pszSection, "Unconditionnal", "None", szValue, 0xff, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString(pszSection, "Unconditionnal", "None", szValue, 0xff, SND_pc_szCpaIniPath);
     if (strcmp(szValue, "None") != 0)
     {
         sprintf(szDllPath, "%s\\%s%c%c%c.dll", SND_pc_szDllDir, szValue, 'b', 'v', 'r');
@@ -2606,7 +2606,7 @@ HMODULE __cdecl SND_pc_fn_hLoadDriverDll(LPCSTR pszSection, HMODULE *phModules, 
     do
     {
         sprintf(szKey, "Test%x", iIndex);
-        GetPrivateProfileStringA(pszSection, szKey, "None", szValue, 0xff, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString(pszSection, szKey, "None", szValue, 0xff, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "None") != 0)
         {
             for (iProc = 0; iProc < iCount; iProc++)
@@ -2619,7 +2619,7 @@ HMODULE __cdecl SND_pc_fn_hLoadDriverDll(LPCSTR pszSection, HMODULE *phModules, 
                 if (((int (__cdecl *)(void))pfn)())
                 {
                     sprintf(szKey, "File%x", iIndex);
-                    GetPrivateProfileStringA(pszSection, szKey, "None", szValue, 0xff, SND_pc_szCpaIniPath);
+                    FIL_pc_M_ulGetProfileString(pszSection, szKey, "None", szValue, 0xff, SND_pc_szCpaIniPath);
                     bContinue = 0;
                 }
             }
@@ -2631,7 +2631,7 @@ HMODULE __cdecl SND_pc_fn_hLoadDriverDll(LPCSTR pszSection, HMODULE *phModules, 
         }
         else
         {
-            GetPrivateProfileStringA(pszSection, "Default", "None", szValue, 0xff, SND_pc_szCpaIniPath);
+            FIL_pc_M_ulGetProfileString(pszSection, "Default", "None", szValue, 0xff, SND_pc_szCpaIniPath);
             bContinue = 0;
         }
     } while (bContinue);
@@ -2679,7 +2679,7 @@ void __cdecl SND_pc_fn_vLoadSxdDistances(long *plDist)
     float fBack;
     float fSatur;
 
-    GetPrivateProfileStringA("Options", "SXD_DIST_SATUR", "None", szValue, 0xff, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString("Options", "SXD_DIST_SATUR", "None", szValue, 0xff, SND_pc_szCpaIniPath);
     if (strcmp(szValue, "None") == 0)
     {
         plDist[0] = 0x7ffffffeL;
@@ -2689,7 +2689,7 @@ void __cdecl SND_pc_fn_vLoadSxdDistances(long *plDist)
         sscanf(szValue, "%f", &fSatur);
         plDist[0] = (long)(fSatur * 65536.0f);
     }
-    GetPrivateProfileStringA("Options", "SXD_DIST_BACK", "None", szValue, 0xff, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString("Options", "SXD_DIST_BACK", "None", szValue, 0xff, SND_pc_szCpaIniPath);
     if (strcmp(szValue, "None") == 0)
     {
         plDist[1] = 0x7ffffffeL;
@@ -3083,14 +3083,14 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
         SND_fn_vDisplayError(4, "Windows needed");
     }
 
-    GetPrivateProfileStringA(NULL, NULL, "None", szValue, 0xff, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString(NULL, NULL, "None", szValue, 0xff, SND_pc_szCpaIniPath);
     if (szValue[0] == '\0' || strcmp(szValue, "None") == 0)
     {
         sprintf(szValue, "The INI file doesn't exist (%s)", SND_pc_szCpaIniPath);
         SND_fn_vDisplayError(0xc, szValue);
     }
 
-    GetPrivateProfileStringA("Options", "Sound_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString("Options", "Sound_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
     if (strcmp(szValue, "OFF") == 0)
     {
         SND_pc_lSoundOnOff = 0;
@@ -3103,27 +3103,27 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
     }
     else
     {
-        GetPrivateProfileStringA("Options", "MPEG_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString("Options", "MPEG_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "ON") == 0)
         {
             SND_pc_lMpegOn = 1;
         }
-        GetPrivateProfileStringA("Options", "CD_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString("Options", "CD_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "ON") == 0)
         {
             SND_pc_lCdOn = 1;
         }
-        GetPrivateProfileStringA("Options", "WAV_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString("Options", "WAV_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "ON") == 0)
         {
             SND_pc_lWavOn = 1;
         }
-        GetPrivateProfileStringA("Options", "ADPCM_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString("Options", "ADPCM_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "ON") == 0)
         {
             SND_pc_lAdpcmOn = 1;
         }
-        GetPrivateProfileStringA("Options", "RECORD_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString("Options", "RECORD_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "ON") == 0)
         {
             SND_pc_lRecordOn = 1;
@@ -3137,7 +3137,7 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
     while (bContinue && iCount < 10)
     {
         sprintf(szKey, "File%x", iCount - 1);
-        GetPrivateProfileStringA("DLL_Test", szKey, "None", szValue, 0x100, SND_pc_szCpaIniPath);
+        FIL_pc_M_ulGetProfileString("DLL_Test", szKey, "None", szValue, 0x100, SND_pc_szCpaIniPath);
         if (strcmp(szValue, "None") != 0)
         {
             sprintf(szPath, "%s\\%s%c%c%c.dll", SND_pc_szDllDir, szValue, 'b', 'v', 'r');
@@ -3186,7 +3186,7 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
     SND_pc_fn_vLoadSxdDistances(lDistances);
     SND_fn_vSetDefaultRollOff((RollOffParam *)lDistances);
 
-    GetPrivateProfileStringA("Options", "SUPERVISATER_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
+    FIL_pc_M_ulGetProfileString("Options", "SUPERVISATER_ON_OFF", "None", szValue, 0x100, SND_pc_szCpaIniPath);
     if (strcmp(szValue, "ON") == 0)
     {
         SND_pc_lSupervisaterOn = 1;

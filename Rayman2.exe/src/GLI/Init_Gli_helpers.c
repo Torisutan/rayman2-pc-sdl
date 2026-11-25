@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "FIL/FIL_pc.h"
-#include "FIL/FIL_ini.h"   /* C-ANSI file mode: ini calls to the C runtime */
 
 #include "GLI/sprite.h"
 void __cdecl GLI_vInitLensFlare (void)
