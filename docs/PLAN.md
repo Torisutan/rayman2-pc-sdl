@@ -489,7 +489,9 @@ its condition.
   in fork files by the target (`#ifdef WIN32 ... #endif /* WIN32 */`, never `_WIN32`; the CMake
   build defines `WIN32` for every Windows target), a backend choice by its `USE_` macro
   (`#ifdef USE_SDL ... #else ... #endif /* USE_SDL */`). In upstream files the Win32 code stays
-  the `#else` branch (the VC5 reference build does not define `WIN32`). `#ifndef USE_SDL` alone
+  the `#else` branch (the VC5 reference build does not define `WIN32` on its command line; its
+  `ole2.h`, which `windows.h` includes, does `#define WIN32 100`, so after a `windows.h` include
+  `WIN32` holds under VC5 too, e.g. in `app/regress.c`). `#ifndef USE_SDL` alone
   does not mean "Win32": it stops holding once a non-Windows target exists.
 - Fences classified (25.11.2026). In upstream files every `USE_SDL` fence is a backend choice
   with its counterpart in an SDL file: `pc_winmain.c` (window, message loop, engine thread ->
@@ -543,12 +545,12 @@ the game's binaries; sound left to Sound, below):
 | TMR tick count | **done** (edf95ba): `GetTickCount` declared and defined in `TMR/sdl_timer.[ch]` only `#ifndef WIN32` | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`; on Windows the system's serves | original engine |
 | GLI driver binding | **done** (109cdcf): `USE_GLI_DX6` branch in `GLI/GLI_pc.h` -> `GLI/GLI_linkdrv.c` (`GLI_fn_*`; linked-in drivers, DLL fallback), Win32 `#else` | `GLI_fnl_InitDll` | `GLI_pc_M_hLoadDriver`, `GLI_pc_M_pfnGetDriverProc` | fork |
 | GLI window handle | **done** (7cc0a2a, e4d0867): `HWND` on every target, GLD's window fields `HWND` | `GLD.c`, `Init_Gli.c`, `pc_winmain.c`, `sdl_main.c` | `HWND`, declared by a non-Windows target's types header | original engine (console types headers) |
-| GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
+| GLI fatal exit | **done** (8225e50): the engine-thread path is the `#else` of a `USE_SDL` fence (no engine thread there), only `GLI_RT_exit(-2)` left | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none | original engine (consoles: no engine thread) |
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`), 8 sites; **requested** from the decomp (`decomp_request_platform_glue_5.md`) | MMG channel of the calling thread (`Mmg_fn_ucGiveChannelId`) | MMG macro beside `Mmg_MulGetThreadId`, e.g. `Mmg_MulGetCurrentThreadId()` (the decomp picks the name); the original's console builds take channel 0 | original engine style (no wrapper in the original) |
 | Saves | `CopyFileA`, `DeleteFileA`, `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA` direct (`GAM_save_slot.obj`); `DeleteFileA` (`SAI_Save.obj`) | save slots, SAI | open, with the per-user folder (PLAN "User folder") | |
 | FIL temp path | `GetTempPathA` direct (`GAM_init.obj`, `FUN_00492860`); **requested** from the decomp (`decomp_request_platform_glue_5.md`) | fills `FIL_PATH_BUFFER(10)`, read only by the saves (`TT.tmp`) | `FIL_pc_M_*` in `FIL/FIL_pc.h`, e.g. `FIL_pc_M_ulGetTempPath` (the decomp picks the name); ties to "User folder" | fork, as the ini calls |
-| Misc direct | `ShellExecuteA` (`Procedure.obj`), `FreeLibrary`/`GetClientRect` (shared part of `pc_winmain.obj`) | | none: fork fences only, byte-neutral under VC5 (procedure table entry; PSAPI handle of the protection's module check; `fn_bCreateMainDisplayScreen`) | |
-| Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetLastError`, `GetWindowLongA`, `SetErrorMode`, `GetWindowsDirectoryA`, `CreateDirectoryA`, under `WIN32`), `regress.obj` (Windows tool) | | stays, fenced `WIN32` | |
+| Misc direct | **done**: `ShellExecuteA` (f7831e7) only on Windows, SDL backend included: `LINUX`/`OSX`/`PSP`/`WIIU` take `fn_p_stNoneProcedure` in the procedure table; `FreeLibrary` (91073b9) excluded with the protection (PSAPI handle and MMG table exist only with it); `GetClientRect` (7d780ea, result never read) `#ifndef USE_SDL` | `AI/ConvProc.c`, `AI/Procedure.c`, `pc_winmain.c` | none | original engine (`ShellExecute` mapped to its dummy except on `WIN32`) |
+| Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetLastError`, `GetWindowLongA`, `SetErrorMode`, `GetWindowsDirectoryA`, `CreateDirectoryA`, under `WIN32`), `regress.obj` (C runtime branch beside it since bb2f980: `getenv`, `exit`) | | stays, fenced `WIN32` | |
 
 Migrated 25.11.2026 (TMR, MMG, GAM draw lock, FIL, SNA, GLI, window handle): the decomp put
 `<MOD>_pc_M_*` names at the call sites, Win32 branch only (merge f628850 and later); the fork
