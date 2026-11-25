@@ -943,8 +943,9 @@ void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
         return;
     }
     sprintf(a_cPath, SNA_pc_szFmtLevels, SNA_p_pcGetBaseDir(), SNA_pc_a_pszLevelFile[0]);
-    hFile = SNA_pc_M_hOpenFile(a_cPath, GENERIC_READ, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL);
-    if (hFile == INVALID_HANDLE_VALUE) {
+    hFile = SNA_pc_M_hOpenFile(a_cPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                               SNA_pc_C_ulAttributeNormal);
+    if (hFile == SNA_pc_C_hInvalidFile) {
         return;
     }
 
@@ -1088,10 +1089,10 @@ unsigned char __cdecl SNA_pc_bOpenEmbeddedSna(void *_p_stFile)
     unsigned long  ulPos;
 
     hFile = SNA_pc_fn_hOpenFileAtSinusOffset(&ulOffset);
-    if (hFile == INVALID_HANDLE_VALUE) {
+    if (hFile == SNA_pc_C_hInvalidFile) {
         return 0;
     }
-    SNA_pc_M_ulSeekFile(hFile, (LONG)ulOffset, 0);
+    SNA_pc_M_ulSeekFile(hFile, (LONG)ulOffset, SNA_pc_C_ulSeekBegin);
 
     SNA_pc_vInitStream(6, _p_stFile);
     SNA_pc_g_a_ucLoadKey[3] = (unsigned char)~SNA_pc_g_a_ucLoadKey[2];
@@ -1307,8 +1308,9 @@ HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset)
     double         dFloor2;
 
     sprintf(a_cPath, SNA_pc_szFmtLevels, SNA_p_pcGetBaseDir(), SNA_pc_a_pszLevelFile[0]);
-    hFile = SNA_pc_M_hOpenFile(a_cPath, GENERIC_READ, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL);
-    if (hFile == INVALID_HANDLE_VALUE) {
+    hFile = SNA_pc_M_hOpenFile(a_cPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                               SNA_pc_C_ulAttributeNormal);
+    if (hFile == SNA_pc_C_hInvalidFile) {
         return hFile;
     }
 
@@ -1332,11 +1334,11 @@ HANDLE __cdecl SNA_pc_fn_hOpenFileAtSinusOffset(DWORD *p_ulOffset)
     dFloor2 = floor((double)i64Ival * (dFloor1 * 1e-6));
     lPos = (long)dFloor2 * (long)SNA_pc_g_ulOffsetMul + SNA_pc_g_lOffsetBase;
 
-    SNA_pc_M_ulSeekFile(hFile, lPos, 0);
+    SNA_pc_M_ulSeekFile(hFile, lPos, SNA_pc_C_ulSeekBegin);
     SNA_pc_M_bReadFile(hFile, a_ulHdr, 0x10, &dwRead);
     a_ulHdr[0] += a_ulHdr[2] * ulCount;
     a_ulHdr[1] += a_ulHdr[3] * ulCount;
-    SNA_pc_M_ulSeekFile(hFile, (LONG)(ulCount * 4), 1);
+    SNA_pc_M_ulSeekFile(hFile, (LONG)(ulCount * 4), SNA_pc_C_ulSeekCurrent);
     SNA_pc_M_bReadFile(hFile, &ulWord, 4, &dwRead);
     *p_ulOffset = (ulWord - a_ulHdr[0]) ^ a_ulHdr[1];
 
