@@ -5,7 +5,7 @@
 /* With USE_SDL the DirectInput parts (the blocks fenced #ifndef USE_SDL) are in
    INO/sdl_ino.c; the device layer stays shared */
 #ifdef USE_SDL
-#include "INO/INO_sdl.h"
+#include "INO/sdl_ino.h"
 #endif /* USE_SDL */
 
 /* 0x00509DE0 */

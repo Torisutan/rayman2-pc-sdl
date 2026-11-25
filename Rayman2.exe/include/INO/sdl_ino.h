@@ -1,7 +1,7 @@
 #pragma once
 /*
  =======================================================================================
-  Name        : INO_sdl.h
+  Name        : sdl_ino.h
   Description : Input device backend through SDL (USE_SDL)
 
   INO/INO.c keeps the device layer (devices, historic records, key frames, demo

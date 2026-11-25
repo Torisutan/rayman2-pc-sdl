@@ -446,9 +446,9 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    The SDL build (one thread) returns and plays. Not fixed (it would change the original
    threading). Open: a `docs/BUGS.md` entry with a fix (release exclusive mode on the engine
    thread before it pauses) only if the user wants the Win32 path usable on this system.
-5. **Done: `INO` backend through SDL** (b8b0278; `INO/sdl_ino.c`, `INO/INO_sdl.h`, DEVIATIONS 16).
+5. **Done: `INO` backend through SDL** (b8b0278; `INO/sdl_ino.c`, `INO/sdl_ino.h`, DEVIATIONS 16).
    The device layer of `INO/INO.c` stays shared; its DirectInput parts are fenced `#ifndef
-   USE_SDL` and `INO_sdl.h` maps their names to the SDL functions. Keyboard through a `DIK_` -> SDL
+   USE_SDL` and `sdl_ino.h` maps their names to the SDL functions. Keyboard through a `DIK_` -> SDL
    scancode table (AZERTY found as on PC), mouse (relative motion, wheel, four buttons), one
    joystick device per SDL gamepad present at init, laid out as DirectInput shows an XInput
    gamepad; no input without keyboard focus, as DirectInput's foreground mode. Not tested: mouse

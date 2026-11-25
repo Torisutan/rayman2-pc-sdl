@@ -4,10 +4,10 @@
   Description : Input devices through SDL (USE_SDL)
 
   The SDL counterpart of the DirectInput parts of INO/INO.c (fenced #ifndef USE_SDL
-  there; INO/INO_sdl.h sends the calls of the shared device layer here). The device
+  there; INO/sdl_ino.h sends the calls of the shared device layer here). The device
   states are filled as the DirectInput readers fill them:
 
-  Keyboard  SDL's keyboard state, by key code (DIK_, see INO_sdl.h) through a table to
+  Keyboard  SDL's keyboard state, by key code (DIK_, see sdl_ino.h) through a table to
             SDL scancodes. The keys of the active key list are those of the PC setup.
   Mouse     motion since the last read, wheel (in WHEEL_DELTA units, as DirectInput
             reports it) and four buttons (the four of DirectInput's mouse format, in
@@ -33,7 +33,7 @@
 #include "INO/INO.h"
 #include "INO/INO_globals.h"
 #include "INO/Joystick.h"
-#include "INO/INO_sdl.h"
+#include "INO/sdl_ino.h"
 
 short __cdecl INO_pc_ReadMouse(INO_tdstDevice *pDevice);
 short __cdecl INO_pc_ReadKeyboard(INO_tdstDevice *pDevice);
