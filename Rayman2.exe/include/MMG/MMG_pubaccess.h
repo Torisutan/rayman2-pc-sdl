@@ -13,6 +13,8 @@ void __cdecl Mmg_fn_vWhereIs(void           *p_vPtr,
 unsigned char __cdecl Mmg_fn_ucGiveChannelId(unsigned long ulThreadId,
                                              unsigned char ucGroupId);
 
+#define MMG_pc_M_ulGetCurrentThreadId() GetCurrentThreadId()
+
 void __cdecl Mmg_fn_vFirstInitMmgModule(unsigned char ucMaxNbChannel);
 
 void __cdecl Mmg_fn_vStopMmgModule(void);

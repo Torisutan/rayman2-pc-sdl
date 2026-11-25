@@ -175,7 +175,7 @@ static void FUN_00492860(void)
     char  *szTemp = FIL_PATH_BUFFER(10);   /* 0x004fb508 */
     size_t ulLen;
 
-    GetTempPathA(0x104, szTemp);
+    FIL_pc_M_ulGetTempPath(0x104, szTemp);
 
 #ifdef RAYMAN2_FIX_BUGS
     /* FIX(BUGS.md#5) */

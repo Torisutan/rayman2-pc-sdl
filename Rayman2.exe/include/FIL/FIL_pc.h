@@ -20,4 +20,6 @@ int __cdecl FIL_fn_bWriteProfileString(const char *szSection, const char *szKey,
     WritePrivateProfileStringA((szSection), (szKey), (szValue), (szIniPath))
 #endif /* FILE_MODE_C_WIN95 */
 
+#define FIL_pc_M_ulGetTempPath(ulSize, szOut) GetTempPathA((ulSize), (szOut))
+
 #endif

@@ -330,8 +330,8 @@ long __cdecl GLD_bDeleteViewport(short hDev_unused, short hVpPacked)
         DWORD (__cdecl *pfnChannelForTid)(DWORD, char) =
             (DWORD (__cdecl *)(DWORD, char))Mmg_fn_ucGiveChannelId;
 
-        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(GetCurrentThreadId(), 0));
-        fn_vGenFree(pViewport, pfnChannelForTid(GetCurrentThreadId(), 0));
+        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
+        fn_vGenFree(pViewport, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
     }
 
     ((struct GLD_stDevice *)pDevice)->pstViewports[sVp] = 0;
@@ -379,8 +379,8 @@ long __cdecl GLD_bDeleteDevice(short hDev)
         DWORD (__cdecl *pfnChannelForTid)(DWORD, char) =
             (DWORD (__cdecl *)(DWORD, char))Mmg_fn_ucGiveChannelId;
 
-        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(GetCurrentThreadId(), 0));
-        fn_vGenFree(pDevice, pfnChannelForTid(GetCurrentThreadId(), 0));
+        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
+        fn_vGenFree(pDevice, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
     }
 
     ((int *)GLD_pc_g_a_pDeviceTable)[hDev] = 0;
@@ -673,10 +673,10 @@ long __cdecl GLD_bCreateViewport(GLD_tdhDevice  hDev,
         return 0;
     }
 
-    Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0));
+    Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, Mmg_fn_ucGiveChannelId(MMG_pc_M_ulGetCurrentThreadId(), 0));
 
     pstView = (unsigned long *)((void *(__cdecl *)(unsigned long, unsigned char))fn_p_vGenAlloc)(
-                  0x74, Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0));
+                  0x74, Mmg_fn_ucGiveChannelId(MMG_pc_M_ulGetCurrentThreadId(), 0));
     if (!pstView) {
         *p_hVP = -1;
         memset(p_ulViewAttribs, 0xCC, 0x70);
@@ -866,8 +866,8 @@ long __cdecl GLD_bCreateDevice(GLD_tdstDeviceAttributes *pstDevAttrib, short *p_
     {
         DWORD (__cdecl *pfnChannelForTid)(DWORD, char) =
             (DWORD (__cdecl *)(DWORD, char))Mmg_fn_ucGiveChannelId;
-        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(GetCurrentThreadId(), 0));
-        pDevice = (int *)fn_p_vGenAlloc(0xc0, pfnChannelForTid(GetCurrentThreadId(), 0));
+        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
+        pDevice = (int *)fn_p_vGenAlloc(0xc0, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
     }
 
     memset(pDevice, 0, 0xc0);
