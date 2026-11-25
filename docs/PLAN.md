@@ -575,9 +575,13 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
   build needs SDL2 equivalents of the SDL3 calls those files make; keeping SDL to these files
   keeps that difference small (a few `#if` in them, or an SDL2 variant of a backend file).
 - **Original engine style for backend code**, as its console files are written (the DS and
-  U64 share `<MOD>/Specif/u_*.c`, chosen by `#if`): one backend file per module beside the PC
-  one, the backend in the file name (`GAM/pc_winmain.c` -> `GAM/sdl_main.c`, `INO/sdl_ino.c`);
-  the platform is never in a prefix. Names as the original writes them (counted in its sources):
+  U64 share `<MOD>/Specif/u_*.c`; the project's file list picks a platform's files, their own
+  `#if`s are feature switches): one backend file per module beside the PC one, the backend in
+  the file name, header as its file (`GAM/pc_winmain.c` -> `GAM/sdl_main.c`, `INO/sdl_ino.c` +
+  `INO/sdl_ino.h`); CMake's file list picks them, as the original's project files do. No
+  central platform folder (the original has none); a `<MOD>/Specif/` folder for the fork's
+  backend files only once a module has several per target, then for every module at once. The
+  platform is never in a prefix. Names as the original writes them (counted in its sources):
   a function that stands in for a PC function keeps its name (`fn_vTimerGetCounter` in both
   timer files); other external functions `<MOD>_fn_*`; file-static functions `fn_*`; file-static
   globals `gs_*`, shared globals `g_*`; file constants `C_*`, header constants `<MOD>_C_*`;
