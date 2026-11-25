@@ -27,7 +27,8 @@ homebrew targets such as PSP and Wii U. You need your own copy of the game data.
    module's header, as the original engine does (`OPENFILESND_READ` in `WAVMWBVR.dll/include/SND/sndfile.h`,
    `TypeCriticalSection` in `MMG/MMG_alloc.h`). Never `#define` a system API name (`CreateFileA`,
    `WaitForSingleObject`, ...) to something else, and no Win32 types in a non-Win32 branch
-   (Phase 5, "Platform glue").
+   (Phase 5, "Platform glue"), except names the original engine keeps on every target and
+   declares per platform itself (`HWND`, `GetTickCount`).
 
 ## Phases
 
@@ -203,13 +204,8 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
   | Language menu (not frozen) | one group per line | 1.5-67.8 | centre |
 
   The earlier per-element rule (whole element in an outer third) split the hall's lum counter
-  (past 33 %) from its icon, and sent the panel's lum icon (25-31 %) to the edge without its
-  counter (PLAYTEST log 1). Measured at 1920x1080 (screenshots): hall of doors top-left block at
-  the edge with the counters beside their icons, panel whole in the band; Morb_00 head and bar
-  left, counters right; pause menu and language menu unchanged. At 4:3 and taller every anchor
-  maps to the same place (k = 1), so 1280x960 is unchanged by construction (not re-shot).
-  Regression identical (MSVC, SDL). The Rayman figure in the playtest screenshot is the 3D
-  character (in the test runs he stands elsewhere in the scene), not HUD.
+  from its icon (PLAYTEST log 1); groups fixed it (screenshots at 1920x1080; at 4:3 and taller
+  every anchor maps to the same place, k = 1).
 - **Verified (screenshots, 2026-11-23):** at 1920x1080 and 1680x1050 the menu text, Murfy
   cursor, HUD (head, health bar, lum/cage counters and icons), pause menu (text, counters,
   masks; swirl background full width) and the loading vignette and bar keep 4:3 proportions
@@ -217,9 +213,6 @@ CMake option `R2_WIDESCREEN` (on); VC5 reference: `tools/build_ref.py --define R
 - **Not verified yet:** the logo path (`AGO_vDisplayLogo`) and script text
   (`fn_p_stCode4TextAffiche`) were not on screen in the test runs; windowed/fullscreen toggle
   and window resize are not tested; 21:9 needs windowed mode (no such monitor mode here).
-- **Done (playtest, 24.11.2026):** the per-element edge anchoring split an icon from its
-  counter in the hall of doors (PLAYTEST log 1); the anchor is now decided per group of
-  touching elements (above).
 
 ### User folder: `ubi.ini` and saves per user (planned, 24.11.2026)
 User decision: the game folder decides by a marker file, not by an ini setting.
@@ -351,43 +344,25 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
   bound to one thread, does not allow. Non-Win32 targets therefore run the engine loop on the main
   thread, as the consoles do; the engine events and the draw lock then have nothing to guard.
 
-**Steps.**
-1. **Done (2026-11-24): linked-in renderer drivers** (`USE_GLI_DX6`, CMake `R2_GLI_DX6`,
-   on; DEVIATIONS 13). The Direct3D 6 driver is built from `GliDX6vf.dll/` into the exe.
-   `GLI_fnl_InitDll` keeps its by-name binding; a driver linked into the exe answers it from a
-   table (`GLI/GLI_linkdrv.c`), any other driver is still loaded from the DLL folder. Selected by
-   ubi.ini as before (`GLI_DllFile=GliDX6`). Consoles will use the same table without DLLs.
-   Measured: regression identical (Morb_00, 1860 frames; MSVC against `modern_baseline.txt`,
-   clang-cl against `clang_baseline.txt`; the regression runs the install's driver, so it shows
-   the DLL path is unchanged). Linked-in against retail DX6 driver, same ubi.ini: Morb_00 loads,
-   screenshots match. On Windows 10 native DirectDraw lists the 16-bpp modes only under the
+**Steps.** Finished steps keep one entry; their measurements are in the commit messages.
+1. **Done: linked-in renderer drivers** (23fd887; `USE_GLI_DX6`, CMake `R2_GLI_DX6`, on;
+   DEVIATIONS 13). The Direct3D 6 driver from `GliDX6vf.dll/` is built into the exe and answers
+   `GLI_fnl_InitDll`'s by-name binding from a table (`GLI/GLI_linkdrv.c`); any other driver is
+   still loaded from the DLL folder, chosen by `GLI_DllFile` as before. Consoles use the same
+   table without DLLs. On Windows 10 native DirectDraw lists the 16-bpp modes only under the
    `DWM8And16BitMitigation` compatibility layer, for the retail driver as for the linked-in one.
 2. Phase 4 prerequisites: typed fields for the structures the driver reads, `docs/PORTABILITY.md`.
-3. **Done (2026-11-24): C runtime branches** beside the Win32 code, selected by
+3. **Done: C runtime branches** (cfe971f, d6db94b, d16feaf) beside the Win32 code, selected by
    `FILE_MODE_C_WIN95` (set in `SND/snddef.h` as in the original engine) and forced on Windows by
-   `RAYMAN2_C_RUNTIME` (CMake `R2_C_RUNTIME`, off):
-   - level data files: the Win32 file calls of `SNA.c`, `SNA_reloc.c` and `GAM_init.c` go to C
-     runtime streams (`MMG/SNA_file.c`, through `MMG/SNA_pc.h` since the platform glue);
-   - ini files: `Get/WritePrivateProfileStringA` in `GAM_init.c`, `GLI/Init_Gli_helpers.c` and
-     `SND/SND.c` go to `FIL/FIL_ini.c` (through `FIL/FIL_pc.h` since the platform glue). A
-     differential test against the Win32 functions (1043 reads, 234 writes on `ubi.ini`, the
-     sound ini and edge cases) gives the same results and file bytes, except deleting an
-     indented key, which the engine never does;
-   - MMG system memory: the original `CPA_MALLOC`/`CPA_FREE` (`MMG/PrivMmg.h` since f628850),
-     `GlobalAlloc` or `malloc`.
-   The call sites stay as they are: since the platform glue each module header has a C runtime
-   branch (first done with headers that renamed the Win32 names).
-   Measured (Morb_00, 1860 frames): identical against `modern_baseline.txt` with and without
-   `R2_C_RUNTIME`, VC5 + define identical against `np_b`. With `R2_C_RUNTIME` no object imports
-   these Win32 functions except `SND/sndfile.c`.
+   `RAYMAN2_C_RUNTIME` (CMake `R2_C_RUNTIME`, off): level data files (`MMG/SNA_file.c`), ini files
+   (`FIL/FIL_ini.c`; differential test against the Win32 functions: same results and bytes except
+   deleting an indented key, which the engine never does), MMG system memory (`CPA_MALLOC`/
+   `CPA_FREE`). Since the platform glue each module header carries the branch.
    **Not in this step:** `sndfile`'s file functions stay Win32: the retail sound DLLs look them up
    by name and use their handles (two also call `ReadFile` on them), so they change with the own
-   sound drivers (Sound, below). Timers, tick counts and critical sections need a backend (the C
-   runtime has no portable monotonic clock or mutex on every target): they go with step 4.
+   sound drivers (Sound, below).
 4. A second platform file beside `pc_winmain.c`, same `GAM_pc.h` API: window and events, engine
-   loop on the main thread; timers, tick counts and the MMG/SND critical sections through the same
-   backend. First an inventory of what the window thread does (pause, focus, mode switch, power
-   broadcast).
+   loop on the main thread; timers, tick counts and locks through the same backend.
 
    **Inventory (2026-11-24).** Two threads on PC. The *window thread* (`GAM_pc_fn_WinMain`):
    ubi.ini bootstrap, single-instance mutex `RAYMAN2EXE`, desktop depth probe (GDI), the draw
@@ -431,118 +406,53 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    camera and viewports). That code stays shared; only the Win32 functions (window, message loop,
    thread, events, focus) are fenced `#ifndef USE_SDL`, and `GAM/sdl_main.c` gives the same
    functions for the SDL loop. SDL pumps nothing while a level loads (Windows marks a window
-   "not responding" after 5 s without messages). Measured (2026-11-24, SDL build, GOG's OpenGL
-   driver, direct load from the menu, warm file cache): the eight largest levels by data size
-   (Rhop_10 4.6 MB ... Morb_00 2.4 MB) load in 0.4 to 1.1 s, the menu plays 1.2 to 1.8 s after
-   start. No pump during loads; revisit if a target loads much slower (consoles, cold media).
+   "not responding" after 5 s without messages); the largest levels load in 0.4 to 1.1 s, so no
+   pump during loads. Revisit if a target loads much slower (consoles, cold media).
 
-   **Done (2026-11-24): SDL window, events and main-thread loop** (`GAM/sdl_main.c`, CMake
-   `R2_USE_SDL`, DEVIATIONS 14). On Windows the SDL window's HWND goes to the GLI driver,
-   DirectInput and the sound driver unchanged; the draw semaphore stays a Win32 semaphore until
-   its users move (locks, below). Measured: regression identical against `modern_baseline.txt`
-   (SDL build) and unchanged for MSVC, clang-cl and VC5 + define with the fences; Morb_00 loads in
-   about 5 s with GOG's OpenGL driver. Focus test (Alt+Tab away and back, then close): pause title
-   and sound release on focus loss, resumed play on return, clean exit 0.2 s after `WM_CLOSE`.
-   Open: on focus return the SDL build comes back as a full-size window with a caption instead
-   of exclusive fullscreen; the Win32 build stops at "restoring data" in the same test with the
-   same driver and does not quit on `WM_CLOSE` afterwards, so there is nothing to compare yet.
-   Check both with the linked-in Direct3D 6 driver.
+   Done (each measured in its commit):
+   - **SDL window, events and main-thread loop** (0a68c74; `GAM/sdl_main.c`, CMake `R2_USE_SDL`,
+     DEVIATIONS 14). On Windows the SDL window's HWND goes to the GLI driver, DirectInput and the
+     sound driver unchanged.
+   - **Timers** (efd0b39; `TMR/sdl_timer.c`, DEVIATIONS 15): `fn_vTimerGetCounter`,
+     `fn_ulTimerTickPerSecond`, `fn_ulTimerEventTickPerSecond` as the original console timer code
+     gives them; channel 0 milliseconds, 1 and 2 SDL's performance counter. The engine creates
+     only channel-1 timers and the Direct3D 6 driver reads channel 1; channel 2 (the time stamp
+     counter, its rate measured by a one-second busy wait at init) is read by nothing in the exe
+     (GOG's `GliOGLvf.dll` unchecked). Its calibration keeps the low 32 bits of the delta, which
+     wraps above about 4.29 GHz; no effect while nothing reads it. `GetTickCount` is the system's
+     on `WIN32`, `TMR/sdl_timer.c`'s elsewhere (edf95ba).
+   - **MMG lock** (e8bae53, glue f628850): `TypeCriticalSection` is an SDL mutex, reentrant as the
+     critical section. `SND/SndThrd.c` keeps its own Win32 one (Sound).
+   - **Draw lock** (3c22ed4, replaced by f12d3b2): none with one engine thread (platform glue).
+   - **Window hidden until the device exists** (e1fac45, user decision): no 320x200 window while
+     the driver starts.
+   - **Focus return to fullscreen** (3ed919f). The decompiled names on the activation path are
+     inverted: on loss `GAM_pc_fn_vHandleActivateEnterFullScreen` -> `GLD_bSwapDeviceMode` ->
+     `vActivateGli(hWnd, 0)`; on return `GAM_pc_fn_vHandleActivateExitToWindowed` ->
+     `GLD_bSwapToWindowedMode` -> `vActivateGli(hWnd, 1)`. GOG's OpenGL driver makes the window a
+     popup itself (`SetWindowLongA`); SDL 3.4 puts its own style back whenever the window leaves
+     the minimized state, so on focus loss SDL is told whether the driver left the window without
+     a caption (`SDL_SetWindowBordered`).
+   - Still Win32 in the SDL build outside SND (open for Linux): `Sleep` (seven files) and the rows
+     of the platform glue inventory below.
 
-   **Done (2026-11-24): timers under `USE_SDL`** (`TMR/sdl_timer.c`, DEVIATIONS 15). The PC timer
-   functions of `GLI/cpu_timer.c` and `GLI/timer_sub2.c` are fenced; the SDL file gives
-   `fn_vTimerGetCounter`, `fn_ulTimerTickPerSecond`, `fn_ulTimerEventTickPerSecond` as the original
-   console timer code does. `GetTickCount` (`RND.c`, `GLI_fastload.c`) is the system's on
-   `WIN32` and `TMR/sdl_timer.c`'s elsewhere (rename dropped 2026-11-25). Channels: 0 milliseconds, 1 and 2 SDL's performance counter. Checked:
-   the engine creates only channel-1 timers (`Basic.c`, `GLD.c`) and the Direct3D 6 driver reads
-   channel 1 through `TimerGetCounter`; channel 2 (the time stamp counter, its rate measured by a
-   one-second busy wait in `TMR_pc_fn_ulCalibrateTscFreq` at init) is read by nothing in the exe.
-   GOG's `GliOGLvf.dll` is unchecked. The calibration keeps the low 32 bits of the one-second delta,
-   which wraps above about 4.29 GHz; with nothing reading the channel that has no effect, and the
-   PC path stays as it is. Measured: regression identical (SDL, MSVC, clang-cl, VC5 + define);
-   the SDL build starts without the one-second busy wait (Morb_00 run: menu at 1.2 s, level at
-   3.6 s, plays); no SDL object imports
-   `timeGetTime`, `QueryPerformance*` or `timeBeginPeriod` (`GetTickCount` again since 2026-11-25:
-   `RND.obj`, `GLI_fastload.obj`).
-
-   **Done (2026-11-24): MMG lock under `USE_SDL`.** `g_csMmg` takes the original engine's
-   `TypeCriticalSection` (`MMG/MMG_alloc.h`): an SDL mutex, reentrant as the critical section.
-   Since f628850 through the original `Mmg_M*CriticalSection` names (`MMG/CpaMmg.h`, `USE_SDL`
-   branch calling `MMG/sdl_mmg.c`; see "Platform glue"). No other file that includes `CpaMmg.h` uses a
-   critical section (`SND/SndThrd.c` keeps its own, Win32, see Sound). Measured: regression
-   identical (SDL, MSVC, clang-cl, VC5 + define); only `SndThrd.obj` imports the critical section
-   functions in the SDL build.
-
-   **Done (2026-11-24): draw semaphore under `USE_SDL`.** An SDL semaphore (maximum count 1, as the
-   Win32 one) created in `GAM/sdl_main.c`; `GAM/GAM_DrawSem.h` maps `WaitForSingleObject` and
-   `ReleaseSemaphore` in its six users, which call them on no other object; `GAM_GameEng.c`'s own
-   prototypes of the two are fenced. The renderer driver still gets it as `"DrawSem"` and does
-   not wait on it (above). Measured: regression identical (SDL, MSVC, clang-cl, VC5 + define);
-   in the SDL build only `SndThrd.obj` imports `WaitForSingleObject`, nothing
-   `ReleaseSemaphore`/`CreateSemaphoreA`. Replaced (platform glue, below): no draw lock at all.
-   Still Win32 in the SDL build outside SND (Windows-only for now, open for Linux): `Sleep` (seven
-   files), `GetCurrentThreadId` for the MMG channel of the calling thread (`GLD.c`), the
-   single-instance mutex `RAYMAN2EXE` (`sdl_main.c`), and `SetEvent` in `GLI_FatalExitOrSleep`,
-   on a path taken only when an engine thread exists.
-
-   **Done (2026-11-24): SDL window hidden until the device exists** (user decision). On PC the
-   320x200 window is on screen while the driver starts (Win32 build: 328x237 incl. frame for 1.2 s;
-   most of it the time stamp counter calibration). The SDL window is created hidden and shown when
-   `fn_bCreateMainDisplayScreen` has succeeded. Measured: window log at startup shows no small
-   window, the first visible one is the fullscreen window at 0.17 s; regression identical (SDL).
-
-   **Focus test with the Direct3D 6 driver (2026-11-24)** (16-bpp mode, `DWM8And16BitMitigation`;
-   Alt+Tab away at 12 s, back at 18 s, `WM_CLOSE` at 26 s, Morb_00). Original retail exe (install's
-   `GliDX6vf.dll`), VC5 + define and the MSVC Win32 build (linked-in driver) behave alike: pause
-   title and minimized on loss; on return the window comes back at 1920x1080 but stays white with
-   the pause title (the "restoring data" title is never set), and `WM_CLOSE` is ignored: the
-   window thread is blocked, the process has to be killed. Original behaviour on this system,
-   not a fork regression. The SDL build with the same driver: pause on loss,
-   "restoring data" then play on return, exit 0.2 s after `WM_CLOSE`.
-   Where the Win32 build blocks (2026-11-24, cdb attached non-invasively to the hung MSVC Win32
-   build, three runs alike): the window thread, handling the restore (`WM_SYSCOMMAND` ->
-   `WM_WINDOWPOSCHANGED` -> `WM_SIZE`), is in DirectDraw's subclass window procedure, which waits
-   without timeout for DirectDraw's exclusive-mode mutex (`__DDrawExclMode__`) before it puts the
-   display mode back. The engine thread is paused in `GAM_pc_fn_vWaitForEitherEngineEvent`. The
-   driver took exclusive mode on the engine thread (`GLI_xInitGli` -> `xInitDriver` ->
-   `SetCooperativeLevel`, reached from `GAM_pc_fn_ulEngineThreadProc`), and `vActivateGli(hWnd, 0)`
-   on focus loss only sets a flag, so the engine thread still holds the mutex: it waits for the
-   window thread to resume it, the window thread waits for its mutex. A deadlock between the two
-   threads; the SDL build has one thread, which already owns the mutex. The owner itself could not
-   be read (the attach lacks the access to query the mutant); it follows from where
-   `SetCooperativeLevel` runs. Not fixed: the SDL build does not have it, and a fix in the Win32
-   path would change the original threading. Open: a `docs/BUGS.md` entry with a fix (release
-   exclusive mode on the engine thread before it pauses) only if the user wants the Win32 path
-   usable on this system.
-
-   **Done (2026-11-24): focus return to fullscreen (SDL build).** The decompiled names on the
-   activation path are inverted: on loss `GAM_pc_fn_vHandleActivateEnterFullScreen` ->
-   `GLD_bSwapDeviceMode` -> the driver's `vActivateGli(hWnd, 0)`; on return
-   `GAM_pc_fn_vHandleActivateExitToWindowed` -> `GLD_bSwapToWindowedMode` ->
-   `vActivateGli(hWnd, 1)`, which in the Direct3D 6 driver recreates the exclusive fullscreen
-   device. With that driver the SDL build already came back as it started: on this system (16 bpp
-   under `DWM8And16BitMitigation`) the exclusive mode shows as a captioned 1920x1080 window from
-   the start, in the Win32 build as well. GOG's OpenGL driver makes the window a popup itself
-   (`SetWindowLongA`, measured style `0x96000000`); SDL 3.4 puts its own style back
-   (`0x16CF0000`, caption and frame) whenever the window leaves the minimized state, in its
-   `WM_WINDOWPOSCHANGED` handling, whichever call restores it (`SDL_RestoreWindow` or the system
-   restore of `pc_winmain.c`). On focus loss, before minimizing, SDL is now told whether the
-   driver left the window without a caption (`SDL_SetWindowBordered`); a borderless SDL window
-   gets no non-client area. Measured: the OpenGL focus test returns fullscreen (screenshot,
-   taskbar hidden); Direct3D 6 unchanged; regression identical (SDL).
-5. **Done (2026-11-24): `INO` backend through SDL** (`INO/sdl_ino.c`, `INO/INO_sdl.h`,
-   DEVIATIONS 16). The device layer of `INO/INO.c` stays shared (devices, historic records, key
-   frames, demo readers); its DirectInput parts are fenced `#ifndef USE_SDL`, and `INO_sdl.h`
-   maps their names for the shared code to the SDL functions, so the call sites stay. Keyboard:
-   SDL's keyboard state through a `DIK_` -> SDL scancode table (the set-1 scan codes, as SDL's
-   own Windows table), same active key list; AZERTY found as on PC (the key at Q's place gives
-   'a'). Mouse: relative motion, wheel, four buttons. Gamepads: one joystick device per SDL
-   gamepad present at init, laid out as DirectInput shows an XInput gamepad. As with
-   DirectInput's foreground mode no device gives input while the window has no keyboard focus.
-   The regression hooks still replace the readers (`port/regress.c`). Measured: regression
-   identical (SDL; MSVC, clang-cl and VC5 + define with the fences); no SDL-build object
-   references DirectInput or the keyboard layout functions; live (OpenGL, Morb_00): Esc opens the
-   in-game menu, Down (an extended key) moves its selection. Not tested: mouse (enabled only by a
-   data command) and gamepads (none attached).
+   **Focus test with the Direct3D 6 driver (2026-11-24; dec93b9, d752d75).** Original retail exe,
+   VC5 + define and the MSVC Win32 build behave alike on this system (16 bpp under
+   `DWM8And16BitMitigation`): on focus return the window stays white with the pause title and
+   ignores `WM_CLOSE`. Cause: a deadlock. The driver took DirectDraw's exclusive mode on the
+   engine thread (`xInitDriver` -> `SetCooperativeLevel`), `vActivateGli(hWnd, 0)` on loss only
+   sets a flag, so the engine thread still holds `__DDrawExclMode__` while paused; the window
+   thread restoring the window waits for that mutex, the engine thread for the window thread.
+   The SDL build (one thread) returns and plays. Not fixed (it would change the original
+   threading). Open: a `docs/BUGS.md` entry with a fix (release exclusive mode on the engine
+   thread before it pauses) only if the user wants the Win32 path usable on this system.
+5. **Done: `INO` backend through SDL** (b8b0278; `INO/sdl_ino.c`, `INO/INO_sdl.h`, DEVIATIONS 16).
+   The device layer of `INO/INO.c` stays shared; its DirectInput parts are fenced `#ifndef
+   USE_SDL` and `INO_sdl.h` maps their names to the SDL functions. Keyboard through a `DIK_` -> SDL
+   scancode table (AZERTY found as on PC), mouse (relative motion, wheel, four buttons), one
+   joystick device per SDL gamepad present at init, laid out as DirectInput shows an XInput
+   gamepad; no input without keyboard focus, as DirectInput's foreground mode. Not tested: mouse
+   (enabled only by a data command) and gamepads (none attached).
 6. OpenGL driver behind `GLI_DRV`, specified by the Direct3D 6 driver, compared by screenshots on
    Windows first.
 7. Sound (below) at any point, independently.
@@ -592,7 +502,7 @@ its condition.
   `WIN32` fence for the DLL fallback and neutral handle types come with the second linked-in
   driver (`USE_GLI_GL`), not before. Fork `#endif`s name their condition; file-local macros
   carry the module prefix (`SNA_M_bIsNoFile`, `GLI_M_LinkedProc`), as the original's
-  `<MOD>_M_*`. Measured: all objects of the five builds identical except the COFF time stamp.
+  `<MOD>_M_*` (d0703c0, f02ea3e).
 - Backend function names (decided 25.11.2026, as the original engine: its file functions are
   `SND_fn_*` whatever the file mode, the platform only in branches and file names):
   `<MOD>_fn_*`, no platform infix, no suffix. `FIL_fn_ulGetProfileString`, `SNA_fn_hOpenFile`,
@@ -611,7 +521,8 @@ counts, `Sleep`, thread ids) shared code calls module-owned names, not system AP
   the change is byte-neutral and belongs in the decomp (arrives through upstream); the fork adds
   only the non-Win32 branches;
 - neutral types for handles and results (`SNA_tdhFile`, ...), so the non-Win32 branches compile
-  without `windows.h`;
+  without `windows.h`; except where the original engine keeps the Win32 name on every target
+  (`HWND`, `GetTickCount`: a non-Windows target declares them in its types header or timer file);
 - SDL only in backend files (`sdl_*.c`): a header branch for `USE_SDL` calls a backend function,
   not SDL itself;
 - replaces the current Win32 name renames. No new renames meanwhile: the local pre-commit check
@@ -623,33 +534,24 @@ the game's binaries; sound left to Sound, below):
 
 | Module | Today | Users | Neutral name | Name from |
 |---|---|---|---|---|
-| MMG lock | **done** (f628850): `USE_SDL` branch -> `MMG/sdl_mmg.c`, Win32 `#else` | `MMG_alloc.c`, `MMG_module.c`, `MMG_pool_alloc.c`, `MMG_pubaccess.c`, `SAI_Priv.c` (to check which call them) | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_MmgCriticalSection` (the fork's `g_csMmg`) | original engine (empty on the consoles) |
-| MMG memory | **done** (f628850): C runtime branch in `MMG/PrivMmg.h` without `FILE_MODE_C_WIN95`; no `GMEM_ZEROINIT` site | same files | `CPA_MALLOC`, `CPA_FREE` (exist already); `GMEM_ZEROINIT` users to check | original engine |
+| MMG lock | **done** (f628850): `USE_SDL` branch in `MMG/CpaMmg.h` -> `MMG/sdl_mmg.c` (`MMG_fn_*`), Win32 `#else` | MMG allocators | `Mmg_MCreateCriticalSection()`, `Mmg_MEnterCriticalSection()`, `Mmg_MLeaveCriticalSection()`, `Mmg_MDeleteCriticalSection()` on `g_csMmg` | original engine (empty on the consoles) |
+| MMG memory | **done** (f628850): C runtime branch in `MMG/PrivMmg.h` without `FILE_MODE_C_WIN95` | MMG allocators | `CPA_MALLOC`, `CPA_FREE` | original engine |
 | ERM | `MessageBoxA`, `SendMessageA` direct (`CpaError.obj`) | ERM | `Erm_M_MessageBox` | original engine |
-| SNA level files | **done** (5e07224): C runtime branch in `MMG/SNA_pc.h` without `FILE_MODE_C_WIN95` -> `MMG/SNA_file.c` (handle `void *`); the fork's no-protection branches in `SNA_reloc.c` use the names too; the callers' Win32 values through the decomp's `SNA_pc_C_*` (merge of e027e35: fork branch gives the same numbers, `SNA_file.c`'s local copies dropped) | `SNA.c`, `SNA_reloc.c`, `GAM_init.c` | `SNA_M_hOpenFile`, `SNA_M_bReadFile`, `SNA_M_ulSeekFile`, `SNA_M_bCloseFile`, `SNA_M_ulGetFileAttributes`, `SNA_M_bSetFileAttributes`; type `SNA_tdhFile` | fork (SNA's own source is not in the original sources at hand; shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd`) |
-| FIL ini | **done** (cf740d7): C runtime branch in `FIL/FIL_pc.h` without `FILE_MODE_C_WIN95` -> `FIL/FIL_ini.c`; `SND.c`'s 17 calls converted in the decomp too (6d31e2b), the fork's text dropped for upstream's | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_M_ulGetProfileString`, `FIL_M_bWriteProfileString` | fork |
-| GAM draw lock | **done**: empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy; SDL semaphore and window-side waits in `sdl_main.c` gone; driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_M_ulWaitDrawSemaphore`, `GAM_M_bReleaseDrawSemaphore`; **empty** with one engine thread (`USE_SDL`, consoles): nothing to guard, and the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0, no wait left) | fork |
-| TMR tick count | **done**: rename dropped; `GetTickCount` declared and defined in `TMR/sdl_timer.[ch]` only `#ifndef WIN32` | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`, so the name stays on every target. On Windows the system's serves (rename dropped); other targets give `GetTickCount` in their timer file | original engine |
-| GLI driver binding | **done** (109cdcf): `USE_GLI_DX6` branch in `GLI/GLI_pc.h` -> `GLI/GLI_linkdrv.c` (linked-in drivers, DLL fallback), Win32 `#else`; `Init_Gli.c` identical to upstream | `GLI_fnl_InitDll` | `GLI_M_hLoadDriver`, `GLI_M_pfnGetDriverProc`; the DLL path itself fenced `WIN32` in `GLI_linkdrv.c` | fork |
-| GLI window handle | **done**: `HWND` on every target, as the original (console types headers declare it); GLD's window fields `HWND` from the decomp (e4d0867) | `GLD.c`, `Init_Gli.c`, `pc_winmain.c`, `sdl_main.c` | `HWND` | original engine |
+| SNA level files | **done** (5e07224, e027e35): C runtime branch in `MMG/SNA_pc.h` without `FILE_MODE_C_WIN95` -> `MMG/SNA_file.c` (`SNA_fn_*`, handle `void *`); Win32 values through `SNA_pc_C_*` | `SNA.c`, `SNA_reloc.c` (also the fork's no-protection branches), `GAM_init.c` | `SNA_pc_M_hOpenFile`, `_bReadFile`, `_ulSeekFile`, `_bCloseFile`, `_ulGetFileAttributes`, `_bSetFileAttributes`; type `SNA_tdhFile` | fork, shaped as SND's `tdhSndFile` / `SND_fn_hOpenFileReadSnd` (SNA's own source is not at hand) |
+| FIL ini | **done** (cf740d7, 6d31e2b): C runtime branch in `FIL/FIL_pc.h` without `FILE_MODE_C_WIN95` -> `FIL/FIL_ini.c` (`FIL_fn_*`) | `GAM_init.c`, `GLI/Init_Gli_helpers.c`, `SND/SND.c` | `FIL_pc_M_ulGetProfileString`, `FIL_pc_M_bWriteProfileString` | fork |
+| GAM draw lock | **done** (f12d3b2): empty `USE_SDL` branch in `GAM/GAM_pc_DrawLock.h` and in `GAM_GameEng.c`'s copy (an include there changes a function's bytes); the driver gets NULL | `GLD.c`, `Basic.c`, `GAM_GameEng.c`, `ToolCam.c`, `Texture.c`, `ui_state.c` | `GAM_pc_M_ulWaitDrawSemaphore`, `GAM_pc_M_bReleaseDrawSemaphore`; **empty** with one engine thread: the original's console build has no draw lock (`fn_hGetDrawSemaphore` returns 0) | fork |
+| TMR tick count | **done** (edf95ba): `GetTickCount` declared and defined in `TMR/sdl_timer.[ch]` only `#ifndef WIN32` | `RND.c`, `GLI_fastload.c` | **none**: the original's console timer code declares its own `GetTickCount(void)`; on Windows the system's serves | original engine |
+| GLI driver binding | **done** (109cdcf): `USE_GLI_DX6` branch in `GLI/GLI_pc.h` -> `GLI/GLI_linkdrv.c` (`GLI_fn_*`; linked-in drivers, DLL fallback), Win32 `#else` | `GLI_fnl_InitDll` | `GLI_pc_M_hLoadDriver`, `GLI_pc_M_pfnGetDriverProc` | fork |
+| GLI window handle | **done** (7cc0a2a, e4d0867): `HWND` on every target, GLD's window fields `HWND` | `GLD.c`, `Init_Gli.c`, `pc_winmain.c`, `sdl_main.c` | `HWND`, declared by a non-Windows target's types header | original engine (console types headers) |
 | GLI fatal exit | `SetEvent`, `Sleep` direct (`Init_Gli.obj`) | `GLI_FatalExitOrSleep`, path taken only with an engine thread | none: the engine-thread path fenced as Win32 | |
 | GLD thread id | `GetCurrentThreadId` direct (`GLD.obj`) | MMG channel of the calling thread | open: check how the original GLD picks the channel | |
 | Saves | `CopyFileA`, `DeleteFileA`, `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA` direct (`GAM_save_slot.obj`); `DeleteFileA` (`SAI_Save.obj`) | save slots, SAI | open, with the per-user folder (PLAN "User folder") | |
 | Misc direct | `GetTempPathA` (`GAM_init.obj`), `ShellExecuteA` (`Procedure.obj`), `FreeLibrary`/`GetClientRect` (shared part of `pc_winmain.obj`) | | open: one line each at migration | |
 | Fork-only | `sdl_main.obj` (`CreateMutexA`, `GetLastError`, `GetWindowLongA`, `SetErrorMode`, `GetWindowsDirectoryA`, `CreateDirectoryA`, under `WIN32`), `regress.obj` (Windows tool) | | stays, fenced `WIN32` | |
 
-Order: TMR first (fork only, no call-site change), then MMG lock and memory, GAM draw lock, FIL,
-SNA, GLI once their call sites carry the names (asked of the decomp on 25.11.2026; if it declines
-the names without an original source, the fork changes those call sites itself); ERM and the
-rest with the targets that need them. The decomp delivered all six on 25.11.2026 (merge f628850),
-named `<MOD>_pc_M_*` for the fork-named rows (`SNA_pc_M_hOpenFile`, `FIL_pc_M_ulGetProfileString`,
-`GAM_pc_M_ulWaitDrawSemaphore`, `GLI_pc_M_hLoadDriver`, ...; headers `MMG/SNA_pc.h`,
-`FIL/FIL_pc.h`, `GAM/GAM_pc_DrawLock.h`, `GLI/GLI_pc.h`); until each is migrated, the fork's
-rename still applies to the Win32 call the macro expands to. `GAM_GameEng.c` carries its own copy
-of the draw lock defines (an include there changes a function's bytes): migrate it too.
-Measured for MMG: regression identical (MSVC, SDL, `R2_C_RUNTIME` vs `modern_baseline.txt`,
-clang-cl vs `clang_baseline.txt`, VC5 + define vs `np_b`); SDL's MMG objects import neither
-critical section nor `GlobalAlloc`.
+Migrated 25.11.2026 (TMR, MMG, GAM draw lock, FIL, SNA, GLI, window handle): the decomp put
+`<MOD>_pc_M_*` names at the call sites, Win32 branch only (merge f628850 and later); the fork
+adds the other branches. ERM and the rest go with the targets that need them.
 Why: a rename keeps the Win32 types at every call site (a `windows.h` stand-in on Linux and the
 consoles, i.e. Win32 emulation), reroutes every call of that name in the file (an upstream merge
 that adds an unrelated `WaitForSingleObject` would silently reach the SDL semaphore), and depends
@@ -675,13 +577,18 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - **Original engine style for backend code**, as it writes its platform code: one backend
   file per module beside the PC one, named after the backend as the PC files are after theirs
   (`GAM/pc_winmain.c` -> `GAM/sdl_main.c`, `INO` reader beside `INO_pc_Read*`); functions keep
-  the module prefix with the backend in place of `pc` (`INO_sdl_...`, `GAM_sdl_...`), Hungarian
+  the module prefix with the backend in place of `pc` (`INO_sdl_...`, `GAM_sdl_...`; open since
+  the backend naming decision of 25.11.2026, see Open decisions), Hungarian
   type prefixes, `/* */` comments, file headers and description blocks as in the fork's other
   files; the whole file fenced `#ifdef USE_SDL ... #endif /* USE_SDL */`, its PC counterpart
   `#ifndef USE_SDL` with the original code untouched.
-- To check at the first build: SDL3 from vcpkg for 32-bit x86 Windows.
 
 **Open decisions.**
+- **SDL file names (asked 25.11.2026).** The backend functions behind module headers are
+  `<MOD>_fn_*` now, without a platform, as the original names its functions. The SDL files'
+  own functions and globals still carry `sdl` (`GAM_sdl_fn_*`, `GAM_sdl_g_*` in `sdl_main.c`,
+  `INO_sdl_*`), per the 24.11 style rule above. Rename them too (`GAM_fn_*`, ...), or keep
+  `sdl` for file-local code of a backend file? Decide with the user.
 - **64-bit data (decided: in scope, 2026-11-24).** `WIN64` and `OSX` need it. The level files store
   32-bit pointers, so every pointer-carrying structure loaded from level data has to be widened at
   load. How (per-type load tables or an offline converter, as for big-endian data) is open; decide
