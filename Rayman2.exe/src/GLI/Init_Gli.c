@@ -25,14 +25,6 @@
 #include <string.h>
 #include "GLI/GLI_pc.h"
 
-#ifdef USE_GLI_DX6
-/* A driver linked into the exe answers GLI_fnl_InitDll's lookups; any other driver is
-   still loaded from the driver folder (GLI/GLI_linkdrv.c, DEVIATIONS 13). */
-#include "GLI/GLI_linkdrv.h"
-#define LoadLibraryA    GLI_pc_fn_hLoadDriver
-#define GetProcAddress  GLI_pc_fn_pfnGetDriverProc
-#endif /* USE_GLI_DX6 */
-
 /* 0x00403290 */
 extern void __cdecl SND_PrintUsedStaticMemory(void);
 
