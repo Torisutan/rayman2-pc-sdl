@@ -363,6 +363,8 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   per-target arithmetic. VC5 against modern is unchanged (menu actors 1 ulp after load). Not covered: allocations inside the memory
   manager's heaps (one `malloc` per heap). Instrumenting them (poisoning in MMG) would be a fork
   change of its own; not planned.
+  Rerun 26.11.2026 after the decomp's fix of the centre vector (upstream b102d4d, merged e31360d):
+  no report in any scenario, all five equal `base_modern`.
 - **MTH target selection (done 2026-11-26).** The original engine
   chooses the MTH path in one header, `MTH/MTH_def.h` ("Detect Targets": `_MSC_VER` -> `VISUAL`
   -> `MTH_PC_DEV`, `U64` -> `MTH_U64_DEV`, `NITRO` -> `MTH_NITRO_DEV`, else `MTH_UNKOWN_DEV`; only
