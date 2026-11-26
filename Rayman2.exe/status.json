@@ -74,7 +74,7 @@
 "name": "fn_uiEngineMainLoop",
 "src": "src/GAM/pc_winmain.c",
 "len": 76,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00401260",
@@ -2013,7 +2013,7 @@
 "name": "fn_bIsThisZdeInClashWithCharacterZdeOfTypes",
 "src": "src/GAM/ZdxStuff.c",
 "len": 743,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0040D290",
@@ -2594,21 +2594,21 @@
 "name": "RetMicroSonoreDNX",
 "src": "src/GAM/Actions/MS_Micro.c",
 "len": 132,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00411800",
 "name": "RetMicroSonoreDNY",
 "src": "src/GAM/Actions/MS_Micro.c",
 "len": 132,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00411890",
 "name": "RetMicroSonoreDNZ",
 "src": "src/GAM/Actions/MS_Micro.c",
 "len": 132,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00411920",
@@ -5190,7 +5190,7 @@
 "addr": "0x00419BD0",
 "name": "fn_v_InterpolBetweenKeys",
 "src": "src/GAM/PlayAnim/a3x_intn.c",
-"len": 2072,
+"len": 2068,
 "verdict": "MISMATCH"
 },
 {
@@ -5352,7 +5352,7 @@
 "name": "GEO_xComputeSpriteRadius",
 "src": "src/GEO/GEO.c",
 "len": 65,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0041BA30",
@@ -7430,7 +7430,7 @@
 "addr": "0x004284C0",
 "name": "GLI_pc_fn_vOffsetVerticesByLightProjection",
 "src": "src/GLI/pc_light_pipeline.c",
-"len": 454,
+"len": 453,
 "verdict": "MISMATCH"
 },
 {
@@ -9999,7 +9999,7 @@
 "addr": "0x004435E0",
 "name": "MOR_fn_xPrepareMorph",
 "src": "src/MOR/MOR.c",
-"len": 645,
+"len": 637,
 "verdict": "MISMATCH"
 },
 {
@@ -10167,15 +10167,15 @@
 "addr": "0x00444B80",
 "name": "POS_fn_vInvertIsoMatrix",
 "src": "src/POS/POS.c",
-"len": 468,
-"verdict": "MISMATCH"
+"len": 465,
+"verdict": "EXACT"
 },
 {
 "addr": "0x00444D60",
 "name": "POS_fn_vInvertMatrix",
 "src": "src/POS/POS.c",
 "len": 552,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x00444F90",
@@ -10916,7 +10916,7 @@
 "addr": "0x0044AF30",
 "name": "SCT_fn_lSendSectorToViewportStatic",
 "src": "src/SCT/Sectdraw.c",
-"len": 640,
+"len": 638,
 "verdict": "MISMATCH"
 },
 {
@@ -15627,7 +15627,7 @@
 "addr": "0x0045CDD0",
 "name": "HIE_fn_vSendSuperObjectToViewport",
 "src": "src/HIE/HieDraw.c",
-"len": 846,
+"len": 860,
 "verdict": "MISMATCH"
 },
 {
@@ -16131,7 +16131,7 @@
 "addr": "0x004626B0",
 "name": "CreateType35AGO",
 "src": "src/AGO/AGO.c",
-"len": 393,
+"len": 395,
 "verdict": "MISMATCH"
 },
 {
@@ -21613,7 +21613,7 @@
 "name": "INT_fn_bIntersectSegmentWithFaceOfGeometricObject",
 "src": "src/INT/IntersGO.c",
 "len": 1613,
-"verdict": "MISMATCH"
+"verdict": "EXACT"
 },
 {
 "addr": "0x0048EE70",

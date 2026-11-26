@@ -5,8 +5,6 @@
 #include "MTH/MTH_types.h"
 #include "MTH/MTH_flt.h"
 
-#define OPTIMIZED_FOR_PC_FLOATS
-#define OPTIMIZED_FOR_PC_FLOATS_WITH_ASM
 #ifndef INLINE
 #define INLINE __inline
 #endif

@@ -16,6 +16,7 @@ extern void GLI_xAdjustCameraToViewport(short hDevice, short hViewport, struct G
 #include <stdlib.h>
 #include <string.h>
 #include "GAM/GAM_pc_DrawLock.h"
+#include "AI/CAM_Tool.h"
 
 void fn_vChangeEngineMode(GAM_tdeEngineMode ucMode)
 {

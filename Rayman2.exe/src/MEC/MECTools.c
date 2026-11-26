@@ -1016,6 +1016,7 @@ void *__cdecl DNM_p_stReportDefaultInit(void *_p_stReport)
 }
 
 #include "MEC/dnmdynam.h"
+#include <string.h>
 void __cdecl DNM_fn_vDynamicsInitDefault(DNM_tdstDynamics *_p_stDynamic)
 {
     DNM_tdstReport *p_stReport = NULL;

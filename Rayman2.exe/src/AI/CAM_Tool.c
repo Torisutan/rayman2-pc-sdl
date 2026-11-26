@@ -12,14 +12,6 @@
 #include <string.h>
 #include "AI/AI_globals.h"
 
-static __inline long MTH_M_bDifferentZeroOpt(MTH_tdxReal xA)
-{
-	register long *pA = (long *)&xA;
-	return ((*pA) & 0x7FFFFFFF);
-}
-#undef MTH_M_bDifferentZero
-#define MTH_M_bDifferentZero(a) (MTH_M_bDifferentZeroOpt(a))
-
 MTH_tdxReal CAM_fn_xSetAngleInInterval02Pi(MTH_tdxReal _xAngle);                /* 0x00473B70 */
 MTH_tdxReal CAM_fn_xComputeHorizontalAngle(MTH3D_tdstVector *_p_stOrgVector, MTH3D_tdstVector *_p_stDestVector, MTH3D_tdstVector *_p_stAxisZ); /* 0x00433390 */
 MTH_tdxReal CAM_fn_xComputeVerticalAngle(MTH3D_tdstVector *_p_stOrgVector, MTH3D_tdstVector *_p_stDestVector, MTH3D_tdstVector *_p_stAxisZ);   /* 0x004335C0 */

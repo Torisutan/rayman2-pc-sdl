@@ -10,12 +10,7 @@
 #define INLINE static __inline
 #endif
 
-#define MTH_OPTIMIZE
-#define MTH_MEDIUM
-#define MTH_RealIsFloat
-#define OPTIMIZED_FOR_PC_FLOATS
-#define OPTIMIZED_FOR_PC_FLOATS_WITH_ASM
-#define MTH_CALL
+#include "MTH/MTH_def.h"
 
 #define MTH_M_vCHK(X) {}
 #include "MTH/MTH_fopt.h"

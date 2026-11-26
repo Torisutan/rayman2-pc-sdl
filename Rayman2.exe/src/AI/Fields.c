@@ -1,3 +1,4 @@
+#include <string.h>
 #include "MTH/MTH_flt.h"
 #include "AI/AI_types.h"
 #include "GAM/PlayAnim.h"

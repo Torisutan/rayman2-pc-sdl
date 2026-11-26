@@ -121,30 +121,6 @@ long __cdecl fn_lAddColor(long color1, long color2)
     return (RGBA_Color(c3));
 }
 
-static __inline float AI_FUNC_fn_fSquareRootOpt(float f)
-{
-    float res_sqrt;
-
-    MTH_M_vCHK(f);
-
-    _asm {
-        mov  ebx,f
-        mov  eax,f
-        and  ebx,0x7F800000
-        and  eax,0x00FFE000
-        add  ebx,0x3F800000
-        shr  ebx,1
-        shr  eax,11
-        and  ebx,0x7F800000
-        add  ebx,dword ptr[AI_g_a_lQuickNormTable_storage+eax]
-        mov  dword ptr[res_sqrt],ebx
-    }
-
-    MTH_M_vCHK(res_sqrt);
-
-    return (res_sqrt);
-}
-
 /* 0x0047BDC0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stMathFunctionReal(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -173,7 +149,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMathFunctionReal(
         break;
 
     case 0x19:
-        xFirstReal = AI_FUNC_fn_fSquareRootOpt(xFirstReal);
+        xFirstReal = MTH_fn_fSquareRootOpt(xFirstReal);
         break;
 
     case 0x1a:
@@ -343,7 +319,7 @@ static unsigned long AI_fn_ulQuickSqrtBits(float xSq)
     unsigned long ulBits = *(unsigned long *)&xSq;
     return (unsigned long)
         ((int)((((ulBits & 0x7f800000) + 0x3f800000) >> 1) & 0x7f800000)
-       + *(const int *)((const char *)AI_FUNC_p_lQuickSqrtTable + ((ulBits & 0xffe000) >> 0xb)));
+       + *(const int *)((const char *)MTH_g_a2048_fSquareRootTable + ((ulBits & 0xffe000) >> 0xb)));
 }
 
 /* 0x0047B6C0 */
@@ -372,7 +348,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stDistanceToPerso(
         POS_fn_vGetTranslationVectorReadOnly(p_SuperObjTarget->hGlobalMatrix),
         POS_fn_vGetTranslationVectorReadOnly(hNewSuperObjPerso->hGlobalMatrix));
 
-    M_Full_GetSetParam_Float(p_stValue, AI_FUNC_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stVect)));
+    M_Full_GetSetParam_Float(p_stValue, MTH_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stVect)));
     return(p_stTree);
 }
 
@@ -603,7 +579,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stDistanceToPersoCenter(
 
 	MTH3D_M_vSubVector(&stVect,p_stCenter1,p_stCenter2);
 
-	M_Full_GetSetParam_Float(p_stValue, AI_FUNC_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stVect)));
+	M_Full_GetSetParam_Float(p_stValue, MTH_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stVect)));
 	return(p_stTree);
 }
 

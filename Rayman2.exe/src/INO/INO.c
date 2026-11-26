@@ -1377,6 +1377,8 @@ short __cdecl INO_pc_wFlipBufferIndex(INO_tdstDevice *pDevice)
     return 1;
 }
 
+int __cdecl INO_pc_lGetStoredValue(void);
+
 /* 0x00496510 */
 short __cdecl INO_pc_ReadKeyboard(INO_tdstDevice *pDevice)
 {

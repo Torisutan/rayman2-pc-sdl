@@ -24,35 +24,6 @@ static MTH3D_tdstVector gs_stPicking = { 0, 0, -0.6f }; /* 0x0049F858 */
 static ACP_tdxIndex     gs_a2a6_xUV[2][6] = { {0,1,3,1,2,3}, {1,0,2,0,3,2} }; /* 0x0049F868 */
 static ACP_tdxIndex     gs_a4a2_xChangeSign[4][2] = { { 0, 0}, { 1, 0}, { 0, 1}, { 1,0} }; /* 0x0049F880 */
 
-static __inline void FP_M_vAddVectorASM(MTH3D_tdstVector *VectDest, MTH3D_tdstVector *VectA, MTH3D_tdstVector *VectB)
-{
-    __asm
-    {
-        mov eax,VectA
-        mov ebx,VectB
-        mov ecx,VectDest
-        fld  dword ptr [eax]
-        fadd dword ptr [ebx]
-        fld  dword ptr [eax+4]
-        fadd dword ptr [ebx+4]
-        fld  dword ptr [eax+8]
-        fadd dword ptr [ebx+8]
-        fxch st(2)
-        fstp dword ptr [ecx]
-        fstp dword ptr [ecx+4]
-        fstp dword ptr [ecx+8]
-    }
-}
-
-#define FP_M_vMulScalarVectorC(VectDest, a, VectA)                                     { register float xTemp = (a);                                                        (VectDest)->xX = xTemp * (VectA)->xX;                                              (VectDest)->xY = xTemp * (VectA)->xY;                                              (VectDest)->xZ = xTemp * (VectA)->xZ; }
-
-#define FP_M_vNegVectorC(VectDest, VectA)                                          \
-    {   long register NegMask = 0x80000000;                                        \
-        *((long *)&((VectDest)->xX)) = *((long *)&((VectA)->xX)) ^ NegMask;        \
-        *((long *)&((VectDest)->xY)) = *((long *)&((VectA)->xY)) ^ NegMask;        \
-        *((long *)&((VectDest)->xZ)) = *((long *)&((VectA)->xZ)) ^ NegMask;        \
-    }
-
 #include "GEO/GEO_types.h"
 
 /* 0x0040C4B0 */
@@ -105,19 +76,19 @@ void __cdecl fn_v_FootPath_Compute(HIE_tdstSuperObject *_hCharacter, ACP_tdxInde
     POS_fn_vGetTranslationVector(hMatrix, &stPos);
     POS_fn_vGetRotationMatrix(hMatrix, &stI, &stJ, &stK);
     POS_fn_vRotateVector(&stK, hMatrix, &hFootPath->a2_stOffset[_xType]);
-    FP_M_vAddVectorASM(&stPos, &stPos, &stK);
+    MTH3D_M_vAddVector(&stPos, &stPos, &stK);
     stPos.xZ = stPos.xZ + gs_fSPZ;
 
-    FP_M_vMulScalarVectorC(&stI, hFootPath->a2_xScale[0], &stI);
-    FP_M_vMulScalarVectorC(&stJ, hFootPath->a2_xScale[1], &stJ);
+    MTH3D_M_vMulScalarVectorC(&stI, hFootPath->a2_xScale[0], &stI);
+    MTH3D_M_vMulScalarVectorC(&stJ, hFootPath->a2_xScale[1], &stJ);
     if (gs_a4a2_xChangeSign[0][0])
-        FP_M_vNegVectorC(&stI, &stI);
+        MTH3D_M_vNegVectorC(&stI, &stI);
     if (gs_a4a2_xChangeSign[0][1])
-        FP_M_vNegVectorC(&stJ, &stJ);
+        MTH3D_M_vNegVectorC(&stJ, &stJ);
 
-    FP_M_vAddVectorASM(&stT1, &stI, &stJ);
-    FP_M_vAddVectorASM(&stT1, &stT1, &stPos);
-    FP_M_vAddVectorASM(&stT2, &stT1, &gs_stPicking);
+    MTH3D_M_vAddVector(&stT1, &stI, &stJ);
+    MTH3D_M_vAddVector(&stT1, &stT1, &stPos);
+    MTH3D_M_vAddVector(&stT2, &stT1, &gs_stPicking);
 }
 
 /* 0x0040C3B0 */

@@ -15,6 +15,10 @@
 #include "GLD/Specif/DevVpt.h"
 #include "GAM/GAM_pc_DrawLock.h"
 
+extern unsigned long GLI_fn_lIsFullScreenMode(void);
+extern unsigned long GLI_fn_lDisplayModeWidth(void);
+extern unsigned long GLI_fn_lDisplayModeHeight(void);
+
 static void *GLD_pc_gs_a_pDeviceTable[16];
 #define GLD_pc_g_a_pDeviceTable (GLD_pc_gs_a_pDeviceTable)
 

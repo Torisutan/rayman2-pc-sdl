@@ -655,7 +655,9 @@ void __cdecl TEXT_vComputeLengthOgString(char *p_szString, TFMT_tdstStatus *p_st
     {
         if (*p_szString == '/')
         {
-            p_szString += TFMT_lProcessFormater(p_stStatus, ++p_szString, &bLineBreak, &bStartLine);
+
+            ++p_szString;
+            p_szString += TFMT_lProcessFormater(p_stStatus, p_szString, &bLineBreak, &bStartLine);
             if (bLineBreak)
             {
                 xMaxScreenWidth = MTH_M_xMax(xMaxScreenWidth, p_stStatus->xScreenWidth);

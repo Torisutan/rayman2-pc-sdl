@@ -3,8 +3,8 @@
 #include "MTH/MTH_globals.h"
 
 unsigned long MTH_g_a2048_fInvSquareRootTable[2048];   /* 0x0050BB60 */
+unsigned long MTH_g_a2048_fSquareRootTable[1024*2];    /* 0x0050DB80 */
 unsigned long MTH_g_a1024_fInverse[1024];              /* 0x0050FBA0 */
-extern int AI_g_a_lQuickNormTable_storage[2048];   /* 0x0050DB80 */
 
 /* 0x004445E0 */
 static void MTH_pc_vBuildSquareRootTable(void)
@@ -13,9 +13,9 @@ static void MTH_pc_vBuildSquareRootTable(void)
     int   i;
     for (i = 0; i < 1024; i++) {
         xTmp = (float)sqrt(i * (1.0f / 1024.0f) - -1.0);
-        AI_g_a_lQuickNormTable_storage[i + 1024] = *(long *)&xTmp & 0x7FFFFF;
+        MTH_g_a2048_fSquareRootTable[i + 1024] = *(long *)&xTmp & 0x7FFFFF;
         xTmp = (float)(sqrt(2.0) * sqrt(i * (1.0f / 1024.0f) - -1.0));
-        AI_g_a_lQuickNormTable_storage[i] = *(long *)&xTmp & 0x7FFFFF;
+        MTH_g_a2048_fSquareRootTable[i] = *(long *)&xTmp & 0x7FFFFF;
     }
 }
 

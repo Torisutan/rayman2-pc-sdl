@@ -311,8 +311,6 @@ MTH3D_tdstVector * __cdecl MTH_p_stRotationMulVector(MTH_tdstRotation *_p_stRota
 #define C_IAFlags_NoShiftUntilPosReached  0x0040
 #define C_PerIAFlags_NoShift              0x04
 
-#define CAM_e_State_GoToComputedOptimal   1
-
 #define CAM_C_xBaseCutAngle               (CAM_g_stCameraConstants.xBaseCutAngle)
 
 /* 0x00473B10 */
@@ -562,7 +560,7 @@ void CAM_fn_vComputeMovePosWithDynTheta(CAM_tdstUpdateCamera *_p_stStruct)
 	}
 }
 
-typedef int CAM_tdxCtxKnob0, CAM_tdxCtxKnob1, CAM_tdxCtxKnob2, CAM_tdxCtxKnob3;
+typedef int CAM_tdxCtxKnob0;
 void CAM_fn_vComputeSpeed(CAM_tdstUpdateCamera *_p_stStruct)
 {
 
@@ -730,7 +728,6 @@ char cJustBetterPos = 0;
 #define C_IAFlags_NoVisibility                  0x0008
 #define C_mode_MUSTSEE                          1
 #define C_mode_MUSTGO                           2
-#define CAM_e_State_GoToComputedOptimal         1
 char CAM_fn_cIsWantedPosIncorrect(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stWantedPos, char _cMode);
 void CAM_fn_vInitCameraStructure(HIE_tdstSuperObject *_hSuperObjPerso, CAM_tdstUpdateCamera *_p_stStruct);
 
@@ -895,10 +892,6 @@ void CAM_fn_vConstraintMove(CAM_tdstUpdateCamera *_p_stStruct)
 #define DNM_CAM_C_NoObstacle                    0x0040
 #define C_IAFlags_NoDynChangeTheta              0x0020
 #define C_IAFlags_RefAxisIsAlreadyComputed      0x4000
-#define CAM_e_State_GoToOptimal                 0
-#define CAM_e_State_FailureVisibility           2
-#define CAM_e_TempState_GhostMode               4
-#define CAM_e_TempState_ApexMode                5
 extern char AI_CAM_gs_cCanTestStatic;
 #define cCanTestStatic                          AI_CAM_gs_cCanTestStatic
 extern unsigned char GAM_g_ucIsEdInGhostMode;

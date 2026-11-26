@@ -645,6 +645,7 @@ unsigned int fn_uiEngineMainLoop(void)
     }
     GAM_pc_fn_vEngineThreadExit();             /* 0x401090 */
 
+    return 0;
 }
 
 #ifndef USE_SDL

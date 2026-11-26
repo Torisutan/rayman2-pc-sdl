@@ -1,11 +1,25 @@
 #if !defined(__TYPECAM_H__)
 #define __TYPECAM_H__
 
-#define CAM_e_State_GoToOptimal                  0
-#define CAM_e_State_GoToComputedOptimal          1
-#define CAM_e_State_FailureVisibility            2
-#define CAM_e_State_FailureVisibilityWithoutCut  3
-#define CAM_e_TempState_GhostMode                4
-#define CAM_e_TempState_ApexMode                 5
+#if _MSC_VER >= 1000
+#pragma once
+#endif
+
+typedef enum e_ucListViewport_
+{
+	CAM_e_NoViewport = 0,
+	CAM_e_MainViewport,
+	CAM_e_SecondaryViewport
+} e_ucListViewport;
+
+typedef enum e_ucCameraStates_
+{
+	CAM_e_State_GoToOptimal = 0,
+	CAM_e_State_GoToComputedOptimal,
+	CAM_e_State_FailureVisibility,
+	CAM_e_State_FailureVisibilityWithoutCut,
+	CAM_e_TempState_GhostMode,
+	CAM_e_TempState_ApexMode
+} e_ucCameraStates;
 
 #endif

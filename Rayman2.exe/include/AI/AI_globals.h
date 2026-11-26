@@ -66,16 +66,6 @@ EXTERN float AI_PAD_xPrevX;
 EXTERN long AI_PAD_lCurXValue;
 EXTERN long AI_PAD_lCurYValue;
 
-#undef EXTERN
-#if !defined(D_AI_VariableDefine)
-#define EXTERN extern
-#else
-#define EXTERN
-#endif
-EXTERN int AI_g_a_lQuickNormTable_storage[2048];
-#define AI_VAA_p_lQuickNormTable  ((const int *)AI_g_a_lQuickNormTable_storage)
-#define AI_FUNC_p_lQuickSqrtTable AI_VAA_p_lQuickNormTable
-
 #endif
 
 #undef EXTERN

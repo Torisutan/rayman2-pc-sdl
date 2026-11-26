@@ -27,13 +27,7 @@ extern CAM_tdstCameraConstants CAM_g_stCameraConstants;       /* 0x004FF660 */
 extern CAM_tdstCameraConstants CAM_g_stCopyCameraConstants;   /* 0x004FF6E0 */
 #define CAM_C_xAverageForComputePos (CAM_g_stCameraConstants.xAverageForComputePos)
 
-enum e_ucListViewport_
-{
-    CAM_e_NoViewport = 0
-
-};
-
-enum e_ucCameraStates_ { CAM_e_CameraState_Layout = 0 };
+#include "GAM/TYPECAM.H"
 
 #define C_IAFlags_NoDynamicTarget                0x0001
 #define C_IAFlags_NoAverageMoveTgtPerso          0x0002

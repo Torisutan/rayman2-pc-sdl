@@ -358,12 +358,12 @@ static void HIE_pc_fn_vRenderLODFrameAtDistance(void *_hVpt, GEO_tdstVisualSet *
 }
 
 /* 0x0042b230 */
-static void HIE_pc_fn_vRenderLODByCenterDistance(void *_hVpt, GEO_tdstVisualSet *_hVS, float *_pfCenter,
-                                                 long _lDrawMask)
+static void HIE_pc_fn_vRenderLODByCenterDistance(void *_hVpt, GEO_tdstVisualSet *_hVS,
+                                                 MTH3D_tdstVector *_p_stCenter, long _lDrawMask)
 {
     MTH3D_tdstVector stVector;
 
-    POS_fn_vMulMatrixVertex(&stVector, GLI_g_p_stCurrentMatrix, (MTH3D_tdstVector *)_pfCenter);
+    POS_fn_vMulMatrixVertex(&stVector, GLI_g_p_stCurrentMatrix, _p_stCenter);
     POS_fn_vMulMatrixVertex(&stVector,
                             &((GLI_tdstSpecificAttributesFor3D *)
                               ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam->stMatrix,
@@ -514,7 +514,7 @@ short __cdecl HIE_pc_fn_sGetFrameTableEntryCount(void *p_stTable, short sIndex)
 }
 
 /* 0x0042af70 */
-static void HIE_pc_fn_vRenderLODFrame(void *_hVpt, GEO_tdstVisualSet *_hVS, float *_pfCenter,
+static void HIE_pc_fn_vRenderLODFrame(void *_hVpt, GEO_tdstVisualSet *_hVS, MTH3D_tdstVector *_p_stCenter,
                                       long _lDrawMask, void *_pFrameTable)
 {
     float aVector[3];
@@ -532,7 +532,7 @@ static void HIE_pc_fn_vRenderLODFrame(void *_hVpt, GEO_tdstVisualSet *_hVS, floa
          GLI_BIG_GLOBALS->p_stActiveFog->xInfinite < 50000.0f))
     {
         POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aVector, GLI_g_p_stCurrentMatrix,
-                                (MTH3D_tdstVector *)_pfCenter);
+                                _p_stCenter);
         pCamera = ((GLI_tdstSpecificAttributesFor3D *)
                    ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam;
         POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aVector,
@@ -574,7 +574,7 @@ static void HIE_pc_fn_vRenderLODFrame(void *_hVpt, GEO_tdstVisualSet *_hVS, floa
 }
 
 /* 0x0042b0c0 */
-static void HIE_pc_fn_vRenderLODByRadius(void *_hVpt, GEO_tdstVisualSet *_hVS, float *_pfCenter,
+static void HIE_pc_fn_vRenderLODByRadius(void *_hVpt, GEO_tdstVisualSet *_hVS, MTH3D_tdstVector *_p_stCenter,
                                          float _fRadius, long _lDrawMask)
 {
     float aVector[3];
@@ -590,7 +590,7 @@ static void HIE_pc_fn_vRenderLODByRadius(void *_hVpt, GEO_tdstVisualSet *_hVS, f
          GLI_BIG_GLOBALS->p_stActiveFog->xInfinite < 50000.0f))
     {
         POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aVector, GLI_g_p_stCurrentMatrix,
-                                (MTH3D_tdstVector *)_pfCenter);
+                                _p_stCenter);
         pCamera = ((GLI_tdstSpecificAttributesFor3D *)
                    ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam;
         POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aVector,
@@ -630,8 +630,9 @@ void HIE_fn_vSendSuperObjectToViewport(void *_hVpt,
     float fGlobalAlphaTemp;
     float fCullingTransparency;
     unsigned long ulType;
-    float *pfBV;
-    float fCenterX, fCenterY, fCenterZ, fRadius;
+    GEO_tdxHandleToBoundingSphere hBV;
+    MTH3D_tdstVector stCenter;
+    float fRadius;
     void *hVS;
     void *hPO;
     void *hFrame;
@@ -646,18 +647,19 @@ void HIE_fn_vSendSuperObjectToViewport(void *_hVpt,
     ulType = _hSprObj->ulTypeOfLinkedObject;
 
     if (ulType == HIE_C_ulPO) {
-        pfBV = (float *)PO_fn_hGetBoundingVolume(_hSprObj->hLinkedObject.p_Void);
-        fCenterX = pfBV[0]; fCenterY = pfBV[1]; fCenterZ = pfBV[2]; fRadius = pfBV[3];
+        hBV = (GEO_tdxHandleToBoundingSphere)PO_fn_hGetBoundingVolume(_hSprObj->hLinkedObject.p_Void);
+        MTH3D_M_vCopyVector(&stCenter, GEO_fn_pGetCenterPointOfBoundingSphere(hBV));
+        fRadius = GEO_fn_xGetRadiusOfBoundingSphere(hBV);
         hVS = PO_fn_hGetVisualSet(_hSprObj->hLinkedObject.p_Void);
         iLODCount = GLI_lGetVisualSetNumbertOfLOD(hVS);
         if (HIE_g_ucRenderMode == 0 && iLODCount == 1) {
             hFrame = (void *)GLI_hGetRLI(hVS, 0);
-            HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &fCenterX, _lDrawMask, hFrame);
+            HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &stCenter, _lDrawMask, hFrame);
             GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
         }
         if (HIE_g_ucRenderMode == 1) {
             hFrame = (void *)GLI_hGetRLI(hVS, (int)HIE_g_ucShadowIdx);
-            HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &fCenterX, _lDrawMask, hFrame);
+            HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &stCenter, _lDrawMask, hFrame);
             GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
         }
         if (HIE_g_ucRenderMode == 2) {
@@ -665,39 +667,39 @@ void HIE_fn_vSendSuperObjectToViewport(void *_hVpt,
                                                                (int)HIE_g_ucMirrorIdx, NULL,
                                                                HIE_g_xMirrorBlend);
             if (hMirrorFrame != NULL) {
-                HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &fCenterX, _lDrawMask, hMirrorFrame);
+                HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &stCenter, _lDrawMask, hMirrorFrame);
                 HIE_pc_fn_vFreeFrameTable((HIE_pc_tdstFrameTable *)hMirrorFrame);
                 GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
             }
-            if (pfBV != NULL) HIE_pc_fn_vRenderLODByRadius(_hVpt, hVS, &fCenterX, fRadius, _lDrawMask);
-            else              HIE_pc_fn_vRenderLODByCenterDistance(_hVpt, hVS, &fCenterX, _lDrawMask);
+            if (hBV != NULL) HIE_pc_fn_vRenderLODByRadius(_hVpt, hVS, &stCenter, fRadius, _lDrawMask);
+            else              HIE_pc_fn_vRenderLODByCenterDistance(_hVpt, hVS, &stCenter, _lDrawMask);
             GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
         }
 
-        if (pfBV != NULL) HIE_pc_fn_vRenderLODByRadius(_hVpt, hVS, &fCenterX, fRadius, _lDrawMask);
-        else              HIE_pc_fn_vRenderLODByCenterDistance(_hVpt, hVS, &fCenterX, _lDrawMask);
+        if (hBV != NULL) HIE_pc_fn_vRenderLODByRadius(_hVpt, hVS, &stCenter, fRadius, _lDrawMask);
+        else              HIE_pc_fn_vRenderLODByCenterDistance(_hVpt, hVS, &stCenter, _lDrawMask);
         GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
     }
 
     if (ulType == HIE_C_ulIPO) {
         hPO = IPO_fn_hGetPhysicalObject(_hSprObj->hLinkedObject.p_Void);
-        pfBV = (float *)PO_fn_hGetBoundingVolume(hPO);
-        fCenterX = pfBV[0]; fCenterY = pfBV[1]; fCenterZ = pfBV[2];
+        hBV = (GEO_tdxHandleToBoundingSphere)PO_fn_hGetBoundingVolume(hPO);
+        MTH3D_M_vCopyVector(&stCenter, GEO_fn_pGetCenterPointOfBoundingSphere(hBV));
         hFrame = fn_hGetNextAlwaysActiveCharNode(_hSprObj->hLinkedObject.p_Void);
         hVS = PO_fn_hGetVisualSet(hPO);
-        HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &fCenterX, _lDrawMask, hFrame);
+        HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &stCenter, _lDrawMask, hFrame);
         GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
     }
 
     if (ulType == HIE_C_ulIPO_Mirror) {
         if (DAT_005115c9 != '\0') {
             hPO = IPO_fn_hGetPhysicalObject(_hSprObj->hLinkedObject.p_Void);
-            pfBV = (float *)PO_fn_hGetBoundingVolume(hPO);
-            fCenterX = pfBV[0]; fCenterY = pfBV[1]; fCenterZ = pfBV[2];
+            hBV = (GEO_tdxHandleToBoundingSphere)PO_fn_hGetBoundingVolume(hPO);
+            MTH3D_M_vCopyVector(&stCenter, GEO_fn_pGetCenterPointOfBoundingSphere(hBV));
             hFrame = fn_hGetNextAlwaysActiveCharNode(_hSprObj->hLinkedObject.p_Void);
             FUN_00422000(1);
             hVS = PO_fn_hGetVisualSet(hPO);
-            HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &fCenterX, _lDrawMask, hFrame);
+            HIE_pc_fn_vRenderLODFrame(_hVpt, hVS, &stCenter, _lDrawMask, hFrame);
             FUN_00422000(0);
             GLI_vSetGlobalAlpha(fGlobalAlphaTemp); return;
         }

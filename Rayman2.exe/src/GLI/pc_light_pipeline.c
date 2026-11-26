@@ -2,34 +2,9 @@
 #include "GLI/light_st.h"
 #include "GLI/GLI_BigGlobals.h"
 
-extern int AI_g_a_lQuickNormTable_storage[2048];
 /* 0x0050FBA0 */
 extern unsigned long MTH_g_a1024_fInverse[1024];
 #define GLI_g_aFastInverseZLUT_storage  MTH_g_a1024_fInverse
-
-static __inline float GLI_pc_xFastSqrt(float f)
-{
-    float res_sqrt;
-
-    MTH_M_vCHK(f);
-
-    _asm {
-        mov  ebx,f
-        mov  eax,f
-        and  ebx,0x7F800000
-        and  eax,0x00FFE000
-        add  ebx,0x3F800000
-        shr  ebx,1
-        shr  eax,11
-        and  ebx,0x7F800000
-        add  ebx,dword ptr[AI_g_a_lQuickNormTable_storage+eax]
-        mov  dword ptr[res_sqrt],ebx
-    }
-
-    MTH_M_vCHK(res_sqrt);
-
-    return (res_sqrt);
-}
 
 #define GLI_pc_xFastRecip(xValue) MTH_fn_fInverseOpt(xValue)
 
@@ -46,7 +21,7 @@ unsigned long __fastcall GLI_pc_fn_ulClassifyLightVsSphere(struct GLI_tdstLight_
     /* 0x42715B */
     MTH3D_M_vSubVector(&stDiff, &p_stLight->stMatrix.stTranslationVector,
                        &p_stGlobals->stCenterOfCurrentBoundingSphere);
-    xDist = GLI_pc_xFastSqrt(MTH3D_M_xSqrVector(&stDiff));
+    xDist = MTH_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stDiff));
 
     if (p_stLight->xFar < xDist - p_stGlobals->stRadiusOfCurrentBoundingSphere) {
         return 0;
@@ -69,7 +44,7 @@ unsigned long __fastcall GLI_pc_fn_ulTestLightRangeVsSphere(struct GLI_tdstLight
     POS_fn_vGetTranslationVector(&p_stLight->stMatrix, &stTrs);
     /* 0x427B5B */
     MTH3D_M_vSubVector(&stTrs, &stTrs, &p_stGlobals->stCenterOfCurrentBoundingSphere);
-    xDist = GLI_pc_xFastSqrt(MTH3D_M_xSqrVector(&stTrs));
+    xDist = MTH_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stTrs));
 
     if (xDist < p_stLight->xFar + p_stGlobals->stRadiusOfCurrentBoundingSphere) {
         return 1UL;
@@ -545,7 +520,7 @@ void __cdecl GLI_pc_fn_vAccumulateLightBoxAttenuatedVertices(struct GLI_tdstLigh
         xDiff[2] = stLightPos.xZ - stCentre.xZ;
         xRsq = xDiff[1] * xDiff[1] + xDiff[0] * xDiff[0];
         xRsq = xDiff[2] * xDiff[2] + xRsq;
-        if (GLI_pc_xFastSqrt(xRsq) < p_stEngine->stRadiusOfCurrentBoundingSphere + p_stLight->xRadius) {
+        if (MTH_fn_fSquareRootOpt(xRsq) < p_stEngine->stRadiusOfCurrentBoundingSphere + p_stLight->xRadius) {
             return;
         }
     }
@@ -664,7 +639,7 @@ void __cdecl GLI_pc_fn_vAccumulateLightPointVertices(struct GLI_tdstLight_ *p_st
     }
 
     xPP = axP[0] * axP[0] + axP[1] * axP[1] + axP[2] * axP[2];
-    xSqrtPP = GLI_pc_xFastSqrt(xPP);
+    xSqrtPP = MTH_fn_fSquareRootOpt(xPP);
 
     bGrid = (p_stLight->stZBuffer.p_xZBufferMap != NULL);
     p_xVtx = p_stEngine->GLI_TurnedScaledDisplecedPoint;

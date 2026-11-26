@@ -636,7 +636,7 @@ extern unsigned long MTH_g_a2048_fInvSquareRootTable[2048];   /* 0x0050BB60 */
         float         xSq_    = (z) * (z) + (y) * (y) + (x) * (x); \
         unsigned long ulBits_ = *(unsigned long *)&xSq_; \
         int           lRes_   = (int)((((ulBits_ & 0x7F800000u) + 0x3F800000u) >> 1) & 0x7F800000u) \
-                              + *(const int *)((const char *)AI_VAA_p_lQuickNormTable \
+                              + *(const int *)((const char *)MTH_g_a2048_fSquareRootTable \
                                                + ((ulBits_ & 0xFFE000) >> 0xB)); \
         (xRes) = *(float *)&lRes_; \
     } while (0)

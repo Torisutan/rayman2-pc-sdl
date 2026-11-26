@@ -579,7 +579,6 @@ char CAM_fn_cFindCorrectPosWithDir
 	}
 }
 
-#define CAM_e_State_GoToOptimal                 0
 #define C_PerIAFlags_ConstraintMoveVisFailure   0x08
 
 #define CAM_C_xTickTimeFindBetterPosIfNoMove \
@@ -804,7 +803,6 @@ MTH_tdxReal	CAM_fnx_ComputePosPound(CAM_tdstUpdateCamera *_pst_Struct, MTH3D_tds
 	return x_Pound;
 }
 
-#define CAM_e_State_GoToComputedOptimal         1
 void CAM_fn_vSetCineinfoVisibilityFromCurrent(MS_tdxHandleToCineinfo _hCineinfo);
 void CAM_fn_vComputeMovePos(CAM_tdstUpdateCamera *_p_stStruct);
 
@@ -850,8 +848,6 @@ tdst_PosPound gast_VectorArrayCpt[256];
 #define CONSTANT_FORCEBESTPOS                   (CAM_g_stCameraConstants.wFlags & 0x0004)
 #define CONSTANT_NOBETTERPOS                    (CAM_g_stCameraConstants.wFlags & 0x0020)
 #define CONSTANT_NODISTVIS                      (CAM_g_stCameraConstants.wFlags & 0x0040)
-
-#define CAM_e_State_FailureVisibility           2
 
 #define CAM_C_xBaseAngleComputePosNormal        (CAM_g_stCameraConstants.xBaseAngleComputePosNormal)
 #define CAM_C_xBaseAngleComputePosFailure       (CAM_g_stCameraConstants.xBaseAngleComputePosFailure)
