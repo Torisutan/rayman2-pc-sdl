@@ -325,12 +325,18 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
     (`fn_uiEngineMainLoop`, `GLI_fn_lRequestNewDisplayMode`), and `%d` given a `long` (24, wrong
     where `long` is 64-bit; also a PORTABILITY item). Fixing them here would edit upstream files
     line by line (rule 2); upstream carries them once the decomp has them.
-  - **Possible defects, checked here under the Phase 3 rules** (next step): operator precedence
-    (`AGO/AGO.c` twice, `HIE/HiePick.c`, `IPT/IPT_kwan.c` twice), an unsequenced modification
-    (`GAM/textfrmt.c`), misleading indentation (`AI/cam_tool.c`, `SND/SND.c`), case values outside
-    their enum (`AI/cam_base.c`, 5), possibly uninitialised reads (C4701/C4703 58,
-    `-Wsometimes-uninitialized` 5; compare with the uninitialised-read pass in BUGS.md). Each is
-    original behaviour (logged), a decompilation difference (decomp request) or a BUGS.md row.
+  - **Possible defects (checked 2026-11-26, Phase 3 rules; BUGS.md "Checked").** Each against
+    the retail asm and the original source: no retail bug. Original behaviour: `AGO/AGO.c` (the
+    precedence makes `AGO_ulGetElderOne` always return -1, so a full particle table drops new
+    particles; callers test for NULL), `HIE/HiePick.c` (`!a & 0x200`, a test that never fires).
+    Defined: `IPT/IPT_Kwan.c` And/Or (bitwise on purpose; call order unspecified, result the
+    same). Indentation only: `AI/cam_tool.c`, `SND/SND.c`. To the decomp request (items 5 and 6):
+    `GAM/textfrmt.c` `p += f(++p)` (undefined in C; retail, MSVC and clang-cl all compute
+    `(p + 1) + f`, other compilers need not: a port item) and the camera state enum
+    (`AI/cam_base.c`, a placeholder enum with `#define`d states, same values as the original).
+    Uninitialised reads: the leads outside the files of the 2026-11-23 pass are false positives
+    (paired tests) or unreachable (mouse keywords: measured under cdb, never evaluated; the game
+    has no mouse input). No code change, regression not affected.
   - **Protection leftovers:** unused variables whose only uses are fenced by
     `RAYMAN2_NO_PROTECTION` (most of C4101/C4189 in `MMG/SNA.c`, `MMG/MMG_init.c`, `AI/Function.c`,
     `AI/Procedure.c`, `GAM/GAM_engine.c`). They go with the excluded code (closing Phase 2).
