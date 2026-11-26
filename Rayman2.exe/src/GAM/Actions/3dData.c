@@ -144,7 +144,7 @@ void __cdecl fn_v3dDataFree(HIE_tdstEngineObject *p_stObject)
 
     fn_v3dDataFreeInitValueSAI((MS_tdxHandleTo3dData)p_stObject->h3dData);
 
-    PLA_fn_vDesInitAllChildOfCharacter(NULL, p_stObject);
+    PLA_fn_vDesInitAllChildOfCharacter(NULL, (struct tdstEngineObject_ *)p_stObject);
     fn_vFreeMorphList((void *)&(((MS_tdxHandleTo3dData)p_stObject->h3dData)->hMorphChannelList));
 
     fn_vGameFreeInHLM(p_stObject->h3dData);
@@ -175,7 +175,7 @@ void __cdecl fn_v3dDataDesinit(HIE_tdstEngineObject *p_stObject, int eObjectInit
     case 1:
         PLA_fn_vDesInitAllChildOfCharacter(
             fn_h_StandardGameGetSuperObject((MS_tdxHandleToStandardGame)p_stObject->hStandardGame),
-            p_stObject);
+            (struct tdstEngineObject_ *)p_stObject);
         fn_vFreeMorphList((void *)&(((MS_tdxHandleTo3dData)p_stObject->h3dData)->hMorphChannelList));
         break;
     default:

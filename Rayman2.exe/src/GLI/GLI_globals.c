@@ -17,7 +17,7 @@ struct GLI_tdstTexture *GLI_gs_aDEFTableOfTextureAlreadyRead[1024];
 unsigned long           GLI_gs_aDEFTableOfTextureMemoryChannels[1024];
 
 /* 0x00506b00 */
-struct POS_tdstCompletePosition               *GLI_g_p_stCurrentMatrix;
+struct POS_tdstCompletePosition_              *GLI_g_p_stCurrentMatrix;
 
 /* 0x005036ac */
 struct GLI_tdstInternalGlobalValuesFor3dEngine_ *GLI_BIG_GLOBALS;

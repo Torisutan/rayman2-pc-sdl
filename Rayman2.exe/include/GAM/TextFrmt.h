@@ -14,7 +14,7 @@ typedef struct TFMT_tdstStatus_ {
     MTH_tdxReal xCharZoom;
     MTH_tdxReal xCurCharZoom;
     MTH_tdxReal xCurCharWidth;
-    long        hSourceObjectTable;
+    struct tdstObjectsTablesList_ *hSourceObjectTable;
     char        cJustificationMode;
 } TFMT_tdstStatus;
 

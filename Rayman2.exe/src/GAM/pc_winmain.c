@@ -1197,7 +1197,7 @@ void __cdecl fn_vCreateFixCamera(void)
     POS_tdstCompletePosition stRotMatrix;
     MTH3D_tdstVector         stTrans;
 
-    GLI_xCreateCamera(&GAM_pc_g_p2DCamera, 0x67);
+    GLI_xCreateCamera((GLI_tdstCamera **)&GAM_pc_g_p2DCamera, 0x67);
     GLI_xSetCameraAspectAndRatio(GAM_pc_g_p2DCamera, 1.5f, 0.75f);
     GLI_xSetCameraNearFar(GAM_pc_g_p2DCamera, 0.1f, 1000.0f);
     GLI_xGetCameraMatrix(GAM_pc_g_p2DCamera, (long *)&stCamMatrix);

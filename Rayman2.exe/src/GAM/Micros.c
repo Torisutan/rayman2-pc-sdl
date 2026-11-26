@@ -274,20 +274,20 @@ void __cdecl GAM_pc_RetObjetInfoMenu(void *hObj, char *pszBuffer, int iSize)
 /* 0x0040A280 */
 void __cdecl GAM_pc_RetObjetInfoAnim(void *hObj, char *pszBuffer, int iSize)
 {
-    char *p_stEngine;
+    struct tdstEngineObject_ *p_stEngine;
 
     if (hObj == (void *)-1)
     {
         strncpy(pszBuffer, "Ghost Object", iSize);
         return;
     }
-    p_stEngine = (char *)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)hObj);
+    p_stEngine = (struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)hObj);
     strncpy(pszBuffer, "Perso:", iSize);
     if (((HIE_tdstSuperObject *)hObj)->ulTypeOfLinkedObject == HIE_C_ulActor)
     {
         if (!fn_ucIsAnAlwaysObject(p_stEngine))
         {
-            if (((struct tdstEngineObject_ *)p_stEngine)->h_Brain != NULL)
+            if (p_stEngine->h_Brain != NULL)
                 strncat(pszBuffer, "", iSize - strlen(pszBuffer));
             else
                 strncat(pszBuffer, "no intelligence", iSize - strlen(pszBuffer));
@@ -408,7 +408,7 @@ void __cdecl fn_lInitSoundForAnim(void)
 #define GAM_C_WOT_ulCeiling   0x00000010UL
 
 /* 0x004194B0 */
-void *__cdecl GMT_fn_hGetSoundMaterial(GMT_tdxHandleToGameMaterial _hGameMat);
+long __cdecl GMT_fn_hGetSoundMaterial(GMT_tdxHandleToGameMaterial _hGameMat);
 
 /* 0x0040A180 */
 long __cdecl RetObjetSonoreSwitchAnim(long indice, long toto)

@@ -309,7 +309,7 @@ short *GLI_hComputeBlendRLI(void *hVS, long lShadowIdx, long lMirrorIdx,
 /* 0x0042a980 */
 extern void __cdecl FUN_0042a980(unsigned long arg, unsigned long argExtra);
 /* 0x00506b00 */
-extern struct POS_tdstCompletePosition *GLI_g_p_stCurrentMatrix;
+extern struct POS_tdstCompletePosition_ *GLI_g_p_stCurrentMatrix;
 
 #include "GLI/VisuS_st.h"
 

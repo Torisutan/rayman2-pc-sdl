@@ -1239,16 +1239,16 @@ AI_tdstNodeInterpret *__cdecl fn_p_stSectorCondition(
     {
         HIE_tdstSuperObject *pPerso1 = hNewSuperObjPerso;
         HIE_tdstSuperObject *pPerso2;
-        float                stVertex1[3], stVertex2[3];
+        MTH3D_tdstVector     stVertex1, stVertex2;
 
         p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
         pPerso2  = AI_M_GetSetParam_p_stSupObjValue(&stParam);
 
-        fn_vGetCenterOfBoundingVolume(pPerso1, (MTH3D_tdstVector *)stVertex1);
-        fn_vGetCenterOfBoundingVolume(pPerso2, (MTH3D_tdstVector *)stVertex2);
+        fn_vGetCenterOfBoundingVolume(pPerso1, &stVertex1);
+        fn_vGetCenterOfBoundingVolume(pPerso2, &stVertex2);
 
         *p_lValue = (long)((unsigned char)fn_bPerso1Point1IntersectPerso2Point2(
-                               pPerso1, stVertex1, pPerso2, stVertex2) == 0);
+                               pPerso1, &stVertex1, pPerso2, &stVertex2) == 0);
         return p_stTree;
     }
 }
@@ -1753,13 +1753,13 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMagnetActivated(
 {
     unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
     HIE_tdstSuperObject *hNewSuperObjPerso;
-    char                *hMagnet;
+    MS_tdxHandleToMSMagnet hMagnet;
 
     fn_vGetUltraOperatorPerso(
         AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
 
-    hMagnet = (char *)((struct tdstEngineObject_ *)(HIE_fn_hGetSuperObjectObject(hNewSuperObjPerso)))->h_MSMagnet;
-    if (hMagnet != (char *)0)
+    hMagnet = (MS_tdxHandleToMSMagnet)((struct tdstEngineObject_ *)(HIE_fn_hGetSuperObjectObject(hNewSuperObjPerso)))->h_MSMagnet;
+    if (hMagnet != NULL)
     {
         switch (fn_lMSMagnetGetStatus(hMagnet))   /* 0x00415210 */
         {

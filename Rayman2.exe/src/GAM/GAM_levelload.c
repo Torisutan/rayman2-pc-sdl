@@ -330,7 +330,7 @@ void fn_vInitLevelLoop(void)
         GLI_xGetViewportCamera((unsigned long)GAM_g_stEngineStructure.hGLDDevice, (unsigned short)GAM_g_stEngineStructure.hGLDViewport, (void **)&iAttrib);
         if (iAttrib == 0)
         {
-            GLI_xCreateCamera((void **)&iAttrib, 0x67);   /* 0x422750 */
+            GLI_xCreateCamera((GLI_tdstCamera **)&iAttrib, 0x67);   /* 0x422750 */
             GLI_xSetCameraAspectAndRatio((void *)iAttrib, 1.5f, 0.75f);
             GLI_xSetViewportCamera((unsigned long)GAM_g_stEngineStructure.hGLDDevice,
                                    (unsigned short)GAM_g_stEngineStructure.hGLDViewport, iAttrib);   /* 0x4226d0 */
@@ -564,7 +564,7 @@ void fn_vInitLevelLoop(void)
                           (int)(tdstStacks[eStackFramesKF].ulStackPos - tdstStacks[eStackFramesKF].ulResetPos), sizeof(int));
         SNA_vReadRawArray(&p_stKeyFrames[tdstStacks[eStackKeyFrames].ulResetPos],
                           (int)(tdstStacks[eStackKeyFrames].ulStackPos - tdstStacks[eStackKeyFrames].ulResetPos), sizeof(tdstKeyFrame));
-        SNA_pc_vReadAndRelocateArray((char *)GAM_g_pAnimStack500298 + tdstStacks[eStackEvents].ulResetPos * 0xc,
+        SNA_pc_vReadAndRelocateArray((int *)((char *)GAM_g_pAnimStack500298 + tdstStacks[eStackEvents].ulResetPos * 0xc),
                           (int)(tdstStacks[eStackEvents].ulStackPos - tdstStacks[eStackEvents].ulResetPos), 0xc);
         SNA_vReadRawArray((char *)GAM_g_pAnimStack500288 + tdstStacks[eStackMorphData].ulResetPos * 8,
                           (int)(tdstStacks[eStackMorphData].ulStackPos - tdstStacks[eStackMorphData].ulResetPos), 8);

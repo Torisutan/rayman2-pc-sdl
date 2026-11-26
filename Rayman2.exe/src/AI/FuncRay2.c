@@ -613,7 +613,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGraphToWayFunction(
     struct tdstEngineObject_ *hEngineObj;
     char                      bIsCircular;
     void                     *hPath;
-    unsigned long             ulWayPoint1, ulWayPoint2;
+    WP_tdhWayPoint            hWayPoint1, hWayPoint2;
     WP_tdhGraphNode           hCurrentNode;
     unsigned long             ulPersoCapability;
     HIE_tdstSuperObject      *hNewSuperObjPerso;
@@ -635,9 +635,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGraphToWayFunction(
     {
     case 0x79:
         M_EvalNextParameter(p_stValue);
-        ulWayPoint1 = M_GetSetParam_WayPointValue(p_stValue);
+        hWayPoint1 = M_GetSetParam_WayPointValue(p_stValue);
         M_EvalNextParameter(p_stValue);
-        ulWayPoint2 = M_GetSetParam_WayPointValue(p_stValue);
+        hWayPoint2 = M_GetSetParam_WayPointValue(p_stValue);
 
         if (h_MSWay == NULL || hGraph == NULL)
         {
@@ -647,7 +647,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGraphToWayFunction(
 
         hEngineObj        = M_GetEngineObject(hNewSuperObjPerso);
         ulPersoCapability = AI_M_pfn_fn_ulGetCapabilities(hEngineObj);
-        hPath             = AI_M_pfn_WPG_fn_lShortestPath(hGraph, ulWayPoint1, ulWayPoint2, ulPersoCapability);
+        hPath             = AI_M_pfn_WPG_fn_lShortestPath(hGraph, hWayPoint1, hWayPoint2, ulPersoCapability);
 
         if (hPath != NULL)
         {
@@ -668,7 +668,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGraphToWayFunction(
     case 0x7A:
         {
             M_EvalNextParameter(p_stValue);
-            ulWayPoint1 = M_GetSetParam_WayPointValue(p_stValue);
+            hWayPoint1 = M_GetSetParam_WayPointValue(p_stValue);
 
             if (h_MSWay == NULL || hGraph == NULL)
             {
@@ -676,7 +676,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGraphToWayFunction(
                 return(p_stTree);
             }
 
-            hPath = AI_M_pfn_WPG_fn_lBuildOrderedPath(hGraph, ulWayPoint1);
+            hPath = AI_M_pfn_WPG_fn_lBuildOrderedPath(hGraph, hWayPoint1);
 
             if (hPath != NULL)
             {
@@ -893,11 +893,9 @@ AI_tdstNodeInterpret *__cdecl fn_p_stWayFunction(
 }
 
 /* 0x00480050 */
-void *__cdecl WPG_fn_hGetWaypointOfGraph(int *hGraph, int iIndex, long *_plTypeOfWP);
-#define AI_M_pfn_WPG_fn_hGetWaypointOfGraph(g, i, t) \
-    WPG_fn_hGetWaypointOfGraph((int *)(g), (int)(i), (t))
+WP_tdhWayPoint __cdecl WPG_fn_hGetWaypointOfGraph(WP_tdHandleOfGraph hGraph, int iIndex, long *_plTypeOfWP);
 /* 0x00487860 */
-extern void __cdecl WP_fnv_WayPoint_ComputeLocation(void *_hWayPoint, float *_p_stVertex);
+extern void __cdecl WP_fnv_WayPoint_ComputeLocation(WP_tdhWayPoint _hWayPoint, MTH3D_tdstVector *_p_stVertex);
 #define AI_M_pfn_WP_fnv_WayPoint_ComputeLocation \
     ((void (__cdecl *)(void *, float *))WP_fnv_WayPoint_ComputeLocation)
 

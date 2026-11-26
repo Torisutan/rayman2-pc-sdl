@@ -9,7 +9,7 @@ struct GLI_tdstAligned3DVector_;
 struct GLI_tdst2DUVValues_;
 struct GLD_tdstViewportAttributes;
 struct GEO_tdstColor;
-struct POS_tdstCompletePosition;
+struct POS_tdstCompletePosition_;
 
 /* 0x004a7280 */
 extern void *GLI_g_hConcatTexturesFile;
@@ -30,7 +30,7 @@ extern struct GLI_tdstTexture *GLI_gs_aDEFTableOfTextureAlreadyRead[1024];
 extern unsigned long GLI_gs_aDEFTableOfTextureMemoryChannels[1024];
 
 /* 0x00506b00 */
-extern struct POS_tdstCompletePosition *GLI_g_p_stCurrentMatrix;
+extern struct POS_tdstCompletePosition_ *GLI_g_p_stCurrentMatrix;
 
 /* 0x005036ac */
 extern struct GLI_tdstInternalGlobalValuesFor3dEngine_ *GLI_BIG_GLOBALS;

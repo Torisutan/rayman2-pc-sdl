@@ -778,7 +778,7 @@ extern unsigned short __cdecl FUN_00401340(int);
 static void __cdecl fn_vSendBackGroundColor(void *hSprObjSector)
 {
     int          *p_stElement;
-    unsigned long a_ulColor[4];
+    float a_xColor[4];
     SECT_tdxHandleOfSectorObject hSectorObject;
 
     hSectorObject = (SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject(hSprObjSector);
@@ -790,10 +790,10 @@ static void __cdecl fn_vSendBackGroundColor(void *hSprObjSector)
         {
 
             unsigned long ulR, ulG, ulB;
-            GLI_xGetLightBackgroundColor((void *)*p_stElement, a_ulColor);
-            ulR = (unsigned char)(long)MTH_M_xMul(*(float *)&a_ulColor[0], MTH_M_xLongToReal(255));
-            ulG = (unsigned char)(long)MTH_M_xMul(*(float *)&a_ulColor[1], MTH_M_xLongToReal(255));
-            ulB = (unsigned char)(long)MTH_M_xMul(*(float *)&a_ulColor[2], MTH_M_xLongToReal(255));
+            GLI_xGetLightBackgroundColor((void *)*p_stElement, (GEO_tdstColor *)a_xColor);
+            ulR = (unsigned char)(long)MTH_M_xMul(a_xColor[0], MTH_M_xLongToReal(255));
+            ulG = (unsigned char)(long)MTH_M_xMul(a_xColor[1], MTH_M_xLongToReal(255));
+            ulB = (unsigned char)(long)MTH_M_xMul(a_xColor[2], MTH_M_xLongToReal(255));
             GLD_bSetBackgroundColorForDevice(FUN_00401340(0), ulR | (ulG << 8) | (ulB << 16));
             break;
         }

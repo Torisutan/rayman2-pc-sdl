@@ -177,7 +177,7 @@ void __cdecl GAM_pc_fn_vTakeSnapShot(void)
                                       ulWidth, ulHeight, p_ucBuffer);
         do
         {
-            sprintf(szFileName, "SnapShot\\Snap%04d.bmp", GAM_pc_g_lSnapShotCounter++);
+            sprintf(szFileName, "SnapShot\\Snap%04d.bmp", (int)GAM_pc_g_lSnapShotCounter++);
         } while (FIL_fn_bIsFileExist(szFileName));
         FIL_fn_vSaveBMPInFile(szFileName, (int)p_ucBuffer, ulWidth, ulHeight, 3, 3);
         free(p_ucBuffer);

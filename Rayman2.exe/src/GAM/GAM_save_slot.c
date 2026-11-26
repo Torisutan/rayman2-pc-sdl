@@ -78,7 +78,7 @@ unsigned char __cdecl GAM_pc_fn_bBuildSaveSlotPath(char *pszOut, long lSlotId)
 {
     char szPath[128];
 
-    sprintf(szPath, "%s\\%s%i", FUN_00492700(), "Slot", lSlotId);
+    sprintf(szPath, "%s\\%s%i", FUN_00492700(), "Slot", (int)lSlotId);
     if (strlen(szPath) > 0x80)
         return 0;
     strcpy(pszOut, szPath);
@@ -329,8 +329,8 @@ unsigned char __cdecl GAM_pc_fn_ucSortSaveSlotsByDate(void)
                 } else {
                     p_stNodeA = p_stNodeB->pNext;
                 }
-                sprintf(szPathA, "%s\\%s%i", FUN_00492700(), "Slot", p_stNodeA->lSlotId);
-                sprintf(szPathB, "%s\\%s%i", FUN_00492700(), "Slot", p_stNodeB->lSlotId);
+                sprintf(szPathA, "%s\\%s%i", FUN_00492700(), "Slot", (int)p_stNodeA->lSlotId);
+                sprintf(szPathB, "%s\\%s%i", FUN_00492700(), "Slot", (int)p_stNodeB->lSlotId);
                 if (GAM_pc_fn_lCompareSaveSlotDates(szPathA, szPathB) != 0) {
                     lSlotId = p_stNodeA->lSlotId;
                     strcpy(szTmpName, p_stNodeA->szNameScore);
@@ -738,7 +738,7 @@ unsigned char __cdecl GAM_pc_fn_ucIsSaveSlotPathValid(unsigned long ulSlotId)
 
     if ((ulSlotId >= 1) && (ulSlotId <= (unsigned long)GAM_g_lNbSaveSlots)) {
         lSlotNum = GAM_pc_fn_lGetSaveSlotId((long)ulSlotId);
-        sprintf(szSlotPath, "%s\\Slot%i", FUN_00492700(), lSlotNum);
+        sprintf(szSlotPath, "%s\\Slot%i", FUN_00492700(), (int)lSlotNum);
         return FIL_fn_bIsValidPath(szSlotPath);
     }
     return 0;
@@ -755,7 +755,7 @@ unsigned char __cdecl fn_bLoadGameFromSlot(unsigned long ulSlotId)
     ucResult = 0;
     if (GAM_pc_fn_ucIsSaveSlotPathValid(ulSlotId)) {
         lSlotNum = GAM_pc_fn_lGetSaveSlotId((long)ulSlotId);
-        sprintf(szSlotPath, "%s\\Slot%i", FUN_00492700(), lSlotNum);
+        sprintf(szSlotPath, "%s\\Slot%i", FUN_00492700(), (int)lSlotNum);
         strncpy(GAM_g_szSlotNameWork, GAM_pc_fn_p_szGetSaveSlotNameScore((long)ulSlotId), 3);
         sprintf(szHiddenPath, "%s\\%s", FUN_00492700(), GAM_SS_pszHiddenSlot);
         if (GAM_pc_fn_bDeleteDirectoryTree(szHiddenPath)) {
@@ -777,10 +777,10 @@ unsigned char __cdecl GAM_pc_fn_ucErasePrepSaveSlot(unsigned long ulSlotId)
 
     ucResult = 1;
     if (GAM_pc_fn_ucIsSaveSlotPathValid(ulSlotId)) {
-        sprintf(szLastPath, "%s\\Slot%i", FUN_00492700(), GAM_g_lNbSaveSlots);
+        sprintf(szLastPath, "%s\\Slot%i", FUN_00492700(), (int)GAM_g_lNbSaveSlots);
         if (GAM_g_lNbSaveSlots != GAM_pc_fn_lGetSaveSlotId((long)ulSlotId)) {
             sprintf(szSlotPath, "%s\\Slot%i", FUN_00492700(),
-                    GAM_pc_fn_lGetSaveSlotId((long)ulSlotId));
+                    (int)GAM_pc_fn_lGetSaveSlotId((long)ulSlotId));
             if (FIL_fn_bValidatePath(szSlotPath, GAM_SS_pszEmptyPrefix)) {
                 GAM_pc_fn_bCopyDirectoryTree(szLastPath, szSlotPath);
             }

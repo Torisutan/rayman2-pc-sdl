@@ -722,9 +722,9 @@ static void FUN_00405a30(void)
 
     /* 0x0049f430 */
     FIL_pc_M_ulGetProfileString(UBIINI_SEC_GAME, UBIINI_K_SOUNDHD, UBIINI_D_ZERO, szValue, 0x104, szIniPath);
-    sscanf(szValue, "%d", &GAM_pc_g_lSoundOnHD);
+    sscanf(szValue, "%d", (int *)&GAM_pc_g_lSoundOnHD);
     FIL_pc_M_ulGetProfileString(UBIINI_SEC_GAME, UBIINI_K_COMPLETE, UBIINI_D_ONE, szValue, 0x104, szIniPath);
-    sscanf(szValue, "%d", &GAM_pc_g_lComplete);
+    sscanf(szValue, "%d", (int *)&GAM_pc_g_lComplete);
 }
 
 /* 0x0044f950 */

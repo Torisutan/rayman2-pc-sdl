@@ -79,7 +79,7 @@ void __cdecl fn_vSetActionParamStateValue(unsigned char ucN,
     AI_tdstIntelligence *p_stIntellOrReflex =
         M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
 
-    M_ActionParamN(p_stIntellOrReflex, ucN).p_stEngObjValue = hState;
+    M_tduGetSetParam_HandleToState(&M_ActionParamN(p_stIntellOrReflex, ucN)) = hState;
 }
 
 struct tdstState_ *__cdecl fn_xGetActionParamStateValue(unsigned char ucN,

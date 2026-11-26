@@ -705,7 +705,7 @@ unsigned char fn_bLevelSaveGameAll(void)
     char  szPath[260];
 
     sprintf(szPath, (char *)GAM_ENG_szSlotSaveFmt, FUN_00492700(), GAM_ENG_pszHiddenSlot,
-            fn_p_szGetLevelName(), (unsigned long)fn_lGetSubMapNumber() >> 0x10);
+            fn_p_szGetLevelName(), (int)((unsigned long)fn_lGetSubMapNumber() >> 0x10));
     /* 0x00410400 */
     return fn_bLevelSaveGameItSelf(szPath);
 }
@@ -726,7 +726,7 @@ unsigned char fn_bLoadLevelSaveGameAfterLoadLevel(void)
     char  szPath[260];
 
     sprintf(szPath, (char *)GAM_ENG_szSlotSaveFmt, FUN_00492700(), GAM_ENG_pszHiddenSlot,
-            fn_p_szGetLevelName(), (unsigned long)fn_lGetSubMapNumber() >> 0x10);
+            fn_p_szGetLevelName(), (int)((unsigned long)fn_lGetSubMapNumber() >> 0x10));
     return SAI_fn_ucLoadPlayerValues(szPath);
 }
 

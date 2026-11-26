@@ -415,7 +415,7 @@ long __cdecl pc_GLI_lSaveVideoModeToConfig(void)
 {
     char szMode[32];
 
-    sprintf(szMode, "%d - %d x %d x %d", GLI_fn_lIsFullScreenMode(), GLI_fn_lDisplayModeWidth(), GLI_fn_lDisplayModeHeight(), FUN_00422090());
+    sprintf(szMode, "%d - %d x %d x %d", (int)GLI_fn_lIsFullScreenMode(), (int)GLI_fn_lDisplayModeWidth(), (int)GLI_fn_lDisplayModeHeight(), (int)FUN_00422090());
     GLI_pc_fn_vWriteIniString("Rayman2", "GLI_Mode", szMode);
     return 1;
 }
@@ -437,6 +437,6 @@ long __cdecl pc_GLI_bGetResolutionName(long lMode, char *szName)
 
     if (!pc_GLI_bGetResolutionSize(lMode, &lWidth, &lHeight))
         return 0;
-    sprintf(szName, "%dx%d", lWidth, lHeight);
+    sprintf(szName, "%dx%d", (int)lWidth, (int)lHeight);
     return 1;
 }

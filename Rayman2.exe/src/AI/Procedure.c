@@ -5234,16 +5234,16 @@ AI_tdstNodeInterpret *__cdecl fn_p_stSetLight(
     }
     case 0x186:
     {
-        float stColor[4];
+        GEO_tdstColor stColor;
         p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stNext, &stParam);
-        stColor[0] = stParam.uParam.xValue;
+        stColor.xR = stParam.uParam.xValue;
         p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stNext, &stParam);
-        stColor[1] = stParam.uParam.xValue;
+        stColor.xG = stParam.uParam.xValue;
         p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stNext, &stParam);
-        stColor[2] = stParam.uParam.xValue;
+        stColor.xB = stParam.uParam.xValue;
         p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stNext, &stParam);
-        stColor[3] = stParam.uParam.xValue;
-        AI_M_pfn_GLI_xSetLightColor(hLight, stColor);
+        stColor.xA = stParam.uParam.xValue;
+        AI_M_pfn_GLI_xSetLightColor(hLight, &stColor);
         return p_stNext;
     }
     case 0x187:

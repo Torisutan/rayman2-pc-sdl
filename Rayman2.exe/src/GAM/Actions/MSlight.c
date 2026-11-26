@@ -169,12 +169,12 @@ MTH_tdxReal __cdecl fn_xMSLightGetFar(void *h)                                  
     GLI_vGetLightNearFar(fn_p_stMSLightGetLight(h), &xNear, &xFar);
     return xFar;
 }
-void __cdecl fn_vMSLightSetColor(void *h, float *p_aColor)             { GLI_xSetLightColor(fn_p_stMSLightGetLight(h), p_aColor); } /* 0x00416190 */
+void __cdecl fn_vMSLightSetColor(void *h, GEO_tdstColor *p_stColor)   { GLI_xSetLightColor(fn_p_stMSLightGetLight(h), p_stColor); } /* 0x00416190 */
 void __cdecl fn_vMSLightSetColorRGBA(void *h, float xR, float xG, float xB, float xA)                                               /* 0x004161B0 */
 {
     float aColor[4];
     aColor[0] = xR; aColor[1] = xG; aColor[2] = xB; aColor[3] = xA;
-    fn_vMSLightSetColor(h, aColor);
+    fn_vMSLightSetColor(h, (GEO_tdstColor *)aColor);
 }
 
 void __cdecl fn_vMSLightSetLittleAlpha(void *h, MTH_tdxReal xAlpha)                                                                 /* 0x004160F0 */
@@ -305,7 +305,7 @@ GEO_tdstGeometricObject *__cdecl fn_pCreateSphere(float x, float y, float z, flo
     MSL_tdstColorLocal       stColor;
     void                    *hGameMaterial;
 
-    GEO_vCreateGeometricObject((void **)&p_stSphere, 1, 1);
+    GEO_vCreateGeometricObject(&p_stSphere, 1, 1);
     MTH3D_M_vSetVectorElements(&stCenter, x, y, z);
     GEO_vSetPointOfObject(p_stSphere, &stCenter, 0);
 
@@ -355,7 +355,7 @@ GEO_tdstGeometricObject *__cdecl fn_pCreateCone(float xS, float yS, float zS, fl
     MSL_tdstColorLocal       stColor;
     void                    *hGameMaterial;
 
-    GEO_vCreateGeometricObject((void **)&p_stSphere, 2, 1);
+    GEO_vCreateGeometricObject(&p_stSphere, 2, 1);
     MTH3D_M_vSetVectorElements(&stCenter, xS, yS, zS);
     GEO_vSetPointOfObject(p_stSphere, &stCenter, 0);
     MTH3D_M_vSetVectorElements(&stCenter, xS - 0.1f, yS, zS);

@@ -64,8 +64,8 @@ void __stdcall SND_fn_vEnterCriticalSectionThreadSnd_(void)
         } else {
             GetLastError();
             sprintf(szBuffer, SND_C_szLastCallFmt,
-                    SND_pc_g_stMutexMouchard.ulThreadId,
-                    SND_pc_g_stMutexMouchard.lLine,
+                    (unsigned int)SND_pc_g_stMutexMouchard.ulThreadId,
+                    (int)SND_pc_g_stMutexMouchard.lLine,
                     SND_pc_g_stMutexMouchard.szFile);
             SND_fn_vDisplayError(E_uwSndThreadDeadLockError, szBuffer);
         }
@@ -85,8 +85,8 @@ int __stdcall SND_fn_bTryToEnterCriticalSectionThreadSnd(void)
         unsigned long ulResult;
 
         sprintf(szBuffer, SND_C_szLastCallFmt,
-                SND_pc_g_stMutexMouchard.ulThreadId,
-                SND_pc_g_stMutexMouchard.lLine,
+                (unsigned int)SND_pc_g_stMutexMouchard.ulThreadId,
+                (int)SND_pc_g_stMutexMouchard.lLine,
                 SND_pc_g_stMutexMouchard.szFile);
         ulResult = WaitForSingleObject(SND_pc_g_hSoundMutex, 0x64);
         SND_pc_g_ulMutexWaitFlag = 0;
@@ -163,8 +163,8 @@ int __stdcall SND_fn_bEnterCriticalSectionForDriverThreadSnd(void)
     }
     if (SND_pc_g_hSoundMutex != NULL && SND_pc_g_hErrDispBusyEvent != NULL) {
         sprintf(szBuffer, SND_C_szLastCallFmt,
-                SND_pc_g_stMutexMouchard.ulThreadId,
-                SND_pc_g_stMutexMouchard.lLine,
+                (unsigned int)SND_pc_g_stMutexMouchard.ulThreadId,
+                (int)SND_pc_g_stMutexMouchard.lLine,
                 SND_pc_g_stMutexMouchard.szFile);
         aHandles[0] = SND_pc_g_hSoundMutex;
         aHandles[1] = SND_pc_g_hErrDispBusyEvent;

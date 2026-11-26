@@ -228,7 +228,7 @@ unsigned char fn_ucIsThereFloatIfYesConvertItToInteger(AI_tdstGetSetParam *p_stP
 /* 0x00482F50 */
 unsigned char __cdecl fn_ucInternalTurn(HIE_tdstSuperObject *p_SuperObjPerso, MTH_tdxReal xAngle)
 {
-    struct DNM_stDynamics* pstDynamic;
+    DNM_tdstDynamics* pstDynamic;
     MS_tdxHandleToDynam h_Dynam;
 
     h_Dynam = M_GetMSHandle(p_SuperObjPerso,Dynam);

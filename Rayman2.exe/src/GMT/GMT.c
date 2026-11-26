@@ -184,7 +184,7 @@ DNM_tdxHandleToMecMatCharacteristics __cdecl GMT_fn_hGetMechanicsMaterial(GMT_td
 }
 
 /* 0x004194B0 */
-void *__cdecl GMT_fn_hGetSoundMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
+SND_tdxHandleToSoundMaterial __cdecl GMT_fn_hGetSoundMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
 {
     return GMT_M_hGetSoundMaterial(_hGameMat);
 }

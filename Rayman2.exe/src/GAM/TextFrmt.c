@@ -275,7 +275,7 @@ void __cdecl TFMT_vInitFormatterStatus(TFMT_tdstStatus *_p_stStatus,
     _p_stStatus->xCharZoom = TFMT_g_xDefaultCharZoom;
     _p_stStatus->xCurCharZoom = TFMT_C_xZero;
     _p_stStatus->cJustificationMode = 'l';
-    _p_stStatus->hSourceObjectTable = (long)fn_hGetObjectsTableOfFamilyByIndex(
+    _p_stStatus->hSourceObjectTable = fn_hGetObjectsTableOfFamilyByIndex(
         fn_h3dDataGetFamily(M_GetMSHandle(_hSuperObjPerso,3dData)), 0);
     _p_stStatus->xRandomPosRadius = TFMT_C_xZero;
 }
@@ -325,7 +325,7 @@ static char *__cdecl TFMT_pszReadNextChar(TFMT_tdstStatus *_p_stStatus,
 
             case 'C':
             case 'c':
-                _p_stStatus->hSourceObjectTable = (long) fn_hGetObjectsTableOfFamilyByIndex(
+                _p_stStatus->hSourceObjectTable = fn_hGetObjectsTableOfFamilyByIndex(
                     fn_h3dDataGetFamily(M_GetMSHandle(_hSuperObjPerso,3dData)),
                     (ACP_tdxIndex) atoi(++ _pszCurrentChar)
                 );
