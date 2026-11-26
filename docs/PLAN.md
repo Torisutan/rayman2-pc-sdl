@@ -363,7 +363,7 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   per-target arithmetic. VC5 against modern is unchanged (menu actors 1 ulp after load). Not covered: allocations inside the memory
   manager's heaps (one `malloc` per heap). Instrumenting them (poisoning in MMG) would be a fork
   change of its own; not planned.
-- **MTH target selection (measured 2026-11-26; open, waits for the decomp).** The original engine
+- **MTH target selection (done 2026-11-26).** The original engine
   chooses the MTH path in one header, `MTH/MTH_def.h` ("Detect Targets": `_MSC_VER` -> `VISUAL`
   -> `MTH_PC_DEV`, `U64` -> `MTH_U64_DEV`, `NITRO` -> `MTH_NITRO_DEV`, else `MTH_UNKOWN_DEV`; only
   `MTH_PC_DEV` sets `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM`). The decompilation sets the same macros
@@ -390,6 +390,17 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   `AI/FuncRay2.c` `fn_p_stGetCPUCounter` (`rdtsc`, a debug AI function: needs a timer branch),
   `SND/SND.c` `SND_pc_fn_vProbeCpu` (CPUID/MMX, chooses the sound driver: sound task),
   `MMG/SNA.c` `SNA_pc_bOpenFile` `__asm int 3` (bad open mode: needs a branch per target).
+  **Done (26.11.2026):** the decomp added `MTH_def.h` in the original's form (upstream b102d4d,
+  with the `CAM_Tool.c` copy removed and the MTH copies in `Function.c`, `pc_light_pipeline.c`,
+  `effect.c` replaced by the MTH forms). The fork adds `MTH_C_DEV` beside `MTH_PC_DEV` (targets
+  `WIN64`, `LINUX`, `OSX`, `PSP`, `WIIU`: `OPTIMIZED_FOR_PC_FLOATS` without the asm; Platform
+  macros table) and `src/MTH/MTH_Debug.c` (the C branch's matrix product, body as the original).
+  Measured: SDL, MSVC, ANSI, clang-cl and VC5 + define equal their baselines; a measurement build
+  defining `WIN64` on x86 (`build-noasm`, `CMAKE_C_FLAGS` `/DWIN32 /D_WINDOWS /DWIN64`) takes the C
+  branch, runs the suite twice identically, and is recorded as `base_noasm` (its own baseline;
+  against `base_modern` it differs as measured above). Left: the C branches of `MTH_fopt.h` (decomp
+  order M8: the original's `U64`/`NITRO` branches), then the fork's targets join those condition
+  lists; the other asm listed above.
 - **Portability list (done, 2026-11-26).** `docs/PORTABILITY.md`: every pointer-size, `long`-size,
   packing and byte-order assumption with its sites. Pointer size measured (the SDL gate's
   translation units compiled again as x86-64 with clang-cl, syntax only, pointer diagnostics on,
@@ -637,6 +648,7 @@ its condition.
 | `USE_GLI_GU` | renderer | PSP driver linked in (`GliGU`) |
 | `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` | feature | MTH asm branch: 32-bit x86 MSVC / clang-cl only, not with `WIN64` |
 | `OPTIMIZED_FOR_PC_FLOATS` | feature | MTH C branch: every other target (Phase 2) |
+| `MTH_C_DEV` | MTH target | set in `MTH/MTH_def.h` beside the original's `MTH_PC_DEV`/`MTH_U64_DEV`/`MTH_NITRO_DEV` when `WIN64`, `LINUX`, `OSX`, `PSP` or `WIIU` is defined: `OPTIMIZED_FOR_PC_FLOATS` without `..._WITH_ASM` (Phase 4 "MTH target selection") |
 | `FILE_MODE_C_WIN95` | feature | Win32 API for level data files, ini files and MMG memory; set in `SND/snddef.h` unless `GAMECONSOLE`, `USE_SDL` or `RAYMAN2_C_RUNTIME`; C runtime otherwise |
 | `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
 

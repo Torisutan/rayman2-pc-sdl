@@ -94,6 +94,13 @@
 #define MTH_NITRO_DEV
 #endif
 
+/* Detect the fork's targets without x86 inline assembly (docs/PLAN.md, platform macros) */
+#if defined(WIN64) || defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+#undef MTH_UNKOWN_DEV
+#undef MTH_PC_DEV
+#define MTH_C_DEV
+#endif /* WIN64 || LINUX || OSX || PSP || WIIU */
+
 #ifdef MTH_UNKOWN_DEV
 #pragma message ("*** MTH : !! ALERT !! Alien Target Machine Found (Unkown Target) !")
 #pragma message ("***  VISUAL NOR WATCOM NOR U64 is defined ! Check your makefile please !")
@@ -129,6 +136,14 @@
 
 #define NO_ASSEMBLY_IN_GLI
 #endif
+
+/* =========== MTH_C_DEV =============== */
+/* The PC float code in its C branch: targets without x86 inline assembly */
+#ifdef MTH_C_DEV
+#define MTH_RealIsFloat
+#define OPTIMIZED_FOR_PC_FLOATS
+#define NO_ASSEMBLY_IN_GLI
+#endif /* MTH_C_DEV */
 
 #ifdef MTH_PC_FINAL
 #define MTH_RealIsFloat

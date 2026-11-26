@@ -113,6 +113,8 @@ endif()
 # Phase 5, step 3).
 option(R2_C_RUNTIME "C runtime instead of the Win32 API for files, ini files and memory (RAYMAN2_C_RUNTIME)" OFF)
 list(APPEND R2_SOURCES ${R2_DIR}/src/MMG/SNA_file.c ${R2_DIR}/src/FIL/FIL_ini.c ${R2_DIR}/src/FIL/FIL_path.c)
+# The C branch of the MTH matrix product (MTH/MTH_Debug.c; MTH_C_DEV targets, docs/PLAN.md Phase 4).
+list(APPEND R2_SOURCES ${R2_DIR}/src/MTH/MTH_Debug.c)
 if(R2_C_RUNTIME)
   list(APPEND R2_FORK_DEFINES RAYMAN2_C_RUNTIME)
 endif()
