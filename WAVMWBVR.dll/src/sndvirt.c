@@ -361,7 +361,9 @@ long FUN_10007930(SND_tdhVirtualModule hModule,tduRefRes res,SoundParam *par,lon
 	}
 	pVoice->bLinked = bLinked;
 	FUN_10007050(hModule);
+#ifdef SUPERVISATER
 	dbgSND_fn_vRajListesSxdVirtual2((long)hModule);
+#endif
 	return (long)pVoice;
 }
 
@@ -435,7 +437,9 @@ void FUN_10007c10(SND_tdhVirtualModule hModule,SND_pc_tdstVirtualVoice *pVoice)
 	FUN_10007550(hModule,pVoice);
 	FUN_100077c0(hModule);
 	FUN_10007050(hModule);
+#ifdef SUPERVISATER
 	dbgSND_fn_vRajListesSxdVirtual2((long)hModule);
+#endif
 }
 
 void FUN_10007c80(SND_tdhVirtualModule hModule,SND_pc_tdstVirtualVoice *pVoice)
@@ -529,7 +533,9 @@ void FUN_10007e30(SND_tdhVirtualModule hModule)
 {
 	FUN_100077c0(hModule);
 	FUN_10007050(hModule);
+#ifdef SUPERVISATER
 	dbgSND_fn_vRajListesSxdVirtual2((long)hModule);
+#endif
 }
 
 void FUN_10007e50(SND_tdhVirtualModule hModule,long lNbVoices)

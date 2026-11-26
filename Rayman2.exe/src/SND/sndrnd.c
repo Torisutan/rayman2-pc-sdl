@@ -14,6 +14,7 @@ SndReal SND_fn_rGetRandomSnd(SndReal max)
 	return SND_fn_rMulRealRealQuickSnd(SND_fn_rDivRealRealSnd(rand(), RAND_MAX) ,max);
 }
 
+#if defined(_DLL_COMPILATION_MODE)
 extern void *SND_pc_hModuleSxd;
 extern void *SND_pc_hModuleCd;
 extern void *SND_pc_hModuleMpeg;
@@ -33,3 +34,4 @@ void *__stdcall SND_fn_vGetHModuleCd(void)     { return SND_pc_hModuleCd; }
 void *__stdcall SND_fn_vGetHModuleAdpcm(void)  { return SND_pc_hModuleAdpcm; }
 /* 0x004588A0 */
 void *__stdcall SND_fn_vGetHModuleRecord(void) { return SND_pc_hModuleRecord; }
+#endif

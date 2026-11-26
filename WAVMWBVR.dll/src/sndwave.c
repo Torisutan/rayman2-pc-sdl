@@ -780,7 +780,9 @@ void FUN_10008c90(long lBuffer)
 	{
 		stDelta.QuadPart = SND_pc_stMixEnd_2638.QuadPart - SND_pc_stPerfCounter.QuadPart;
 		SND_pc_dMixTotal_5463 /= (double)stDelta.QuadPart / (double)SND_pc_stPerfFrequency_9785.QuadPart;
+#ifdef SUPERVISATER
 		dbgSND_fn_vSetProcessTimeSample((float)SND_pc_dMixTotal_5463);
+#endif
 		SND_pc_stPerfCounter = SND_pc_stMixEnd_2638;
 		SND_pc_lNbMix_5999 = 0;
 		SND_pc_dMixTotal_5463 = 0;
@@ -1198,7 +1200,9 @@ SndBool FUN_100098b0(long voice,SampleParam *par)
 		pVoice->lSpace = par->ucSpace;
 		return TRUE;
 	}
+#ifdef SUPERVISATER
 	dbgSND_fn_vDelVoiceSample(voice);
+#endif
 	return FALSE;
 }
 
@@ -1206,7 +1210,9 @@ void FUN_100099f0(long voice)
 {
 	SND_pc_a64_stVoice_9095[voice].bLooping = FALSE;
 	SND_pc_a64_stVoice_9095[voice].bPlaying = FALSE;
+#ifdef SUPERVISATER
 	dbgSND_fn_vDelVoiceSample(voice);
+#endif
 	if (SND_pc_a64_stVoice_9095[voice].bCallback)
 	{
 		SND_pc_a64_stVoice_9095[voice].bCallback = FALSE;
@@ -1287,7 +1293,9 @@ long FUN_10009a50(tdstBlockResourceMem *pRes,SampleParam *par,long prio,SND_td_p
 		pVoice->bLooping = TRUE;
 	pVoice->pRes = pRes;
 	pVoice->bPlaying = TRUE;
+#ifdef SUPERVISATER
 	dbgSND_fn_vAddVoiceSample(voice,*(tduRefRes *)&pRes,par);
+#endif
 	return voice;
 }
 
@@ -1384,14 +1392,18 @@ void SND_fn_vRemoveCallbackSample(long voice)
 
 SndBool SND_fn_bSetParamSample(long voice,SampleParam *par)
 {
+#ifdef SUPERVISATER
 	dbgSND_fn_vSetParVoiceSample(voice,par);
+#endif
 	return FUN_100098b0(voice,par);
 }
 
 SndBool SND_fn_bTestIsPlayingSample(long voice)
 {
+#ifdef SUPERVISATER
 	if (!SND_pc_a64_stVoice_9095[voice].bPlaying)
 		dbgSND_fn_vDelVoiceSample(voice);
+#endif
 	return SND_pc_a64_stVoice_9095[voice].bPlaying;
 }
 
@@ -1408,7 +1420,9 @@ void SND_fn_vPauseSample(long voice)
 	SND_pc_a64_stVoice_9095[voice].bPaused = TRUE;
 	SND_pc_a64_stVoice_9095[voice].lNbIncSteps = 0;
 	SND_pc_a64_stVoice_9095[voice].lIncRampLength = 0;
+#ifdef SUPERVISATER
 	dbgSND_fn_vPauseVoiceSample(voice);
+#endif
 }
 
 void SND_fn_vResumeSample(long voice)
@@ -1416,7 +1430,9 @@ void SND_fn_vResumeSample(long voice)
 	SND_pc_a64_stVoice_9095[voice].bPaused = FALSE;
 	SND_pc_a64_stVoice_9095[voice].lNbIncSteps = 0;
 	SND_pc_a64_stVoice_9095[voice].lIncRampLength = 0;
+#ifdef SUPERVISATER
 	dbgSND_fn_vResumeVoiceSample(voice);
+#endif
 }
 
 void SND_fn_vSetStereoSample(SndBool active)

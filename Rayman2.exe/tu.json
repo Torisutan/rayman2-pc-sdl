@@ -5,7 +5,8 @@
   "/O2",
   "/Gy",
   "/Dinline=__inline",
-  "/DRAYMAN2_STANDALONE"
+  "/DRAYMAN2_STANDALONE",
+  "/D_DLL_COMPILATION_MODE"
  ],
  "link_order": [
   {

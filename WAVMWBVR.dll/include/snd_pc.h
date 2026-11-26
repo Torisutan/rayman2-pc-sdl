@@ -44,14 +44,15 @@ typedef struct _SND_pc_tdstVirtualVoiceFunctions {
 } SND_pc_tdstVirtualVoiceFunctions;
 
 long	FUN_10007930(SND_tdhVirtualModule hModule,tduRefRes res,SoundParam *par,long prio,SND_td_pfn_vSoundCallback fn_callback,long par_callback);
-void	FUN_10007ac0(SND_tdhVirtualModule hModule,long voice);
-SndBool	FUN_10007af0(SND_tdhVirtualModule hModule,long voice,SoundParam *par);
-SndBool	FUN_10007b90(SND_tdhVirtualModule hModule,long voice);
-void	FUN_10007c10(SND_tdhVirtualModule hModule,long voice);
-void	FUN_10007c80(SND_tdhVirtualModule hModule,long voice);
-void	FUN_10007ca0(SND_tdhVirtualModule hModule,long voice);
-SndReal	FUN_10007cd0(SND_tdhVirtualModule hModule,long voice);
-SndReal	FUN_10007cf0(SND_tdhVirtualModule hModule,long voice);
+/* 0x10007930 */
+void	FUN_10007ac0(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
+SndBool	FUN_10007af0(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice,SoundParam *par);
+SndBool	FUN_10007b90(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
+void	FUN_10007c10(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
+void	FUN_10007c80(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
+void	FUN_10007ca0(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
+SndReal	FUN_10007cd0(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
+SndReal	FUN_10007cf0(SND_tdhVirtualModule hModule,struct _SND_pc_tdstVirtualVoice *pVoice);
 SND_tdhVirtualModule FUN_10007d10(long lNbVoices,SND_pc_tdstVirtualVoiceFunctions *pFunctions);
 void	FUN_10007dd0(SND_tdhVirtualModule hModule);
 void	FUN_10007e30(SND_tdhVirtualModule hModule);

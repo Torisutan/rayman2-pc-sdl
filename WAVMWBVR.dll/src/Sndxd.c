@@ -250,10 +250,12 @@ long SND_CALL SND_fn_lPlaySxd(tduRefRes res,SoundParam *par,long prio,SND_td_pfn
 		else
 			ret=SND_fn_lPlaySxdWave(res,par,prio,fn_callback,par_callback);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vParam3Dto2D(par,&par2D);
 		ret=SND_fn_lPlayMPEG(res,&par2D,prio,fn_callback,par_callback);
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		ret=FUN_10007930(SND_pc_hVirtualModuleADPCM,res,par,prio,fn_callback,par_callback);
 		break;
@@ -282,11 +284,13 @@ void SND_CALL SND_fn_vRemoveCallbackSxd(long voice)
 		else
 			SND_fn_vRemoveCallbackSxdWave(((sample_actif*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vRemoveCallbackMPEG(((sample_actif*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
-		FUN_10007ac0(SND_pc_hVirtualModuleADPCM,((sample_actif*)voice)->lVoice);
+		FUN_10007ac0(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voice)->lVoice);
 		break;
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
@@ -306,12 +310,14 @@ SndBool SND_CALL SND_fn_bSetParamSxd(long voice,SoundParam *par)
 		else
 			ret=SND_fn_bSetParamSxdWave(((sample_actif*)voice)->lVoice,par);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vParam3Dto2D(par,&par2D);
 		ret=SND_fn_bSetParamMPEG(((sample_actif*)voice)->lVoice,&par2D);
 		break;
+#endif
 	case SAMPLE_ADPCM:
-		ret=FUN_10007af0(SND_pc_hVirtualModuleADPCM,((sample_actif*)voice)->lVoice,par);
+		ret=FUN_10007af0(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voice)->lVoice,par);
 		break;
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
@@ -336,11 +342,13 @@ SndBool SND_CALL SND_fn_bTestIsPlayingSxd(long voice)
 		else
 			ret=SND_fn_bTestIsPlayingSxdWave(((sample_actif*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		ret=SND_fn_bTestIsPlayingMPEG(((sample_actif*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
-		ret=FUN_10007b90(SND_pc_hVirtualModuleADPCM,((sample_actif*)voice)->lVoice);
+		ret=FUN_10007b90(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voice)->lVoice);
 		break;
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
@@ -363,11 +371,13 @@ void SND_CALL SND_fn_vStopSxd(long voice)
 		else
 			SND_fn_vStopSxdWave(((sample_actif*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vStopMPEG(((sample_actif*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
-		FUN_10007c10(SND_pc_hVirtualModuleADPCM,((sample_actif*)voice)->lVoice);
+		FUN_10007c10(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voice)->lVoice);
 		break;
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
@@ -386,11 +396,13 @@ void SND_CALL SND_fn_vPauseSxd(long voice)
 		else
 			SND_fn_vPauseSxdWave(((sample_actif*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vPauseMPEG(((sample_actif*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
-		FUN_10007c80(SND_pc_hVirtualModuleADPCM,((sample_actif*)voice)->lVoice);
+		FUN_10007c80(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voice)->lVoice);
 		break;
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
@@ -407,11 +419,13 @@ void SND_CALL SND_fn_vResumeSxd(long voice)
 		else
 			SND_fn_vResumeSxdWave(((sample_actif*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vResumeMPEG(((sample_actif*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
-		FUN_10007ca0(SND_pc_hVirtualModuleADPCM,((sample_actif*)voice)->lVoice);
+		FUN_10007ca0(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voice)->lVoice);
 		break;
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
@@ -443,8 +457,10 @@ SndBool SND_CALL SND_fn_bLoadResScriptSxd(tdstBlockResourceDisk *disk,tdstBlockR
 			return FUN_100067e0(disk,mem);
 		else
 			return SND_fn_bLoadResScriptSxdWave(disk,mem);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bLoadResScriptMPEG(disk,mem);
+#endif
 	case SAMPLE_ADPCM:
 	case SAMPLE_ADPCM_TO_CONVERT:
 		if (SND_fn_b3DOneShootShouldBeConvertedSxdWave() && (disk->uRes.stSample.uwNbChannels==1))
@@ -467,8 +483,10 @@ SndBool SND_CALL SND_fn_bLoadResBinarySxd(tdstBlockResourceDisk* disk,tdstBlockR
 			return FUN_10006810(disk,mem,data);
 		else
 			return(SND_fn_bLoadResBinarySxdWave(disk,mem,data));
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bLoadResBinaryMPEG(disk,mem,data);
+#endif
 	case SAMPLE_ADPCM:
 	case SAMPLE_ADPCM_TO_CONVERT:
 		if (SND_fn_b3DOneShootShouldBeConvertedSxdWave() && (disk->uRes.stSample.uwNbChannels==1))
@@ -491,9 +509,11 @@ void SND_CALL SND_fn_vUnLoadResSxd(tdstBlockResourceMem* mem)
 		else
 			SND_fn_vUnLoadResSxdWave(mem);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vUnLoadResMPEG(mem);
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		SND_fn_vUnLoadResSxdADPCM(mem);
 		break;
@@ -509,8 +529,10 @@ SndBool SND_CALL SND_fn_bIsResLoadedSxd(tdstBlockResourceMem *mem)
 	{
 	case SAMPLE_PCM:
 		return SND_fn_bIsResLoadedSxdWave(mem);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bIsResLoadedMPEG(mem);
+#endif
 	case SAMPLE_ADPCM:
 		return SND_fn_bIsResLoadedSxdADPCM(mem);
 	default:
@@ -544,10 +566,12 @@ SndReal SND_CALL SND_fn_rGetPosSxd(long voie)
 			return FUN_100066c0(((sample_actif*)voie)->lVoice);
 		else
 			return SND_fn_rGetPosSxdWave(((sample_actif*)voie)->lVoice);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_rGetPosMPEG(((sample_actif*)voie)->lVoice);
+#endif
 	case SAMPLE_ADPCM:
-		return FUN_10007cd0(SND_pc_hVirtualModuleADPCM,((sample_actif*)voie)->lVoice);
+		return FUN_10007cd0(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voie)->lVoice);
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
 		return -1;
@@ -563,10 +587,12 @@ SndReal SND_CALL SND_fn_rGetLengthSxd(long voie)
 			return FUN_100066f0(((sample_actif*)voie)->lVoice);
 		else
 			return SND_fn_rGetLengthSxdWave(((sample_actif*)voie)->lVoice);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_rGetLengthMPEG(((sample_actif*)voie)->lVoice);
+#endif
 	case SAMPLE_ADPCM:
-		return FUN_10007cf0(SND_pc_hVirtualModuleADPCM,((sample_actif*)voie)->lVoice);
+		return FUN_10007cf0(SND_pc_hVirtualModuleADPCM,(struct _SND_pc_tdstVirtualVoice *)((sample_actif*)voie)->lVoice);
 	default:
 		SND_M_DisplayError(E_uwSndInvalidStaticParamForResource,"");
 		return -1;
@@ -580,8 +606,10 @@ SndBool SND_CALL SND_fn_bCheckVersionResourceSxd(tdstBlockResourceDisk* disk)
 	{
 	case SAMPLE_PCM:
 		return SND_fn_bCheckVersionResourceSxdWave(disk);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bCheckVersionResourceMPEG(disk);
+#endif
 	case SAMPLE_ADPCM:
 		return SND_fn_bCheckVersionResourceSxdADPCM(disk);
 	default:
@@ -667,7 +695,9 @@ int SND_CALL SND_fn_iInitSxd(SND_tdstInitStruct *pInitStruct)
 	stFunctions.pfn_vRemoveCallback=SND_fn_vRemoveCallbackSxdADPCM;
 	stFunctions.pfn_bTestIsPlaying=SND_fn_bTestIsPlayingSxdADPCM;
 	SND_pc_hVirtualModuleADPCM=FUN_10007d10(SND_fn_lGetNbVoiceWishedSxdADPCM(),&stFunctions);
+#ifdef SUPERVISATER
 	dbgSND_fn_vInitListesSxdVirtual(SND_pc_hVirtualModuleADPCM,"Virtual voice for ADPCM");
+#endif
 
     return ret;
 }
@@ -682,7 +712,9 @@ void SND_CALL SND_fn_vDesInitSxd(void)
 {
 	FUN_10007dd0(SND_pc_hVirtualModuleADPCM);
 	SND_fn_vDesInitSxdADPCM();
+#ifndef DISABLE_MPEG
 	SND_fn_vDesInitMPEG();
+#endif
 	FUN_10006680();
     SND_fn_vDesInitSxdWave();
 }
@@ -939,6 +971,7 @@ long SND_CALL SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes,tduRefRes NextRes,S
 		pTransition->lVoice=FUN_10006d30(FirstRes,NextRes,transition_callback,param_callback,par);
 		pTransition->eZip=FirstRes.pstPtr->uRes.stSample.eZip;
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		pPar2D=(SampleParam*)par;
 		if (par!=NULL)
@@ -949,6 +982,7 @@ long SND_CALL SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes,tduRefRes NextRes,S
 		pTransition->lVoice=SND_fn_lPlayTransitionMPEG(FirstRes,NextRes,transition_callback,param_callback,pPar2D);
 		pTransition->eZip=FirstRes.pstPtr->uRes.stSample.eZip;
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		pTransition->lVoice=SND_fn_lPlayTransitionSxdADPCM(FirstRes,NextRes,transition_callback,param_callback,par);
 		pTransition->eZip=FirstRes.pstPtr->uRes.stSample.eZip;
@@ -973,6 +1007,7 @@ SndBool SND_CALL SND_fn_bSetParamTransitionSxd(long voice,SoundParam *par)
 	{
 	case SAMPLE_PCM:
 		return FUN_10006ec0(((transition*)voice)->lVoice,par);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		if (par==NULL)
 			pPar2D=NULL;
@@ -982,6 +1017,7 @@ SndBool SND_CALL SND_fn_bSetParamTransitionSxd(long voice,SoundParam *par)
 			pPar2D=&par2D;
 		}
 		return SND_fn_bSetParamTransitionMPEG(((transition*)voice)->lVoice,pPar2D);
+#endif
 	case SAMPLE_ADPCM:
 		return SND_fn_bSetParamTransitionSxdADPCM(((transition*)voice)->lVoice,par);
 	default:
@@ -996,8 +1032,10 @@ SndBool SND_CALL SND_fn_bSetNextTransitionSxd(long voice,tduRefRes new_res)
 	{
 	case SAMPLE_PCM:
 		return FUN_10006f10(((transition*)voice)->lVoice,new_res);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bSetNextTransitionMPEG(((transition*)voice)->lVoice,new_res);
+#endif
 	case SAMPLE_ADPCM:
 		return SND_fn_bSetNextTransitionSxdADPCM(((transition*)voice)->lVoice,new_res);
 	default:
@@ -1012,8 +1050,10 @@ SndBool SND_CALL SND_fn_bDoTransitionWithFadeSxd(long voice,tduRefRes new_res)
 	{
 	case SAMPLE_PCM:
 		return FUN_10006fa0(((transition*)voice)->lVoice,new_res);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bDoTransitionWithFadeMPEG(((transition*)voice)->lVoice,new_res);
+#endif
 	case SAMPLE_ADPCM:
 		return SND_fn_bDoTransitionWithFadeSxdADPCM(((transition*)voice)->lVoice,new_res);
 	default:
@@ -1028,8 +1068,10 @@ SndBool SND_CALL SND_fn_bDoTransitionWithFadeSxd2( long voice, tduRefRes new_res
 	{
 	case SAMPLE_PCM:
 		return FUN_10006f40(((transition*)voice)->lVoice,new_res,rDuration);
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		return SND_fn_bDoTransitionWithFadeMPEG2(((transition*)voice)->lVoice,new_res,rDuration);
+#endif
 	case SAMPLE_ADPCM:
 		return SND_fn_bDoTransitionWithFadeSxdADPCM2(((transition*)voice)->lVoice,new_res,rDuration);
 	default:
@@ -1045,9 +1087,11 @@ void SND_CALL SND_fn_vStopTransitionSxd(long voice)
 	case SAMPLE_PCM:
 		FUN_10006fc0(((transition*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vStopTransitionMPEG(((transition*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		SND_fn_vStopTransitionSxdADPCM(((transition*)voice)->lVoice);
 		break;
@@ -1063,9 +1107,11 @@ void SND_CALL SND_fn_vPauseTransitionSxd(long voice)
 	case SAMPLE_PCM:
 		FUN_10006ff0(((transition*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vPauseTransitionMPEG(((transition*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		SND_fn_vPauseTransitionSxdADPCM(((transition*)voice)->lVoice);
 		break;
@@ -1081,9 +1127,11 @@ void SND_CALL SND_fn_vResumeTransitionSxd(long voice)
 	case SAMPLE_PCM:
 		FUN_10007010(((transition*)voice)->lVoice);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		SND_fn_vResumeTransitionMPEG(((transition*)voice)->lVoice);
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		SND_fn_vResumeTransitionSxdADPCM(((transition*)voice)->lVoice);
 		break;
@@ -1095,7 +1143,9 @@ void SND_CALL SND_fn_vResumeTransitionSxd(long voice)
 /* 0x1000C880 */
 void SND_CALL SND_fn_vReleaseDriverSxd(void)
 {
+#ifndef DISABLE_MPEG
 	SND_fn_vReleaseDriverMPEG();
+#endif
 	SND_fn_vReleaseDriverSxdADPCM();
 	SND_fn_vReleaseDriverSxdWave();
 }
@@ -1104,7 +1154,9 @@ void SND_CALL SND_fn_vRestoreDriverSxd(void)
 {
 	SND_fn_vRestoreDriverSxdWave();
 	SND_fn_vRestoreDriverSxdADPCM();
+#ifndef DISABLE_MPEG
 	SND_fn_vRestoreDriverMPEG();
+#endif
 }
 
 void SND_CALL SND_fn_vForceReleaseDriverSxd(void)
@@ -1369,9 +1421,11 @@ SndBool SND_CALL SND_fn_bSetResourceStaticVolumeSxd(tduRefRes res,unsigned char 
 		else
 			ret=SND_fn_bSetResourceStaticVolumeSxdWave(res,ucVolume);
 		break;
+#ifndef DISABLE_MPEG
 	case SAMPLE_MPEG:
 		ret=SND_fn_bSetResourceStaticVolumeMPEG(res,ucVolume);
 		break;
+#endif
 	case SAMPLE_ADPCM:
 		ret=SND_fn_bSetResourceStaticVolumeSxdADPCM(res,ucVolume);
 		break;

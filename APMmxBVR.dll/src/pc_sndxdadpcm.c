@@ -99,8 +99,10 @@ SND_M_ADPCM_EXPORT SndBool SND_CALL SND_fn_bGetReverseStereoSxdADPCM(void)
 SND_M_ADPCM_EXPORT int SND_CALL SND_fn_iInitSxdADPCM(SND_tdstInitStruct *pInitStruct)
 {
 	SND_pc_s_bInitSxdADPCM = 1;
+#if defined(_DLL_COMPILATION_MODE)
 	SND_DllInitEntryPoints_StaticFunctions(pInitStruct->hProcessInstance);
 	SND_pc_DllInitEntryPoints_SxdFunctions(SND_pc_hWavModule);
+#endif
 	return SND_pc_fn_iInitADPCM(pInitStruct);
 }
 

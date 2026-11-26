@@ -45,6 +45,8 @@ typedef SndBool (__stdcall *t_SND_PerTypeBoolFn)(long);
 typedef SndBool (__stdcall *t_SND_PerTypeSetParamFn)(long, struct SoundParam_ *);
 typedef SndReal (__stdcall *t_SND_PerTypeRealFn)(long);
 
+#if defined(_DLL_COMPILATION_MODE)
+
 t_SND_TransitionFn g_pfn_SND_PauseTransitionSxd;
 t_SND_TransitionFn g_pfn_SND_ResumeTransitionSxd;
 t_SND_DriverFn     g_pfn_SND_ReleaseDriverSxd;
@@ -79,6 +81,7 @@ t_SND_PerTypeSetParamFn g_pfn_SND_SetParamCD;
 t_SND_PerTypeRealFn     g_pfn_SND_GetPosSxd;
 t_SND_PerTypeRealFn     g_pfn_SND_GetPosMidi;
 t_SND_PerTypeRealFn     g_pfn_SND_GetPosCD;
+#endif
 
 #include "SND/sndplay_pc.h"
 #include "SND/sndplay.h"
@@ -173,7 +176,8 @@ SndBool __cdecl SND_fn_bIsMusicPlayingSound(void)
     return SND_fn_bIsMusicPlayingSnd();
 }
 
-/* 0x004584E0 */
+#if defined(_DLL_COMPILATION_MODE)
+
 void __cdecl SND_fn_vReleaseDriverSxd(void)
 {
     if (g_pfn_SND_ReleaseDriverSxd == NULL) DebugBreak();
@@ -662,6 +666,7 @@ SndBool __stdcall SND_fn_bCanFreeDataADPCM(void)
     if (g_pfn_SND_CanFreeDataADPCM_s == NULL) DebugBreak();
     return g_pfn_SND_CanFreeDataADPCM_s();
 }
+#endif
 
 /* 0x004584F0 */
 typedef void (__stdcall *t_SND_fn_vFreeSndEx)(unsigned char, void *);
@@ -1066,6 +1071,7 @@ void __cdecl SND_fn_vSetRetMicroSound(tdstAllRetMicroSound *ptrfct)
 }
 
 typedef void (__stdcall *t_SND_fn_vSetDopplerFactorSxd)(long);
+#if defined(_DLL_COMPILATION_MODE)
 static t_SND_fn_vSetDopplerFactorSxd g_pfn_SND_SetDopplerFactorSxd_s;
 #define g_pfn_SND_SetDopplerFactorSxd  g_pfn_SND_SetDopplerFactorSxd_s
 
@@ -1075,6 +1081,7 @@ void __stdcall SND_fn_vSetDopplerFactorSxd(long factor)
     if (g_pfn_SND_SetDopplerFactorSxd == NULL) DebugBreak();
     g_pfn_SND_SetDopplerFactorSxd(factor);
 }
+#endif
 
 #define SND_C_NO_DOPPLER (M_IntToRealSnd(0))
 typedef void (__cdecl *t_SND_fn_vSetDopplerFactorSnd)(long);
@@ -1089,7 +1096,8 @@ void __cdecl SND_fn_vSetDopplerFactorSound(long factor)
 
 /* 0x00455B50 */
 typedef void (__stdcall *t_SND_fn_vKillEventToObject)(long indice, void *asso);
-/* 0x004B887C */
+
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vKillEventToObject g_pfn_SND_KillEventToObject;
 #define SND_M_g_pfnKillEventToObject  (g_pfn_SND_KillEventToObject)
 /* 0x00455B50 */
@@ -1098,6 +1106,7 @@ void __stdcall SND_fn_vKillEventToObject(long indice, void *asso)
     if (SND_M_g_pfnKillEventToObject == NULL) DebugBreak();
     SND_M_g_pfnKillEventToObject(indice, asso);
 }
+#endif
 
 void __cdecl erase_association(pASSOCIATION_DESCRIPTION asso)
 {
@@ -1222,7 +1231,7 @@ tduRefRes SND_fn_tduGetLowestResourceSnd(tduRefRes uHighRes, struct SoundParam_ 
 typedef void (__stdcall *t_SND_fn_vAddHistoric)(
     SND_tduRefEvt evt, long indice, long type, void *asso, tdstBlockResourceMem *res);
 
-/* 0x004B8890 */
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vAddHistoric g_pfn_SND_AddHistoric;
 #define SND_M_g_pfnAddHistoric   (g_pfn_SND_AddHistoric)
 
@@ -1232,6 +1241,7 @@ void __stdcall SND_fn_vAddHistoric(SND_tduRefEvt evt, long indice, long type, vo
     if (SND_M_g_pfnAddHistoric == NULL) DebugBreak();
     SND_M_g_pfnAddHistoric(evt, indice, type, asso, res);
 }
+#endif
 
 #define EVT_FANTOME_PTR NULL
 
@@ -1426,7 +1436,8 @@ SndReal __cdecl fn_rGetDeTune(SND_tduRefEvt evt)
 
 /* 0x00455B10 */
 typedef void (__stdcall *t_SND_fn_vAddEventToObject)(long, long, void *, SND_tduRefEvt);
-/* 0x004B8878 */
+
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vAddEventToObject g_pfn_SND_AddEventToObject;
 #define SND_M_g_pfnAddEventToObject  (g_pfn_SND_AddEventToObject)
 /* 0x00455B10 */
@@ -1435,6 +1446,7 @@ void __stdcall SND_fn_vAddEventToObject(long indice, long type, void *asso, SND_
     if (SND_M_g_pfnAddEventToObject == NULL) DebugBreak();
     SND_M_g_pfnAddEventToObject(indice, type, asso, evt);
 }
+#endif
 
 void __cdecl associe_sound(pASSOCIATION_DESCRIPTION asso, long lPcExtra,
                            long indice, long type, long prio, long voice,
@@ -1483,6 +1495,7 @@ void __cdecl associe_sound(pASSOCIATION_DESCRIPTION asso, long lPcExtra,
 
 /* 0x00455150 */
 typedef void (__stdcall *t_SND_fn_vSetMicroParamSxd)(long sndId, MicroParam *par);
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vSetMicroParamSxd g_pfn_SND_SetMicroParamSxd;
 #define SND_M_g_pfnSetMicroParamSxd  (g_pfn_SND_SetMicroParamSxd)
 void __stdcall SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par)
@@ -1490,9 +1503,11 @@ void __stdcall SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par)
     if (SND_M_g_pfnSetMicroParamSxd == NULL) DebugBreak();
     SND_M_g_pfnSetMicroParamSxd(sndId, par);
 }
+#endif
 
 /* 0x00455BF0 */
 typedef void (__stdcall *t_SND_fn_vSetPosMicro)(void *pMicro, MicroParam *par);
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vSetPosMicro g_pfn_SND_SetPosMicro;
 #define SND_M_g_pfnSetPosMicro  (g_pfn_SND_SetPosMicro)
 void __stdcall SND_fn_vSetPosMicro(void *pMicro, MicroParam *par)
@@ -1500,6 +1515,7 @@ void __stdcall SND_fn_vSetPosMicro(void *pMicro, MicroParam *par)
     if (SND_M_g_pfnSetPosMicro == NULL) DebugBreak();
     SND_M_g_pfnSetPosMicro(pMicro, par);
 }
+#endif
 /* 0x00452510 */
 typedef void (__cdecl   *t_SND_fn_get_param_objet2)(long indice, long type,
                                                     void *evt, void *par,
@@ -1507,6 +1523,7 @@ typedef void (__cdecl   *t_SND_fn_get_param_objet2)(long indice, long type,
 #define SND_RT_fn_get_param_objet2 get_param_objet2
 
 typedef void (__stdcall *t_SND_SynchroFn)(void);
+#if defined(_DLL_COMPILATION_MODE)
 static t_SND_SynchroFn g_pfn_SND_SynchroSxd_s;
 #define g_pfn_SND_SynchroSxd  g_pfn_SND_SynchroSxd_s
 
@@ -1534,6 +1551,7 @@ void __stdcall SND_fn_vSynchroCD(void)
     if (g_pfn_SND_SynchroCD == NULL) DebugBreak();
     g_pfn_SND_SynchroCD();
 }
+#endif
 
 #define SND_RT_fn_vSynchroSnd SND_fn_vSynchroSnd
 
@@ -1655,7 +1673,7 @@ typedef struct LISTE_MICRO_{
 
 static LISTE_MICRO micros_sound;   /* 0x004B7490 */
 
-/* 0x00455B80 */
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_cbMicroPost g_pfn_SND_SetPosObject;
 #define SND_M_g_pfnSetPosObject  (g_pfn_SND_SetPosObject)
 void __stdcall SND_fn_vSetPosObject(long indice, void *param)
@@ -1663,6 +1681,7 @@ void __stdcall SND_fn_vSetPosObject(long indice, void *param)
     if (SND_M_g_pfnSetPosObject == NULL) DebugBreak();
     SND_M_g_pfnSetPosObject(indice, param);
 }
+#endif
 
 void __cdecl fill_pre_filled_param(long key,long indice,long type,SoundParam* pstPreFilledParam)
 {
@@ -1883,7 +1902,8 @@ void __cdecl fn_vRajAllVolumeForLine(ptdstVolumeLine pVolumeLine)
 
 /* 0x00455CB0 */
 typedef void (__stdcall *t_SND_fn_vSetVolumeLine)(void *pLine, long lNewVolume);
-/* 0x004B889C */
+
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vSetVolumeLine g_pfn_SND_SetVolumeLine;
 #define SND_M_g_pfnSetVolumeLine  (g_pfn_SND_SetVolumeLine)
 void __stdcall SND_fn_vSetVolumeLine(void *pLine, long lNewVolume)
@@ -1891,6 +1911,7 @@ void __stdcall SND_fn_vSetVolumeLine(void *pLine, long lNewVolume)
     if (SND_M_g_pfnSetVolumeLine == NULL) DebugBreak();
     SND_M_g_pfnSetVolumeLine(pLine, lNewVolume);
 }
+#endif
 
 void __cdecl SND_fn_vSetVolumeLineSound(void *lLine, long lNewVolume)
 {
@@ -1911,7 +1932,8 @@ void __cdecl SND_fn_vSetVolumeLineSound(void *lLine, long lNewVolume)
 
 /* 0x00455C90 */
 typedef void (__stdcall *t_SND_fn_vAddVolumeLine)(void *pLine);
-/* 0x004B8898 */
+
+#if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vAddVolumeLine g_pfn_SND_AddVolumeLine;
 #define SND_M_g_pfnAddVolumeLine  (g_pfn_SND_AddVolumeLine)
 void __stdcall SND_fn_vAddVolumeLine(void *pLine)
@@ -1919,6 +1941,7 @@ void __stdcall SND_fn_vAddVolumeLine(void *pLine)
     if (SND_M_g_pfnAddVolumeLine == NULL) DebugBreak();
     SND_M_g_pfnAddVolumeLine(pLine);
 }
+#endif
 
 /* 0x00453370 */
 void *__cdecl SND_fn_lAddVolumeLineSound(void)
@@ -2248,7 +2271,7 @@ void *__stdcall SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
     return p_vPtr;
 }
 
-/* 0x004576F0 */
+#if defined(_DLL_COMPILATION_MODE)
 typedef long (__stdcall *t_SND_PlayDriverFn)(long, void *, long, void *, long);
 
 t_SND_PlayDriverFn SND_g_pfnPlaySxdDriver;
@@ -2279,7 +2302,9 @@ long __stdcall SND_pc_fn_lPlayCD(long a1, void *a2, long a3, void *a4, long a5)
     return SND_M_g_pfnPlayCD(a1, a2, a3, a4, a5);
 }
 
+#endif
 #include <stdio.h>
+#if defined(_DLL_COMPILATION_MODE)
 
 static long SND_g_lDbgProcsLoaded;              /* 0x004B8900 */
 
@@ -2303,11 +2328,14 @@ static t_SND_Void2Fn   g_pfn_SND_InitListesSxdVirtual_s;/* 0x004B88CC */
 static t_SND_VoidFn    g_pfn_SND_RefreshSupervisater_s; /* 0x004B88D0 */
 static t_SND_VoidPtrFn g_pfn_SND_SetProjectTitle_s;     /* 0x004B8874 */
 static t_SND_GetBoolFn g_pfn_SND_IsSupervisaterActive_s;/* 0x004B8870 */
+#endif
 
 /* 0x00455CE0 */
 void __stdcall SND_pc_fn_vNopStd4(long a)                                 { (void)a; }
 /* 0x00454F30 */
 SndBool __stdcall SND_pc_fn_bNop0(void)                                   { return 0; }
+
+#if defined(_DLL_COMPILATION_MODE)
 
 /* 0x00455D10 */
 FARPROC __cdecl SND_pc_fn_pfnGetDriverProc(HMODULE hModule, char *pszName)
@@ -2429,6 +2457,7 @@ void __cdecl SND_pc_fn_vLoadCanFreeDataADPCM(HMODULE hModule)
         SND_g_lCanFreeADPCMLoaded = 1;
     }
 }
+#endif
 
 /* 0x0045B430 */
 void SND_pc_fn_vProbeCpu(long *p_lHasCpuid, long *p_lHasMMX)
@@ -2575,6 +2604,8 @@ void __stdcall SND_fn_vSetOptions(LPCSTR pszSection, LPCSTR pszKey, LPCSTR pszVa
     FIL_pc_M_bWriteProfileString(pszSection, pszKey, pszValue, SND_pc_szCpaIniPath);
 }
 
+#if defined(_DLL_COMPILATION_MODE)
+
 #pragma intrinsic(strcmp)
 HMODULE __cdecl SND_pc_fn_hLoadDriverDll(LPCSTR pszSection, HMODULE *phModules, int iCount)
 {
@@ -2649,6 +2680,7 @@ HMODULE __cdecl SND_pc_fn_hLoadDriverDll(LPCSTR pszSection, HMODULE *phModules, 
     }
     return NULL;
 }
+#endif
 
 /* 0x00457B00 */
 void __cdecl SND_fn_vUnLoadResTheme(tdstBlockResourceMem *mem)
@@ -2700,6 +2732,8 @@ void __cdecl SND_pc_fn_vLoadSxdDistances(long *plDist)
         plDist[1] = (long)(fBack * 65536.0f);
     }
 }
+
+#if defined(_DLL_COMPILATION_MODE)
 
 static long SND_g_lRecordProcsLoaded;           /* 0x004B8908 */
 
@@ -3207,6 +3241,7 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
         SND_fn_vSetSupervisaterActive();
     }
 }
+#endif
 
 void __cdecl SND_fn_vDestroyMicroSnd(long sndId);
 
@@ -3413,7 +3448,9 @@ int SND_fn_iInitSound(void *pInitStruct)
     SND_fn_vInitThreadSnd();
     SND_fn_vInitErrorSnd(pInitStruct);
     SND_fn_vInitMallocSnd();
+#if defined(_DLL_COMPILATION_MODE)
     SND_pc_fn_vLoadDriversFromIni((long *)pInitStruct);
+#endif
     init_object_type();
     init_micro_fct();
     init_association();
@@ -3429,11 +3466,13 @@ int SND_fn_iInitSound(void *pInitStruct)
     return iRet;
 }
 
+#if defined(_DLL_COMPILATION_MODE)
 void __stdcall SND_fn_vKillVolumeLine(long indice)
 {
     if (g_pfn_SND_KillVolumeLine_s == NULL) DebugBreak();
     g_pfn_SND_KillVolumeLine_s(indice);
 }
+#endif
 
 void SND_pc_fn_vFreeObjectTypeTable(void)
 {
@@ -3481,7 +3520,7 @@ void __cdecl SND_fn_vDesInitTheme(void)
 {
 }
 
-/* 0x004581A0 */
+#if defined(_DLL_COMPILATION_MODE)
 void __cdecl SND_pc_fn_vFreeDriverDlls(void)
 {
     if (SND_pc_hModuleSxd != NULL)
@@ -3509,6 +3548,7 @@ void __cdecl SND_pc_fn_vFreeDriverDlls(void)
         FreeLibrary(SND_pc_hModuleRecord);
     }
 }
+#endif
 
 void __cdecl SND_fn_vDesInitSound(void)
 {
@@ -3527,16 +3567,19 @@ void __cdecl SND_fn_vDesInitSound(void)
         SND_fn_vDesInitThreadSnd();
         SND_fn_vDesInitMallocSnd();
         SND_PrintUsedStaticMemory();
+#if defined(_DLL_COMPILATION_MODE)
         SND_pc_fn_vFreeDriverDlls();
+#endif
     }
 }
 
-/* 0x004581F0 */
+#if defined(_DLL_COMPILATION_MODE)
 void __stdcall SND_fn_vAddMicro(long indice)
 {
     if (g_pfn_SND_AddMicro_s == NULL) DebugBreak();
     g_pfn_SND_AddMicro_s(indice);
 }
+#endif
 
 long __cdecl SND_fn_lCreateMicroSound(void)
 {
