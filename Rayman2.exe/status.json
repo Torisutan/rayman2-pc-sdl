@@ -2418,7 +2418,7 @@
 "addr": "0x004106A0",
 "name": "GAM_pc_fn_bDeleteDirectoryTree",
 "src": "src/GAM/GAM_save_slot.c",
-"len": 452,
+"len": 450,
 "verdict": "MISMATCH"
 },
 {

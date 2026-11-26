@@ -95,27 +95,29 @@ int __cdecl GAM_pc_fn_bDeleteDirectoryTree(char *pszDir)
     WIN32_FIND_DATAA stFind;
     HANDLE           hFind;
     size_t           ulLen;
+    char            *pSuffix;
 
     strcpy(szPattern, pszDir);
     ulLen = strlen(szPattern);
+    pSuffix = &szPattern[ulLen];
 
-    if (szPattern[ulLen - 1] == '\\')
-        szPattern[ulLen - 1] = '\0';
-    *(unsigned long *)&szPattern[ulLen] = GAM_g_ulAllFilesSuffix;
-    szPattern[ulLen + 4] = GAM_g_cAllFilesSuffixNul;
+    if (pSuffix[-1] == '\\')
+        pSuffix[-1] = '\0';
+    *(unsigned long *)pSuffix = GAM_g_ulAllFilesSuffix;
+    pSuffix[4] = GAM_g_cAllFilesSuffixNul;
 
     hFind = FindFirstFileA(szPattern, &stFind);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
             if ((stFind.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 
-                strcpy(&szPattern[ulLen + 1], stFind.cFileName);
+                strcpy(pSuffix + 1, stFind.cFileName);
                 if (!DeleteFileA(szPattern))
                     return 0;
             } else if (strcmp(stFind.cFileName, ".") != 0 &&
                        strcmp(stFind.cFileName, "..") != 0) {
 
-                strcpy(&szPattern[ulLen + 1], stFind.cFileName);
+                strcpy(pSuffix + 1, stFind.cFileName);
                 if (!GAM_pc_fn_bDeleteDirectoryTree(szPattern))
                     return 0;
                 RemoveDirectoryA(szPattern);
