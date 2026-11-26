@@ -165,7 +165,9 @@ target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include $<$<COMPILE_LANGUAG
 # NO_STRICT: VC5-era windows.h typed handles as void * (STRICT was opt-in); the sources declare
 # Win32 APIs that way.
 # RAYMAN2_WINDOW_ICON: the window class loads icon group 1 of Rayman2.rc (DEVIATIONS 12).
-target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT RAYMAN2_WINDOW_ICON ${R2_FORK_DEFINES})
+# _DLL_COMPILATION_MODE: as tu.json, the retail exe's sound binding layer (SND loads its drivers
+# as DLLs).
+target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE _DLL_COMPILATION_MODE NO_STRICT RAYMAN2_WINDOW_ICON ${R2_FORK_DEFINES})
 # WIN32: the Windows target macro (docs/PLAN.md "Platform macros"). MSVC got it only from CMake's
 # default flags, clang-cl did not.
 # _CRT_SECURE_NO_WARNINGS: the sources use the standard C string and file functions (strcpy,
