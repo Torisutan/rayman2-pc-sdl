@@ -301,6 +301,47 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   also `eng.prevlevel` (776). Every such difference comes after the matrices differ. So the gate
   is each target against its own baseline; `diff base_vc5 NEW --report actor.matrix --report
   world.matrix` is a report (menu and boat01 stay identical in every other field).
+- **Warnings (inventory 2026-11-26; open).** Measured with extra build folders, configured as the
+  gate builds plus `CMAKE_C_FLAGS` `/W4` (MSVC, with and without SDL) and clang-cl `/W4` (= `-Wall
+  -Wextra`), every TU rebuilt; a site counts once per file, line and warning. Before: MSVC 882
+  sites in 28 warnings, clang-cl 1714 in 35. Almost all are in upstream files; the fork's own
+  files and lines had 24 (MSVC) and 80 (clang-cl). Dispositions:
+  - **Fork code, fixed** (the commit after this inventory): the missing `fn_vOneTrame` prototype in
+    `GAM/sdl_main.c`; the regression recorder wrote the frame number instead of the key code for
+    the second and later keys held in one frame (`app/regress.c`; the suite's scripts are written by
+    hand, so no baseline depended on it); `GLI/GLI_linkdrv.c` keeps its entry points as a generic
+    `void (__cdecl *)(void)` and converts to `FARPROC` once, where it answers like
+    `GetProcAddress` (42 calling-convention and 20 function-type casts in clang-cl).
+  - **C runtime deprecations** (C4996, 318 of 320 sites: `strcpy`, `sprintf`, `fopen`, ...):
+    `_CRT_SECURE_NO_WARNINGS` for both targets in `CMakeLists.txt`. The sources use the standard
+    functions on every target; the `*_s` variants are Microsoft only. `GetVersionExA` (Win32 API
+    deprecation, 2) stays reported. After this: MSVC 563, clang-cl 1426; no warning in a fork-only
+    file.
+  - **Declarations and types, to the decomp** (a request, as for the window handle): calls to
+    undeclared functions (C4013 / `-Wimplicit-function-declaration`, 16), declarations inside
+    function bodies (C4210, 96), argument and assignment types that differ from the declaration
+    (C4133, C4047, C4024, C4057, C4113 and clang's pointer-type warnings, about 90; the pointers
+    kept in `unsigned long` among them are 64-bit blockers), the two missing return values
+    (`fn_uiEngineMainLoop`, `GLI_fn_lRequestNewDisplayMode`), and `%d` given a `long` (24, wrong
+    where `long` is 64-bit; also a PORTABILITY item). Fixing them here would edit upstream files
+    line by line (rule 2); upstream carries them once the decomp has them.
+  - **Possible defects, checked here under the Phase 3 rules** (next step): operator precedence
+    (`AGO/AGO.c` twice, `HIE/HiePick.c`, `IPT/IPT_kwan.c` twice), an unsequenced modification
+    (`GAM/textfrmt.c`), misleading indentation (`AI/cam_tool.c`, `SND/SND.c`), case values outside
+    their enum (`AI/cam_base.c`, 5), possibly uninitialised reads (C4701/C4703 58,
+    `-Wsometimes-uninitialized` 5; compare with the uninitialised-read pass in BUGS.md). Each is
+    original behaviour (logged), a decompilation difference (decomp request) or a BUGS.md row.
+  - **Protection leftovers:** unused variables whose only uses are fenced by
+    `RAYMAN2_NO_PROTECTION` (most of C4101/C4189 in `MMG/SNA.c`, `MMG/MMG_init.c`, `AI/Function.c`,
+    `AI/Procedure.c`, `GAM/GAM_engine.c`). They go with the excluded code (closing Phase 2).
+  - **Not changed** (style of the original code or of a matching decompilation; changing them
+    would rewrite upstream files, rule 2): unused parameters (C4100, 155), narrowing assignments
+    and truncating casts (C4244, C4310), initializers without every field or brace (clang 514 and
+    195), `x = x` self-assignments (56, AI), unused constants and static functions, `#pragma
+    optimize` arguments clang does not know (20), signed/unsigned comparisons, shadowed locals,
+    function-pointer casts in the engine's own tables (SND, AI, GAM, about 100 in clang-cl).
+    They stay listed; the build keeps its default warning level until the decomp's batch has
+    landed, then the remaining set is decided again.
 - **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
   options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
   drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
