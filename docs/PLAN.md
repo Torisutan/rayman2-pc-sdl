@@ -789,6 +789,28 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - **Gamepad triggers:** DirectInput puts an XInput gamepad's two triggers on one Z axis, and the
   PC reader turns "Z down" into button 5. Which trigger moves Z which way is unchecked (needs a
   gamepad on the DirectInput build); until then the SDL backend leaves Z centred.
+- **Gamepad defaults against the Dreamcast scheme (measured 26.11.2026; user decision 24.11.2026:
+  the SDL default pad mapping follows the Dreamcast version).** The pad bindings are IPT entry
+  actions from the level data, read at run time (local tool, Morb_00 loaded, SDL build): 138
+  entries, names not kept in the retail data; pad operands are `JoystickOrPadPressed pad button`
+  with button 10 + n = DirectInput button n (`IPT_g_hScriptPadValue`), axes 4/5/6 = X/Y/Z. Entries
+  with a pad operand, by their PC keys (DirectInput codes):
+  - Enter/Space (#9, #11, #21, #103): button 0 (XInput A, south): jump / confirm. Dreamcast A: same.
+  - A key (#10, #15, #104): button 1 (B, east): shoot / back. Dreamcast B: same.
+  - Q/Del (#17): button 2 (X, west); W/PgDn (#16): button 3 (Y, north); both (#18, with numpad 0):
+    camera. Dreamcast X = camera left, Y = camera right: same positions.
+  - #12: button 4 (LB) or Z axis below -50 (a trigger, which one is the open "Gamepad triggers"
+    question); #13 Ctrl and #14 Z/Y key validate when #12 does. Dreamcast L trigger: target / strafe.
+  - J (#24): button 5 (RB). Menu lists: up/down (#101, #102) RB/LB, confirm/back (#103, #104) A/B;
+    the two four-button chords #99/#100 (LB+RB with A, B in sequence).
+  - Esc (#7: menu) and F1 (#22, #23): **no pad operand**. Dreamcast: Start = menu, R trigger = info,
+    D-pad up = Knowledge of the World; whether F1 or another key is the PC's info / knowledge
+    action is unchecked (names are not in the data: confirm in play).
+  So with the SDL backend's XInput order the face buttons already sit where the Dreamcast has them.
+  Left for the automapping: Start (button 7) for the menu entry, the triggers, and the info /
+  knowledge entries once identified; done as default pad operands of those entries after the level
+  load (IPT, fork change), not in INO.
+
 - **Direct3D 6 driver:** 26 of its 130 functions do not match their original bytes yet; which of
   them behave differently is unchecked.
 - **Memory:** PSP has 32-64 MB in total. Measure MMG's block budgets per level before
