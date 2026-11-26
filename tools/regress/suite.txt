@@ -1,0 +1,20 @@
+# Regression suite: python tools/regress.py suite EXE OUTDIR runs every scenario into
+# OUTDIR/NAME.txt; python tools/regress.py diff BASEDIR OUTDIR compares them.
+# NAME     LEVEL     FRAMES  INPUT        (LEVEL "-": no level requested, input from the menu)
+#
+# morb_00:  the first regression, kept as it was (input reaches the main actor from level frame ~185).
+# menu:     the front end without a level request: menu actors and text, language and options
+#           screens, name entry, the new-game save, the level change into the intro cinematic
+#           (Jail_10: letterbox, subtitles, scripted camera).
+# ski_10:   a large level (about 2.6 MB) left by its exit portal: the walk reaches the portal, the
+#           save prompt, the level change from play into the hall of doors (Mapmonde, from level
+#           frame ~780) with its counters and level names. (Learn_10 was tried: its opening
+#           cutscene ignores input for the first ~1490 frames.)
+# boat01:   the smallest playable level (about 0.5 MB): health bar and damage, fire and particle
+#           effects, enemies.
+# water_10: collectibles (lums and their counter), several enemies at once, particle effects.
+morb_00   Morb_00   1800    morb_00.txt
+menu      -         2400    menu.txt
+ski_10    Ski_10    1500    play.txt
+boat01    Boat01    1500    play.txt
+water_10  Water_10  1500    play.txt

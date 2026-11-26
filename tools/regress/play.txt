@@ -1,0 +1,18 @@
+# Regression input for a playable level: frames from the level start (60 per second),
+# DirectInput keys. Walk, turn, jump (A) and shoot (SPACE); the same script in every level.
+60   300  UP
+150  160  A
+300  500  UP,RIGHT
+360  370  A
+420  425  SPACE
+500  700  LEFT
+560  570  A
+700  720  SPACE
+720  1000 UP
+800  810  A
+880  885  SPACE
+1000 1200 DOWN,RIGHT
+1100 1110 A
+1200 1500 UP,LEFT
+1300 1310 A
+1400 1405 SPACE

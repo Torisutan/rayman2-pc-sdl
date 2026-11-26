@@ -1,0 +1,21 @@
+# Regression input from the menu (no level requested): frames from the menu's first playing
+# frame (60 per second), DirectInput keys. Language screen, options and back, new game with a
+# name entered, the save it writes, the level change to the intro (Jail_10, from frame ~1310).
+# FIRST LAST KEYS
+120  125  ENTER    # language screen: the selected language
+300  305  DOWN     # main menu: down to the options
+340  345  DOWN
+380  385  DOWN
+420  425  ENTER    # options
+520  525  DOWN
+560  565  DOWN
+600  605  ESC      # back to the main menu
+700  705  UP
+740  745  UP
+780  785  UP
+820  825  ENTER    # new game: name entry
+1000 1005 UP       # first letter
+1060 1065 RIGHT
+1100 1105 UP       # second letter
+1160 1165 ENTER    # start: the game is saved
+1300 1305 ENTER    # continue: level change to the intro

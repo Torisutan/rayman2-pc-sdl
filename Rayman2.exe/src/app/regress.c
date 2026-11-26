@@ -13,7 +13,8 @@
  *
  * Output (R2_REGRESS_OUT): one line per frame, "frame hash field=value ...", the state the previous
  * frame left: engine structure fields (no pointers, handles or real-time counts), main actor
- * global matrix, random indices and table (not the MMG LCG: protection state only).
+ * global matrix, number and global matrices of the dynamic world's actors, random indices and
+ * table (not the MMG LCG: protection state only).
  * tools/regress.py compares two files.
  *
  * Input script: lines "FIRST LAST KEY[,KEY...]", frames counted from the level start (frame 0 =
@@ -312,6 +313,37 @@ static void REGRESS_fn_vAddField(const char *szName, const void *p_vData, unsign
 
 #define REGRESS_M_Field(name, lvalue) REGRESS_fn_vAddField(name, &(lvalue), sizeof(lvalue))
 
+/* Every actor of the dynamic world: their number, and their global matrices in tree order (one
+ * digest; covers what the main actor's matrix does not: enemies, AI, scripted objects). Only while
+ * a level plays: during a level change the tree is being rebuilt. */
+static void REGRESS_fn_vAddWorld(void)
+{
+    HIE_tdstSuperObject *p_stChild;
+    unsigned long ulDigest = 0x811C9DC5u;
+    long  lNbActors = 0;
+    char  szValue[16];
+    unsigned long i;
+
+    if (GAM_g_stEngineStructure.eEngineMode != E_EM_ModePlaying || gp_stDynamicWorld == NULL) {
+        REGRESS_fn_vAddText("world.nb", "-");
+        REGRESS_fn_vAddText("world.matrix", "-");
+        return;
+    }
+    for (p_stChild = gp_stDynamicWorld->p_stFirstChild; p_stChild != NULL; p_stChild = p_stChild->p_stNextBrother) {
+        if (p_stChild->hGlobalMatrix != NULL) {
+            const unsigned char *p_ucData = (const unsigned char *)p_stChild->hGlobalMatrix;
+            for (i = 0; i < sizeof(POS_tdstCompletePosition); i++) {
+                ulDigest = (ulDigest ^ p_ucData[i]) * 0x01000193u;
+                gs_ullHash = (gs_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
+            }
+        }
+        lNbActors++;
+    }
+    REGRESS_M_Field("world.nb", lNbActors);
+    sprintf(szValue, "%08lx", ulDigest);
+    REGRESS_fn_vAddText("world.matrix", szValue);
+}
+
 static void REGRESS_fn_vHashFrame(void)
 {
     GAM_tdstEngineStructure *p_stEng = &GAM_g_stEngineStructure;
@@ -353,6 +385,7 @@ static void REGRESS_fn_vHashFrame(void)
     } else {
         REGRESS_fn_vAddText("actor.matrix", "-");
     }
+    REGRESS_fn_vAddWorld();
     REGRESS_M_Field("rnd.index", RND_g_stRandomStructure.a_ulIndex);
     REGRESS_M_Field("rnd.max", RND_g_stRandomStructure.ulMaxValueInTable);
     if (RND_g_stRandomStructure.p_ulTable != NULL) {
