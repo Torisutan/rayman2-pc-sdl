@@ -390,6 +390,15 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   `AI/FuncRay2.c` `fn_p_stGetCPUCounter` (`rdtsc`, a debug AI function: needs a timer branch),
   `SND/SND.c` `SND_pc_fn_vProbeCpu` (CPUID/MMX, chooses the sound driver: sound task),
   `MMG/SNA.c` `SNA_pc_bOpenFile` `__asm int 3` (bad open mode: needs a branch per target).
+- **Portability list (done, 2026-11-26).** `docs/PORTABILITY.md`: every pointer-size, `long`-size,
+  packing and byte-order assumption with its sites. Pointer size measured (the SDL gate's
+  translation units compiled again as x86-64 with clang-cl, syntax only, pointer diagnostics on,
+  minus what x86 reports): 171 pointer-to-integer and 301 integer-to-pointer casts, 12 narrowings,
+  79 layout asserts (retail offsets, correct guards: level blocks are 32-bit memory images). LP64
+  not measurable without a Linux toolchain; its known sites are listed. Decisions it feeds: Phase 5
+  "Open decisions" (64-bit data, big-endian, `long` on LP64). Handles in `long` in the original's
+  interfaces (sound voices, AI values, MMG chain) are fork work later; `int` locals holding
+  pointers are the decomp's (request "warnings", category 2).
 - **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
   options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
   drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
@@ -716,6 +725,14 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
   32-bit pointers, so every pointer-carrying structure loaded from level data has to be widened at
   load. How (per-type load tables or an offline converter, as for big-endian data) is open; decide
   it with the big-endian question, from Phase 4's portability list.
+  Measured 26.11.2026 (`docs/PORTABILITY.md` sections 1, 2): 79 layout asserts pin level-block
+  structures to retail offsets, 472 pointer/integer casts besides. A third option exists in the
+  headers: the original's own cartridge level format (`include/BLC/`, index-based, packed), so an
+  offline converter could target the original's binary loaders.
+- **`long` on LP64 (Linux, macOS; new 26.11.2026):** the code assumes a 32-bit `long` in file
+  headers, `.gpt` dwords and float bit tests (`docs/PORTABILITY.md` section 3). Fixed-width types
+  per target in the base headers, or `-m32`-like data models where available; decide before the
+  first Linux build, measured with a Linux toolchain then.
 - **Big-endian targets (Wii U):** the data files are little-endian. The choices are byte-swapping
   at load time, which needs type information for every relocated block, or an offline data
   converter. Decide it when Phase 4's portability list exists.
