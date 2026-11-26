@@ -829,6 +829,14 @@ mixer and decoders from the file formats):
 5. **Check:** the linked-in driver against the retail DLL with the same data (mixed output of a
    scripted scene captured from both), then the SDL output branch against the waveOut branch.
 6. **Order:** unchanged, after Phase 4 and before the renderer.
+7. **Inventory done (26.11.2026, `docs/SOUND.md`).** Step 4 is decided by the facts: `APMmxBVR` is
+   decompiled too (upstream, 156 of 161 EXACT), so it is linked in like `WAVMWBVR`, no decoder of
+   our own. Measured: only `WAVMWBVR` and `APMmxBVR` load (the MPEG drivers never: no `[DLL_MPEG]`
+   section); the exe calls the WAV driver (69 names) and the ADPCM driver once; the drivers bind the
+   exe and each other through one shared source, `snddll.c` (295 same-named stubs), which clashes
+   with the exe in one image (132 and 128 names) and with each other (384). Linking in therefore
+   replaces that binding layer; the WAV driver owns the output thread, waveOut and two mutexes, the
+   ADPCM driver no thread; all driver file access goes through the exe's `sndfile`.
 
 ## Animation: smoother playback (to evaluate)
 
