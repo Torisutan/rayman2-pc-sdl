@@ -405,7 +405,7 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   round (24.11.2026, SDL build, OpenGL): focus changes and level transitions fine; HUD split in
   the hall of doors (Widescreen "Open"); **open:** loading a save slot loads the current progress
   or the 88 % slot whichever is chosen, one slot folder is empty (log 2).
-- **Save slots (read from the code, 24.11.2026; open).** The running game lives in
+- **Save slots (read from the code 24.11.2026; driven on retail and fork 26.11.2026: no difference).** The running game lives in
   `Data/SaveGame/HiddenSlot` (`General.sav` plus one file per level, written by `fn_bPlayerSaveGameAll` and
   `fn_bLevelSaveGameAll`; when the engine calls them is unchecked);
   the menu slots are `Data/SaveGame/SlotN`. Saving to a slot (`fn_bSaveGameInSlot`) deletes
@@ -425,7 +425,37 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   retail exe and on the fork, with copies of `Data/SaveGame`.
   Seen 26.11.2026 (fork, regression `menu` scenario, stopped at the "game saved" message after a
   new game): a new `Slot3` folder exists and is empty, and there is no `HiddenSlot`.
-
+  **Driven, 26.11.2026.** 21 scenarios played automatically on the retail exe and the SDL build
+  (local tooling: menus driven by key presses at fixed seconds, only while the game window has
+  the foreground; screenshots; afterwards the tree of `Data/SaveGame` and `Data/Options`: folders,
+  files, sizes, hashes, dates). Fixtures from the reference install's saves, frozen once per run
+  and copied fresh per scenario: as they are (Slot1 82.6 %, Slot2 an empty folder), no saves, no
+  `HiddenSlot`, only `HiddenSlot`, slot dates set apart; and "after" another scenario (quit and
+  restart). Scenarios: the load list (as is, dated, none, only `HiddenSlot`), new game (as is,
+  none, no `HiddenSlot`), load each entry from the menu, save during play (into the used slot
+  under another name, under the same name, into a free entry), restart after a new game, a save
+  and an erase, load the newly saved slot, load during play, erase each entry (yes, no).
+  **Result: every tree identical on retail and fork** (dates compared as order only; the
+  screenshots agree, apart from the fork's widescreen layout). So the seven non-matching
+  functions behave as retail in everything the menus reach, and the playtest findings are
+  original behaviour:
+  - the menu deletes `HiddenSlot` when it starts; a new game writes a 2-file `HiddenSlot`
+    (`General.sav`, `Menu_0.sav`) and an **empty** new `SlotN` folder, filled only by the first
+    save during play;
+  - an empty slot folder lists as "9AA 00.0%" with the folder date (the name of the game that
+    created it: the name entry's up key turns A into 9) and loading it starts a new game (intro);
+  - the list is sorted newest first by `General.sav` date, folder date without one;
+  - saving under the name the slot already has is refused ("... ist bereits in diesem
+    Verzeichnis ..."); under another name it overwrites (Slot1 then dated now) or fills a new
+    `SlotN`; the overwrite and erase questions default to "Nein";
+  - checked in the retail asm as well: the sort's swap copies one score tail only one way, and
+    the slot walk of `fn_bSaveGameInSlot` stops on the "new slot" flag set by the AI save
+    procedure; both as in retail.
+  Not driven by the script (identical on both, but the step did not happen): overwriting the
+  empty Slot2 (the name entry keeps "9AA"), loading from the in-game menu (the list does not take
+  the selection at the timings used), saving without a `HiddenSlot` (the menu always recreates
+  it). The set reruns in about 35 minutes per exe; run it again after any save-code change (the
+  saves port: Win32 file calls in `GAM_save_slot.c`, `SAI_Save.c`).
 ### Phase 5 (later): platform layer and ports
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input
 devices (`INO`), the sound driver interface (`SND`), files (`FIL`) and timers (`TMR`). The platform
