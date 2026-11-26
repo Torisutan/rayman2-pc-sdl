@@ -325,6 +325,10 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
     (`fn_uiEngineMainLoop`, `GLI_fn_lRequestNewDisplayMode`), and `%d` given a `long` (24, wrong
     where `long` is 64-bit; also a PORTABILITY item). Fixing them here would edit upstream files
     line by line (rule 2); upstream carries them once the decomp has them.
+    Re-measured 26.11.2026 after upstream b102d4d (MSVC `/W4`, every TU rebuilt): 563 -> 549 sites;
+    C4013 16 -> 1 (`GAM/Basic.c:494`, its declaration still missing: decomp order M12), C4716
+    gone, C4715 stays (the decomp keeps `GLI_fn_lRequestNewDisplayMode` exact); C4210 96, C4133 26
+    and the other type warnings unchanged (the request's next items).
   - **Possible defects (checked 2026-11-26, Phase 3 rules; BUGS.md "Checked").** Each against
     the retail asm and the original source: no retail bug. Original behaviour: `AGO/AGO.c` (the
     precedence makes `AGO_ulGetElderOne` always return -1, so a full particle table drops new
