@@ -276,6 +276,31 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
 - **Order (user, 2026-11-24):** Phase 5 steps 1, 3, 4 and 5 ran ahead of this phase. Before more
   Phase 5 work, one task per session: a playtest, a wider regression (more levels, recorded
   input), then this phase, then closing Phase 2.
+- **Wider regression (done, 2026-11-26).** `tools/regress.py suite EXE OUTDIR` runs the scenarios of
+  `tools/regress/suite.txt` (level, frames, input script; the file says why each was chosen):
+  `morb_00` (the first run, unchanged), `menu` (no level request: language and options screens,
+  name entry, the new-game save, the level change into the Jail_10 intro), `ski_10` (walks into
+  the exit portal: save prompt, level change from play into the hall of doors), `boat01`
+  (damage, fire, enemies), `water_10` (lums, several enemies). `regress.py diff` takes two suite
+  folders. The input scripts are written in the script format (`R2_REGRESS_RECORD` writes the same
+  format from a real keyboard); each was checked against an empty script: the input changes the
+  state from the first keys on (Learn_10 was dropped: its opening cutscene ignores input for
+  ~1490 frames). New hashed fields: `world.nb` and `world.matrix`, the number and the global
+  matrices of the dynamic world's actors (enemies, AI, scripted objects); every earlier field of
+  Morb_00 unchanged against `modern_baseline.txt`.
+  **Baselines** (`build/regress/base_<gate>/`, each recorded twice, both runs identical):
+  `base_modern` (SDL, MSVC and ANSI builds give identical files), `base_clang`, `base_vc5`. The VC5
+  reference now gets the same feature defines as the CMake builds (`--define` each of
+  `RAYMAN2_NO_PROTECTION`, `RAYMAN2_LOCAL_UBIINI`, `RAYMAN2_WIDESCREEN`, `RAYMAN2_FAST_LOADING`,
+  `RAYMAN2_FIX_BUGS`; out `build/ref_npf`): with only the first two, the widescreen 4:3 UI scales
+  a menu actor (0.75) and Water_10's random index differs from its first frame.
+  **Cross-target (measured):** VC5 and modern differ in `world.matrix` from the first frame (1 ulp
+  in four menu actors after load: per-target arithmetic, Phase 2) and in `actor.matrix` from the
+  level start. With gameplay the drift reaches other fields: `world.nb` (morb_00 frame 1206,
+  ski_10 501, water_10 515), clang-cl and VC5 agreeing there against MSVC; ski_10 on clang-cl
+  also `eng.prevlevel` (776). Every such difference comes after the matrices differ. So the gate
+  is each target against its own baseline; `diff base_vc5 NEW --report actor.matrix --report
+  world.matrix` is a report (menu and boat01 stay identical in every other field).
 - **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
   options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
   drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
@@ -300,6 +325,8 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   NAME --asm`; fixes belong to the decomp, so they arrive through upstream), then play one fixed
   sequence (new game, save, second game, save, load each from the menu and during play) on the
   retail exe and on the fork, with copies of `Data/SaveGame`.
+  Seen 26.11.2026 (fork, regression `menu` scenario, stopped at the "game saved" message after a
+  new game): a new `Slot3` folder exists and is empty, and there is no `HiddenSlot`.
 
 ### Phase 5 (later): platform layer and ports
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input
