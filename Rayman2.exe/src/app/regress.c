@@ -243,9 +243,11 @@ static short REGRESS_fn_wReadKeyboardRecord(INO_tdstDevice *hDevice)
     }
     for (i = 0; i < 256; i++) {
         if (p_ucBuf[i] & INO_C_ucKeyDown) {
-            fprintf(gs_p_stRecord, bFirst ? "%ld %ld 0x%02X" : ",0x%02X", lFrame, lFrame, i);
             if (bFirst) {
+                fprintf(gs_p_stRecord, "%ld %ld 0x%02X", lFrame, lFrame, i);
                 bFirst = 0;
+            } else {
+                fprintf(gs_p_stRecord, ",0x%02X", i);
             }
         }
     }
