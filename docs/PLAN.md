@@ -837,6 +837,23 @@ mixer and decoders from the file formats):
    with the exe in one image (132 and 128 names) and with each other (384). Linking in therefore
    replaces that binding layer; the WAV driver owns the output thread, waveOut and two mutexes, the
    ADPCM driver no thread; all driver file access goes through the exe's `sndfile`.
+8. **How to link them in: open, for the user (26.11.2026).** The original engine has both forms in
+   its headers (`snddef.h`, `sndxd.h`, `sndmem.h`, ...): with `_DLL_COMPILATION_MODE` (its PC build)
+   the exe sees the driver functions as pointers and the drivers bind the exe by name (`snddll.c`);
+   without it (its console targets) driver and engine are one library and call each other
+   directly, with the platform output in `SND/Specif/` (`sndwave.c`, `audioU64.c`, ...). Options:
+   a) **the original's non-DLL form** (structure as the original's consoles): a build option compiles
+      the exe's `SND` and both drivers without `_DLL_COMPILATION_MODE`, drops `snddll.c` and the
+      exe's pointer layer (its `SND_pc_fn_vLoad*Procs` wrappers), and calls directly. `Snd_Cpa.ini`
+      then selects nothing (one driver set per build); the DLL path stays the default build. Needs
+      the exe's pointer layer fenced by `_DLL_COMPILATION_MODE` first (a decomp change, in the original engine's form;
+      today the exe build does not define it).
+   b) **the DX6 form** (DEVIATIONS 13: a table answers the exe's by-name lookups, `Snd_Cpa.ini` still
+      selects, other drivers still load from `DLL`): requires renaming the drivers' 295 binding stubs
+      or the exe's same-named wrappers (they clash, `docs/SOUND.md` section 5) and a second, private
+      binding for the drivers' calls into the exe: a structure the original never had.
+   Recommendation: a), the original's own form, consoles need it anyway; the DLL default build keeps
+   the ini selection on Windows.
 
 ## Animation: smoother playback (to evaluate)
 
