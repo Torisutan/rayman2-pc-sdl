@@ -893,6 +893,16 @@ mixer and decoders from the file formats):
    MPEG calls of the WAV driver (the original fences them with `DISABLE_MPEG`), its debug-module
    calls, the asm mixer objects and C runtime names. Next: the decomp fences the exe's binding
    layer and those calls in the original's form (byte-neutral); then the fork's build option.
+10. **Form a), tried (26.11.2026, scratch build, not committed).** The SDL build without the exe's 31
+   driver wrappers, with both drivers' sources compiled in without `_DLL_COMPILATION_MODE` (modern
+   MSVC and ML; no-op stand-ins for the MPEG and debug-module calls and the ADPCM driver's binding
+   calls) links, runs the regression set identical to its baseline and plays sound: captured at
+   `waveOutWrite` (22,050 Hz, stereo, 16 bit) over 30 s of Morb_00, the output level per second
+   follows the retail DLLs' within a few percent. Not sample-equal: when a sound starts relative
+   to the output buffers depends on wall-clock timing, so the step 5 comparison needs a fixed
+   timing (to be found). Needed besides the fences: the ini reading other than driver loading
+   stays (switches, distances and roll-off, supervisor), and modern ML wants `dword ptr` on 13
+   MMX operands.
 
 ## Animation: smoother playback (to evaluate)
 
