@@ -133,8 +133,12 @@ Each removed mechanism has a row in [DEVIATIONS.md](DEVIATIONS.md) (2-6).
   import tables in `MMG/pc_protect.c`, and the `SNA_g_lProtectionGate` gates of live functions
   (`MMG_fn_vInit`, `FUN_00405850`, `SNA_fn_ulFRead`, `SNA_pc_bOpenSnaFamilyFile`,
   `SNA_pc_pReadGptTable`). The gate variable is never written, so every gate was dead. Link
-  maps (modern, VC5 with the define) contain none of these symbols; regressions identical. Still to do: delete the excluded code;
-  the gate variables' declarations in `MMG/MMG_globals.h` go with it.
+  maps (modern, VC5 with the define) contain none of these symbols; regressions identical. 
+- **Decided (user, 26.11.2026): the excluded code stays, excluded.** Closing this phase meant deleting
+  it: 2,106 lines in 12 files behind 61 fences, every fence a fork edit inside an upstream file.
+  Deleting them would conflict with every upstream change to those files (rule 3); the define keeps
+  them out of every fork build, and the VC5 build without the define stays the protected original.
+  Phase 2 is closed with this. The unused variables they leave (Phase 4 warnings) stay too.
 
 ### Phase 3: fix the original engine's bugs
 - Keep a catalogue in `docs/BUGS.md`: symptom, cause, function, fix. Known candidates from the
@@ -343,7 +347,7 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
     has no mouse input). No code change, regression not affected.
   - **Protection leftovers:** unused variables whose only uses are fenced by
     `RAYMAN2_NO_PROTECTION` (most of C4101/C4189 in `MMG/SNA.c`, `MMG/MMG_init.c`, `AI/Function.c`,
-    `AI/Procedure.c`, `GAM/GAM_engine.c`). They go with the excluded code (closing Phase 2).
+    `AI/Procedure.c`, `GAM/GAM_engine.c`). They stay with the excluded code (Phase 2, decided 26.11.2026).
   - **Not changed** (style of the original code or of a matching decompilation; changing them
     would rewrite upstream files, rule 2): unused parameters (C4100, 155), narrowing assignments
     and truncating casts (C4244, C4310), initializers without every field or brace (clang 514 and
@@ -863,7 +867,7 @@ mixer and decoders from the file formats):
    with the exe in one image (132 and 128 names) and with each other (384). Linking in therefore
    replaces that binding layer; the WAV driver owns the output thread, waveOut and two mutexes, the
    ADPCM driver no thread; all driver file access goes through the exe's `sndfile`.
-8. **How to link them in: open, for the user (26.11.2026).** The original engine has both forms in
+8. **How to link them in: decided a) (user, 26.11.2026).** The original engine has both forms in
    its headers (`snddef.h`, `sndxd.h`, `sndmem.h`, ...): with `_DLL_COMPILATION_MODE` (its PC build)
    the exe sees the driver functions as pointers and the drivers bind the exe by name (`snddll.c`);
    without it (its console targets) driver and engine are one library and call each other
@@ -880,6 +884,13 @@ mixer and decoders from the file formats):
       binding for the drivers' calls into the exe: a structure the original never had.
    Recommendation: a), the original's own form, consoles need it anyway; the DLL default build keeps
    the ini selection on Windows.
+9. **Form a), measured first (26.11.2026).** The VC5 exe objects and both drivers' objects without
+   `snddll.c`, as one image (`llvm-nm`): 31 names left in common, all the exe's driver wrappers in
+   `SND/SND.c` (29 Sxd functions, `SND_fn_bCanFreeDataSample`, `SND_fn_bCanFreeDataADPCM`); WAV and
+   APM none. Unresolved in the drivers: the binding calls already under `_DLL_COMPILATION_MODE`, the
+   MPEG calls of the WAV driver (the original fences them with `DISABLE_MPEG`), its debug-module
+   calls, the asm mixer objects and C runtime names. Next: the decomp fences the exe's binding
+   layer and those calls in the original's form (byte-neutral); then the fork's build option.
 
 ## Animation: smoother playback (to evaluate)
 
