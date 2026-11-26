@@ -477,6 +477,8 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   the selection at the timings used), saving without a `HiddenSlot` (the menu always recreates
   it). The set reruns in about 35 minutes per exe; run it again after any save-code change (the
   saves port: Win32 file calls in `GAM_save_slot.c`, `SAI_Save.c`).
+  **Rerun after the decomp rewrote the seven (upstream ce07441, 26.11.2026):** all 21 trees still
+  identical to retail; regression unchanged on all gates.
 ### Phase 5 (later): platform layer and ports
 The engine already has seams at the right places: the renderer function table (`GLI_DRV`), input
 devices (`INO`), the sound driver interface (`SND`), files (`FIL`) and timers (`TMR`). The platform
