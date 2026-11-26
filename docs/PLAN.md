@@ -348,6 +348,21 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
     function-pointer casts in the engine's own tables (SND, AI, GAM, about 100 in clang-cl).
     They stay listed; the build keeps its default warning level until the decomp's batch has
     landed, then the remaining set is decided again.
+- **AddressSanitizer (done, 2026-11-26).** The regression suite under MSVC `/fsanitize=address`
+  (build folder configured as the SDL gate build plus `CMAKE_C_FLAGS` `/fsanitize=address /Zi`,
+  linker `/DEBUG /INCREMENTAL:NO`; the runtime DLL from the compiler's `bin/Hostx86/x86` on `PATH`;
+  `ASAN_OPTIONS` `log_path` (quoted, the path has a colon), `windows_hook_rtl_allocators=true`,
+  `detect_stack_use_after_return=1`). Two findings: an overlapping `memcpy` in the camera's
+  history shifts (original engine source; BUGS.md #9, fixed) and the centre vector of
+  `HIE_fn_vSendSuperObjectToViewport` kept in three locals (a decompilation difference; decomp
+  request item 7). After both, every scenario ends without a report and equals `base_modern`. With
+  the fix, SDL, MSVC, ANSI and VC5 equal their baselines; clang-cl changed as intended (its inlined
+  copy ran from the end and corrupted one history entry per call), `base_clang` re-recorded (twice, identical) at 1456254 and
+  now equal to `base_modern` in every field and scenario: the clang-cl drift described under "Wider
+  regression" (`world.matrix` from frame 62, `world.nb`, `eng.prevlevel`) was this bug, not
+  per-target arithmetic. VC5 against modern is unchanged (menu actors 1 ulp after load). Not covered: allocations inside the memory
+  manager's heaps (one `malloc` per heap). Instrumenting them (poisoning in MMG) would be a fork
+  change of its own; not planned.
 - **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
   options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
   drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
