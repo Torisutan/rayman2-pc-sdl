@@ -363,6 +363,33 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   per-target arithmetic. VC5 against modern is unchanged (menu actors 1 ulp after load). Not covered: allocations inside the memory
   manager's heaps (one `malloc` per heap). Instrumenting them (poisoning in MMG) would be a fork
   change of its own; not planned.
+- **MTH target selection (measured 2026-11-26; open, waits for the decomp).** The original engine
+  chooses the MTH path in one header, `MTH/MTH_def.h` ("Detect Targets": `_MSC_VER` -> `VISUAL`
+  -> `MTH_PC_DEV`, `U64` -> `MTH_U64_DEV`, `NITRO` -> `MTH_NITRO_DEV`, else `MTH_UNKOWN_DEV`; only
+  `MTH_PC_DEV` sets `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM`). The decompilation sets the same macros
+  unconditionally in `MTH_flt.h` and `MTH3D.h`; asked of the decomp: `MTH_def.h` in the original's
+  form (byte-neutral under VC5). The fork then adds its targets as a branch beside `MTH_PC_DEV`
+  (asm only on 32-bit x86 MSVC / clang-cl, not `WIN64`).
+  **Asm off, measured** (temporary build, `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` undefined, gate MSVC
+  configuration): the C branch of `MTH3dopt.h` builds after two decompilation gaps are closed
+  (asked of the decomp): a local copy of `MTH_M_bDifferentZeroOpt` in `AI/CAM_Tool.c` (not in the
+  original) collides with the header's C form, and `MTH3D_M_fn_vMulMatrixMatrixWithoutBufferORG`
+  (the C branch of the matrix product; the original defines it in `MTH/MTH_Debug.c`) has no
+  definition. The suite runs, twice identical; against `base_modern` it differs as per-target
+  arithmetic predicts: `world.matrix` from frame 0, `actor.matrix` from 63, and through the drift
+  `world.nb` (Morb_00 frame 1206, Water_10 515) and `eng.prevlevel` (Ski_10 776); `boat01` and
+  `menu` equal apart from the matrices. Its own baseline is recorded once the target block is in
+  (`build/regress/noasm_a` is only the measurement).
+  **Asm left after that** (outside the protection, task "close Phase 2", and the `USE_SDL`-fenced
+  PC timer and window code): `MTH_fopt.h` table functions (`MTH_fn_fSquareRootOpt`, inverse,
+  inverse square root): asm in the original's PC branch, C only in its `U64`/`NITRO` branches, so
+  a non-x86 target needs a branch there (**open:** which condition; the original only knows "PC"
+  = not `U64`/`NITRO`); local copies of MTH asm (`AI/Function.c` `AI_FUNC_fn_fSquareRootOpt`,
+  `GLI/pc_light_pipeline.c` `GLI_pc_xFastSqrt`, `GAM/effect.c` `FP_M_vAddVectorASM`) and
+  `GLI/Texture.c` `gli_ftol_truncate` (asked of the decomp: use the MTH forms);
+  `AI/FuncRay2.c` `fn_p_stGetCPUCounter` (`rdtsc`, a debug AI function: needs a timer branch),
+  `SND/SND.c` `SND_pc_fn_vProbeCpu` (CPUID/MMX, chooses the sound driver: sound task),
+  `MMG/SNA.c` `SNA_pc_bOpenFile` `__asm int 3` (bad open mode: needs a branch per target).
 - **Playtest (2026-11-24):** checklist in `docs/PLAYTEST.md` (start/exit, game and saves,
   options, focus, input devices, widescreen and loading screen; SDL and Win32 builds, both
   drivers). Findings go to BUGS.md, to this plan, or are logged as original behaviour. First
