@@ -52,6 +52,7 @@ extern unsigned long __cdecl GLI_fn_lDisplayModeHeight(void);
 extern long          __cdecl GLI_pc_fn_bApplyDeferredMode(void);
 extern void          __cdecl IPT_fn_vResetInputEntry(void);      /* 0x0042E090 */
 extern void          __cdecl FUN_0042e150(void);                 /* 0x0042E150 */
+extern void          __cdecl fn_vOneTrame(void);                 /* 0x004049E0 */
 void FUN_00401050(void);
 unsigned long FUN_00401b20(void);
 void GAM_pc_fn_vChooseTheGoodDesInit(void);

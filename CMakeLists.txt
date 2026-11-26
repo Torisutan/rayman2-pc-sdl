@@ -166,10 +166,13 @@ target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include $<$<COMPILE_LANGUAG
 target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT RAYMAN2_WINDOW_ICON ${R2_FORK_DEFINES})
 # WIN32: the Windows target macro (docs/PLAN.md "Platform macros"). MSVC got it only from CMake's
 # default flags, clang-cl did not.
+# _CRT_SECURE_NO_WARNINGS: the sources use the standard C string and file functions (strcpy,
+# sprintf, fopen, ...) on every target; the Microsoft C runtime flags them as deprecated in favour
+# of its own *_s variants, which the other targets do not have.
 if(WIN32)
-  target_compile_definitions(Rayman2 PRIVATE WIN32)
+  target_compile_definitions(Rayman2 PRIVATE WIN32 _CRT_SECURE_NO_WARNINGS)
   if(TARGET GliDX6vf)
-    target_compile_definitions(GliDX6vf PRIVATE WIN32)
+    target_compile_definitions(GliDX6vf PRIVATE WIN32 _CRT_SECURE_NO_WARNINGS)
   endif()
 endif()
 # Debug (--config Debug): CMake's /Od /RTC1 instead, to run the regression with run-time checks

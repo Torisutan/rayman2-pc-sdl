@@ -19,11 +19,15 @@
 #include "GLI/GLI_linkdrv.h"
 #include <string.h>
 
+/* An entry point of any type: GLI_fn_pfnGetDriverProc hands it out as FARPROC, and the binding
+   code casts it to the entry point's own type, as for GetProcAddress */
+typedef void (__cdecl *GLI_tdpfnLinkedProc)(void);
+
 /* One entry point of a linked-in driver */
 typedef struct GLI_tdstLinkedProc_
 {
-    const char *szName;
-    FARPROC     pfnProc;
+    const char          *szName;
+    GLI_tdpfnLinkedProc pfnProc;
 } GLI_tdstLinkedProc;
 
 /* A linked-in driver: the file name it replaces, what its DllMain does, its entry points */
@@ -34,7 +38,7 @@ typedef struct GLI_tdstLinkedDriver_
     const GLI_tdstLinkedProc *d_stProcs;
 } GLI_tdstLinkedDriver;
 
-#define GLI_M_LinkedProc(Name)  { #Name, (FARPROC)Name }
+#define GLI_M_LinkedProc(Name)  { #Name, (GLI_tdpfnLinkedProc)Name }
 
 static const GLI_tdstLinkedProc gs_a_stDX6Procs[] =
 {
@@ -135,7 +139,7 @@ FARPROC __stdcall GLI_fn_pfnGetDriverProc(HMODULE hDriver, const char *szName)
     for ( p_stProc = gs_p_stLinkedDriver->d_stProcs ; p_stProc->szName != NULL ; p_stProc++ )
     {
         if ( strcmp(szName, p_stProc->szName) == 0 )
-            return p_stProc->pfnProc;
+            return (FARPROC)p_stProc->pfnProc;
     }
     return NULL;
 }
