@@ -282,7 +282,13 @@ void __cdecl CAM_fn_vRemindSpeed(struct tdstCineinfo_ *hCineinfo, MTH_tdstMove *
 {
     unsigned long *pulDst = (unsigned long *)hCineinfo->AveragePosition.a_CheckedSpeed;
     unsigned long *pulSrc = (unsigned long *)&hCineinfo->AveragePosition.a_CheckedSpeed[1];
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#9) */
+    /* shift down by one element: source and destination overlap */
+    memmove(pulDst, pulSrc, 0x15 * 4);
+#else
     memcpy(pulDst, pulSrc, 0x15 * 4);
+#endif /* RAYMAN2_FIX_BUGS */
 
     *(unsigned long *)&hCineinfo->AveragePosition.a_CheckedSpeed[7].xX = *(unsigned long *)&p_Speed->m_stLinear.xX;
     *(unsigned long *)&hCineinfo->AveragePosition.a_CheckedSpeed[7].xY = *(unsigned long *)&p_Speed->m_stLinear.xY;
@@ -294,7 +300,13 @@ void __cdecl CAM_fn_vRemindPos(struct tdstCineinfo_ *hCineinfo, MTH_tdstMove *p_
 {
     unsigned long *pulDst = (unsigned long *)hCineinfo->AveragePosition.a_CheckedPos;
     unsigned long *pulSrc = (unsigned long *)&hCineinfo->AveragePosition.a_CheckedPos[1];
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#9) */
+    /* shift down by one element: source and destination overlap */
+    memmove(pulDst, pulSrc, 0x15 * 4);
+#else
     memcpy(pulDst, pulSrc, 0x15 * 4);
+#endif /* RAYMAN2_FIX_BUGS */
 
     *(unsigned long *)&hCineinfo->AveragePosition.a_CheckedPos[7].xX = *(unsigned long *)&p_Pos->m_stLinear.xX;
     *(unsigned long *)&hCineinfo->AveragePosition.a_CheckedPos[7].xY = *(unsigned long *)&p_Pos->m_stLinear.xY;
@@ -306,7 +318,13 @@ void __cdecl CAM_fn_vRemindTime(struct tdstCineinfo_ *hCineinfo, MTH_tdxReal _dt
 {
     unsigned long *pulDst = (unsigned long *)hCineinfo->AveragePosition.a_CheckedTime;
     unsigned long *pulSrc = (unsigned long *)&hCineinfo->AveragePosition.a_CheckedTime[1];
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#9) */
+    /* shift down by one element: source and destination overlap */
+    memmove(pulDst, pulSrc, 7 * 4);
+#else
     memcpy(pulDst, pulSrc, 7 * 4);
+#endif /* RAYMAN2_FIX_BUGS */
     hCineinfo->AveragePosition.a_CheckedTime[7] = _dt;
 }
 
