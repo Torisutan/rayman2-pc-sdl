@@ -357,7 +357,7 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   `HIE_fn_vSendSuperObjectToViewport` kept in three locals (a decompilation difference; decomp
   request item 7). After both, every scenario ends without a report and equals `base_modern`. With
   the fix, SDL, MSVC, ANSI and VC5 equal their baselines; clang-cl changed as intended (its inlined
-  copy ran from the end and corrupted one history entry per call), `base_clang` re-recorded (twice, identical) at 1456254 and
+  copy ran from the end and corrupted one history entry per call), `base_clang` re-recorded (twice, identical) at 409d70b and
   now equal to `base_modern` in every field and scenario: the clang-cl drift described under "Wider
   regression" (`world.matrix` from frame 62, `world.nb`, `eng.prevlevel`) was this bug, not
   per-target arithmetic. VC5 against modern is unchanged (menu actors 1 ulp after load). Not covered: allocations inside the memory
