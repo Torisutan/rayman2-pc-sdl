@@ -10,9 +10,9 @@ unsigned long	__stdcall SND_fn_dwWriteFileSnd(HANDLE hSndFile,unsigned long dwNb
 
 void      __stdcall SND_fn_vAddDataDirectory(const char* czDir);
 void		__stdcall SND_fn_vRemoveDataDirectory(const char* cdDir);
-void		__stdcall SND_fn_vPurgeDataDirectory();
+void		__stdcall SND_fn_vPurgeDataDirectory(void);
 SndBool   __stdcall SND_fn_bGetOneDataDirectory(int id,char* czDir,int iMaxChar);
-int       __stdcall SND_fn_iGetNumberOfDataDirectory();
+int       __stdcall SND_fn_iGetNumberOfDataDirectory(void);
 int       __stdcall SND_fn_iGetIdDataDirectory(const char* szDir);
 SndBool   __stdcall SND_fn_bIsDataDirectory(const char* szDir);
 void      __stdcall SND_fn_vResolveFileName(char* RelativeName,char* AbsoluteName);

@@ -11,6 +11,8 @@
 static const char GLI_CD_szInsertMsg[] = "Please insert the CD";
 static const char GLI_CD_szPathFmt[]   = "%c\\\\%s";
 
+extern int  __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
+extern void __cdecl GLI_FatalExitOrSleep(void);
 void __cdecl GLI_pc_fn_vOpenFileWithCdFallback(char *path)
 {
     typedef int   (__cdecl *pfn_msgbox_t)(const char *body,
@@ -18,8 +20,6 @@ void __cdecl GLI_pc_fn_vOpenFileWithCdFallback(char *path)
                                             unsigned int uFlags);
     typedef void  (__cdecl *pfn_exit_t  )(void);
 
-    extern int  __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
-    extern void __cdecl GLI_FatalExitOrSleep(void);
     pfn_msgbox_t fn_004028f0 = (pfn_msgbox_t)&Erm_fn_iMessageBox;
     pfn_exit_t   fn_004011c0 = (pfn_exit_t  )&GLI_FatalExitOrSleep;
 

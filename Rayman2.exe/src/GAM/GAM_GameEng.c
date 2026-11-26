@@ -803,18 +803,16 @@ static void __cdecl fn_vSendBackGroundColor(void *hSprObjSector)
 /* 0x00429F70 */
 unsigned char __cdecl GLI_pc_fn_bSubmitAngleQuad(void *hCamSector, void *hCamera, void *p_stVpt);
 
+extern void __cdecl FUN_0044c440(void);   /* 0x5115D0 */
+extern void __cdecl GLI_pc_fn_vDisplayMagicMirror(void *pvParam);
 void GAM_fn_vEngine(void)
 {
-
-    /* 0x0044c440 */
-    extern void __cdecl FUN_0044c440(void);
 
     /* 0x4465C0 */
     extern void __cdecl SCT_fn_vSendSectorWhereIAmToViewportWithMirror(void *p_stAbsolutePositionOfCamera,
         unsigned short hDevice, unsigned short hViewport, void *p_stVpt, void *hSprObjSector,
         unsigned long lDrawMask);
 
-    extern void __cdecl GLI_pc_fn_vDisplayMagicMirror(void *pvParam);   /* 0x00424440 */
     /* 0x00429F70 */
     unsigned short hDevice3D   = GAM_g_hDevice3D;
     unsigned short hViewport3D = GAM_g_hViewport3D;
@@ -949,11 +947,10 @@ void fn_vDisplayAll(void)
 #define GAM_g_p_stFixViewportAttr   ((void *)GAM_g_stEngineStructure.stFixViewportAttr)
 #define GAM_g_r_stFixViewportAttr   (*(struct GLD_tdstViewportAttributes_ *)GAM_g_stEngineStructure.stFixViewportAttr)
 
+extern void __cdecl GEO_fn_vComputeCameraParametersForCulling(void *, float);
 void fn_vDisplayFix(void)
 {
 
-    /* 0x00420B20 */
-    extern void __cdecl GEO_fn_vComputeCameraParametersForCulling(void *, float);
     /* 0x00460670 */
     int bEnabledWrite;
 

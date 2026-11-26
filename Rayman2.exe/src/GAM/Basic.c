@@ -165,12 +165,10 @@ unsigned long fn_ulDetermineUsefulDT(void)
     return (unsigned long)(long)((float)lFrames * xFM);
 }
 
+extern unsigned long __cdecl fn_ulTimerTickPerSecond(short sChannel);
+extern long __cdecl TMR_fn_wInitLibrary(void);
 void fn_vFirstInitEngineClock(void)
 {
-    /* 0x0045E8A0 */
-    extern unsigned long __cdecl fn_ulTimerTickPerSecond(short sChannel);
-    /* 0x0045DDC0 */
-    extern long __cdecl TMR_fn_wInitLibrary(void);
 
     unsigned long ulTimerFreq;
 

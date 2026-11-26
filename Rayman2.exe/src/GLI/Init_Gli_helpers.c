@@ -274,6 +274,7 @@ long __cdecl GLI_fn_lChooseDisplayMode(void)
     return 1;
 }
 
+extern int __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
 long __cdecl GLI_pc_bInitDisplayModes(void)
 {
     char acTitle[256];
@@ -292,10 +293,7 @@ long __cdecl GLI_pc_bInitDisplayModes(void)
                 (const char *)GLI_pc_g_szConfiguredDllName);
         sprintf(acBody, GLI_HELP_szErrBodyProblem,
                 (const char *)GLI_pc_g_szEnumModesDriver, (const char *)GLI_pc_g_szEnumModesDevice);
-        {
-            extern int __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
-            Erm_fn_iMessageBox(acBody, acTitle, 0x40010);
-        }
+        Erm_fn_iMessageBox(acBody, acTitle, 0x40010);
         return 0;
     }
 
@@ -305,16 +303,18 @@ long __cdecl GLI_pc_bInitDisplayModes(void)
                 (const char *)GLI_pc_g_szConfiguredDllName);
         sprintf(acBody, GLI_HELP_szErrBodyCould,
                 (const char *)GLI_pc_g_szEnumModesDriver, (const char *)GLI_pc_g_szEnumModesDevice);
-        {
-            extern int __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
-            Erm_fn_iMessageBox(acBody, acTitle, 0x40010);
-        }
+        Erm_fn_iMessageBox(acBody, acTitle, 0x40010);
         return 0;
     }
 
     return 1;
 }
 
+extern void __cdecl GLI_vCloseGli(void);
+extern void __cdecl GLI_xInitGli(void);
+extern void __cdecl GLI_vComputeTextures(void);
+extern long __cdecl GLD_fn_bChangeDeviceDisplayMode(short hDev);
+extern void __cdecl GAM_fn_vActualizeAllGameViewportSize(void);
 long __cdecl GLI_pc_fn_bApplyDeferredMode(void)
 {
     int idx = GLI_pc_gs_lDeferredModeSentinel;            /* 0x004a0484 */
@@ -323,16 +323,11 @@ long __cdecl GLI_pc_fn_bApplyDeferredMode(void)
     if (GLI_pc_a_stStandardDisplayMode[idx].ucEnabled == 0)
         return 0;
     GLI_pc_g_lCurrentModeIndex = GLI_pc_a_stStandardDisplayMode[idx].lModeIndex;
-    { extern void __cdecl GLI_vCloseGli(void);
-      ((void (__cdecl *)(void))&GLI_vCloseGli)(); }
-    { extern void __cdecl GLI_xInitGli(void);  /* 0x00421670 */
-      GLI_xInitGli(); }
-    { extern void __cdecl GLI_vComputeTextures(void);  /* 0x00426980 */
-      GLI_vComputeTextures(); }
-    { extern long __cdecl GLD_fn_bChangeDeviceDisplayMode(short hDev);  /* 0x00421420 */
-      GLD_fn_bChangeDeviceDisplayMode(0); }
-    { extern void __cdecl GAM_fn_vActualizeAllGameViewportSize(void);  /* 0x004050d0 */
-      GAM_fn_vActualizeAllGameViewportSize(); }
+    ((void (__cdecl *)(void))&GLI_vCloseGli)();
+    GLI_xInitGli();
+    GLI_vComputeTextures();
+    GLD_fn_bChangeDeviceDisplayMode(0);
+    GAM_fn_vActualizeAllGameViewportSize();
     GLI_pc_gs_lDeferredModeSentinel = -1;                 /* 0x004a0484 */
     return 1;
 }

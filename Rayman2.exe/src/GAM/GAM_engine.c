@@ -102,11 +102,11 @@ unsigned char GAM_fn_bIsDesInitMode(void)
 }
 
 /* 0x00422720 */
+extern void GLI_xAdjustCameraToViewport(short, short, struct GLI_tdstCamera_ *);
 void GAM_fn_vActualizeAllGameViewportSize(void)
 {
 
     struct GLI_tdstCamera_ *p_stCam;
-    extern void GLI_xAdjustCameraToViewport(short, short, struct GLI_tdstCamera_ *);
 
     ((void (__cdecl *)(short, short, void **))GLI_xGetViewportCamera)(
         GAM_g_stEngineStructure.hGLDDevice, GAM_g_stEngineStructure.hGLDViewport, (void **)&p_stCam);
@@ -153,13 +153,13 @@ void fn_vValidateAllOption(void)
 }
 
 /* 0x004099d0 */
+extern void __cdecl GAM_fn_vSetEngineInLevelMode(void);
+
+extern void __cdecl TFMT_vInitTextAfficheStructure(void);
 void fn_vInitGameLoop(void)
 {
-    extern void __cdecl GAM_fn_vSetEngineInLevelMode(void);   /* 0x00405830 */
 
-    /* 0x004099d0 */
-    extern void __cdecl TFMT_vInitTextAfficheStructure(void);
-
+    /* 0x00449e80 */
     GAM_tdeEngineMode eCallingMode = GAM_g_stEngineStructure.eEngineMode;
     char *p_szName;
 
@@ -224,13 +224,13 @@ static void gam_fix_rekey_reloc_table(void)
 #include "GAM/a3x_mem.h"
 #include "IPT/IPT_Str.h"
 
+extern void __cdecl SNA_pc_vVerifyCdLevelsFile(void);   /* 0x44DE60 */
+extern char __cdecl FUN_00418960(void);
+extern char *__cdecl FUN_00492770(void);
+extern void __cdecl FUN_00421820(void);
+extern void __cdecl FUN_00423610(const char *name);
 void __cdecl GAM_pc_fn_vLoadFixStreams(void)
 {
-    extern void __cdecl SNA_pc_vVerifyCdLevelsFile(void);   /* 0x44DE60 */
-    extern char __cdecl FUN_00418960(void);
-    extern char *__cdecl FUN_00492770(void);
-    extern void __cdecl FUN_00421820(void);
-    extern void __cdecl FUN_00423610(const char *name);
     extern unsigned int *GAM_pc_g_p_ul4b72f0;               /* 0x4B72F0 */
     extern POS_tdstCompletePosition *POS_g_p_stIdentityMatrix; /* 0x510BA0 */
     extern long HIE_g_lNbMatrixInStack;                     /* 0x4B98D4 */
@@ -384,45 +384,28 @@ void __cdecl GAM_pc_fn_vLoadFixStreams(void)
 
 /* 0x4543c0 */
 extern unsigned char fn_bLoadCurrentGameOptions(void);
+
+extern char *__cdecl FIL_pc_fn_szGetDataDir(void);
+extern char *__cdecl FIL_pc_fn_szGetSoundDir(void);
+extern void __cdecl MTH_fn_vInit(void);
+extern void __cdecl GLI_xInitGli(void);
+extern void __cdecl FUN_00409c80(void);
+extern void __cdecl GAM_fn_vCreateGameDeviceAndViewPorts(void);
+extern void __cdecl FUN_0045edc0(unsigned short, unsigned short, void *);
+extern void __cdecl FUN_0045ec40(void);
+extern void __cdecl FUN_00407760(void);
+extern unsigned char __cdecl FUN_0044f4f0(void);
+
+extern void __cdecl GAM_pc_fn_vProcessExternalCtrlCmds();
+extern int __cdecl SND_fn_iInitSound(void *pInitStruct);
+extern void __cdecl SND_fn_vSetDopplerFactorSound(long factor);
+
+extern int __cdecl SND_fn_bInitDataLoadSnd(const char *_szFileTitle);
+extern void __cdecl GAM_pc_fn_vCloseExternalCtrlFile(void);
+extern void __cdecl FUN_0044d420(void);
 void fn_vFirstInitEngine(void)
 {
-    /* 0x004926c0 */
-    extern char *__cdecl FIL_pc_fn_szGetDataDir(void);
-    extern char *__cdecl FIL_pc_fn_szGetSoundDir(void);
-    /* 0x00423610 */
-    extern void __cdecl FUN_00423610(const char *name);
 
-    /* 0x00444750 */
-    extern void __cdecl MTH_fn_vInit(void);
-
-    /* 0x00421670 */
-    extern void __cdecl GLI_xInitGli(void);
-    /* 0x00409c80 */
-    extern void __cdecl FUN_00409c80(void);
-    /* 0x00405150 */
-    extern void __cdecl GAM_fn_vCreateGameDeviceAndViewPorts(void);
-    /* 0x0045edc0 */
-    extern void __cdecl FUN_0045edc0(unsigned short, unsigned short, void *);
-    /* 0x0045ec40 */
-    extern void __cdecl FUN_0045ec40(void);
-    /* 0x00407760 */
-    extern void __cdecl FUN_00407760(void);
-    /* 0x0044f4f0 */
-    extern unsigned char __cdecl FUN_0044f4f0(void);
-    /* 0x004508a0 */
-    extern void __cdecl GAM_pc_fn_vProcessExternalCtrlCmds();
-
-    /* 0x004013c0 */
-    extern int __cdecl SND_fn_iInitSound(void *pInitStruct);
-    /* 0x00452a90 */
-    extern void __cdecl SND_fn_vSetDopplerFactorSound(long factor);
-    /* 0x00454370 */
-    extern int __cdecl SND_fn_bInitDataLoadSnd(const char *_szFileTitle);
-    /* 0x0044f510 */
-    extern void __cdecl GAM_pc_fn_vCloseExternalCtrlFile(void);
-
-    /* 0x0044d420 */
-    extern void __cdecl FUN_0044d420(void);
     /* 0x00408590 */
     char szPath[256];
 
@@ -515,21 +498,15 @@ void fn_vReinitTheStaticHierarchie(HIE_tdstSuperObject *hSuperObject)
 #define GAM_g_h_StdCamCaracter (GAM_g_stEngineStructure.h_StdCamCaracter)
 
 /* 0x40b950 */
+extern void __cdecl fn_vStartEngineClock(void);
+extern void __cdecl fn_vInitAllObjectsWhenPlayerDead(void);
+extern void __cdecl IPT_fn_vActivateAllEntryElements(void);
+extern void *__cdecl GAM_p_stGetBlockEventSlotMemory(unsigned long);
+extern long __cdecl SND_fn_lSendRequestSound(long, long, void *, long, void *);
 void fn_vInitDeadLoop(void)
 {
-    /* 0x00409d40 */
-    extern void __cdecl fn_vStartEngineClock(void);
 
-    /* 0x00406600 */
-    extern void __cdecl fn_vInitAllObjectsWhenPlayerDead(void);
-    /* 0x0042e120 */
-    extern void __cdecl IPT_fn_vActivateAllEntryElements(void);
-
-    /* 0x0040a5b0 */
-    extern void *__cdecl GAM_p_stGetBlockEventSlotMemory(unsigned long);
-    /* 0x00452d20 */
-    extern long __cdecl SND_fn_lSendRequestSound(long, long, void *, long, void *);
-
+    /* 0x00423ab0 */
     void *pvDst;
 
     AI_g_ulTrameNumber = 0;
@@ -584,28 +561,16 @@ void fn_vInitDeadLoop(void)
 }
 
 /* 0x40b950 */
+extern long __cdecl GLD_bSetBackgroundColorForDevice(short, unsigned long);
+extern void __cdecl SND_fn_vKillAllObjectTypeSound(long);
+extern void __cdecl fn_vForceReinitAllObjects(void);
+extern void __cdecl GAM_fn_lSaveBlockEventSlotMemory(void *, unsigned long);
+extern void __cdecl MOR_fn_vRemoveAllMorphedObjects(void);
+extern void __cdecl MGT_fn_vLastDesInitMagnet(void);
+extern long __cdecl GLD_bClearViewportWithChoice(short, short, short);
 void fn_vReinitTheMap(void)
 {
 
-    /* 0x00421620 */
-    extern long __cdecl GLD_bSetBackgroundColorForDevice(short, unsigned long);
-
-    extern void __cdecl SND_fn_vKillAllObjectTypeSound(long);   /* 0x00453080 */
-
-    /* 0x00406470 */
-    extern void __cdecl fn_vForceReinitAllObjects(void);
-    /* 0x0040a5a0 */
-    extern void __cdecl GAM_fn_lSaveBlockEventSlotMemory(void *, unsigned long);
-    /* 0x00443fa0 */
-    extern void __cdecl MOR_fn_vRemoveAllMorphedObjects(void);
-    extern void __cdecl MGT_fn_vLastDesInitMagnet(void);   /* 0x00440AE0 */
-    /* 0x0042e120 */
-    extern void __cdecl IPT_fn_vActivateAllEntryElements(void);
-    /* 0x004099d0 */
-    extern void __cdecl TFMT_vInitTextAfficheStructure(void);
-    /* 0x004204b0 */
-    extern long __cdecl GLD_bClearViewportWithChoice(short, short, short);
-    /* 0x00409d40 */
     GLD_bSetBackgroundColorForDevice((unsigned long)FUN_00401340(0), 0);
     SND_fn_vKillAllObjectTypeSound(GAM_g_lSoundObjectTypeAnim);
     POS_fn_vSetIdentityMatrix(&GAM_g_stMainCharacterPosition);
@@ -648,11 +613,11 @@ void GAM_pc_fn_vDeleteEngineFixViewport(void)
 }
 
 /* 0x4077D0 */
+extern void __cdecl GEO_xSelectMemoryChannel(unsigned int uiMode);
+extern void __cdecl GAM_fn_vSetGameMemoryInLevel(void);
+extern void __cdecl AI_fn_vAIUseLevelMemory(void);
 void __cdecl GAM_fn_vSetEngineInLevelMode(void)
 {
-    extern void __cdecl GEO_xSelectMemoryChannel(unsigned int uiMode);
-    extern void __cdecl GAM_fn_vSetGameMemoryInLevel(void);
-    extern void __cdecl AI_fn_vAIUseLevelMemory(void);
 
     GEO_xSelectMemoryChannel(2);
     GAM_fn_vSetGameMemoryInLevel();
@@ -681,15 +646,15 @@ void __cdecl GAM_pc_fn_vShutdownInputDevices(void)
 }
 
 /* 0x403290 */
+extern void FUN_00405810(void);
+extern void __cdecl GAM_pc_fn_vCloseCdFallbackFile(void);
+extern void __cdecl SND_fn_vDesInitSound(void);
+extern void __cdecl fn_vLastDesinitFamilyStructure(void);
+extern void FON_fn_vDesInitFonts(void);
 void FUN_00403060(void)
 {
-    extern void FUN_00405810(void);
 
-    extern void __cdecl GAM_pc_fn_vCloseCdFallbackFile(void);   /* 0x0045EDA0 */
-    extern void __cdecl SND_fn_vDesInitSound(void);
-    extern void __cdecl fn_vLastDesinitFamilyStructure(void);
-    extern void FON_fn_vDesInitFonts(void);   /* 0x00407790 */
-
+    /* 0x00421800 */
     FUN_00405810();
     fn_bSaveCurrentGameOptions();
     GAM_pc_fn_vDeleteEngineFixViewport();
@@ -866,26 +831,16 @@ void fn_vReputGameViewportCamera(void)
 }
 
 /* 0x500554 */
+extern void __cdecl SND_fn_vKillAllObjectSound(void);
+
+extern void __cdecl fn_vDesinitFamilyStructureForPriority(unsigned char ucPriority);
+extern void __cdecl fn_vDestroyAllHierarchy(HIE_tdstSuperObject *p_stSuperObject);
+extern void __cdecl fn_vRemoveAllMicros(void);
+extern void __cdecl GAM_pc_fn_vFreeLevelMemoryUseFix(void);
 void fn_vDesInitLevelLoop(void)
 {
-    /* 0x004530c0 */
-    extern void __cdecl SND_fn_vKillAllObjectSound(void);
-    /* 0x00452a90 */
-    extern void __cdecl SND_fn_vSetDopplerFactorSound(long factor);
 
-    /* 0x0040bb80 */
-    extern void __cdecl fn_vKillAllAlwaysModel(void);
-
-    extern void __cdecl MGT_fn_vLastDesInitMagnet(void);   /* 0x00440AE0 */
-    /* 0x00407a20 */
-    extern void __cdecl fn_vDesinitFamilyStructureForPriority(unsigned char ucPriority);
-    extern void __cdecl fn_vDestroyAllHierarchy(HIE_tdstSuperObject *p_stSuperObject);
-    /* 0x00443ef0 */
-    extern void __cdecl MOR_pc_fn_vCleanAllMorphTasks(void);
-    /* 0x00411b80 */
-    extern void __cdecl fn_vRemoveAllMicros(void);
-    extern void __cdecl GAM_pc_fn_vFreeLevelMemoryUseFix(void);   /* 0x00407920 */
-
+    /* 0x0040bb50 */
     SND_fn_vKillAllObjectSound();
     SND_fn_vSetDopplerFactorSound(0);    /* 0x452a90 */
     fn_vDesInitDeadLoop();           /* 0x00403280 */
@@ -986,12 +941,11 @@ void __cdecl GAM_pc_fn_vFreeLevelMemoryUseFix(void)
 }
 
 /* 0x00440AE0 */
+extern void __cdecl MGT_pc_fn_vDestroyModifiedObject(short sModuleIdx);
+extern void __cdecl MGT_pc_fn_vDestroyMagnetModification(MGT_tdstMagnetModification *p_stMod);
+extern void __cdecl MGT_pc_fn_vReleaseActiveMagnetsClearMods(void);
 void __cdecl MGT_fn_vLastDesInitMagnet(void)
 {
-    extern void __cdecl MGT_pc_fn_vDestroyModifiedObject(short sModuleIdx);
-    extern void __cdecl MGT_pc_fn_vDestroyMagnetModification(MGT_tdstMagnetModification *p_stMod);
-    extern void __cdecl MGT_pc_fn_vReleaseActiveMagnetsClearMods(void);
-
     short sIdx;
     MGT_tdstModifiedObject **pp_stObj;
     int iSlot;
@@ -1021,11 +975,11 @@ void __cdecl MGT_fn_vLastDesInitMagnet(void)
 }
 
 /* 0x0045EDA0 */
+extern void __cdecl FIL_fn_vCloseConcatFile(void **hConcatFile);
+extern void __cdecl FIL_fn_vFreeGlobalHandleToFileInConcatFile(void);
 void __cdecl GAM_pc_fn_vCloseCdFallbackFile(void)
 {
     extern void *GLI_pc_g_hCdFallbackFile;
-    extern void __cdecl FIL_fn_vCloseConcatFile(void **hConcatFile);
-    extern void __cdecl FIL_fn_vFreeGlobalHandleToFileInConcatFile(void);
 
     FIL_fn_vCloseConcatFile((void **)&GLI_pc_g_hCdFallbackFile);
     FIL_fn_vFreeGlobalHandleToFileInConcatFile();

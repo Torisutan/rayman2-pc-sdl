@@ -288,9 +288,9 @@ void __cdecl fn_vDesinitOneObject(struct tdstEngineObject_ *p_stObject, int eObj
 
 #include "DNM/DNM_types.h"
 
+extern void __cdecl DNM_fn_vInitBaseMechanic(void *_p_stDynamic);
 void __cdecl fn_vDynamInit(struct tdstEngineObject_ *p_stObject, int eObjIniType)
 {
-    extern void __cdecl DNM_fn_vInitBaseMechanic(void *_p_stDynamic);
 
     if (eObjIniType >= 0 && eObjIniType <= 4)
     {

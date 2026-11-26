@@ -682,10 +682,9 @@ void GAM_pc_fn_vKillEngineThreadAfterExit(void)
 #endif /* USE_SDL */
 
 /* 0x004E0EA4 */
+extern void __cdecl FUN_00404540(void);
 unsigned long FUN_00401b20(void)
 {
-    /* 0x00404540 */
-    extern void __cdecl FUN_00404540(void);
 
     fn_vChangeEngineMode(2);
     /* 0x00421630 */
@@ -749,10 +748,10 @@ void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
 }
 
 /* 0x00401D40 */
+extern long __cdecl GLD_bClearDevice(short hDev);
+extern long __cdecl GLD_bFlipDeviceWithSynchro(short hDev_unused, int eSynchro_unused);
 void FUN_00401050(void)
 {
-    extern long __cdecl GLD_bClearDevice(short hDev);
-    extern long __cdecl GLD_bFlipDeviceWithSynchro(short hDev_unused, int eSynchro_unused);
 
     GLD_bClearDevice(*(unsigned short *)p_hDevice);
     GLD_bFlipDeviceWithSynchro(*(unsigned short *)p_hDevice, 0xFF);
@@ -918,13 +917,12 @@ void GAM_pc_fn_vSignalEngineAndPostQuit(void)
 }
 
 /* 0x00403290 */
+extern void __cdecl IPT_fn_vResetInputEntry(void);
+extern void __cdecl FUN_0042e150(void);
+
 LRESULT CALLBACK GAM_fn_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam,
                                 LPARAM lParam)
 {
-    /* 0x0042E090 */
-    extern void __cdecl IPT_fn_vResetInputEntry(void);
-    /* 0x0042E150 */
-    extern void __cdecl FUN_0042e150(void);
 
     int     iHandled = 0;
     LRESULT lResult = -1;

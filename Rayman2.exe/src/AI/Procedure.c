@@ -7190,12 +7190,11 @@ AI_tdstNodeInterpret *__cdecl fn_p_stSetBooleanInArray(
 #define AI_M_pfn_SND_fn_vSetStereoSound  SND_fn_vSetStereoSound
 
 /* 0x0046FE80 */
+extern void __cdecl SND_fn_vSetStereoSound(int active);
 AI_tdstNodeInterpret *__cdecl fn_p_stSetInStereoMode(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
 {
     AI_tdstGetSetParam    stParam;
-
-    extern void __cdecl SND_fn_vSetStereoSound(int active);   /* 0x4537b0 */
     AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
     SND_fn_vSetStereoSound((ACP_tdxBool)stParam.uParam.lValue);
     return p_stNext;
@@ -7310,12 +7309,11 @@ AI_tdstNodeInterpret *__cdecl fn_p_stTextRealParameter(
 }
 
 /* 0x0046FE00 */
+extern long __cdecl GLI_fn_lRequestNewDisplayMode(long);
 AI_tdstNodeInterpret *__cdecl fn_p_stSelectResolution(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
 {
     AI_tdstGetSetParam    stParam;
-
-    extern long __cdecl GLI_fn_lRequestNewDisplayMode(long);   /* 0x4222c0 */
     AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
     GLI_fn_lRequestNewDisplayMode(stParam.uParam.lValue);
     return p_stNext;

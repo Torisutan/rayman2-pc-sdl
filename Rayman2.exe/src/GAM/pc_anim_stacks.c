@@ -55,10 +55,9 @@ static const char GAM_AS_szStackSizeErr[] =
 /* 0x00418AB0 */
 extern void __cdecl fn_v_InitSinTab(void);
 
+extern void __cdecl GEO_xSelectMemoryChannel(unsigned char);
 void FUN_00406820(void)
 {
-    /* 0x0041bc60 */
-    extern void __cdecl GEO_xSelectMemoryChannel(unsigned char);
 
     unsigned char  ucSavedMode;
     int            iStack;

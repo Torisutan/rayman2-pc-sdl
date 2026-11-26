@@ -238,6 +238,28 @@ unsigned int __cdecl GAM_pc_fn_ulFindMapLinkPos(unsigned int ulSubMap, unsigned 
 #define GAM_M_stFixViewportAttr (*(struct GLD_tdstViewportAttributes_ *)GAM_g_stEngineStructure.stFixViewportAttr)
 #define GAM_M_stFixAttributes3D (*(GLI_tdstSpecificAttributesFor3D *)GAM_g_stEngineStructure.stFixAttributes3D)
 
+extern long __cdecl GLD_bSetBackgroundColorForDevice(short, unsigned long);
+extern unsigned char __cdecl FUN_0044f4f0(void);
+extern void __cdecl FUN_0044f870(unsigned long ulArg);
+
+extern void   __cdecl GAM_pc_fn_vProcessExternalCtrlCmds(short);
+extern void __cdecl GAM_pc_fn_vCloseExternalCtrlFile(void);
+extern char *__cdecl FUN_00492770(void);
+extern void __cdecl FUN_00423610(const char *name);
+extern void __cdecl FUN_0044d420(void);
+extern char __cdecl FUN_00418960(void);
+extern void __cdecl fn_vDynamInit(struct tdstEngineObject_ *p_stObject, int eObjIniType);
+extern void *__stdcall SND_fn_pGetBinEvent(unsigned long ulBinId);
+extern void __cdecl FUN_00421820(void);
+extern void __cdecl FUN_0044f4d0(unsigned char);
+extern unsigned char fn_bLoadLevelSaveGameAfterLoadLevel(void);
+extern void __cdecl fn_vInitAllObjectsWhenSavedGameJustLoaded(void);
+extern void __cdecl GAM_fn_lSaveBlockEventSlotMemory(void *_p_stBlockEvent, unsigned long _ulIndex);
+extern void __cdecl FUN_0045edf0(void);
+extern void __cdecl IPT_fn_vActivateAllEntryElements(void);
+extern void __cdecl AGO_vInit(void);
+extern void __cdecl GLI_pc_fn_vReadIniString(const char *, const char *, unsigned long, char *);
+extern void __cdecl GLD_pc_fn_vRestartFrameTimer(void);
 void fn_vInitLevelLoop(void)
 {
 
@@ -248,56 +270,6 @@ void fn_vInitLevelLoop(void)
     void          (__cdecl *SNA_vCloseGptFile)(void)                    = SNA_pc_vCloseGptFile;
     void          (__cdecl *SNA_vOpenSndFile)(char *)                   = SNA_pc_vOpenSndFile;
     void          (__cdecl *SNA_vReadAndRelocateSnd)(void)             = SNA_pc_vReadAndRelocateSnd;
-
-    /* 0x00421620 */
-    extern long __cdecl GLD_bSetBackgroundColorForDevice(short, unsigned long);
-
-    /* 0x0044f4f0 */
-    extern unsigned char __cdecl FUN_0044f4f0(void);
-    extern void __cdecl FUN_0044f870(unsigned long ulArg);
-    /* 0x004508a0 */
-    extern void   __cdecl GAM_pc_fn_vProcessExternalCtrlCmds(short);
-    /* 0x0044f510 */
-    extern void __cdecl GAM_pc_fn_vCloseExternalCtrlFile(void);
-
-    /* 0x00492770 */
-    extern char *__cdecl FUN_00492770(void);
-    /* 0x00423610 */
-    extern void __cdecl FUN_00423610(const char *name);
-
-    /* 0x0044d420 */
-    extern void __cdecl FUN_0044d420(void);
-    /* 0x00418960 */
-    extern char __cdecl FUN_00418960(void);
-
-    /* 0x00412f20 */
-    extern void __cdecl fn_vDynamInit(struct tdstEngineObject_ *p_stObject, int eObjIniType);
-
-    extern void *__stdcall SND_fn_pGetBinEvent(unsigned long ulBinId);
-    /* 0x00421820 */
-    extern void __cdecl FUN_00421820(void);
-
-    /* 0x0044f4d0 */
-    extern void __cdecl FUN_0044f4d0(unsigned char);
-    /* 0x00410450 */
-    extern unsigned char fn_bLoadLevelSaveGameAfterLoadLevel(void);
-
-    /* 0x00449e80 */
-    extern void __cdecl fn_vInitAllObjectsWhenSavedGameJustLoaded(void);
-    /* 0x0040a5a0 */
-    extern void __cdecl GAM_fn_lSaveBlockEventSlotMemory(void *_p_stBlockEvent, unsigned long _ulIndex);
-
-    /* 0x0045edf0 */
-    extern void __cdecl FUN_0045edf0(void);
-
-    /* 0x0042e120 */
-    extern void __cdecl IPT_fn_vActivateAllEntryElements(void);
-    /* 0x0045ffa0 */
-    extern void __cdecl AGO_vInit(void);
-    /* 0x00405930 */
-    extern void __cdecl GLI_pc_fn_vReadIniString(const char *, const char *, unsigned long, char *);
-    /* 0x00420d90 */
-    extern void __cdecl GLD_pc_fn_vRestartFrameTimer(void);
 
     char  szPath480[260];
     char  szPath208[260];

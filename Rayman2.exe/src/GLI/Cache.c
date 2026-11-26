@@ -39,6 +39,8 @@ void __cdecl GLI_pc_fn_vReleaseTextureSlotsOfKey(unsigned long ulKey)
 /* 0x004A06C0 */
 static const char GLI_CD_szInsertMsg[] = "Please insert the CD";
 
+extern int  __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
+extern void __cdecl GLI_FatalExitOrSleep(void);
 void __cdecl GLI_fn_vOpenBigFileTextures(char *p_szArchivePath)
 {
     char szOriginalPath[256];
@@ -53,8 +55,6 @@ void __cdecl GLI_fn_vOpenBigFileTextures(char *p_szArchivePath)
 
         GLI_g_hConcatTexturesFile = FIL_fn_vOpenConcatFile(p_szArchivePath);
         while (GLI_g_hConcatTexturesFile == NULL) {
-            extern int  __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
-            extern void __cdecl GLI_FatalExitOrSleep(void);
             int iResult = ((int (__cdecl *)(const char *, const char *, int))&Erm_fn_iMessageBox)(
                 GLI_CD_szInsertMsg,
                 GLI_CD_szInsertMsg,

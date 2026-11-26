@@ -18,5 +18,7 @@ extern void			CAM_fn_vInitCameraStructure(struct HIE_tdstSuperObject *, struct C
 extern void			Cam_fn_vComputeMovingOnRail(struct CAM_tdstUpdateCamera_ *, MTH3D_tdstVector *, MTH3D_tdstVector *, MTH3D_tdstVector *, MTH_tdxReal);
 /* 0x00473C60 */
 extern MTH_tdxReal  Cam_fn_xComputeProjectionRail(MTH3D_tdstVector *,MTH3D_tdstVector *,MTH3D_tdstVector *);
+/* 0x004746C0 */
+extern void CAM_fn_vForceBestPosition(struct HIE_tdstSuperObject *_hCamera);
 
 #endif
