@@ -165,14 +165,13 @@ option(R2_SND_LINKED "Link the sound drivers into the exe (no _DLL_COMPILATION_M
 if(R2_SND_LINKED)
   set(R2_SND_DISABLE DISABLE_MPEG DISABLE_MIDI DISABLE_CD DISABLE_RECORD)
   list(APPEND R2_FORK_DEFINES ${R2_SND_DISABLE})
-  # The sample driver's mixer: the MMX asm (src/mixer/mix*.asm, OPTIMIZED_FOR_MMX_WITH_ASM) on 32-bit
-  # x86 with MSVC or clang-cl, as MTH's asm branch; the C branch (src/mixer/sndmix_pc.c) elsewhere, or
-  # everywhere with R2_SND_MIXER_C.
-  option(R2_SND_MIXER_C "Sound mixer in C (sndmix_pc.c) also where the MMX asm builds" OFF)
-  if(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4 AND NOT R2_SND_MIXER_C)
-    set(R2_SND_MIXER_ASM ON)
-  else()
-    set(R2_SND_MIXER_ASM OFF)
+  # The sample driver's mixer: the C branch (src/mixer/sndmix_pc.c) by default, on every target. The MMX
+  # asm (src/mixer/mix*.asm, OPTIMIZED_FOR_MMX_WITH_ASM) only on request and only on 32-bit x86 with MSVC
+  # or clang-cl, for comparison: it relies on the retail DLL's .bss layout, which this link does not
+  # reproduce (PLAN Sound item 14).
+  option(R2_SND_MIXER_ASM "Sound mixer from the MMX asm instead of sndmix_pc.c (32-bit x86 MSVC only)" OFF)
+  if(R2_SND_MIXER_ASM AND NOT (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4))
+    message(FATAL_ERROR "R2_SND_MIXER_ASM needs a 32-bit x86 MSVC or clang-cl build")
   endif()
   enable_language(ASM_MASM)
   foreach(drv WAVMWBVR APMmxBVR)

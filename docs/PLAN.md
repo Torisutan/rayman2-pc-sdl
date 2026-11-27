@@ -661,7 +661,7 @@ its condition.
 | `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` | feature | MTH asm branch: 32-bit x86 MSVC / clang-cl only, not with `WIN64` |
 | `OPTIMIZED_FOR_PC_FLOATS` | feature | MTH C branch: every other target (Phase 2) |
 | `MTH_C_DEV` | MTH target | set in `MTH/MTH_def.h` beside the original's `MTH_PC_DEV`/`MTH_U64_DEV`/`MTH_NITRO_DEV` when `WIN64`, `LINUX`, `OSX`, `PSP` or `WIIU` is defined: `OPTIMIZED_FOR_PC_FLOATS` without `..._WITH_ASM` (Phase 4 "MTH target selection") |
-| `OPTIMIZED_FOR_MMX_WITH_ASM` | feature | sample driver mixer: the MMX asm objects (`WAVMWBVR.dll/src/mixer/mix*.asm`), set by CMake for the linked drivers on 32-bit x86 with MSVC / clang-cl; otherwise the C branch `src/mixer/sndmix_pc.c` (CMake `R2_SND_MIXER_C` takes it on x86 too) |
+| `OPTIMIZED_FOR_MMX_WITH_ASM` | feature | sample driver mixer: the MMX asm objects (`WAVMWBVR.dll/src/mixer/mix*.asm`), set only on request (CMake `R2_SND_MIXER_ASM`, 32-bit x86 MSVC / clang-cl, for comparison); by default and on every other target the C branch `src/mixer/sndmix_pc.c` |
 | `FILE_MODE_C_WIN95` | feature | Win32 API for level data files, ini files and MMG memory; set in `SND/snddef.h` unless `GAMECONSOLE`, `USE_SDL` or `RAYMAN2_C_RUNTIME`; C runtime otherwise |
 | `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
 | `_DLL_COMPILATION_MODE` | feature (original) | sound drivers as DLLs bound by name (`snddll.c`), the retail PC form; set by default. CMake `R2_SND_LINKED` leaves it unset and links `WAVMWBVR` and `APMmxBVR` in (Sound, item 11) |
@@ -964,7 +964,8 @@ mixer and decoders from the file formats):
      globals `sdl_sndwave.c` defines in `pc_mixervol.c`'s place); the exe's `SND_fn_bTestSnd_WinMM`.
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
    entry points of `sndmix_pc.h`). Selected by `OPTIMIZED_FOR_MMX_WITH_ASM` (Platform macros): the
-   asm on 32-bit x86 MSVC / clang-cl, the C branch elsewhere or with `R2_SND_MIXER_C`. It computes
+   C branch by default on every target (decided 27.11.2026: x64 is a goal, and the asm needs the retail
+   DLL's .bss layout, see below); the asm only with `R2_SND_MIXER_ASM` on 32-bit x86, for comparison. It computes
    what the asm computes, its quirks included (extra and skipped blocks at a voice's end, the wrap
    position of each mixer, the swept comb's tap past its ring, Comb and EchoSide fetching from
    `lSlot * 4`); where the asm reads memory outside its delay lines the C branch gives fixed values
@@ -978,7 +979,7 @@ mixer and decoders from the file formats):
      offsets as the driver passes them (multiples of 8, up to the 100th buffer); every reachable
      end and wrap path runs (counted). After every call outputs, side buffer, voices, every delay
      line and the counters are identical. With the C branch forced on x86 (`build-sndmixc`,
-     `R2_SND_MIXER_C`) and with the asm (`build-sndlink`): regression 5/5 identical to
+     then `R2_SND_MIXER_C`) and with the asm (`build-sndlink` before the default changed): regression 5/5 identical to
      `base_modern`. Capture at `SND_fn_ulWriteDevice`, 30 s of Morb_00: C 2,972 buffers, asm 2,970
      and 2,977; the C branch's RMS per second lies within the spread of the two asm runs (start
      jitter, as in item 11). The other gates do not build the drivers (unchanged).
@@ -986,7 +987,7 @@ mixer and decoders from the file formats):
      across the arrays, the send ring running 0x20 bytes on at the 100th buffer); the modern linker
      orders those communals differently, so in `build-sndlink` the effects' taps and the Dolby send
      read and write other arrays (the send's run-on past `SND_pc_a2B160_2222`'s 0x6C40 bytes lands
-     in unrelated .bss). Not yet fixed (next step).
+     in unrelated .bss). Resolved by the default: linked builds take the C branch; the asm option keeps this limitation (comparison only).
 
 ## Animation: smoother playback (to evaluate)
 
