@@ -519,6 +519,35 @@ MTH, ...) make no Win32 calls. The platform code sits in seven places:
 the console targets (`U64`, `NITRO`) link GLI statically, with the platform files beside the
 common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
 
+**Console renderers in the original engine (read 27.11.2026).** The N64 code exists only as the
+`U64` branches of the files the DS port uses; both come from one reading:
+- No driver layer on a console: GLI's and GLD's public functions themselves
+  (`GLI_xSendObjectToViewportWithLights`, `GLI_xSendListToViewport`, `GLD_bFlipDevice`,
+  `GLD_bRequestWriteToViewport`, ...) are implemented in `GLI/Specif/` and `GLD/Specif/`; the
+  project's file list picks them. Only the PC splits GLI into the engine part and `GLI_DRV`
+  driver DLLs.
+- Hardware transform and lighting: a matrix per object goes to the GPU (N64 `gSPMatrix`, DS
+  `G3_LoadMtx44` + `G3_Scale`), up to 7 (N64) / 4 (DS) lights. The PC transforms, lights and clips
+  on the CPU and hands the driver screen-space vertices.
+- Geometry converted offline into GPU command lists, a console element type
+  (`GEO_C_xElementU64IndexedTriangles` = 128: an N64 display list, or a DS GX command list sent by
+  DMA); textures in native formats (N64 4/8/16 bit with palettes, DS `PLTT16`, `A5I3`/`A3I5`),
+  streamed by a cache (`GLI/Specif/cache.c`: a preload list per level, the rest fetched on first
+  use, DS uploads to VRAM queued for the vertical blank).
+- One file for both consoles, platform branches inline at each site (`#if defined(NITRO)` ...
+  `#elif defined(U64)` ... `#endif // NITRO / U64`), a whole function per platform where the
+  signatures part (the N64 functions pass and return their display-list pointer); never a copy
+  per platform. Names stay across platforms (the DS keeps `..U64..` names); a platform word only
+  where the value is that platform's (`p_stDSGfxList`). Unfinished DS branches are
+  `#pragma message("TBD")`: the `U64` branch is the complete reference.
+- Frame: GLD's flip / clear / write calls reach three hooks (`fn_vInitList`, `fn_vReInitList`,
+  `fn_vDrawList`, `GLD/Specif/rcptask.c`): N64 closes its double-buffered display lists and
+  starts the graphics task; DS swaps (`G3_SwapBuffers`), waits for the blank, uploads textures and
+  fog. One thread, no draw lock.
+What follows for the fork: desktops keep the PC form (engine GLI + `GLI_DRV` modules, the GL
+drivers); the shared Direct3D 6 files with one branch per renderer (`GLI_DRV_M_*`) follow the
+consoles' one-file-many-branches rule. Consoles: open decision "Console renderers" below.
+
 **The `GLI_DRV` interface** stays the renderer interface. What a new driver has to cope with:
 - the driver reads the engine's `GLI_tdstInternalGlobalValuesFor3dEngine` through the exe's own
   declaration (`GLI/GLI_BigGlobals.h`, typed since decomp order M11/M15, private 958f919; step 2);
@@ -859,7 +888,18 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - **Direct3D 6 driver:** 26 of its 130 functions do not match their original bytes yet; which of
   them behave differently is unchecked.
 - **Memory:** PSP has 32-64 MB in total. Measure MMG's block budgets per level before
-  committing to that port.
+  committing to that port. Precedent for textures: the consoles' texture cache (preload list,
+  fetch on first use, upload at the blank; "Console renderers in the original engine" above)
+  instead of the PC's upload of every texture at level load.
+- **Console renderers (new 27.11.2026).** The plan puts GX2 / GU drivers behind `GLI_DRV`
+  (CPU transform and clipping, as on PC); the original put console GPUs behind GLI's public
+  functions with hardware transform and converted data, because the N64's CPU could not do the
+  work. Wii U (three 1.24 GHz cores): `GLI_DRV` is likely enough. PSP (333 MHz): measure the CPU
+  transform there first; if too slow, the original's console form (GU hardware transform,
+  converted geometry, texture cache) is the precedent. Decide at the PSP step.
+- **Converted data (precedent, 27.11.2026):** both consoles ran on offline-converted level data
+  (console element types, native texture formats, the cartridge binary format). This backs the
+  converter option of "64-bit data" and "Big-endian targets" above.
 
 ## OpenGL driver (planned 27.11.2026; Phase 5 step 6)
 
@@ -943,7 +983,8 @@ way. Linked-in GL (`USE_GLI_GL`) only where a target has no driver modules.
 3. `/W4` and an ASan suite over the driver, as for the sound drivers.
 
 **Sub-steps (one per session).** The user asked for 6a-6d in one go (27.11.2026).
-- 6a. **Done in the fork, decomp to confirm** (a4d8015; orders M36, M37): the 74 Direct3D calls of
+- 6a. **Done** (fork a4d8015, then the same text from the decomp: private 47af826, merged): the
+  74 Direct3D calls of
   the shared files behind `GLI_DRV_M_SetRenderState`, `_SetTextureStageState`, `_SetTexture`,
   `_DrawPrimitive` (`GliDX6vf_State.h`; `USE_GLI_GL` branch: `GLI_fn_v*` of the GL driver). Shared:
   `src/clip` (all), the render-state helpers, `GLI_DRV_vDoOpaqueTextureSelection`, and every file
