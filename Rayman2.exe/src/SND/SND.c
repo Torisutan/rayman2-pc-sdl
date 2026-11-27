@@ -111,7 +111,7 @@ void __cdecl SND_fn_vResumeSound(void)
     }
 }
 
-BOOL __cdecl SND_fn_bReleaseDriverSound(void)
+SndBool __cdecl SND_fn_bReleaseDriverSound(void)
 {
     if (g_bInitDoneSound != 0)
     {
@@ -125,7 +125,7 @@ BOOL __cdecl SND_fn_bReleaseDriverSound(void)
     return FALSE;
 }
 
-BOOL __cdecl SND_fn_bRestoreDriverSound(void)
+SndBool __cdecl SND_fn_bRestoreDriverSound(void)
 {
     if (g_bInitDoneSound != 0)
     {
@@ -151,7 +151,7 @@ void __cdecl SND_fn_vRestoreDriverSound(void)
     SND_fn_bRestoreDriverSound();
 }
 
-void __stdcall SND_fn_vSetStereoSxd(SndBool active);
+void SND_CALL SND_fn_vSetStereoSxd(SndBool active);
 void __cdecl SND_fn_vSetStereoSnd(SndBool active);
 
 void __cdecl SND_fn_vSetStereoSound(SndBool active)
@@ -160,7 +160,7 @@ void __cdecl SND_fn_vSetStereoSound(SndBool active)
 }
 
 /* 0x004537C0 */
-SndBool __stdcall SND_fn_bGetStereoSxd(void);
+SndBool SND_CALL SND_fn_bGetStereoSxd(void);
 SndBool __cdecl SND_fn_bGetStereoSnd(void);
 
 SndBool __cdecl SND_fn_bGetStereoSound(void)
@@ -178,25 +178,25 @@ SndBool __cdecl SND_fn_bIsMusicPlayingSound(void)
 
 #if defined(_DLL_COMPILATION_MODE)
 
-void __stdcall SND_fn_vReleaseDriverSxd(void)
+void SND_CALL SND_fn_vReleaseDriverSxd(void)
 {
     if (g_pfn_SND_ReleaseDriverSxd == NULL) DebugBreak();
     g_pfn_SND_ReleaseDriverSxd();
 }
 
-void __stdcall SND_fn_vRestoreDriverSxd(void)
+void SND_CALL SND_fn_vRestoreDriverSxd(void)
 {
     if (g_pfn_SND_RestoreDriverSxd == NULL) DebugBreak();
     g_pfn_SND_RestoreDriverSxd();
 }
-void __stdcall SND_fn_vReleaseDriverMidi(void)
+void SND_CALL SND_fn_vReleaseDriverMidi(void)
 {
     if (g_pfn_SND_ReleaseDriverMidi == NULL) DebugBreak();
     g_pfn_SND_ReleaseDriverMidi();
 }
 
 #pragma optimize("", on)
-void __stdcall SND_fn_vRestoreDriverMidi(void)
+void SND_CALL SND_fn_vRestoreDriverMidi(void)
 {
     if (g_pfn_SND_RestoreDriverMidi == NULL) DebugBreak();
     g_pfn_SND_RestoreDriverMidi();
@@ -217,51 +217,51 @@ void __stdcall SND_fn_vRestoreDriverCD(void)
 #pragma optimize("", on)
 
 /* 0x00458470 */
-void __stdcall SND_fn_vPauseTransitionSxd(long voice)
+void SND_CALL SND_fn_vPauseTransitionSxd(long voice)
 {
     if (g_pfn_SND_PauseTransitionSxd == NULL) DebugBreak();
     g_pfn_SND_PauseTransitionSxd(voice);
 }
 
-void __stdcall SND_fn_vResumeTransitionSxd(long voice)
+void SND_CALL SND_fn_vResumeTransitionSxd(long voice)
 {
     if (g_pfn_SND_ResumeTransitionSxd == NULL) DebugBreak();
     g_pfn_SND_ResumeTransitionSxd(voice);
 }
 
-void __stdcall SND_fn_vPauseTransitionMidi(long voice)
+void SND_CALL SND_fn_vPauseTransitionMidi(long voice)
 {
     if (g_pfn_SND_PauseTransitionMidi == NULL) DebugBreak();
     g_pfn_SND_PauseTransitionMidi(voice);
 }
 
-void __stdcall SND_fn_vResumeTransitionMidi(long voice)
+void SND_CALL SND_fn_vResumeTransitionMidi(long voice)
 {
     if (g_pfn_SND_ResumeTransitionMidi == NULL) DebugBreak();
     g_pfn_SND_ResumeTransitionMidi(voice);
 }
 #pragma optimize("", on)
 
-void __stdcall SND_fn_vPauseSxd(long voice_sxd)
+void SND_CALL SND_fn_vPauseSxd(long voice_sxd)
 {
     if (g_pfn_SND_PauseSxd == NULL) DebugBreak();
     g_pfn_SND_PauseSxd(voice_sxd);
 }
 
 /* 0x00455040 */
-void __stdcall SND_fn_vResumeSxd(long voice_sxd)
+void SND_CALL SND_fn_vResumeSxd(long voice_sxd)
 {
     if (g_pfn_SND_ResumeSxd == NULL) DebugBreak();
     g_pfn_SND_ResumeSxd(voice_sxd);
 }
 
-void __stdcall SND_fn_vPauseMidi(long voice_sxd)
+void SND_CALL SND_fn_vPauseMidi(long voice_sxd)
 {
     if (g_pfn_SND_PauseMidi == NULL) DebugBreak();
     g_pfn_SND_PauseMidi(voice_sxd);
 }
 
-void __stdcall SND_fn_vResumeMidi(long voice_sxd)
+void SND_CALL SND_fn_vResumeMidi(long voice_sxd)
 {
     if (g_pfn_SND_ResumeMidi == NULL) DebugBreak();
     g_pfn_SND_ResumeMidi(voice_sxd);
@@ -282,7 +282,7 @@ void __stdcall SND_fn_vResumeCD(long voice_sxd)
 static t_SND_PerTypeFn g_pfn_SND_SetStereoSxd_s;
 #define g_pfn_SND_SetStereoSxd  g_pfn_SND_SetStereoSxd_s
 
-void __stdcall SND_fn_vSetStereoSxd(SndBool active)
+void SND_CALL SND_fn_vSetStereoSxd(SndBool active)
 {
     if (g_pfn_SND_SetStereoSxd == NULL) DebugBreak();
     g_pfn_SND_SetStereoSxd(active);
@@ -293,7 +293,7 @@ typedef SndBool (__stdcall *t_SND_GetBoolFn)(void);
 static t_SND_GetBoolFn g_pfn_SND_GetStereoSxd_s;
 #define g_pfn_SND_GetStereoSxd  g_pfn_SND_GetStereoSxd_s
 
-SndBool __stdcall SND_fn_bGetStereoSxd(void)
+SndBool SND_CALL SND_fn_bGetStereoSxd(void)
 {
     if (g_pfn_SND_GetStereoSxd == NULL) DebugBreak();
     return g_pfn_SND_GetStereoSxd();
@@ -303,19 +303,19 @@ SndBool __stdcall SND_fn_bGetStereoSxd(void)
 static t_SND_PerTypeFn g_pfn_SND_SetEffectSxd_s;
 #define g_pfn_SND_SetEffectSxd  g_pfn_SND_SetEffectSxd_s
 
-void __stdcall SND_fn_vSetEffectSxd(long num)
+void SND_CALL SND_fn_vSetEffectSxd(long num)
 {
     if (g_pfn_SND_SetEffectSxd == NULL) DebugBreak();
     g_pfn_SND_SetEffectSxd(num);
 }
 
-void __stdcall SND_fn_vStopSxd(long voice_sxd)
+void SND_CALL SND_fn_vStopSxd(long voice_sxd)
 {
     if (g_pfn_SND_StopSxd == NULL) DebugBreak();
     g_pfn_SND_StopSxd(voice_sxd);
 }
 
-void __stdcall SND_fn_vStopMidi(long voice_sxd)
+void SND_CALL SND_fn_vStopMidi(long voice_sxd)
 {
     if (g_pfn_SND_StopMidi == NULL) DebugBreak();
     g_pfn_SND_StopMidi(voice_sxd);
@@ -327,13 +327,13 @@ void __stdcall SND_fn_vStopCD(long voice_sxd)
     g_pfn_SND_StopCD(voice_sxd);
 }
 
-SndBool __stdcall SND_fn_bTestIsPlayingSxd(long voice_sxd)
+SndBool SND_CALL SND_fn_bTestIsPlayingSxd(long voice_sxd)
 {
     if (g_pfn_SND_TestIsPlayingSxd == NULL) DebugBreak();
     return g_pfn_SND_TestIsPlayingSxd(voice_sxd);
 }
 
-SndBool __stdcall SND_fn_bTestIsPlayingMidi(long voice_sxd)
+SndBool SND_CALL SND_fn_bTestIsPlayingMidi(long voice_sxd)
 {
     if (g_pfn_SND_TestIsPlayingMidi == NULL) DebugBreak();
     return g_pfn_SND_TestIsPlayingMidi(voice_sxd);
@@ -345,13 +345,13 @@ SndBool __stdcall SND_fn_bTestIsPlayingCD(long voice_sxd)
     return g_pfn_SND_TestIsPlayingCD(voice_sxd);
 }
 
-SndBool __stdcall SND_fn_bSetParamSxd(long voice_sxd, struct SoundParam_ *par)
+SndBool SND_CALL SND_fn_bSetParamSxd(long voice_sxd, struct SoundParam_ *par)
 {
     if (g_pfn_SND_SetParamSxd == NULL) DebugBreak();
     return g_pfn_SND_SetParamSxd(voice_sxd, par);
 }
 
-SndBool __stdcall SND_fn_bSetParamMidi(long voice_sxd, struct SoundParam_ *par)
+SndBool SND_CALL SND_fn_bSetParamMidi(long voice_sxd, struct SoundParam_ *par)
 {
     if (g_pfn_SND_SetParamMidi == NULL) DebugBreak();
     return g_pfn_SND_SetParamMidi(voice_sxd, par);
@@ -363,13 +363,13 @@ SndBool __stdcall SND_fn_bSetParamCD(long voice_sxd, struct SoundParam_ *par)
     return g_pfn_SND_SetParamCD(voice_sxd, par);
 }
 
-SndReal __stdcall SND_fn_rGetPosSxd(long voice_sxd)
+SndReal SND_CALL SND_fn_rGetPosSxd(long voice_sxd)
 {
     if (g_pfn_SND_GetPosSxd == NULL) DebugBreak();
     return g_pfn_SND_GetPosSxd(voice_sxd);
 }
 
-SndReal __stdcall SND_fn_rGetPosMidi(long voice_sxd)
+SndReal SND_CALL SND_fn_rGetPosMidi(long voice_sxd)
 {
     if (g_pfn_SND_GetPosMidi == NULL) DebugBreak();
     return g_pfn_SND_GetPosMidi(voice_sxd);
@@ -400,49 +400,49 @@ SndBool __stdcall SND_fn_bCanFreeDataMPEG(void)
 }
 
 static t_SND_IntPtrFn g_pfn_SND_InitSxd_s;            /* 0x004B8684 */
-int __stdcall SND_fn_iInitSxd(void *pInitStruct)
+int SND_CALL SND_fn_iInitSxd(void *pInitStruct)
 {
     if (g_pfn_SND_InitSxd_s == NULL) DebugBreak();
     return g_pfn_SND_InitSxd_s(pInitStruct);
 }
 
 static t_SND_VoidFn g_pfn_SND_DesInitSxd_s;           /* 0x004B868C */
-void __stdcall SND_fn_vDesInitSxd(void)
+void SND_CALL SND_fn_vDesInitSxd(void)
 {
     if (g_pfn_SND_DesInitSxd_s == NULL) DebugBreak();
     g_pfn_SND_DesInitSxd_s();
 }
 
 static t_SND_LongPtrFn g_pfn_SND_CreateMicroSxd_s;    /* 0x004B8698 */
-long __stdcall SND_fn_lCreateMicroSxd(MicroParam *par)
+long SND_CALL SND_fn_lCreateMicroSxd(MicroParam *par)
 {
     if (g_pfn_SND_CreateMicroSxd_s == NULL) DebugBreak();
     return g_pfn_SND_CreateMicroSxd_s(par);
 }
 
 static t_SND_PerTypeFn g_pfn_SND_DestroyMicroSxd_s;   /* 0x004B86A0 */
-void __stdcall SND_fn_vDestroyMicroSxd(long sxdId)
+void SND_CALL SND_fn_vDestroyMicroSxd(long sxdId)
 {
     if (g_pfn_SND_DestroyMicroSxd_s == NULL) DebugBreak();
     g_pfn_SND_DestroyMicroSxd_s(sxdId);
 }
 
 static t_SND_LoadResFn g_pfn_SND_LoadResBinarySxd_s;  /* 0x004B86D8 */
-SndBool __stdcall SND_fn_bLoadResBinarySxd(tdstBlockResourceDisk *disk, tdstBlockResourceMem *mem, char *pDataBloc)
+SndBool SND_CALL SND_fn_bLoadResBinarySxd(tdstBlockResourceDisk *disk, tdstBlockResourceMem *mem, char *pDataBloc)
 {
     if (g_pfn_SND_LoadResBinarySxd_s == NULL) DebugBreak();
     return g_pfn_SND_LoadResBinarySxd_s(disk, mem, pDataBloc);
 }
 
 static t_SND_UnLoadResFn g_pfn_SND_UnLoadResSxd_s;    /* 0x004B86DC */
-void __stdcall SND_fn_vUnLoadResSxd(tdstBlockResourceMem *mem)
+void SND_CALL SND_fn_vUnLoadResSxd(tdstBlockResourceMem *mem)
 {
     if (g_pfn_SND_UnLoadResSxd_s == NULL) DebugBreak();
     g_pfn_SND_UnLoadResSxd_s(mem);
 }
 
 static t_SND_PlayTransitionFn g_pfn_SND_PlayTransitionExSxd_s; /* 0x004B86F0 */
-long __stdcall SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes, tduRefRes NextRes, SND_td_pfn_vSoundCallback transition_callback,
+long SND_CALL SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes, tduRefRes NextRes, SND_td_pfn_vSoundCallback transition_callback,
                                            long param_callback, struct SoundParam_ *par)
 {
     if (g_pfn_SND_PlayTransitionExSxd_s == NULL) DebugBreak();
@@ -450,49 +450,49 @@ long __stdcall SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes, tduRefRes NextRes
 }
 
 static t_SND_PerTypeSetParamFn g_pfn_SND_SetParamTransitionSxd_s; /* 0x004B86F4 */
-SndBool __stdcall SND_fn_bSetParamTransitionSxd(long voice, struct SoundParam_ *par)
+SndBool SND_CALL SND_fn_bSetParamTransitionSxd(long voice, struct SoundParam_ *par)
 {
     if (g_pfn_SND_SetParamTransitionSxd_s == NULL) DebugBreak();
     return g_pfn_SND_SetParamTransitionSxd_s(voice, par);
 }
 
 static t_SND_LongLongBoolFn g_pfn_SND_SetNextTransitionSxd_s; /* 0x004B86F8 */
-SndBool __stdcall SND_fn_bSetNextTransitionSxd(long voice, long new_res)
+SndBool SND_CALL SND_fn_bSetNextTransitionSxd(long voice, long new_res)
 {
     if (g_pfn_SND_SetNextTransitionSxd_s == NULL) DebugBreak();
     return g_pfn_SND_SetNextTransitionSxd_s(voice, new_res);
 }
 
 static t_SND_LongLongBoolFn g_pfn_SND_DoTransitionWithFadeSxd_s; /* 0x004B86FC */
-SndBool __stdcall SND_fn_bDoTransitionWithFadeSxd(long voice, long new_res)
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeSxd(long voice, long new_res)
 {
     if (g_pfn_SND_DoTransitionWithFadeSxd_s == NULL) DebugBreak();
     return g_pfn_SND_DoTransitionWithFadeSxd_s(voice, new_res);
 }
 
 static t_SND_LongLongRealBoolFn g_pfn_SND_DoTransitionWithFadeSxd2_s; /* 0x004B8700 */
-SndBool __stdcall SND_fn_bDoTransitionWithFadeSxd2(long voice, long new_res, SndReal rDuration)
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeSxd2(long voice, long new_res, SndReal rDuration)
 {
     if (g_pfn_SND_DoTransitionWithFadeSxd2_s == NULL) DebugBreak();
     return g_pfn_SND_DoTransitionWithFadeSxd2_s(voice, new_res, rDuration);
 }
 
 static t_SND_PerTypeFn g_pfn_SND_StopTransitionSxd_s; /* 0x004B8704 */
-void __stdcall SND_fn_vStopTransitionSxd(long voice)
+void SND_CALL SND_fn_vStopTransitionSxd(long voice)
 {
     if (g_pfn_SND_StopTransitionSxd_s == NULL) DebugBreak();
     g_pfn_SND_StopTransitionSxd_s(voice);
 }
 
 static t_SND_GetBoolFn g_pfn_SND_CanFreeDataSample_s; /* 0x004B8730 */
-SndBool __stdcall SND_fn_bCanFreeDataSample(void)
+SndBool SND_CALL SND_fn_bCanFreeDataSample(void)
 {
     if (g_pfn_SND_CanFreeDataSample_s == NULL) DebugBreak();
     return g_pfn_SND_CanFreeDataSample_s();
 }
 
 static t_SND_RollOffFn g_pfn_SND_SetDefaultRollOffSxd_s; /* 0x004B8734 */
-void __stdcall SND_fn_vSetDefaultRollOffSxd(RollOffParam *rolloff)
+void SND_CALL SND_fn_vSetDefaultRollOffSxd(RollOffParam *rolloff)
 {
     if (g_pfn_SND_SetDefaultRollOffSxd_s == NULL) DebugBreak();
     g_pfn_SND_SetDefaultRollOffSxd_s(rolloff);
@@ -520,35 +520,35 @@ void __stdcall SND_fn_vDesInitRecord(void)
 }
 
 static t_SND_LoadResFn g_pfn_SND_LoadResBinaryMidi_s; /* 0x004B8794 */
-SndBool __stdcall SND_fn_bLoadResBinaryMidi(tdstBlockResourceDisk *disk, tdstBlockResourceMem *mem, char *pDataBloc)
+SndBool SND_CALL SND_fn_bLoadResBinaryMidi(tdstBlockResourceDisk *disk, tdstBlockResourceMem *mem, char *pDataBloc)
 {
     if (g_pfn_SND_LoadResBinaryMidi_s == NULL) DebugBreak();
     return g_pfn_SND_LoadResBinaryMidi_s(disk, mem, pDataBloc);
 }
 
 static t_SND_IntPtrFn g_pfn_SND_InitMidi_s;           /* 0x004B87A8 */
-int __stdcall SND_fn_iInitMidi(void *pInitStruct)
+int SND_CALL SND_fn_iInitMidi(void *pInitStruct)
 {
     if (g_pfn_SND_InitMidi_s == NULL) DebugBreak();
     return g_pfn_SND_InitMidi_s(pInitStruct);
 }
 
 static t_SND_VoidFn g_pfn_SND_DesInitMidi_s;          /* 0x004B87B4 */
-void __stdcall SND_fn_vDesInitMidi(void)
+void SND_CALL SND_fn_vDesInitMidi(void)
 {
     if (g_pfn_SND_DesInitMidi_s == NULL) DebugBreak();
     g_pfn_SND_DesInitMidi_s();
 }
 
 static t_SND_UnLoadResFn g_pfn_SND_UnLoadResMidi_s;   /* 0x004B87C8 */
-void __stdcall SND_fn_vUnLoadResMidi(tdstBlockResourceMem *mem)
+void SND_CALL SND_fn_vUnLoadResMidi(tdstBlockResourceMem *mem)
 {
     if (g_pfn_SND_UnLoadResMidi_s == NULL) DebugBreak();
     g_pfn_SND_UnLoadResMidi_s(mem);
 }
 
 static t_SND_PlayTransitionFn g_pfn_SND_PlayTransitionMidi_s; /* 0x004B87E0 */
-long __stdcall SND_fn_lPlayTransitionMidi(tduRefRes FirstRes, tduRefRes NextRes, SND_td_pfn_vSoundCallback transition_callback,
+long SND_CALL SND_fn_lPlayTransitionMidi(tduRefRes FirstRes, tduRefRes NextRes, SND_td_pfn_vSoundCallback transition_callback,
                                           long param_callback, struct SoundParam_ *par)
 {
     if (g_pfn_SND_PlayTransitionMidi_s == NULL) DebugBreak();
@@ -556,42 +556,42 @@ long __stdcall SND_fn_lPlayTransitionMidi(tduRefRes FirstRes, tduRefRes NextRes,
 }
 
 static t_SND_PerTypeSetParamFn g_pfn_SND_SetParamTransitionMidi_s; /* 0x004B87E4 */
-SndBool __stdcall SND_fn_bSetParamTransitionMidi(long voice, struct SoundParam_ *par)
+SndBool SND_CALL SND_fn_bSetParamTransitionMidi(long voice, struct SoundParam_ *par)
 {
     if (g_pfn_SND_SetParamTransitionMidi_s == NULL) DebugBreak();
     return g_pfn_SND_SetParamTransitionMidi_s(voice, par);
 }
 
 static t_SND_LongLongBoolFn g_pfn_SND_SetNextTransitionMidi_s; /* 0x004B87E8 */
-SndBool __stdcall SND_fn_bSetNextTransitionMidi(long voice, long new_res)
+SndBool SND_CALL SND_fn_bSetNextTransitionMidi(long voice, long new_res)
 {
     if (g_pfn_SND_SetNextTransitionMidi_s == NULL) DebugBreak();
     return g_pfn_SND_SetNextTransitionMidi_s(voice, new_res);
 }
 
 static t_SND_PerTypeFn g_pfn_SND_StopTransitionMidi_s; /* 0x004B87EC */
-void __stdcall SND_fn_vStopTransitionMidi(long voice)
+void SND_CALL SND_fn_vStopTransitionMidi(long voice)
 {
     if (g_pfn_SND_StopTransitionMidi_s == NULL) DebugBreak();
     g_pfn_SND_StopTransitionMidi_s(voice);
 }
 
 static t_SND_LongLongBoolFn g_pfn_SND_DoTransitionWithFadeMidi_s; /* 0x004B87F8 */
-SndBool __stdcall SND_fn_bDoTransitionWithFadeMidi(long voice, long new_res)
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeMidi(long voice, long new_res)
 {
     if (g_pfn_SND_DoTransitionWithFadeMidi_s == NULL) DebugBreak();
     return g_pfn_SND_DoTransitionWithFadeMidi_s(voice, new_res);
 }
 
 static t_SND_LongLongRealBoolFn g_pfn_SND_DoTransitionWithFadeMidi2_s; /* 0x004B87FC */
-SndBool __stdcall SND_fn_bDoTransitionWithFadeMidi2(long voice, long new_res, SndReal rDuration)
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeMidi2(long voice, long new_res, SndReal rDuration)
 {
     if (g_pfn_SND_DoTransitionWithFadeMidi2_s == NULL) DebugBreak();
     return g_pfn_SND_DoTransitionWithFadeMidi2_s(voice, new_res, rDuration);
 }
 
 static t_SND_GetBoolFn g_pfn_SND_CanFreeDataMidi_s;   /* 0x004B8804 */
-SndBool __stdcall SND_fn_bCanFreeDataMidi(void)
+SndBool SND_CALL SND_fn_bCanFreeDataMidi(void)
 {
     if (g_pfn_SND_CanFreeDataMidi_s == NULL) DebugBreak();
     return g_pfn_SND_CanFreeDataMidi_s();
@@ -1076,7 +1076,7 @@ static t_SND_fn_vSetDopplerFactorSxd g_pfn_SND_SetDopplerFactorSxd_s;
 #define g_pfn_SND_SetDopplerFactorSxd  g_pfn_SND_SetDopplerFactorSxd_s
 
 /* 0x00455110 */
-void __stdcall SND_fn_vSetDopplerFactorSxd(long factor)
+void SND_CALL SND_fn_vSetDopplerFactorSxd(long factor)
 {
     if (g_pfn_SND_SetDopplerFactorSxd == NULL) DebugBreak();
     g_pfn_SND_SetDopplerFactorSxd(factor);
@@ -1504,7 +1504,7 @@ typedef void (__stdcall *t_SND_fn_vSetMicroParamSxd)(long sndId, MicroParam *par
 #if defined(_DLL_COMPILATION_MODE)
 t_SND_fn_vSetMicroParamSxd g_pfn_SND_SetMicroParamSxd;
 #define SND_M_g_pfnSetMicroParamSxd  (g_pfn_SND_SetMicroParamSxd)
-void __stdcall SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par)
+void SND_CALL SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par)
 {
     if (SND_M_g_pfnSetMicroParamSxd == NULL) DebugBreak();
     SND_M_g_pfnSetMicroParamSxd(sndId, par);
@@ -1533,7 +1533,7 @@ typedef void (__stdcall *t_SND_SynchroFn)(void);
 static t_SND_SynchroFn g_pfn_SND_SynchroSxd_s;
 #define g_pfn_SND_SynchroSxd  g_pfn_SND_SynchroSxd_s
 
-void __stdcall SND_fn_vSynchroSxd(void)
+void SND_CALL SND_fn_vSynchroSxd(void)
 {
     if (g_pfn_SND_SynchroSxd == NULL) DebugBreak();
     g_pfn_SND_SynchroSxd();
@@ -1542,7 +1542,7 @@ void __stdcall SND_fn_vSynchroSxd(void)
 static t_SND_SynchroFn g_pfn_SND_SynchroMidi_s;
 #define g_pfn_SND_SynchroMidi  g_pfn_SND_SynchroMidi_s
 
-void __stdcall SND_fn_vSynchroMidi(void)
+void SND_CALL SND_fn_vSynchroMidi(void)
 {
     if (g_pfn_SND_SynchroMidi == NULL) DebugBreak();
     g_pfn_SND_SynchroMidi();
@@ -1997,7 +1997,7 @@ long __cdecl SND_fn_lGetVolumeLineSound(void *lLine)
 }
 
 /* 0x004977A0 */
-void *__stdcall SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
+void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
                                       unsigned int ulNbBytes);
 
 /* 0x004534A0 */
@@ -2079,7 +2079,7 @@ void SND_fn_vUpdateLastError(unsigned long ulChannelId, unsigned short uwErrNum,
 }
 
 /* 0x00451450 */
-void __stdcall SND_fn_vDisplayError(unsigned short uwErrNum, char *message)
+void SND_CALL SND_fn_vDisplayError(unsigned short uwErrNum, char *message)
 {
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     SND_M_UpdateLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId(), uwErrNum,
@@ -2091,7 +2091,7 @@ void __stdcall SND_fn_vDisplayError(unsigned short uwErrNum, char *message)
 }
 
 /* 0x004514B0 */
-void __stdcall SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message,
+void SND_CALL SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message,
                                       int flags)
 {
     (void)flags;
@@ -2107,7 +2107,7 @@ void __cdecl SND_fn_vCheckMemory(void)
 #define SND_M_fn_vGenFree(p_vBlock, ucChannel) \
     (((void (__cdecl *)(void *, unsigned char))fn_vGenFree)((p_vBlock), (ucChannel)))
 
-void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr)
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr)
 {
     unsigned char ucChannel;
 
@@ -2130,7 +2130,7 @@ void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr)
     SND_fn_vCheckMemory();              /* 0x403290 */
 }
 
-void __stdcall SND_fn_vInitMallocSnd(void)
+void SND_CALL SND_fn_vInitMallocSnd(void)
 {
     Mmg_fn_v_InitMmg(g_ucSndModuleId, 2, 0x186A0);
     Mmg_fn_vInitSpecificBlock(0, g_ucSndModuleId,
@@ -2151,7 +2151,7 @@ void __stdcall SND_fn_vInitMallocSnd(void)
     SND_fn_vQuitCriticalSectionForErrorDisplay();
 }
 
-void __stdcall SND_fn_vDesInitMallocSnd(void)
+void SND_CALL SND_fn_vDesInitMallocSnd(void)
 {
     Mmg_fn_vFreeBlock(0, g_ucSndModuleId,
                       g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
@@ -2163,7 +2163,7 @@ void __stdcall SND_fn_vDesInitMallocSnd(void)
                         g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
 }
 
-void *__stdcall SND_fn_pvMallocSnd(unsigned long nb_octets)
+void *SND_CALL SND_fn_pvMallocSnd(unsigned long nb_octets)
 {
     void          *ptr_temp;
     unsigned char  ucChannel;
@@ -2186,7 +2186,7 @@ void *__stdcall SND_fn_pvMallocSnd(unsigned long nb_octets)
     return ptr_temp;
 }
 
-void *__stdcall SND_fn_pvReAllocSnd(void *pvPtr, unsigned long ulNbBytes)
+void *SND_CALL SND_fn_pvReAllocSnd(void *pvPtr, unsigned long ulNbBytes)
 {
     unsigned char  ucChannel;
     void          *pvNew;
@@ -2208,7 +2208,7 @@ void *__stdcall SND_fn_pvReAllocSnd(void *pvPtr, unsigned long ulNbBytes)
     return pvNew;
 }
 
-void __stdcall SND_fn_vFreeSnd(void *pvPtr)
+void SND_CALL SND_fn_vFreeSnd(void *pvPtr)
 {
     unsigned char ucChannel;
 
@@ -2228,14 +2228,14 @@ void __stdcall SND_fn_vFreeSnd(void *pvPtr)
     Mmg_fn_vReleaseChannelId(ucChannel);
 }
 
-void __stdcall SND_fn_vResizeMemoryBlockSnd(unsigned char id_block, unsigned long ulSize)
+void SND_CALL SND_fn_vResizeMemoryBlockSnd(unsigned char id_block, unsigned long ulSize)
 {
     Mmg_fn_vInitSpecificBlock(id_block, g_ucSndModuleId,
                               g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
                               ulSize, 0x186A0, 1, 0);
 }
 
-void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes)
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes)
 {
     unsigned char  ucChannel;
     void          *ptr_temp;
@@ -2260,7 +2260,7 @@ void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBy
     return ptr_temp;
 }
 
-void *__stdcall SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
+void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
                                       unsigned int ulNbBytes)
 {
     unsigned char  ucChannel;
@@ -2296,14 +2296,14 @@ t_SND_PlayDriverFn SND_g_pfnPlayCDDriver;
 #define SND_M_g_pfnPlayCD    (SND_g_pfnPlayCDDriver)
 
 /* 0x00454F40 */
-long __stdcall SND_fn_lPlaySxd(long a1, void *a2, long a3, void *a4, long a5)
+long SND_CALL SND_fn_lPlaySxd(long a1, void *a2, long a3, void *a4, long a5)
 {
     if (SND_M_g_pfnPlaySxd == NULL) DebugBreak();
     return SND_M_g_pfnPlaySxd(a1, a2, a3, a4, a5);
 }
 
 /* 0x00455580 */
-long __stdcall SND_fn_lPlayMidi(long a1, void *a2, long a3, void *a4, long a5)
+long SND_CALL SND_fn_lPlayMidi(long a1, void *a2, long a3, void *a4, long a5)
 {
     if (SND_M_g_pfnPlayMidi == NULL) DebugBreak();
     return SND_M_g_pfnPlayMidi(a1, a2, a3, a4, a5);
@@ -3366,7 +3366,7 @@ static SND_pc_tdhWindow SND_pc_hMainWindow;
 extern unsigned char g_ucErmModuleId;
 #define SND_pc_ucErmUnregisteredId g_ucErmModuleId
 
-void __stdcall SND_fn_vInitErrorSnd(void *pInitStruct)
+void SND_CALL SND_fn_vInitErrorSnd(void *pInitStruct)
 {
 
     typedef struct _SND_tdstInitStruct
@@ -3390,11 +3390,11 @@ void __stdcall SND_fn_vInitErrorSnd(void *pInitStruct)
     memset(SND_g_astErrorOccurArray, 0, sizeof(SND_g_astErrorOccurArray));
 }
 
-void __stdcall SND_fn_vDesInitErrorSnd(void)
+void SND_CALL SND_fn_vDesInitErrorSnd(void)
 {
 }
 
-void __stdcall _snd_assert(char *test, char *file, int line)
+void SND_CALL _snd_assert(char *test, char *file, int line)
 {
     char titre[256];
     char texte[256];
@@ -3411,7 +3411,7 @@ void __stdcall _snd_assert(char *test, char *file, int line)
     SND_pc_M_vBreak();
 }
 
-int __stdcall snd_erreur_init(int num_err)
+int SND_CALL snd_erreur_init(int num_err)
 {
     int iRet;
 
@@ -3443,7 +3443,7 @@ int __stdcall snd_erreur_init(int num_err)
     return iRet;
 }
 
-int __stdcall SND_fn_iErreurInit(int idErr)
+int SND_CALL SND_fn_iErreurInit(int idErr)
 {
     int iRet;
 

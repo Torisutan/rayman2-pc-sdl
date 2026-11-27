@@ -1,9 +1,10 @@
 #include <stdlib.h>
+#include "SND/snddef.h"
 
 typedef long SndReal;
 
-extern SndReal __stdcall SND_fn_rDivRealRealSnd(SndReal r1, SndReal r2);
-extern SndReal __stdcall SND_fn_rMulRealRealQuickSnd(SndReal r1, SndReal r2);
+extern SndReal SND_CALL SND_fn_rDivRealRealSnd(SndReal r1, SndReal r2);
+extern SndReal SND_CALL SND_fn_rMulRealRealQuickSnd(SndReal r1, SndReal r2);
 
 #undef RAND_MAX
 #define RAND_MAX 32767

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <windows.h>
 
+#include "SND/snddef.h"
 #include "SND/SND.h"
 #include "SND/SND_globals.h"
 #include "SND/snderr.h"
@@ -450,12 +451,12 @@ int __cdecl SND_pc_fn_bLinkBinRefField(SND_tdstBlockEvent *pEvent2)
     return 1;
 }
 
-int __stdcall SND_fn_iGetNumberOfBanks(void)
+int SND_CALL SND_fn_iGetNumberOfBanks(void)
 {
     return SND_M_SND_g_iBankNumber;
 }
 
-int __stdcall SND_fn_iGetNumberOfEventInBank(long lBankId)
+int SND_CALL SND_fn_iGetNumberOfEventInBank(long lBankId)
 {
     SND_pc_tdstBankDescElt *pBankdesc;
 
@@ -467,14 +468,14 @@ int __stdcall SND_fn_iGetNumberOfEventInBank(long lBankId)
     return 0;
 }
 
-void __stdcall SND_fn_vInitBankSnd(char *czPathName)
+void SND_CALL SND_fn_vInitBankSnd(char *czPathName)
 {
     SND_pc_g_pstBankDescHead = NULL;
     SND_pc_g_pstBankDescTail = NULL;
     SND_M_SND_g_iBankNumber = 0;
 }
 
-void __stdcall SND_fn_vDesInitBankSnd(void)
+void SND_CALL SND_fn_vDesInitBankSnd(void)
 {
     SND_pc_tdstBankDescElt *pElt;
     SND_pc_tdstBankDescElt *pNext;
@@ -487,7 +488,7 @@ void __stdcall SND_fn_vDesInitBankSnd(void)
     }
 }
 
-SND_tdstBlockEvent *__stdcall SND_fn_pGetBinEvent(unsigned long ulBinId)
+SND_tdstBlockEvent *SND_CALL SND_fn_pGetBinEvent(unsigned long ulBinId)
 {
     unsigned long ulEventPos;
     tdstSndBankHead *pBank;
@@ -513,7 +514,7 @@ SND_tdstBlockEvent *__stdcall SND_fn_pGetBinEvent(unsigned long ulBinId)
     return NULL;
 }
 
-tdstBlockResourceMem *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId)
+tdstBlockResourceMem *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId)
 {
     unsigned long ulResPos;
     tdstSndBankHead *pBank;
@@ -540,12 +541,12 @@ tdstBlockResourceMem *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId)
     return NULL;
 }
 
-SndBool __stdcall SND_fn_bStartLoadBanks(void)
+SndBool SND_CALL SND_fn_bStartLoadBanks(void)
 {
     return SND_fn_bStartLoadBanks2(-1);
 }
 
-SndBool __stdcall SND_fn_bStartLoadBanks2(int level)
+SndBool SND_CALL SND_fn_bStartLoadBanks2(int level)
 {
     SND_pc_tdstBankDescElt *pElt;
 
@@ -565,12 +566,12 @@ SndBool __stdcall SND_fn_bStartLoadBanks2(int level)
     return 1;
 }
 
-SndBool __stdcall SND_fn_bInitBank(int _iBankNum)
+SndBool SND_CALL SND_fn_bInitBank(int _iBankNum)
 {
     return SND_fn_bInitBank2(_iBankNum, -1);
 }
 
-SndBool __stdcall SND_fn_bInitBank2(int _iBankNum, int level)
+SndBool SND_CALL SND_fn_bInitBank2(int _iBankNum, int level)
 {
     SND_pc_tdstBankDescElt *pElt;
     int iState;
@@ -603,7 +604,7 @@ SndBool __stdcall SND_fn_bInitBank2(int _iBankNum, int level)
     return 1;
 }
 
-SndBool __stdcall SND_fn_bEndLoadBanks(void)
+SndBool SND_CALL SND_fn_bEndLoadBanks(void)
 {
     SND_pc_tdstBankDescElt *pNext;
     SND_pc_tdstBankDescElt *pCur;
@@ -667,7 +668,7 @@ SndBool __stdcall SND_fn_bEndLoadBanks(void)
     return 1;
 }
 
-SndBool __stdcall SND_fn_bLoadBinaryBank(int _iBankNum)
+SndBool SND_CALL SND_fn_bLoadBinaryBank(int _iBankNum)
 {
     SND_pc_tdstBankDescElt *pElt;
     int iVar2;
@@ -697,7 +698,7 @@ SndBool __stdcall SND_fn_bLoadBinaryBank(int _iBankNum)
     return 1;
 }
 
-SndBool __stdcall SND_fn_bUnLoadBinaryBank(int _iBankNum)
+SndBool SND_CALL SND_fn_bUnLoadBinaryBank(int _iBankNum)
 {
     SND_pc_tdstBankDescElt *pElt;
     tduBlockResource *pRes;

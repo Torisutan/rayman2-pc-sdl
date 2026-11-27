@@ -40,9 +40,9 @@ struct active_theme_{
 static SndBool		g_bWorkingTheme=FALSE;
 
 #define E_ucSndBlockMain ((unsigned char)0)
-void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
-void *__stdcall SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr, unsigned int ulNbBytes);
-void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
+void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr, unsigned int ulNbBytes);
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
 
 /* 0x00459460 */
 SndBool	raj_next_part(active_theme *theme)
@@ -267,7 +267,7 @@ void raj_soundparam_theme(active_theme* theme, struct SoundParam_* par);
 extern long SND_pc_g_lSoundFixedValue;		/* 0x004B74A4 */
 extern unsigned long SND_pc_g_ul4A2438;		/* 0x004A2438 */
 
-static void __stdcall fn_Transition(long par)
+static void SND_CALL fn_Transition(long par)
 {
 	active_theme *theme=(active_theme*)par;
 	tduRefRes	NextRes;
@@ -454,7 +454,7 @@ static void SND_fn_vConvertResDiskToMemTheme(tdstBlockResourceDisk* disk
     mem->uRes.stTheme.rFadeDuration = disk->uRes.stTheme.rFadeDuration;
 }
 
-void *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId);
+void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
 
 /* 0x00459840 */
 SndBool SND_fn_bLoadResBinaryTheme(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc)
@@ -488,7 +488,7 @@ SndBool SND_fn_bLoadResBinaryTheme(tdstBlockResourceDisk *_pBRDisk,tdstBlockReso
 
 SndBool SND_fn_bSetParamTransitionSnd(long voice, struct SoundParam_ *par);	/* 0x004582C0 */
 
-SndBool __stdcall SND_fn_bSetParamTheme(long canal,struct SoundParam_* par)
+SndBool SND_CALL SND_fn_bSetParamTheme(long canal,struct SoundParam_* par)
 {
 	struct SoundParam_ *pstSoundPar;
 	active_theme *pTheme;
@@ -509,7 +509,7 @@ SndBool __stdcall SND_fn_bSetParamTheme(long canal,struct SoundParam_* par)
 }
 
 /* 0x00459BC0 */
-SndBool __stdcall SND_fn_bTestIsPlayingTheme(long canal)
+SndBool SND_CALL SND_fn_bTestIsPlayingTheme(long canal)
 {
 	active_theme *pTheme;
 
@@ -518,7 +518,7 @@ SndBool __stdcall SND_fn_bTestIsPlayingTheme(long canal)
     return pTheme->bActive;
 }
 
-SndBool __stdcall SND_fn_bAnyPlayingTheme(void)
+SndBool SND_CALL SND_fn_bAnyPlayingTheme(void)
 {
 	return g_stTheme.bActive;
 }
@@ -526,7 +526,7 @@ SndBool __stdcall SND_fn_bAnyPlayingTheme(void)
 void __cdecl SND_fn_vStopTransitionSnd(long voice);	/* 0x00458410 */
 extern tduRefRes SND_RES_FANTOME;
 
-void __stdcall SND_fn_vStopTheme(long canal)
+void SND_CALL SND_fn_vStopTheme(long canal)
 {
 	active_theme *pTheme;
 
@@ -551,7 +551,7 @@ void __cdecl SND_fn_vPauseTransitionSnd(long voice);	/* 0x004584A0 */
 void __cdecl SND_fn_vResumeTransitionSnd(long voice);	/* 0x00458470 */
 
 /* 0x00459C40 */
-void __stdcall SND_fn_vPauseTheme(long canal)
+void SND_CALL SND_fn_vPauseTheme(long canal)
 {
 	active_theme *pTheme;
 
@@ -561,7 +561,7 @@ void __stdcall SND_fn_vPauseTheme(long canal)
          SND_fn_vPauseTransitionSnd(pTheme->lVoice);
 }
 
-void __stdcall SND_fn_vResumeTheme(long canal)
+void SND_CALL SND_fn_vResumeTheme(long canal)
 {
 	active_theme *pTheme;
 
@@ -574,7 +574,7 @@ void __stdcall SND_fn_vResumeTheme(long canal)
 #define SND_C_POS_UNKNOWN -1
 
 /* 0x00459C80 */
-SndReal __stdcall SND_fn_rGetPosTheme(long voie)
+SndReal SND_CALL SND_fn_rGetPosTheme(long voie)
 {
         return SND_C_POS_UNKNOWN;
 }

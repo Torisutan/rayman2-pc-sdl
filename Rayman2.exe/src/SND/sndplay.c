@@ -10,8 +10,8 @@
 #include "SND/sndplay_pc.h"
 
 struct SoundParam_;
-void __stdcall SND_fn_vDisplayError(unsigned short uwErrNum, char *message);
-void *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId);
+void SND_CALL SND_fn_vDisplayError(unsigned short uwErrNum, char *message);
+void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
 long __cdecl pre_associe_snd(void);
 long __cdecl associe_snd(long id_asso, long voice_sxd, tdstBlockResourceMem *res, long prio, int *valid, long transition);
 void SND_CALL SND_fn_vReleaseDriverCD(void);
@@ -20,46 +20,46 @@ void SND_CALL SND_fn_vReleaseDriverSxd(void);
 void SND_CALL SND_fn_vRestoreDriverCD(void);
 void SND_CALL SND_fn_vRestoreDriverMidi(void);
 void SND_CALL SND_fn_vRestoreDriverSxd(void);
-void __stdcall SND_fn_vStopTransitionSxd(long voice);
-void __stdcall SND_fn_vStopTransitionMidi(long voice);
-void __stdcall SND_fn_vPauseTransitionSxd(long voice);
-void __stdcall SND_fn_vResumeTransitionSxd(long voice);
-void __stdcall SND_fn_vPauseTransitionMidi(long voice);
-void __stdcall SND_fn_vResumeTransitionMidi(long voice);
-SndReal __stdcall SND_fn_rMulRealRealSnd(SndReal r1,SndReal r2);
-SndReal __stdcall SND_fn_rDivRealRealSnd(SndReal r1,SndReal r2);
-void __stdcall SND_fn_vGetDefaultRollOff(RollOffParam *rolloff);
-void __stdcall SND_fn_vSetDopplerFactor(SndReal factor);
-void __stdcall SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message, int flags);
-void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
-void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
-SndBool __stdcall SND_fn_bGetStereoSxd(void);
-void __stdcall SND_fn_vSetStereoSxd(SndBool active);
-void __stdcall SND_fn_vSetEffectSxd(long num);
-void __stdcall SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par);
-long __stdcall SND_fn_lCreateMicroSxd(MicroParam *par);
-int __stdcall SND_fn_iInitSxd(void *pInitStruct);
-int __stdcall SND_fn_iInitMidi(void *pInitStruct);
+void SND_CALL SND_fn_vStopTransitionSxd(long voice);
+void SND_CALL SND_fn_vStopTransitionMidi(long voice);
+void SND_CALL SND_fn_vPauseTransitionSxd(long voice);
+void SND_CALL SND_fn_vResumeTransitionSxd(long voice);
+void SND_CALL SND_fn_vPauseTransitionMidi(long voice);
+void SND_CALL SND_fn_vResumeTransitionMidi(long voice);
+SndReal SND_CALL SND_fn_rMulRealRealSnd(SndReal r1,SndReal r2);
+SndReal SND_CALL SND_fn_rDivRealRealSnd(SndReal r1,SndReal r2);
+void SND_CALL SND_fn_vGetDefaultRollOff(RollOffParam *rolloff);
+void SND_CALL SND_fn_vSetDopplerFactor(SndReal factor);
+void SND_CALL SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message, int flags);
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
+SndBool SND_CALL SND_fn_bGetStereoSxd(void);
+void SND_CALL SND_fn_vSetStereoSxd(SndBool active);
+void SND_CALL SND_fn_vSetEffectSxd(long num);
+void SND_CALL SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par);
+long SND_CALL SND_fn_lCreateMicroSxd(MicroParam *par);
+int SND_CALL SND_fn_iInitSxd(void *pInitStruct);
+int SND_CALL SND_fn_iInitMidi(void *pInitStruct);
 int __stdcall SND_fn_iInitCD(void *pInitStruct);
 int __stdcall SND_fn_iInitRecord(void *pInitStruct);
 int SND_fn_iInitSeq(void);
 void SND_fn_vInitTheme(void);
-void __stdcall SND_fn_vDesInitSxd(void);
-void __stdcall SND_fn_vDesInitMidi(void);
+void SND_CALL SND_fn_vDesInitSxd(void);
+void SND_CALL SND_fn_vDesInitMidi(void);
 void __stdcall SND_fn_vDesInitCD(void);
 void __stdcall SND_fn_vDesInitRecord(void);
 void SND_fn_vDesInitSeq(void);
 void __cdecl SND_fn_vDesInitTheme(void);
-void __stdcall SND_fn_vSetDefaultRollOffSxd(RollOffParam *rolloff);
-void __stdcall SND_fn_vSetDopplerFactorSxd(long factor);
-void __stdcall SND_fn_vSynchroSxd(void);
-void __stdcall SND_fn_vSynchroMidi(void);
+void SND_CALL SND_fn_vSetDefaultRollOffSxd(RollOffParam *rolloff);
+void SND_CALL SND_fn_vSetDopplerFactorSxd(long factor);
+void SND_CALL SND_fn_vSynchroSxd(void);
+void SND_CALL SND_fn_vSynchroMidi(void);
 void __stdcall SND_fn_vSynchroCD(void);
-void __stdcall SND_fn_vUnLoadResSxd(tdstBlockResourceMem *mem);
-void __stdcall SND_fn_vUnLoadResMidi(tdstBlockResourceMem *mem);
+void SND_CALL SND_fn_vUnLoadResSxd(tdstBlockResourceMem *mem);
+void SND_CALL SND_fn_vUnLoadResMidi(tdstBlockResourceMem *mem);
 void __cdecl SND_fn_vUnLoadResTheme(tdstBlockResourceMem *mem);
-SndBool __stdcall SND_fn_bLoadResBinarySxd(tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,char *pDataBloc);
-SndBool __stdcall SND_fn_bLoadResBinaryMidi(tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,char *pDataBloc);
+SndBool SND_CALL SND_fn_bLoadResBinarySxd(tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,char *pDataBloc);
+SndBool SND_CALL SND_fn_bLoadResBinaryMidi(tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,char *pDataBloc);
 SndBool __stdcall SND_fn_bLoadResBinaryCd(tdstBlockResourceDisk *disk,tdstBlockResourceMem *mem,char *pDataBloc);
 SndBool __cdecl SND_fn_bLoadResBinarySeq(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc);
 SndBool __cdecl SND_fn_bLoadResBinarySwitch(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc);
@@ -67,8 +67,8 @@ SndBool __cdecl SND_fn_bLoadResBinarySwitchOld(tdstBlockResourceDisk *_pBRDisk,t
 SndBool __cdecl SND_fn_bLoadResBinaryRandom(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc);
 SndBool __cdecl SND_fn_bLoadResBinaryTheme(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc);
 SndBool __cdecl SND_pc_fn_bLoadResRatioStride36(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc);
-SndBool __stdcall SND_fn_bSetParamTransitionSxd(long voice, struct SoundParam_ *par);
-SndBool __stdcall SND_fn_bSetParamTransitionMidi(long voice, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bSetParamTransitionSxd(long voice, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bSetParamTransitionMidi(long voice, struct SoundParam_ *par);
 SndBool __stdcall SND_fn_bSetResourceStaticVolumeSxd(long a, long b);
 SndBool __stdcall SND_fn_bSetResourceStaticVolumeMidi(long a, long b);
 SndBool __stdcall SND_fn_bSetResourceStaticVolumeCD(long a, long b);
@@ -80,58 +80,58 @@ int __cdecl SND_pc_fn_iSetThemeNodeByte(tdstBlockResourceMem *pRes, unsigned cha
 void __cdecl SND_fn_vStopTransitionSnd(long voice);
 void __cdecl SND_fn_vPauseTransitionSnd(long voice);
 void __cdecl SND_fn_vResumeTransitionSnd(long voice);
-void __stdcall SND_fn_vPauseSxd(long voice_sxd);
-void __stdcall SND_fn_vResumeSxd(long voice_sxd);
-int  __stdcall SND_fn_bSetParamSxd (long voice_sxd, struct SoundParam_ *par);
-void __stdcall SND_fn_vStopSxd(long voice_sxd);
-long __stdcall SND_fn_rGetPosSxd   (long voice_sxd);
-int  __stdcall SND_fn_bTestIsPlayingSxd(long voice_sxd);
-void __stdcall SND_fn_vPauseMidi(long voice_sxd);
-void __stdcall SND_fn_vResumeMidi(long voice_sxd);
-int  __stdcall SND_fn_bSetParamMidi(long voice_sxd, struct SoundParam_ *par);
-void __stdcall SND_fn_vStopMidi(long voice_sxd);
-long __stdcall SND_fn_rGetPosMidi  (long voice_sxd);
-int  __stdcall SND_fn_bTestIsPlayingMidi(long voice_sxd);
+void SND_CALL SND_fn_vPauseSxd(long voice_sxd);
+void SND_CALL SND_fn_vResumeSxd(long voice_sxd);
+int  SND_CALL SND_fn_bSetParamSxd (long voice_sxd, struct SoundParam_ *par);
+void SND_CALL SND_fn_vStopSxd(long voice_sxd);
+long SND_CALL SND_fn_rGetPosSxd   (long voice_sxd);
+int  SND_CALL SND_fn_bTestIsPlayingSxd(long voice_sxd);
+void SND_CALL SND_fn_vPauseMidi(long voice_sxd);
+void SND_CALL SND_fn_vResumeMidi(long voice_sxd);
+int  SND_CALL SND_fn_bSetParamMidi(long voice_sxd, struct SoundParam_ *par);
+void SND_CALL SND_fn_vStopMidi(long voice_sxd);
+long SND_CALL SND_fn_rGetPosMidi  (long voice_sxd);
+int  SND_CALL SND_fn_bTestIsPlayingMidi(long voice_sxd);
 void __stdcall SND_fn_vPauseCD(long voice_sxd);
 void __stdcall SND_fn_vResumeCD(long voice_sxd);
 int  __stdcall SND_fn_bSetParamCD  (long voice_sxd, struct SoundParam_ *par);
 void __stdcall SND_fn_vStopCD(long voice_sxd);
 long __stdcall SND_fn_rGetPosCD    (long voice_sxd);
 int  __stdcall SND_fn_bTestIsPlayingCD(long voice_sxd);
-void __stdcall SND_fn_vPauseSeq(long voice);
-void __stdcall SND_fn_vResumeSeq(long voice);
-void __stdcall SND_fn_vPauseSwitch(long voice);
-void __stdcall SND_fn_vResumeSwitch(long voice);
-int  __stdcall SND_fn_bSetParamSwitch(long voice, struct SoundParam_ *par);
-void __stdcall SND_fn_vStopSwitch(long voice);
-long __stdcall SND_fn_rGetPosSwitch(long voice);
-int  __stdcall SND_fn_bTestIsPlayingSwitch(long voice);
-void __stdcall SND_fn_vPauseRandom(long voice);
-void __stdcall SND_fn_vResumeRandom(long voice);
-void __stdcall SND_fn_vStopRandom(long voice);
-int  __stdcall SND_fn_bTestIsPlayingRandom(long voice);
-long __stdcall SND_fn_rGetPosRandom(long voice);
-void __stdcall SND_fn_vPauseTheme(long canal);
-void __stdcall SND_fn_vResumeTheme(long canal);
-int  __stdcall SND_fn_bTestIsPlayingTheme(long canal);
-long __stdcall SND_fn_rGetPosTheme(long voie);   /* 0x00459C80 */
+void SND_CALL SND_fn_vPauseSeq(long voice);
+void SND_CALL SND_fn_vResumeSeq(long voice);
+void SND_CALL SND_fn_vPauseSwitch(long voice);
+void SND_CALL SND_fn_vResumeSwitch(long voice);
+int  SND_CALL SND_fn_bSetParamSwitch(long voice, struct SoundParam_ *par);
+void SND_CALL SND_fn_vStopSwitch(long voice);
+long SND_CALL SND_fn_rGetPosSwitch(long voice);
+int  SND_CALL SND_fn_bTestIsPlayingSwitch(long voice);
+void SND_CALL SND_fn_vPauseRandom(long voice);
+void SND_CALL SND_fn_vResumeRandom(long voice);
+void SND_CALL SND_fn_vStopRandom(long voice);
+int  SND_CALL SND_fn_bTestIsPlayingRandom(long voice);
+long SND_CALL SND_fn_rGetPosRandom(long voice);
+void SND_CALL SND_fn_vPauseTheme(long canal);
+void SND_CALL SND_fn_vResumeTheme(long canal);
+int  SND_CALL SND_fn_bTestIsPlayingTheme(long canal);
+long SND_CALL SND_fn_rGetPosTheme(long voie);   /* 0x00459C80 */
 void __stdcall SND_pc_fn_vNopStd4(long a);
-long __stdcall SND_fn_lPlayTransitionMidi(tduRefRes FirstRes, tduRefRes NextRes,
+long SND_CALL SND_fn_lPlayTransitionMidi(tduRefRes FirstRes, tduRefRes NextRes,
                                           SND_td_pfn_vSoundCallback transition_callback,
                                           long param_callback, struct SoundParam_ *par);
-long __stdcall SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes, tduRefRes NextRes,
+long SND_CALL SND_fn_lPlayTransitionExSxd(tduRefRes FirstRes, tduRefRes NextRes,
                                            SND_td_pfn_vSoundCallback transition_callback,
                                            long param_callback, struct SoundParam_ *par);
-SndBool __stdcall SND_fn_bSetNextTransitionMidi(long voice, tduRefRes new_res);
-SndBool __stdcall SND_fn_bSetNextTransitionSxd(long voice, tduRefRes new_res);
-SndBool __stdcall SND_fn_bDoTransitionWithFadeMidi(long voice, tduRefRes new_res);
-SndBool __stdcall SND_fn_bDoTransitionWithFadeSxd(long voice, tduRefRes new_res);
+SndBool SND_CALL SND_fn_bSetNextTransitionMidi(long voice, tduRefRes new_res);
+SndBool SND_CALL SND_fn_bSetNextTransitionSxd(long voice, tduRefRes new_res);
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeMidi(long voice, tduRefRes new_res);
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeSxd(long voice, tduRefRes new_res);
 
 tduRefRes SND_RES_FANTOME = {0};
 
 long SND_fn_lPlaySnd(tduRefRes res,struct SoundParam_* par,long prio,SND_td_pfn_vSoundCallback fn_callback,long par_callback,SndBool* valid);
-long __stdcall SND_fn_lPlaySxd(long a1, void *a2, long a3, void *a4, long a5);
-long __stdcall SND_fn_lPlayMidi(long a1, void *a2, long a3, void *a4, long a5);
+long SND_CALL SND_fn_lPlaySxd(long a1, void *a2, long a3, void *a4, long a5);
+long SND_CALL SND_fn_lPlayMidi(long a1, void *a2, long a3, void *a4, long a5);
 long __stdcall SND_pc_fn_lPlayCD(long a1, void *a2, long a3, void *a4, long a5);
 long SND_fn_lPlaySeq(tduRefRes res,struct SoundParam_ *par,long prio,SND_td_pfn_vSoundCallback fn_callback,long par_callback,SndBool *valid);
 long SND_fn_lPlaySwitch(tduRefRes num_res,struct SoundParam_ *par,long prio,void *fn_callback,long par_callback);
@@ -198,8 +198,8 @@ static SndBool g_iInitCD;
 
 #define SND_C_szEmpty                     ("")
 
-SndBool __stdcall SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
-void __stdcall SND_fn_vStopSnd(long voie);
+SndBool SND_CALL SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
+void SND_CALL SND_fn_vStopSnd(long voie);
 
 #define SND_C_NB_ZONE_MAX		10
 
@@ -790,7 +790,7 @@ long SND_fn_lPlaySnd(tduRefRes res,struct SoundParam_* par,long prio,SND_td_pfn_
 	return associe_snd(pre_voice_snd, voice_sxd, res.pstPtr, prio, valid, FALSE);
 }
 
-SndBool __stdcall SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par)
+SndBool SND_CALL SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par)
 {
     voice_description *p = (voice_description *)voie;
     SndBool ret;
@@ -815,7 +815,7 @@ SndBool SND_fn_bTestIsPlayingSnd(long voie)
 	return ret;
 }
 
-void __stdcall SND_fn_vStopSnd(long voie)
+void SND_CALL SND_fn_vStopSnd(long voie)
 {
     voice_description *p = (voice_description *)voie;
 
@@ -825,13 +825,13 @@ void __stdcall SND_fn_vStopSnd(long voie)
     desassocie_snd(voie);
 }
 
-void __stdcall SND_fn_vPauseSnd(long voie)
+void SND_CALL SND_fn_vPauseSnd(long voie)
 {
     voice_description *p = (voice_description *)voie;
     a_fnFunc[p->res.pstPtr->eType].pfnPause(p->voice_sxd);
 }
 
-void __stdcall SND_fn_vResumeSnd(long voie)
+void SND_CALL SND_fn_vResumeSnd(long voie)
 {
     voice_description *p = (voice_description *)voie;
     a_fnFunc[p->res.pstPtr->eType].pfnResume(p->voice_sxd);
@@ -891,7 +891,7 @@ SndBool __cdecl SND_fn_bGetStereoSnd(void)
     return SND_fn_bGetStereoSxd();
 }
 
-SndBool __stdcall SND_fn_bAnyPlayingTheme(void);
+SndBool SND_CALL SND_fn_bAnyPlayingTheme(void);
 
 /* 0x00458190 */
 SndBool __cdecl SND_fn_bIsMusicPlayingSnd(void)
@@ -936,7 +936,7 @@ long __cdecl SND_fn_lCreateMicroSnd(MicroParam *par)
 }
 
 /* 0x00458200 */
-void __stdcall SND_fn_vDestroyMicroSxd(long sxdId);
+void SND_CALL SND_fn_vDestroyMicroSxd(long sxdId);
 void SND_fn_vDestroyMicroSnd(long sndId)
 {
 	SND_fn_vDestroyMicroSxd(sndId);
@@ -1071,8 +1071,8 @@ SndBool SND_fn_bDoTransitionWithFadeSnd(long voice,tduRefRes new_res)
 }
 
 /* 0x004583C0 */
-SndBool __stdcall SND_fn_bDoTransitionWithFadeSxd2(long voice,tduRefRes new_res,SndReal rDuration);
-SndBool __stdcall SND_fn_bDoTransitionWithFadeMidi2(long voice,tduRefRes new_res,SndReal rDuration);
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeSxd2(long voice,tduRefRes new_res,SndReal rDuration);
+SndBool SND_CALL SND_fn_bDoTransitionWithFadeMidi2(long voice,tduRefRes new_res,SndReal rDuration);
 
 SndBool SND_fn_bDoTransitionWithFadeSnd2(long voice,tduRefRes new_res,SndReal rDuration)
 {
@@ -1185,7 +1185,7 @@ void __cdecl SND_fn_vRestoreDriverSnd(void)
 #endif
 }
 
-SndReal __stdcall SND_fn_rGetPosSnd(long voie)
+SndReal SND_CALL SND_fn_rGetPosSnd(long voie)
 {
     voice_description *p = (voice_description *)voie;
 
@@ -1273,20 +1273,20 @@ int __cdecl SND_pc_fn_iSetResourceVolumeByType(tdstBlockResourceMem *pRes, long 
 }
 
 /* 0x00459BE0 */
-void __stdcall SND_fn_vStopTheme(long canal);
+void SND_CALL SND_fn_vStopTheme(long canal);
 
 /* 0x0045A2A0 */
-SndBool __stdcall SND_fn_bSetParamRandom(long voice, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bSetParamRandom(long voice, struct SoundParam_ *par);
 
 /* 0x0045ACD0 */
-SndBool __stdcall SND_fn_bSetParamSeq(long voice, struct SoundParam_ *par);
-SndBool __stdcall SND_fn_bTestIsPlayingSeq(long voice);
+SndBool SND_CALL SND_fn_bSetParamSeq(long voice, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bTestIsPlayingSeq(long voice);
 
 /* 0x0045B0B0 */
-void __stdcall SND_fn_vStopSeq(long voice);
+void SND_CALL SND_fn_vStopSeq(long voice);
 
 /* 0x004598C0 */
-SndBool __stdcall SND_fn_bSetParamTheme(long canal, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bSetParamTheme(long canal, struct SoundParam_ *par);
 
 #define SND_M_PFN_V(f)  ((td_fn_vStopFunc *)(f))
 #define SND_M_PFN_R(f)  ((td_fn_rGetPosFunc *)(f))

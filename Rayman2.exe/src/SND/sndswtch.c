@@ -101,8 +101,8 @@ struct switch_voice_{
 	unsigned char	ucCachedScale;
 };
 
-void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
-void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
 
 long SND_fn_lPlaySnd(tduRefRes res, struct SoundParam_ *par, long prio, SND_td_pfn_vSoundCallback fn_callback, long par_callback, SndBool *valid);
 
@@ -143,15 +143,15 @@ long SND_fn_lPlaySwitch(tduRefRes num_res,SoundParam* par,long prio,SND_td_pfn_v
 	return C_PLAY_FAILED;
 }
 
-SndBool __stdcall SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
 SndBool __cdecl SND_fn_bTestIsPlayingSnd(long voie);
-void __stdcall SND_fn_vStopSnd(long voie);
-void __stdcall SND_fn_vPauseSnd(long voie);
-void __stdcall SND_fn_vResumeSnd(long voie);
-SndReal __stdcall SND_fn_rGetPosSnd(long voie);
+void SND_CALL SND_fn_vStopSnd(long voie);
+void SND_CALL SND_fn_vPauseSnd(long voie);
+void SND_CALL SND_fn_vResumeSnd(long voie);
+SndReal SND_CALL SND_fn_rGetPosSnd(long voie);
 
 /* 0x0045A6F0 */
-SndBool __stdcall SND_fn_bSetParamSwitch(long voice,SoundParam* par)
+SndBool SND_CALL SND_fn_bSetParamSwitch(long voice,SoundParam* par)
 {
 	switch_voice *pstSwitchVoice=(switch_voice*)voice;
 	tduRefRes	new_res;
@@ -198,7 +198,7 @@ SndBool __stdcall SND_fn_bSetParamSwitch(long voice,SoundParam* par)
 }
 
 /* 0x0045A830 */
-SndBool __stdcall SND_fn_bTestIsPlayingSwitch(long voice)
+SndBool SND_CALL SND_fn_bTestIsPlayingSwitch(long voice)
 {
 	switch_voice *pstSwitchVoice=(switch_voice*)voice;
 
@@ -216,7 +216,7 @@ SndBool __stdcall SND_fn_bTestIsPlayingSwitch(long voice)
 }
 
 /* 0x0045A870 */
-void __stdcall SND_fn_vStopSwitch(long voice)
+void SND_CALL SND_fn_vStopSwitch(long voice)
 {
 	switch_voice *pstSwitchVoice=(switch_voice*)voice;
 
@@ -230,7 +230,7 @@ void __stdcall SND_fn_vStopSwitch(long voice)
 }
 
 /* 0x0045A8A0 */
-void __stdcall SND_fn_vPauseSwitch(long voice)
+void SND_CALL SND_fn_vPauseSwitch(long voice)
 {
 	switch_voice *pstSwitchVoice=(switch_voice*)voice;
 
@@ -239,7 +239,7 @@ void __stdcall SND_fn_vPauseSwitch(long voice)
 }
 
 /* 0x0045A8C0 */
-void __stdcall SND_fn_vResumeSwitch(long voice)
+void SND_CALL SND_fn_vResumeSwitch(long voice)
 {
 	switch_voice *pstSwitchVoice=(switch_voice*)voice;
 
@@ -248,7 +248,7 @@ void __stdcall SND_fn_vResumeSwitch(long voice)
 }
 
 #define SND_C_POS_UNKNOWN -1
-SndReal __stdcall SND_fn_rGetPosSwitch(long voice)
+SndReal SND_CALL SND_fn_rGetPosSwitch(long voice)
 {
 	switch_voice *pstSwitchVoice=(switch_voice*)voice;
 
@@ -258,7 +258,7 @@ SndReal __stdcall SND_fn_rGetPosSwitch(long voice)
 		return SND_C_POS_UNKNOWN;
 }
 
-void *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId);
+void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
 
 /* 0x0045A900 */
 void __cdecl SND_fn_vConvertResDiskToMemSwitch(tdstBlockResourceDisk* disk,tdstBlockResourceMem* mem,void* ptrBegin)

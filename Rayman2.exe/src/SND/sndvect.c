@@ -1,7 +1,7 @@
 #include "SND/SND.h"
 
 /* 0x0045B290 */
-SndReal __stdcall SND_fn_rNormeVectorSnd(SndVector *v)
+SndReal SND_CALL SND_fn_rNormeVectorSnd(SndVector *v)
 {
     return (v->x >> 8) * (v->x >> 8)
          + (v->y >> 8) * (v->y >> 8)
@@ -21,7 +21,7 @@ static SndReal calcul_pseudo_d(SndReal a, SndReal b)
 }
 
 /* 0x0045B2F0 */
-SndReal __stdcall SND_fn_rPseudoNormeVectorSnd(SndVector *v)
+SndReal SND_CALL SND_fn_rPseudoNormeVectorSnd(SndVector *v)
 {
     SndReal dx, dy, dz;
 
@@ -33,7 +33,7 @@ SndReal __stdcall SND_fn_rPseudoNormeVectorSnd(SndVector *v)
 }
 
 /* 0x0045B330 */
-SndReal __stdcall SND_fn_rScalaireVectorSnd(SndVector *v1, SndVector *v2)
+SndReal SND_CALL SND_fn_rScalaireVectorSnd(SndVector *v1, SndVector *v2)
 {
     return (SND_fn_rMulRealRealSnd(v1->x, v2->x)
           + SND_fn_rMulRealRealSnd(v1->y, v2->y)
@@ -41,7 +41,7 @@ SndReal __stdcall SND_fn_rScalaireVectorSnd(SndVector *v1, SndVector *v2)
 }
 
 /* 0x0045B370 */
-SndReal __stdcall SND_fn_rPseudoScalaireNormeVectorSnd(SndVector *v1, SndVector *v2)
+SndReal SND_CALL SND_fn_rPseudoScalaireNormeVectorSnd(SndVector *v1, SndVector *v2)
 {
     return (SND_fn_rMulRealRealQuickSnd(v1->x, v2->x)
           + SND_fn_rMulRealRealQuickSnd(v1->y, v2->y)
@@ -49,7 +49,7 @@ SndReal __stdcall SND_fn_rPseudoScalaireNormeVectorSnd(SndVector *v1, SndVector 
 }
 
 /* 0x0045B3B0 */
-void __stdcall SND_fn_vProduitVectorSnd(SndVector *v1, SndVector *v2, SndVector *v)
+void SND_CALL SND_fn_vProduitVectorSnd(SndVector *v1, SndVector *v2, SndVector *v)
 {
     SndReal lA;
 

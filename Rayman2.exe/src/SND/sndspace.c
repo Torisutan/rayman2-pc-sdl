@@ -15,7 +15,7 @@ static SndReal g_rDistBackGround=C_ROLLOFFPARAM_INFINITE;   /* 0x004A3F6C */
 static unsigned char SND_ucVolumeBackGround;   /* 0x004B961C */
 
 /* 0x00459C90 */
-void __stdcall SND_fn_vSetDistanceForVolume(SndReal dist_satur, SndReal dist_back)
+void SND_CALL SND_fn_vSetDistanceForVolume(SndReal dist_satur, SndReal dist_back)
 {
     SndReal rFade;
     SndReal rBack;
@@ -40,20 +40,20 @@ void __stdcall SND_fn_vSetDistanceForVolume(SndReal dist_satur, SndReal dist_bac
 }
 
 /* 0x00459CF0 */
-void __stdcall SND_fn_vSetDefaultRollOff(RollOffParam *rolloff)
+void SND_CALL SND_fn_vSetDefaultRollOff(RollOffParam *rolloff)
 {
     SND_fn_vSetDistanceForVolume(rolloff->rDistSatur, rolloff->rDistBackGround);
 }
 
 /* 0x00459D10 */
-void __stdcall SND_fn_vGetDefaultRollOff(RollOffParam *rolloff)
+void SND_CALL SND_fn_vGetDefaultRollOff(RollOffParam *rolloff)
 {
     rolloff->rDistSatur      = g_rDistSatur;       /* 0x4A3F64 */
     rolloff->rDistBackGround = g_rDistBackGround;  /* 0x4A3F6C */
 }
 
 /* 0x00459D30 */
-unsigned char __stdcall SND_fn_ucDistanceToVolume(SndReal dist)
+unsigned char SND_CALL SND_fn_ucDistanceToVolume(SndReal dist)
 {
     if (dist < g_rDistSatur)
         return C_SOUNDVOL_MAXI;
@@ -71,7 +71,7 @@ unsigned char __stdcall SND_fn_ucDistanceToVolume(SndReal dist)
 }
 
 /* 0x00459D80 */
-unsigned char __stdcall SND_fn_ucDistanceToVolumeEx(SndReal dist, RollOffParam *rolloff)
+unsigned char SND_CALL SND_fn_ucDistanceToVolumeEx(SndReal dist, RollOffParam *rolloff)
 {
     if (rolloff)
     {
@@ -104,7 +104,7 @@ unsigned char __stdcall SND_fn_ucDistanceToVolumeEx(SndReal dist, RollOffParam *
 }
 
 /* 0x00459E20 */
-SndReal __stdcall SND_fn_rDopplerPitch(SndVector *src_pos, SndVector *src_vit,
+SndReal SND_CALL SND_fn_rDopplerPitch(SndVector *src_pos, SndVector *src_vit,
                                        SndVector *mic_pos, SndVector *mic_vit)
 {
     SndVector dir;
@@ -138,7 +138,7 @@ SndReal __stdcall SND_fn_rDopplerPitch(SndVector *src_pos, SndVector *src_vit,
 }
 
 /* 0x00459EC0 */
-void __stdcall SND_fn_vSetDopplerFactor(SndReal factor)
+void SND_CALL SND_fn_vSetDopplerFactor(SndReal factor)
 {
     if (factor)
         g_lSoundSpeed = M_RealToIntSnd(
@@ -157,7 +157,7 @@ SndReal __stdcall SND_fn_rGetDopplerFactor(void)
 }
 
 /* 0x00459F10 */
-unsigned char __stdcall SND_fn_ucPositionToPan(SndVector *src, SndVector *mic,
+unsigned char SND_CALL SND_fn_ucPositionToPan(SndVector *src, SndVector *mic,
                                                SndVector *mic_nor, SndVector *mic_tan)
 {
     SndReal s, n;
@@ -189,7 +189,7 @@ unsigned char __stdcall SND_fn_ucPositionToPan(SndVector *src, SndVector *mic,
 }
 
 /* 0x00459FD0 */
-unsigned char __stdcall SND_fn_ucPositionToDolby(SndVector *src, SndVector *mic,
+unsigned char SND_CALL SND_fn_ucPositionToDolby(SndVector *src, SndVector *mic,
                                                  SndVector *mic_nor)
 {
     SndReal s, n;

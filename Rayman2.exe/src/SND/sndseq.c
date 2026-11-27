@@ -31,12 +31,12 @@ struct _tdstActiveSequence {
 static tdstActiveSequence stActiveSequence[NB_MAX_SEQUENCE];   /* 0x004B9620 */
 #include "SND/snderr.h"
 
-void *__stdcall SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr, unsigned int ulNbBytes);
+void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr, unsigned int ulNbBytes);
 
-void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
 
-void __stdcall SND_fn_vDisplayError(unsigned short uwErrNum, char *message);
-void __stdcall SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message, int flags);
+void SND_CALL SND_fn_vDisplayError(unsigned short uwErrNum, char *message);
+void SND_CALL SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message, int flags);
 
 struct SoundParam_;
 long SND_fn_lPlaySnd(tduRefRes res, struct SoundParam_ *par, long prio, SND_td_pfn_vSoundCallback fn_callback, long par_callback, SndBool *valid);
@@ -58,7 +58,7 @@ static void create_SoundParam_member(tdstActiveSequence *seq,SoundParam *new_par
 	memcpy(seq->pstSoundParam,new_par,get_SoundParam_member_size(new_par));
 }
 
-void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
 
 /* 0x0045AB10 */
 static void free_SoundParam_member(tdstActiveSequence *seq)
@@ -85,7 +85,7 @@ static void SND_fn_vConvertResDiskToMemSeq(tdstBlockResourceDisk *disk,tdstBlock
         }
 }
 
-void *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId);
+void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
 
 /* 0x0045AB70 */
 SndBool SND_fn_bLoadResBinarySeq(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc)
@@ -197,9 +197,9 @@ static unsigned long __stdcall SND_pc_fn_ulSeqCallbackThread(SND_pc_tdstSeqCallb
     return 0;
 }
 
-int  __stdcall SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
+int  SND_CALL SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
 int  __cdecl   SND_fn_bTestIsPlayingSnd(long voie);
-void __stdcall SND_fn_vNextElement(long voice);
+void SND_CALL SND_fn_vNextElement(long voice);
 
 static void test_next_element(long voice,SoundParam* par,SndBool bSetParam)
 {
@@ -297,7 +297,7 @@ long SND_fn_lPlaySeq(tduRefRes res,SoundParam *par,long prio,SND_td_pfn_vSoundCa
 #include <windows.h>
 
 /* 0x0045AED0 */
-void __stdcall SND_fn_vNextElement(long voice)
+void SND_CALL SND_fn_vNextElement(long voice)
 {
         tdstInfoTrackMem * pstNextRes=NULL;
         long result;
@@ -402,10 +402,10 @@ void __stdcall SND_fn_vNextElement(long voice)
         stActiveSequence[voice].bManagingSequence=FALSE;
 }
 
-void __stdcall SND_fn_vStopSnd(long voie);
+void SND_CALL SND_fn_vStopSnd(long voie);
 
 /* 0x0045B0B0 */
-void __stdcall SND_fn_vStopSeq(long voice)
+void SND_CALL SND_fn_vStopSeq(long voice)
 {
 		SND_pc_tdstThreadSecurity stSecurity;
 
@@ -439,11 +439,11 @@ void __stdcall SND_fn_vStopSeq(long voice)
         }
 }
 
-void __stdcall SND_fn_vPauseSnd(long voie);
-void __stdcall SND_fn_vResumeSnd(long voie);
+void SND_CALL SND_fn_vPauseSnd(long voie);
+void SND_CALL SND_fn_vResumeSnd(long voie);
 
 /* 0x0045B180 */
-void __stdcall SND_fn_vPauseSeq(long voice)
+void SND_CALL SND_fn_vPauseSeq(long voice)
 {
 
         if (stActiveSequence[voice].bActive)
@@ -459,7 +459,7 @@ void __stdcall SND_fn_vPauseSeq(long voice)
 }
 
 /* 0x0045B1D0 */
-void __stdcall SND_fn_vResumeSeq(long voice)
+void SND_CALL SND_fn_vResumeSeq(long voice)
 {
 
         if (stActiveSequence[voice].bActive)
@@ -474,7 +474,7 @@ void __stdcall SND_fn_vResumeSeq(long voice)
 }
 
 /* 0x0045B210 */
-SndBool __stdcall SND_fn_bSetParamSeq(long voice,SoundParam *par)
+SndBool SND_CALL SND_fn_bSetParamSeq(long voice,SoundParam *par)
 {
 
         if (stActiveSequence[voice].bActive)
@@ -488,7 +488,7 @@ SndBool __stdcall SND_fn_bSetParamSeq(long voice,SoundParam *par)
 }
 
 /* 0x0045B260 */
-SndBool __stdcall SND_fn_bTestIsPlayingSeq(long voice)
+SndBool SND_CALL SND_fn_bTestIsPlayingSeq(long voice)
 {
 	test_next_element(voice,NULL,FALSE);
 

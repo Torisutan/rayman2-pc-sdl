@@ -122,8 +122,8 @@ struct random_voice_{
 	tduRefRes	res;
 };
 
-void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
-void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes);
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
 
 long SND_fn_lPlaySnd(tduRefRes res, struct SoundParam_ *par, long prio, void *fn_callback, long par_callback, SndBool *valid);
 
@@ -157,9 +157,9 @@ long SND_fn_lPlayRandom(tduRefRes num_res,struct SoundParam_ *par,long prio,void
 	return C_PLAY_FAILED;
 }
 
-SndBool __stdcall SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
+SndBool SND_CALL SND_fn_bSetParamSnd(long voie, struct SoundParam_ *par);
 
-SndBool __stdcall SND_fn_bSetParamRandom(long voice,struct SoundParam_ *par)
+SndBool SND_CALL SND_fn_bSetParamRandom(long voice,struct SoundParam_ *par)
 {
 	random_voice *pstRandomVoice = (random_voice *)voice;
 	SoundParam	stSoundParam;
@@ -179,16 +179,16 @@ SndBool __stdcall SND_fn_bSetParamRandom(long voice,struct SoundParam_ *par)
 }
 
 SndBool __cdecl SND_fn_bTestIsPlayingSnd(long voie);
-void __stdcall SND_fn_vStopSnd(long voie);
-void __stdcall SND_fn_vPauseSnd(long voie);
-void __stdcall SND_fn_vResumeSnd(long voie);
-SndReal __stdcall SND_fn_rGetPosSnd(long voie);
-void *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId);
+void SND_CALL SND_fn_vStopSnd(long voie);
+void SND_CALL SND_fn_vPauseSnd(long voie);
+void SND_CALL SND_fn_vResumeSnd(long voie);
+SndReal SND_CALL SND_fn_rGetPosSnd(long voie);
+void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
 
 #define SND_C_POS_UNKNOWN -1
 
 /* 0x0045A330 */
-SndBool __stdcall SND_fn_bTestIsPlayingRandom(long voice)
+SndBool SND_CALL SND_fn_bTestIsPlayingRandom(long voice)
 {
 	random_voice *pstRandomVoice = (random_voice *)voice;
 
@@ -203,7 +203,7 @@ SndBool __stdcall SND_fn_bTestIsPlayingRandom(long voice)
 }
 
 /* 0x0045A370 */
-void __stdcall SND_fn_vStopRandom(long voice)
+void SND_CALL SND_fn_vStopRandom(long voice)
 {
 	random_voice *pstRandomVoice = (random_voice *)voice;
 
@@ -214,7 +214,7 @@ void __stdcall SND_fn_vStopRandom(long voice)
 }
 
 /* 0x0045A390 */
-void __stdcall SND_fn_vPauseRandom(long voice)
+void SND_CALL SND_fn_vPauseRandom(long voice)
 {
 	random_voice *pstRandomVoice = (random_voice *)voice;
 
@@ -223,7 +223,7 @@ void __stdcall SND_fn_vPauseRandom(long voice)
 }
 
 /* 0x0045A3B0 */
-void __stdcall SND_fn_vResumeRandom(long voice)
+void SND_CALL SND_fn_vResumeRandom(long voice)
 {
 	random_voice *pstRandomVoice = (random_voice *)voice;
 
@@ -232,7 +232,7 @@ void __stdcall SND_fn_vResumeRandom(long voice)
 }
 
 /* 0x0045A3D0 */
-SndReal __stdcall SND_fn_rGetPosRandom(long voice)
+SndReal SND_CALL SND_fn_rGetPosRandom(long voice)
 {
 	random_voice *pstRandomVoice = (random_voice *)voice;
 

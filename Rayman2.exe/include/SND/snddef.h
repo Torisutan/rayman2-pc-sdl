@@ -12,11 +12,20 @@
 #define FILE_MODE_C_WIN95
 #endif /* !GAMECONSOLE && !USE_SDL && !RAYMAN2_C_RUNTIME */
 
+#if (!defined(GAMECONSOLE))  || defined(WIN32) || defined(WIN95)
+#include <windows.h>
+#endif
+
 #define NB_MICRO_MAX 2
 
-#define SND_CALL WINAPI
+#if !defined(GAMECONSOLE) || defined(WIN95) || defined(WIN32)
 
-typedef void (__stdcall *SND_td_pfn_vSoundCallback)(long par);
+#define SND_CALL WINAPI
+#else
+#define SND_CALL
+#endif
+
+typedef void (SND_CALL *SND_td_pfn_vSoundCallback)(long par);
 
 #define SndBool_field_decl(x) SndBool x
 

@@ -1,6 +1,6 @@
 #ifndef SND_SNDSPACE_H
 #define SND_SNDSPACE_H
 
-void __stdcall SND_fn_vSetDefaultRollOff(RollOffParam* rolloff);
+void SND_CALL SND_fn_vSetDefaultRollOff(RollOffParam* rolloff);
 
 #endif

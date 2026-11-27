@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "SND/SND.h"
 
-SndReal __stdcall SND_fn_rMulRealRealSnd(SndReal r1, SndReal r2)
+SndReal SND_CALL SND_fn_rMulRealRealSnd(SndReal r1, SndReal r2)
 {
     unsigned long r1p, r2p, t1, t2, t3, t4, r3p;
 
@@ -31,13 +31,13 @@ SndReal __stdcall SND_fn_rMulRealRealSnd(SndReal r1, SndReal r2)
         return (SndReal)r3p;
 }
 
-SndReal __stdcall SND_fn_rMulRealRealQuickSnd(SndReal r1, SndReal r2)
+SndReal SND_CALL SND_fn_rMulRealRealQuickSnd(SndReal r1, SndReal r2)
 {
     return ((r1 >> 8) * (r2 >> 8));
 }
 
 /* 0x00458760 */
-SndReal __stdcall SND_fn_rSqrtRealSnd(SndReal r)
+SndReal SND_CALL SND_fn_rSqrtRealSnd(SndReal r)
 {
     static const double c_rFrom16_16 = 1.52587890625e-5;  /* 0x0049C980 */
     static const double c_rTo16_16 = 65536.0;             /* 0x0049C988 */
@@ -45,7 +45,7 @@ SndReal __stdcall SND_fn_rSqrtRealSnd(SndReal r)
     return (SndReal)(sqrt((double)r * c_rFrom16_16) * c_rTo16_16);
 }
 
-SndReal __stdcall SND_fn_rDivRealRealSnd(SndReal r1, SndReal r2)
+SndReal SND_CALL SND_fn_rDivRealRealSnd(SndReal r1, SndReal r2)
 {
     static const float c_rTo16_16 = 65536.0f;   /* 0x0049C990 */
 
@@ -53,13 +53,13 @@ SndReal __stdcall SND_fn_rDivRealRealSnd(SndReal r1, SndReal r2)
 }
 
 /* 0x004587A0 */
-SndReal __stdcall SND_fn_rAbsRealSnd(SndReal r)
+SndReal SND_CALL SND_fn_rAbsRealSnd(SndReal r)
 {
     return labs(r);
 }
 
 /* 0x004587B0 */
-SndReal __stdcall SND_fn_rPseudoNormeRealSnd(SndReal r1, SndReal r2, SndReal r3)
+SndReal SND_CALL SND_fn_rPseudoNormeRealSnd(SndReal r1, SndReal r2, SndReal r3)
 {
     SndVector v;
 
@@ -69,7 +69,7 @@ SndReal __stdcall SND_fn_rPseudoNormeRealSnd(SndReal r1, SndReal r2, SndReal r3)
     return SND_fn_rPseudoNormeVectorSnd(&v);
 }
 
-void __stdcall SND_fn_vSndRealTwinToSndReal(SndRealTwin rtwin,
+void SND_CALL SND_fn_vSndRealTwinToSndReal(SndRealTwin rtwin,
                                             SndReal *pr1, SndReal *pr2)
 {
     if (pr1)
@@ -80,7 +80,7 @@ void __stdcall SND_fn_vSndRealTwinToSndReal(SndRealTwin rtwin,
 }
 
 /* 0x00458810 */
-SndRealTwin __stdcall SND_fn_rtSndRealToSndRealTwin(SndReal r1, SndReal r2)
+SndRealTwin SND_CALL SND_fn_rtSndRealToSndRealTwin(SndReal r1, SndReal r2)
 {
     return (((r1 & 0xFFFFFF00L) << 8) | ((r2 >> 8) & 0xFFFFL));
 }
