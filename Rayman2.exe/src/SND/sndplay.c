@@ -14,12 +14,12 @@ void __stdcall SND_fn_vDisplayError(unsigned short uwErrNum, char *message);
 void *__stdcall SND_fn_pGetBinRes(unsigned long _ulBinId);
 long __cdecl pre_associe_snd(void);
 long __cdecl associe_snd(long id_asso, long voice_sxd, tdstBlockResourceMem *res, long prio, int *valid, long transition);
-void __cdecl SND_fn_vReleaseDriverCD(void);
-void __cdecl SND_fn_vReleaseDriverMidi(void);
-void __cdecl SND_fn_vReleaseDriverSxd(void);
-void __cdecl SND_fn_vRestoreDriverCD(void);
-void __cdecl SND_fn_vRestoreDriverMidi(void);
-void __cdecl SND_fn_vRestoreDriverSxd(void);
+void SND_CALL SND_fn_vReleaseDriverCD(void);
+void SND_CALL SND_fn_vReleaseDriverMidi(void);
+void SND_CALL SND_fn_vReleaseDriverSxd(void);
+void SND_CALL SND_fn_vRestoreDriverCD(void);
+void SND_CALL SND_fn_vRestoreDriverMidi(void);
+void SND_CALL SND_fn_vRestoreDriverSxd(void);
 void __stdcall SND_fn_vStopTransitionSxd(long voice);
 void __stdcall SND_fn_vStopTransitionMidi(long voice);
 void __stdcall SND_fn_vPauseTransitionSxd(long voice);
@@ -491,10 +491,18 @@ SndBool __cdecl SND_fn_bLoadResBinarySnd(tdstBlockResourceDisk* disk,tdstBlockRe
 	        return(SND_fn_bLoadResBinarySxd(disk,mem,pDataBloc));
 	        break;
 	case TYPE_MIDI:
+#ifndef DISABLE_MIDI
 	        return(SND_fn_bLoadResBinaryMidi(disk,mem,pDataBloc));
+#else
+	        return FALSE;
+#endif
 	        break;
 	case TYPE_CDAUDIO:
+#ifndef DISABLE_CD
 	        return(SND_fn_bLoadResBinaryCd(disk,mem,pDataBloc));
+#else
+	        return FALSE;
+#endif
 	        break;
 	case TYPE_SEQUENCE:
 	        return(SND_fn_bLoadResBinarySeq(disk,mem,pDataBloc));
@@ -545,7 +553,9 @@ void __cdecl SND_fn_vUnLoadResSnd(tdstBlockResourceMem *mem)
             SND_fn_vUnLoadResSxd(mem);
             break;
         case TYPE_MIDI:
+#ifndef DISABLE_MIDI
             SND_fn_vUnLoadResMidi(mem);
+#endif
             break;
         case 0xB:
             SND_fn_vUnLoadResTheme(mem);
@@ -700,11 +710,17 @@ int SND_fn_iInitSnd(void *pInitStruct)
     SND_fn_vGetDefaultRollOff(&rolloff);
     SND_fn_vSetDefaultRollOffSxd(&rolloff);
 
+#ifndef DISABLE_MIDI
     g_iInitMidi = SND_fn_iInitMidi(pInitStruct);
+#endif
 
+#ifndef DISABLE_CD
     g_iInitCD = SND_fn_iInitCD(pInitStruct);
+#endif
 
+#ifndef DISABLE_RECORD
     SND_fn_iInitRecord(pInitStruct);
+#endif
 
     SND_fn_iInitSeq();
     SND_fn_vInitTheme();
@@ -733,10 +749,18 @@ long SND_fn_lPlaySnd(tduRefRes res,struct SoundParam_* par,long prio,SND_td_pfn_
 		voice_sxd = SND_fn_lPlaySxd((long)res.Id, (void *)par, prio, (void *)fn_callback, par_callback);
 		break;
 	case TYPE_MIDI:
+#ifndef DISABLE_MIDI
 		voice_sxd = SND_fn_lPlayMidi((long)res.Id, (void *)par, prio, (void *)fn_callback, par_callback);
+#else
+		voice_sxd = C_PLAY_FAILED;
+#endif
 		break;
 	case TYPE_CDAUDIO:
+#ifndef DISABLE_CD
 		voice_sxd = SND_pc_fn_lPlayCD((long)res.Id, (void *)par, prio, (void *)fn_callback, par_callback);
+#else
+		voice_sxd = C_PLAY_FAILED;
+#endif
 		break;
 	case TYPE_SEQUENCE:
 		voice_sxd = SND_fn_lPlaySeq(res, par, prio, fn_callback, par_callback, &((voice_description*)pre_voice_snd)->bValid);
@@ -879,15 +903,21 @@ void __cdecl SND_fn_vDesInitSnd(void)
 {
     SND_fn_vDesInitTheme();
     SND_fn_vDesInitSeq();
+#ifndef DISABLE_RECORD
     SND_fn_vDesInitRecord();
+#endif
+#ifndef DISABLE_CD
     if (g_iInitCD == C_INIT_OK)
     {
         SND_fn_vDesInitCD();
     }
+#endif
+#ifndef DISABLE_MIDI
     if (g_iInitMidi == C_INIT_OK)
     {
         SND_fn_vDesInitMidi();
     }
+#endif
     if (g_iInitSxd == C_INIT_OK)
     {
         SND_fn_vDesInitSxd();
@@ -934,7 +964,11 @@ long SND_fn_lPlayTransitionSnd(tduRefRes FirstRes,tduRefRes NextRes,SND_td_pfn_v
 		break;
 #ifndef DISABLE_THEME_MIDI
 	case TYPE_MIDI:
+#ifndef DISABLE_MIDI
         voice_sxd=SND_fn_lPlayTransitionMidi(FirstRes,NextRes,transition_callback,param_callback,par);
+#else
+        voice_sxd=C_PLAY_FAILED;
+#endif
 		break;
 #endif
 	default:
@@ -958,7 +992,11 @@ SndBool SND_fn_bSetParamTransitionSnd(long voice,struct SoundParam_ *par)
 		break;
 #ifndef DISABLE_THEME_MIDI
 	case TYPE_MIDI:
+#ifndef DISABLE_MIDI
         ret=SND_fn_bSetParamTransitionMidi(((voice_description*)voice)->voice_sxd,par);
+#else
+        ret=FALSE;
+#endif
 		break;
 #endif
 	default:
@@ -985,7 +1023,11 @@ SndBool SND_fn_bSetNextTransitionSnd(long voice,tduRefRes new_res)
 		break;
 #ifndef DISABLE_THEME_MIDI
 	case TYPE_MIDI:
+#ifndef DISABLE_MIDI
         ret=SND_fn_bSetNextTransitionMidi(((voice_description*)voice)->voice_sxd,new_res);
+#else
+        ret=FALSE;
+#endif
 		break;
 #endif
 	default:
@@ -1011,7 +1053,11 @@ SndBool SND_fn_bDoTransitionWithFadeSnd(long voice,tduRefRes new_res)
 		break;
 #ifndef DISABLE_THEME_MIDI
 	case TYPE_MIDI:
+#ifndef DISABLE_MIDI
         ret=SND_fn_bDoTransitionWithFadeMidi(((voice_description*)voice)->voice_sxd,new_res);
+#else
+        ret=FALSE;
+#endif
 		break;
 #endif
 	default:
@@ -1038,7 +1084,11 @@ SndBool SND_fn_bDoTransitionWithFadeSnd2(long voice,tduRefRes new_res,SndReal rD
         ret=SND_fn_bDoTransitionWithFadeSxd2(((voice_description*)voice)->voice_sxd,new_res,rDuration);
         break;
     case TYPE_MIDI:
+#ifndef DISABLE_MIDI
         ret=SND_fn_bDoTransitionWithFadeMidi2(((voice_description*)voice)->voice_sxd,new_res,rDuration);
+#else
+        ret=FALSE;
+#endif
         break;
     default:
         SND_M_DisplayError(E_uwSndInvalidTypeOfResource,"");
@@ -1061,7 +1111,9 @@ void __cdecl SND_fn_vStopTransitionSnd(long voice)
                 SND_fn_vStopTransitionSxd(p->voice_sxd);
                 break;
             case TYPE_MIDI:
+#ifndef DISABLE_MIDI
                 SND_fn_vStopTransitionMidi(p->voice_sxd);
+#endif
                 break;
             default:
                 SND_RT_fn_vDisplayError(E_uwSndInvalidTypeOfResource, SND_C_szEmpty);
@@ -1081,7 +1133,9 @@ void __cdecl SND_fn_vResumeTransitionSnd(long voice)
             SND_fn_vResumeTransitionSxd(p->voice_sxd);
             break;
         case TYPE_MIDI:
+#ifndef DISABLE_MIDI
             SND_fn_vResumeTransitionMidi(p->voice_sxd);
+#endif
             break;
         default:
             SND_RT_fn_vDisplayError(E_uwSndInvalidTypeOfResource, SND_C_szEmpty);
@@ -1099,7 +1153,9 @@ void __cdecl SND_fn_vPauseTransitionSnd(long voice)
             SND_fn_vPauseTransitionSxd(p->voice_sxd);
             break;
         case TYPE_MIDI:
+#ifndef DISABLE_MIDI
             SND_fn_vPauseTransitionMidi(p->voice_sxd);
+#endif
             break;
         default:
             SND_RT_fn_vDisplayError(E_uwSndInvalidTypeOfResource, SND_C_szEmpty);
@@ -1109,16 +1165,24 @@ void __cdecl SND_fn_vPauseTransitionSnd(long voice)
 
 void __cdecl SND_fn_vReleaseDriverSnd(void)
 {
+#ifndef DISABLE_CD
     SND_fn_vReleaseDriverCD();
+#endif
+#ifndef DISABLE_MIDI
     SND_fn_vReleaseDriverMidi();
+#endif
     SND_fn_vReleaseDriverSxd();
 }
 
 void __cdecl SND_fn_vRestoreDriverSnd(void)
 {
     SND_fn_vRestoreDriverSxd();
+#ifndef DISABLE_MIDI
     SND_fn_vRestoreDriverMidi();
+#endif
+#ifndef DISABLE_CD
     SND_fn_vRestoreDriverCD();
+#endif
 }
 
 SndReal __stdcall SND_fn_rGetPosSnd(long voie)
@@ -1135,8 +1199,12 @@ SndReal __stdcall SND_fn_rGetPosSnd(long voie)
 void __cdecl SND_fn_vSynchroSnd(void)
 {
     SND_fn_vSynchroSxd();
+#ifndef DISABLE_CD
     SND_fn_vSynchroCD();
+#endif
+#ifndef DISABLE_MIDI
     SND_fn_vSynchroMidi();
+#endif
 }
 
 tduRefRes SND_fn_tduGetLowestResourceRandom(tduRefRes uHighRes, struct SoundParam_ *par, SndBool eval);
@@ -1178,9 +1246,17 @@ int __cdecl SND_pc_fn_iSetResourceVolumeByType(tdstBlockResourceMem *pRes, long 
         case TYPE_SAMPLE:
             return SND_fn_bSetResourceStaticVolumeSxd((long)pRes, lVolume);
         case TYPE_MIDI:
+#ifndef DISABLE_MIDI
             return SND_fn_bSetResourceStaticVolumeMidi((long)pRes, lVolume);
+#else
+            return FALSE;
+#endif
         case TYPE_CDAUDIO:
+#ifndef DISABLE_CD
             return SND_fn_bSetResourceStaticVolumeCD((long)pRes, lVolume);
+#else
+            return FALSE;
+#endif
         case TYPE_SEQUENCE:
             return SND_pc_fn_iSetSequenceNodeByte(pRes, ucVolume);
         case TYPE_SWITCH:
@@ -1225,11 +1301,19 @@ static td_st_Func a_fnFunc[NB_TYPES_RESOURCES] =
     { SND_fn_vPauseSxd, SND_fn_vResumeSxd, SND_fn_bSetParamSxd, SND_fn_vStopSxd,
       SND_fn_rGetPosSxd, SND_fn_bTestIsPlayingSxd },
 
+#ifndef DISABLE_MIDI
     { SND_fn_vPauseMidi, SND_fn_vResumeMidi, SND_fn_bSetParamMidi, SND_fn_vStopMidi,
       SND_fn_rGetPosMidi, SND_fn_bTestIsPlayingMidi },
+#else
+    { NULL, NULL, NULL, NULL, NULL, NULL },
+#endif
 
+#ifndef DISABLE_CD
     { SND_fn_vPauseCD, SND_fn_vResumeCD, SND_fn_bSetParamCD, SND_fn_vStopCD,
       SND_fn_rGetPosCD, SND_fn_bTestIsPlayingCD },
+#else
+    { NULL, NULL, NULL, NULL, NULL, NULL },
+#endif
 
     { SND_fn_vPauseSeq, SND_fn_vResumeSeq, SND_fn_bSetParamSeq, SND_fn_vStopSeq,
       SND_fn_rGetPosSeq, SND_fn_bTestIsPlayingSeq },

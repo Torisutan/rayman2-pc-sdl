@@ -26,12 +26,12 @@ void __cdecl SND_fn_vResumeAllSnd(void);
 void __cdecl SND_fn_vReleaseDriverSnd(void);
 void __cdecl SND_fn_vRestoreDriverSnd(void);
 
-void __cdecl SND_fn_vReleaseDriverCD(void);
-void __cdecl SND_fn_vReleaseDriverMidi(void);
-void __cdecl SND_fn_vReleaseDriverSxd(void);
-void __cdecl SND_fn_vRestoreDriverCD(void);
-void __cdecl SND_fn_vRestoreDriverMidi(void);
-void __cdecl SND_fn_vRestoreDriverSxd(void);
+void __stdcall SND_fn_vReleaseDriverCD(void);
+void __stdcall SND_fn_vReleaseDriverMidi(void);
+void __stdcall SND_fn_vReleaseDriverSxd(void);
+void __stdcall SND_fn_vRestoreDriverCD(void);
+void __stdcall SND_fn_vRestoreDriverMidi(void);
+void __stdcall SND_fn_vRestoreDriverSxd(void);
 
 void __stdcall SND_fn_vPauseSnd(long voie);
 void __stdcall SND_fn_vResumeSnd(long voie);

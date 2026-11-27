@@ -19,6 +19,13 @@
 SndBool __stdcall SND_fn_bCanFreeDataMPEG(void);
 SndBool __stdcall SND_fn_bCanFreeDataADPCM(void);
 
+#ifdef DISABLE_MPEG
+#define SND_fn_bCanFreeDataMPEG()   FALSE
+#endif
+#ifdef DISABLE_MIDI
+#define SND_fn_bCanFreeDataMidi()   FALSE
+#endif
+
 #define SND_RT_fn_vDisplayError(uwErr, szMsg) \
     SND_fn_vDisplayError((uwErr), (char *)(szMsg))
 #define SND_C_szEmpty                     ("")

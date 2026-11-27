@@ -993,7 +993,9 @@ DWORD WINAPI FUN_100093c0(LPVOID lpParameter)
 	long lNbQueued;
 
 	memset(&msg,0,sizeof(msg));
+#ifndef DISABLE_RECORD
 	SND_fn_bManageMsgForRecord((long)&msg);
+#endif
 	PeekMessageA(&msg,NULL,0,0,PM_NOREMOVE);
 	SetEvent((HANDLE)lpParameter);
 	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_ABOVE_NORMAL);
@@ -1003,8 +1005,10 @@ DWORD WINAPI FUN_100093c0(LPVOID lpParameter)
 			break;
 		hEvent = (HANDLE)msg.wParam;
 		lParam = msg.lParam;
+#ifndef DISABLE_RECORD
 		if (SND_fn_bManageMsgForRecord((long)&msg))
 			continue;
+#endif
 		if (msg.message == MM_WOM_DONE)
 		{
 			lBuffer = ((WAVEHDR *)lParam)->dwUser;

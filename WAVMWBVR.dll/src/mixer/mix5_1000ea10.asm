@@ -303,7 +303,7 @@ L1000ed02::
 	mov eax, edx		; 1000ed02 8bc2
 	shr eax, 8		; 1000ed04 c1e808
 	add edx, ebx		; 1000ed07 03d3
-	punpckldq mm0, qword ptr [esi + eax*4]		; 1000ed09 0f620486
+	punpckldq mm0, [esi + eax*4]		; 1000ed09 0f620486
 	movd eax, mm7		; 1000ed0d 0f7ef8
 	cmp edx, eax		; 1000ed10 3bd0
 	jge SHORT L1000ed80		; 1000ed12 7d6c
@@ -319,7 +319,7 @@ L1000ed26::
 	mov eax, edx		; 1000ed26 8bc2
 	shr eax, 8		; 1000ed28 c1e808
 	add edx, ebx		; 1000ed2b 03d3
-	punpckldq mm4, qword ptr [esi + eax*4]		; 1000ed2d 0f622486
+	punpckldq mm4, [esi + eax*4]		; 1000ed2d 0f622486
 	pmulhw mm0, mm1		; 1000ed31 0fe5c1
 	psllw mm0, 1		; 1000ed34 0f71f001
 	pmulhw mm4, mm3		; 1000ed38 0fe5e3

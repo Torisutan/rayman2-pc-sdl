@@ -217,7 +217,7 @@ L1000d5a6::
 	mov eax, edx		; 1000d5a6 8bc2
 	shr eax, 8		; 1000d5a8 c1e808
 	add edx, ebx		; 1000d5ab 03d3
-	punpcklwd mm0, qword ptr [esi + eax*2]		; 1000d5ad 0f610446
+	punpcklwd mm0, [esi + eax*2]		; 1000d5ad 0f610446
 	movd eax, mm7		; 1000d5b1 0f7ef8
 	cmp edx, eax		; 1000d5b4 3bd0
 	jge NEAR PTR L1000d64d		; 1000d5b6 0f8d91000000
@@ -233,7 +233,7 @@ L1000d5ce::
 	mov eax, edx		; 1000d5ce 8bc2
 	shr eax, 8		; 1000d5d0 c1e808
 	add edx, ebx		; 1000d5d3 03d3
-	punpcklwd mm4, qword ptr [esi + eax*2]		; 1000d5d5 0f612446
+	punpcklwd mm4, [esi + eax*2]		; 1000d5d5 0f612446
 	punpckldq mm0, mm4		; 1000d5d9 0f62c4
 	db 00Fh, 06Fh, 0D0h		; movq mm2, mm0		; 1000d5dc 0f6fd0
 	db 00Fh, 06Fh, 0E0h		; movq mm4, mm0		; 1000d5df 0f6fe0

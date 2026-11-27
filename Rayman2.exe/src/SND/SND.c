@@ -178,37 +178,37 @@ SndBool __cdecl SND_fn_bIsMusicPlayingSound(void)
 
 #if defined(_DLL_COMPILATION_MODE)
 
-void __cdecl SND_fn_vReleaseDriverSxd(void)
+void __stdcall SND_fn_vReleaseDriverSxd(void)
 {
     if (g_pfn_SND_ReleaseDriverSxd == NULL) DebugBreak();
     g_pfn_SND_ReleaseDriverSxd();
 }
 
-void __cdecl SND_fn_vRestoreDriverSxd(void)
+void __stdcall SND_fn_vRestoreDriverSxd(void)
 {
     if (g_pfn_SND_RestoreDriverSxd == NULL) DebugBreak();
     g_pfn_SND_RestoreDriverSxd();
 }
-void __cdecl SND_fn_vReleaseDriverMidi(void)
+void __stdcall SND_fn_vReleaseDriverMidi(void)
 {
     if (g_pfn_SND_ReleaseDriverMidi == NULL) DebugBreak();
     g_pfn_SND_ReleaseDriverMidi();
 }
 
 #pragma optimize("", on)
-void __cdecl SND_fn_vRestoreDriverMidi(void)
+void __stdcall SND_fn_vRestoreDriverMidi(void)
 {
     if (g_pfn_SND_RestoreDriverMidi == NULL) DebugBreak();
     g_pfn_SND_RestoreDriverMidi();
 }
-void __cdecl SND_fn_vReleaseDriverCD(void)
+void __stdcall SND_fn_vReleaseDriverCD(void)
 {
     if (g_pfn_SND_ReleaseDriverCD == NULL) DebugBreak();
     g_pfn_SND_ReleaseDriverCD();
 }
 
 #pragma optimize("", on)
-void __cdecl SND_fn_vRestoreDriverCD(void)
+void __stdcall SND_fn_vRestoreDriverCD(void)
 {
     if (g_pfn_SND_RestoreDriverCD == NULL) DebugBreak();
     g_pfn_SND_RestoreDriverCD();
@@ -1110,7 +1110,9 @@ void __stdcall SND_fn_vKillEventToObject(long indice, void *asso)
 
 void __cdecl erase_association(pASSOCIATION_DESCRIPTION asso)
 {
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vKillEventToObject(asso->indice,asso);
+#endif
 
         SNDLST2_M_DynamicIsolate(asso);
         SND_RT_fn_vFreeSndEx(E_ucSndBlockMain,asso);
@@ -1362,7 +1364,9 @@ long __cdecl SND_fn_lSendRequestSoundIndexed(
 		res_low=SND_fn_tduGetLowestResourceSnd(res_hi,pstSoundParam,FALSE);
 	else
 		res_low.pstPtr=NULL;
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
 	SND_fn_vAddHistoric(evt,indice,type,asso,res_low.pstPtr);
+#endif
 
 	fnSetLastEventForSoundObjectType(type,evt.pstPtr);
 	SND_RT_fn_vQuitCriticalSectionThreadSnd();
@@ -1490,7 +1494,9 @@ void __cdecl associe_sound(pASSOCIATION_DESCRIPTION asso, long lPcExtra,
         asso->rDeTune=rDeTune;
         asso->lHandle=lHandle;
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vAddEventToObject(indice,type,asso,evt);
+#endif
 }
 
 /* 0x00455150 */
@@ -1775,7 +1781,9 @@ void __cdecl fill_pre_filled_param(long key,long indice,long type,SoundParam* ps
 
         set_SwitchParam(indice,type,pstPreFilledParam);
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vSetPosObject(indice,pstPreFilledParam);
+#endif
 }
 
 void __cdecl get_param_objet(long key,long indice,long type,SND_tduRefEvt evt,SoundParam* param,SndReal deTune)
@@ -1810,7 +1818,9 @@ void __cdecl SND_fn_vSynchroSound(void)
 
                 SND_fn_vSetMicroParamSnd(pMicro->sndId,&micpar);
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
                 SND_fn_vSetPosMicro(pMicro,&micpar);
+#endif
         }
 
 		pstSoundParam=&stSoundParam;
@@ -1925,7 +1935,9 @@ void __cdecl SND_fn_vSetVolumeLineSound(void *lLine, long lNewVolume)
 			pLine->lVol = lNewVolume;
 			fn_vRajAllVolumeForLine(pLine);
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
 			SND_fn_vSetVolumeLine(pLine, lNewVolume);
+#endif
 		}
 	}
 }
@@ -1964,7 +1976,9 @@ void *__cdecl SND_fn_lAddVolumeLineSound(void)
 
         SND_RT_fn_vQuitCriticalSectionThreadSnd();
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vAddVolumeLine(pLine);
+#endif
 
         return pLine;
 }
@@ -3081,6 +3095,9 @@ void __cdecl SND_pc_fn_vLoadSxdProcs(HMODULE hModule)
 
     SND_g_lSxdProcsLoaded = 1;
 }
+#endif
+
+#if defined(_DLL_COMPILATION_MODE)
 
 HMODULE SND_pc_hModuleSxd;               /* 0x004B88D8 */
 HMODULE SND_pc_hModuleCd;                /* 0x004B88DC */
@@ -3088,6 +3105,7 @@ HMODULE SND_pc_hModuleMpeg;              /* 0x004B88E0 */
 HMODULE SND_pc_hModuleDbg;               /* 0x004B88E4 */
 HMODULE SND_pc_hModuleAdpcm;             /* 0x004B88E8 */
 HMODULE SND_pc_hModuleRecord;            /* 0x004B88EC */
+#endif
 static long SND_pc_lMpegOn;                     /* 0x004B94A0 */
 static long SND_pc_lCdOn;                       /* 0x004B94A4 */
 static long SND_pc_lWavOn;                      /* 0x004B94A8 */
@@ -3099,13 +3117,17 @@ static long SND_pc_lSoundOnOff;                 /* 0x004A3F18 */
 void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
 {
     char szValue[0x100];
+#if defined(_DLL_COMPILATION_MODE)
     char szKey[0x100];
     char szPath[0x100];
     HMODULE hModules[10];
+#endif
     long lDistances[2];
+#if defined(_DLL_COMPILATION_MODE)
     int iCount;
     int iIndex;
     int bContinue;
+#endif
 
     strncpy(SND_pc_szDllDir, SND_fn_szGetSoftDirectory(), 0xff);
     strncpy(SND_pc_szCpaIniPath, SND_pc_szDllDir, 0xff);
@@ -3164,6 +3186,7 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
         }
     }
 
+#if defined(_DLL_COMPILATION_MODE)
     hModules[0] = (HMODULE)plAppInfo[0];
     bContinue = 1;
     iCount = 1;
@@ -3216,6 +3239,7 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
             FreeLibrary(hModules[iIndex]);
         }
     }
+#endif
 
     SND_pc_fn_vLoadSxdDistances(lDistances);
     SND_fn_vSetDefaultRollOff((RollOffParam *)lDistances);
@@ -3225,6 +3249,7 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
     {
         SND_pc_lSupervisaterOn = 1;
     }
+#if defined(_DLL_COMPILATION_MODE)
     if (SND_pc_lSupervisaterOn)
     {
         strncpy(szPath, SND_pc_szDllDir, 0x100);
@@ -3240,8 +3265,8 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
     {
         SND_fn_vSetSupervisaterActive();
     }
-}
 #endif
+}
 
 void __cdecl SND_fn_vDestroyMicroSnd(long sndId);
 
@@ -3256,7 +3281,9 @@ void __cdecl SND_fn_vDestroyMicroSound(long Id)
         SND_fn_vDestroyMicroSnd(((pMICRO_DESCRIPTION)Id)->sndId);
         SND_fn_vFreeSndEx(E_ucSndBlockMain,(pMICRO_DESCRIPTION)Id);
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vKillMicro(Id);
+#endif
         SND_RT_fn_vQuitCriticalSectionThreadSnd();
 }
 
@@ -3448,9 +3475,7 @@ int SND_fn_iInitSound(void *pInitStruct)
     SND_fn_vInitThreadSnd();
     SND_fn_vInitErrorSnd(pInitStruct);
     SND_fn_vInitMallocSnd();
-#if defined(_DLL_COMPILATION_MODE)
     SND_pc_fn_vLoadDriversFromIni((long *)pInitStruct);
-#endif
     init_object_type();
     init_micro_fct();
     init_association();
@@ -3459,7 +3484,9 @@ int SND_fn_iInitSound(void *pInitStruct)
 
     SND_fn_vInitBankSnd(NULL);
     SND_fn_vQuitCriticalSectionThreadSnd();
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
     SND_fn_vLaunchSupervisater(pInitStruct);
+#endif
 
     g_bInitDoneSound = 1;
 
@@ -3487,7 +3514,9 @@ void SND_pc_fn_vFreeVolumeLines(void)
     SNDLST2_M_DynamicForEachMovingElementOf(&(g_VolumeLines.pList), pLine, pLineNext, i)
     {
         SND_RT_fn_vFreeSndEx(E_ucSndBlockMain, pLine);
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vKillVolumeLine((long)pLine);
+#endif
     }
     nb_volume_lines = 0;
 }
@@ -3507,7 +3536,9 @@ void __cdecl SND_fn_vDestroyAllMicroSound(void)
     g_iNbActiveMicros=0;
     SNDLST2_M_DynamicForEachMovingElementOf(&micros_sound.pList,pMicro,pNextMicro,i)
     {
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vKillMicro((long)pMicro);
+#endif
         SND_fn_vDestroyMicroSnd(pMicro->sndId);
         SNDLST2_M_DynamicIsolate(pMicro);
         SND_fn_vFreeSndEx(E_ucSndBlockMain,pMicro);
@@ -3552,7 +3583,9 @@ void __cdecl SND_pc_fn_vFreeDriverDlls(void)
 
 void __cdecl SND_fn_vDesInitSound(void)
 {
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
     SND_fn_vKillSupervisater();
+#endif
     if (g_bInitDoneSound != 0)
     {
         g_bInitDoneSound = 0;
@@ -3605,7 +3638,9 @@ long __cdecl SND_fn_lCreateMicroSound(void)
         pMicro->sndId=SND_fn_lCreateMicroSnd(NULL);
         lRet=(long)pMicro;
 
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
         SND_fn_vAddMicro(lRet);
+#endif
         SND_RT_fn_vQuitCriticalSectionThreadSnd();
         return lRet;
 }

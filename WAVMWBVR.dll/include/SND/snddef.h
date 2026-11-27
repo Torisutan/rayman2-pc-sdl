@@ -35,7 +35,9 @@
 
 #if !defined(GAMECONSOLE) && !defined(GENERIC)
 
+#if defined(_DLL_COMPILATION_MODE)
 #define SUPERVISATER
+#endif
 
 #define SND_DISPLAY_ERROR_MESSAGE
 #define NB_MICRO_MAX 2

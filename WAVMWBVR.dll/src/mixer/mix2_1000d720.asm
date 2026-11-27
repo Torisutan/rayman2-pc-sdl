@@ -53,7 +53,7 @@ L1000d772::
 	movq mm0, qword ptr [esi + ebx]		; 1000d782 0f6f0433
 	por mm3, mm2		; 1000d786 0febda
 	movd mm2, dword ptr [esi + ebx + 4]		; 1000d789 0f6e543304
-	punpckldq mm2, qword ptr [esi + ebx + 8]		; 1000d78e 0f62543308
+	punpckldq mm2, [esi + ebx + 8]		; 1000d78e 0f62543308
 	pmaddwd mm0, qword ptr [edi + ebx + 40h]		; 1000d793 0ff5443b40
 	pmaddwd mm1, qword ptr [edi + ebx + 40h]		; 1000d798 0ff54c3b40
 	pmaddwd mm2, qword ptr [edi + ebx + 40h]		; 1000d79d 0ff5543b40
@@ -161,16 +161,16 @@ L1000d8c8::
 L1000d8cc::
 	movq mm0, qword ptr [esi + ebx*2]		; 1000d8cc 0f6f045e
 	movq mm2, qword ptr [esi + ebx*2 + 8]		; 1000d8d0 0f6f545e08
-	punpcklwd mm0, qword ptr [esi + ebx*2 + 4]		; 1000d8d5 0f61445e04
-	punpcklwd mm2, qword ptr [esi + ebx*2 + 0ch]		; 1000d8da 0f61545e0c
+	punpcklwd mm0, [esi + ebx*2 + 4]		; 1000d8d5 0f61445e04
+	punpcklwd mm2, [esi + ebx*2 + 0ch]		; 1000d8da 0f61545e0c
 	db 00Fh, 06Fh, 0D8h		; movq mm3, mm0		; 1000d8df 0f6fd8
 	punpckldq mm0, mm2		; 1000d8e2 0f62c2
 	db 00Fh, 06Fh, 0CBh		; movq mm1, mm3		; 1000d8e5 0f6fcb
 	punpckhdq mm1, mm2		; 1000d8e8 0f6aca
 	movq mm2, qword ptr [esi + ebx*2 + 4]		; 1000d8eb 0f6f545e04
 	movq mm3, qword ptr [esi + ebx*2 + 0ch]		; 1000d8f0 0f6f5c5e0c
-	punpcklwd mm2, qword ptr [esi + ebx*2 + 8]		; 1000d8f5 0f61545e08
-	punpcklwd mm3, qword ptr [esi + ebx*2 + 10h]		; 1000d8fa 0f615c5e10
+	punpcklwd mm2, [esi + ebx*2 + 8]		; 1000d8f5 0f61545e08
+	punpcklwd mm3, [esi + ebx*2 + 10h]		; 1000d8fa 0f615c5e10
 	movq qword ptr [_SND_pc_q21FA0], mm2		; 1000d8ff 0f7f15a01f0210
 	movq qword ptr [_SND_pc_q21FB0], mm3		; 1000d906 0f7f1db01f0210
 	punpckldq mm2, mm3		; 1000d90d 0f62d3

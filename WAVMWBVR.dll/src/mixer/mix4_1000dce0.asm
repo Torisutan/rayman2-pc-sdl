@@ -221,7 +221,7 @@ L1000deca::
 	movd mm5, eax		; 1000dedf 0f6ee8
 	pand mm0, mm5		; 1000dee2 0fdbc5
 	psllq mm0, 10h		; 1000dee5 0f73f010
-	punpckldq mm0, qword ptr [esi]		; 1000dee9 0f6206
+	punpckldq mm0, [esi]		; 1000dee9 0f6206
 	psrlq mm0, 10h		; 1000deec 0f73d010
 	jmp SHORT L1000df09		; 1000def0 eb17
 L1000def2::
@@ -231,7 +231,7 @@ L1000def2::
 	movd mm5, eax		; 1000defd 0f6ee8
 	punpcklwd mm5, mm5		; 1000df00 0f61ed
 	pand mm0, mm5		; 1000df03 0fdbc5
-	punpckldq mm0, qword ptr [esi]		; 1000df06 0f6206
+	punpckldq mm0, [esi]		; 1000df06 0f6206
 L1000df09::
 	db 00Fh, 06Fh, 0D0h		; movq mm2, mm0		; 1000df09 0f6fd0
 	pmulhw mm0, mm1		; 1000df0c 0fe5c1
@@ -649,7 +649,7 @@ L1000e384::
 	mov eax, edx		; 1000e384 8bc2
 	shr eax, 8		; 1000e386 c1e808
 	add edx, ebx		; 1000e389 03d3
-	punpcklwd mm0, qword ptr [esi + eax*2]		; 1000e38b 0f610446
+	punpcklwd mm0, [esi + eax*2]		; 1000e38b 0f610446
 	movd eax, mm7		; 1000e38f 0f7ef8
 	cmp edx, eax		; 1000e392 3bd0
 	jge NEAR PTR L1000e432		; 1000e394 0f8d98000000
@@ -665,7 +665,7 @@ L1000e3b0::
 	mov eax, edx		; 1000e3b0 8bc2
 	shr eax, 8		; 1000e3b2 c1e808
 	add edx, ebx		; 1000e3b5 03d3
-	punpcklwd mm4, qword ptr [esi + eax*2]		; 1000e3b7 0f612446
+	punpcklwd mm4, [esi + eax*2]		; 1000e3b7 0f612446
 	punpckldq mm0, mm4		; 1000e3bb 0f62c4
 	db 00Fh, 06Fh, 0D0h		; movq mm2, mm0		; 1000e3be 0f6fd0
 	db 00Fh, 06Fh, 0E0h		; movq mm4, mm0		; 1000e3c1 0f6fe0
