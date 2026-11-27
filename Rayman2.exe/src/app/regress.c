@@ -14,7 +14,9 @@
  * Output (R2_REGRESS_OUT): one line per frame, "frame hash field=value ...", the state the previous
  * frame left: engine structure fields (no pointers, handles or real-time counts), main actor
  * global matrix, number and global matrices of the dynamic world's actors, random indices and
- * table (not the MMG LCG: protection state only).
+ * table (not the MMG LCG: protection state only), and how many sprites, single triangles and single
+ * lines the frame sent to the display driver (the 2D objects; the same count can be taken on retail
+ * at the driver entry points).
  * tools/regress.py compares two files.
  *
  * Input script: lines "FIRST LAST KEY[,KEY...]", frames counted from the level start (frame 0 =
@@ -39,6 +41,7 @@
 #include "RND/RND_globals.h"
 #include "TMR/TMR_globals.h"
 #include "INO/INO.h"
+#include "GLI/GLI_globals.h"
 
 extern INO_tdhDevice INO_pc_a_hDevices_storage[INO_C_wNbMaxDevice];   /* INO/INO.c */
 extern unsigned char GAM_pc_g_ucMode6SaveFlag_storage;                /* GAM/GAM_engine.c */
@@ -278,6 +281,85 @@ static void REGRESS_fn_vHookDevices(void)
     }
 }
 
+/* ---- 2D sends to the display driver ------------------------------------------------------- */
+
+/* Sprites, single triangles and single lines reach the driver only through these GLI_DRV_g_*
+ * pointers. They are wrapped as the input devices' read methods are; each frame line carries how
+ * many calls went through each one during the frame. */
+#define REGRESS_C_lSendSprite     0
+#define REGRESS_C_lSendSpriteUV   1
+#define REGRESS_C_lSendSpriteCol  2
+#define REGRESS_C_lSendTriangles  3
+#define REGRESS_C_lSendLine       4
+#define REGRESS_C_lNbSend         5
+
+static unsigned long gs_a_ulNbSend[REGRESS_C_lNbSend];
+
+static void (*gs_pfnRealSendSprite)(struct GLI_tdstAligned2DVector_ *, MTH_tdxReal,
+                                    struct GLI_tdstInternalGlobalValuesFor3dEngine_ *);
+static void (*gs_pfnRealSendSpriteUV)(struct GLI_tdstAligned2DVector_ *, MTH_tdxReal *, MTH_tdxReal,
+                                      struct GLI_tdstInternalGlobalValuesFor3dEngine_ *);
+static void (*gs_pfnRealSendSpriteCol)(struct GLI_tdstAligned2DVector_ *, unsigned long *, unsigned long,
+                                       struct GLI_tdstInternalGlobalValuesFor3dEngine_ *);
+static void (*gs_pfnRealSendTriangles)(struct GLI_tdstAligned2DVector_ *, struct GLI_tdst2DUVValues_ *,
+                                       struct GLI_tdstInternalGlobalValuesFor3dEngine_ *);
+static void (*gs_pfnRealSendLine)(struct GLD_tdstViewportAttributes *, struct GLI_tdstAligned3DVector_ *,
+                                  struct GLI_tdstAligned2DVector_ *, struct GLI_tdstAligned3DVector_ *,
+                                  struct GLI_tdstAligned2DVector_ *,
+                                  struct GLI_tdstInternalGlobalValuesFor3dEngine_ *, long, struct GEO_tdstColor *);
+
+static void REGRESS_fn_vSendSprite(struct GLI_tdstAligned2DVector_ *p_stVertex, MTH_tdxReal xZ,
+                                   struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals)
+{
+    gs_a_ulNbSend[REGRESS_C_lSendSprite]++;
+    gs_pfnRealSendSprite(p_stVertex, xZ, p_stGlobals);
+}
+
+static void REGRESS_fn_vSendSpriteUV(struct GLI_tdstAligned2DVector_ *p_stVertex, MTH_tdxReal *p_xUV, MTH_tdxReal xZ,
+                                     struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals)
+{
+    gs_a_ulNbSend[REGRESS_C_lSendSpriteUV]++;
+    gs_pfnRealSendSpriteUV(p_stVertex, p_xUV, xZ, p_stGlobals);
+}
+
+static void REGRESS_fn_vSendSpriteCol(struct GLI_tdstAligned2DVector_ *p_stVertex, unsigned long *p_ulColors,
+                                      unsigned long ulArg, struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals)
+{
+    gs_a_ulNbSend[REGRESS_C_lSendSpriteCol]++;
+    gs_pfnRealSendSpriteCol(p_stVertex, p_ulColors, ulArg, p_stGlobals);
+}
+
+static void REGRESS_fn_vSendTriangles(struct GLI_tdstAligned2DVector_ *p_stVertex, struct GLI_tdst2DUVValues_ *p_stUV,
+                                      struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals)
+{
+    gs_a_ulNbSend[REGRESS_C_lSendTriangles]++;
+    gs_pfnRealSendTriangles(p_stVertex, p_stUV, p_stGlobals);
+}
+
+static void REGRESS_fn_vSendLine(struct GLD_tdstViewportAttributes *p_stVpt, struct GLI_tdstAligned3DVector_ *p_stVertex1,
+                                 struct GLI_tdstAligned2DVector_ *p_st2DVertex1, struct GLI_tdstAligned3DVector_ *p_stVertex2,
+                                 struct GLI_tdstAligned2DVector_ *p_st2DVertex2,
+                                 struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals, long lDrawModeMask,
+                                 struct GEO_tdstColor *p_stColor)
+{
+    gs_a_ulNbSend[REGRESS_C_lSendLine]++;
+    gs_pfnRealSendLine(p_stVpt, p_stVertex1, p_st2DVertex1, p_stVertex2, p_st2DVertex2, p_stGlobals, lDrawModeMask,
+                       p_stColor);
+}
+
+/* The driver fills the pointers when it loads (and again if it is reloaded): wrap whatever is new. */
+#define REGRESS_M_HookSend(pfnDrv, pfnReal, pfnOurs) \
+    if ((pfnDrv) != NULL && (pfnDrv) != (pfnOurs)) { (pfnReal) = (pfnDrv); (pfnDrv) = (pfnOurs); }
+
+static void REGRESS_fn_vHookDriver(void)
+{
+    REGRESS_M_HookSend(GLI_DRV_g_vSendSpriteToClip, gs_pfnRealSendSprite, REGRESS_fn_vSendSprite);
+    REGRESS_M_HookSend(GLI_DRV_g_vSendSpriteToClipWithUV, gs_pfnRealSendSpriteUV, REGRESS_fn_vSendSpriteUV);
+    REGRESS_M_HookSend(GLI_DRV_g_vSendSpriteToClipWithColors, gs_pfnRealSendSpriteCol, REGRESS_fn_vSendSpriteCol);
+    REGRESS_M_HookSend(GLI_DRV_g_vSendSingleTrianglesToClip, gs_pfnRealSendTriangles, REGRESS_fn_vSendTriangles);
+    REGRESS_M_HookSend(GLI_DRV_g_vSendSingleLineToClip, gs_pfnRealSendLine, REGRESS_fn_vSendLine);
+}
+
 /* ---- state hash --------------------------------------------------------------------------- */
 
 static unsigned __int64 gs_ullHash;
@@ -346,6 +428,23 @@ static void REGRESS_fn_vAddWorld(void)
     REGRESS_fn_vAddText("world.matrix", szValue);
 }
 
+/* The 2D sends of the frame, as counts "sprite,uv,colors,triangles,lines" (readable: a missing
+ * object shows as a lower count); then the counts restart for the next frame. */
+static void REGRESS_fn_vAddSends(void)
+{
+    const unsigned char *p_ucData = (const unsigned char *)gs_a_ulNbSend;
+    char szValue[64];
+    unsigned long i;
+    for (i = 0; i < sizeof(gs_a_ulNbSend); i++) {
+        gs_ullHash = (gs_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
+    }
+    sprintf(szValue, "%lu,%lu,%lu,%lu,%lu", gs_a_ulNbSend[REGRESS_C_lSendSprite], gs_a_ulNbSend[REGRESS_C_lSendSpriteUV],
+            gs_a_ulNbSend[REGRESS_C_lSendSpriteCol], gs_a_ulNbSend[REGRESS_C_lSendTriangles],
+            gs_a_ulNbSend[REGRESS_C_lSendLine]);
+    REGRESS_fn_vAddText("drv.2d", szValue);
+    memset(gs_a_ulNbSend, 0, sizeof(gs_a_ulNbSend));
+}
+
 static void REGRESS_fn_vHashFrame(void)
 {
     GAM_tdstEngineStructure *p_stEng = &GAM_g_stEngineStructure;
@@ -394,6 +493,7 @@ static void REGRESS_fn_vHashFrame(void)
         REGRESS_fn_vAddField("rnd.table", RND_g_stRandomStructure.p_ulTable,
                              RND_g_stRandomStructure.ulSizeOfTable * sizeof(unsigned long));
     }
+    REGRESS_fn_vAddSends();
 }
 
 /* ---- per frame ---------------------------------------------------------------------------- */
@@ -445,6 +545,7 @@ void __cdecl REGRESS_fn_vBeforeFrame(void)
     }
     REGRESS_fn_vScenario();
     REGRESS_fn_vHookDevices();
+    REGRESS_fn_vHookDriver();
     gs_ulFrame++;
 }
 
