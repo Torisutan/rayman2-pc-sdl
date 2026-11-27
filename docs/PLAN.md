@@ -999,10 +999,14 @@ mixer and decoders from the file formats):
        what a driver hands it, a retail DLL included), the buffer header the `WAVEHDR` fields
        `sndwave.c` fills. Measured: regression 5/5 = `base_modern` for `build-sndlink` and
        `build-sdl` (`build/regress/sndtypes_*`; `drv.2d` only reported: `base_modern` predates it).
-     - **Still Win32 in shared sound code** (blocks a non-Windows compile only): `MMRESULT`,
-       `WHDR_DONE`, `WAVE_FORMAT_PCM` (`sndwave.c`), the `WAVE_FORMAT_*` bits in
-       `SND_fn_bTestSnd_WinMM` (seams ordered from the decomp, M34); open question for the
-       non-Windows step: `BOOL` / `DWORD` / `LPCSTR` / `WINAPI` in sound prototypes
+     - **Constants and the device result (27.11.2026; seams from the decomp, order M34).** Shared
+       code names `SND_pc_tduiDeviceResult`, `SND_pc_C_uwFormatPcm`, `SND_pc_C_ulBufferDone`
+       (driver `SND/snddef.h`) and `SND_pc_C_ulFormat1M08` .. `4S16` (exe `SND/snddef.h`,
+       `SND_fn_bTestSnd_WinMM`); the `USE_SDL` branches give them Win32's numbers, the result is
+       `unsigned int`. Only `SND_pc_fn_ulWaveOutThread` (the waveOut backend, Win32 branch) keeps
+       `WHDR_*`. Measured: regression 5/5 = `base_modern` for `build-sndlink` and `build-sdl`
+       (`build/regress/m34_*`, `drv.2d` only reported).
+     - **Open question for the non-Windows step:** `BOOL` / `DWORD` / `LPCSTR` / `WINAPI` in sound prototypes
        (`SND_fn_bGetOptions`, `SND_fn_bReleaseDriverSound`, `sndload.h`): a target's types header (if
        the original's console headers declare them; not checked) or neutral names. (`sndldbin.c` tested the bank open against
        `(HANDLE)0xffffffff`, not `INVALID_HANDLE_VALUE` on x64; upstream now tests `OPENFILESND_FAILED`,

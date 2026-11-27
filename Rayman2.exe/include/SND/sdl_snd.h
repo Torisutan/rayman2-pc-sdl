@@ -43,7 +43,7 @@ typedef struct SND_tdstWaveFormatSnd_
 	unsigned short	cbSize;
 } SND_tdstWaveFormatSnd;
 
-/* the field SND_fn_bTestSnd_WinMM reads: one bit per PCM format (WAVE_FORMAT_1M08..4S16) */
+/* the field SND_fn_bTestSnd_WinMM reads: one bit per PCM format (SND_pc_C_ulFormat1M08..4S16) */
 typedef struct SND_tdstDeviceCapsSnd_
 {
 	unsigned long	dwFormats;

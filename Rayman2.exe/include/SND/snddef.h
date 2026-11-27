@@ -37,6 +37,20 @@ typedef void (__stdcall *SND_td_pfn_vSoundCallback)(long par);
 #define SND_pc_tdstWaveFormat			SND_tdstWaveFormatSnd
 #define SND_pc_tdstDeviceCaps			SND_tdstDeviceCapsSnd
 
+/* one bit per PCM format in SND_tdstDeviceCapsSnd: rate 11/22/44 kHz, mono/stereo, 8/16 bit */
+#define SND_pc_C_ulFormat1M08			0x00000001UL
+#define SND_pc_C_ulFormat1S08			0x00000002UL
+#define SND_pc_C_ulFormat1M16			0x00000004UL
+#define SND_pc_C_ulFormat1S16			0x00000008UL
+#define SND_pc_C_ulFormat2M08			0x00000010UL
+#define SND_pc_C_ulFormat2S08			0x00000020UL
+#define SND_pc_C_ulFormat2M16			0x00000040UL
+#define SND_pc_C_ulFormat2S16			0x00000080UL
+#define SND_pc_C_ulFormat4M08			0x00000100UL
+#define SND_pc_C_ulFormat4S08			0x00000200UL
+#define SND_pc_C_ulFormat4M16			0x00000400UL
+#define SND_pc_C_ulFormat4S16			0x00000800UL
+
 #define SND_pc_C_ulWaitForever			SND_C_ulWaitForeverSnd
 
 #define SND_pc_M_hCreateLock(bOwned)			SND_fn_hCreateLockSnd(bOwned)

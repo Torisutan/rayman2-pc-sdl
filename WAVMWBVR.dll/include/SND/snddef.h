@@ -207,6 +207,7 @@
 #define SND_pc_tdstBufferHeader			SND_tdstBufferHeader
 #define SND_pc_tdulMessageParam			void *
 #define SND_pc_tdlMessageParam			void *
+#define SND_pc_tduiDeviceResult			unsigned int	/* 0 = done, else an SND_fn_ulGetDeviceErrorText number */
 #else
 #define SND_pc_tdhLock					HANDLE
 #define SND_pc_tdhEvent					HANDLE
@@ -254,6 +255,9 @@ typedef struct _SND_tdstInitStruct
  * APM's critical section is an SDL mutex. */
 #define SND_pc_C_ulWaitForever			SND_C_ulWaitForever
 #define SND_pc_C_ulWaitTimedOut			SND_C_ulWaitTimedOut
+
+#define SND_pc_C_uwFormatPcm			1		/* the format tag: integer PCM, the only one the SDL output opens */
+#define SND_pc_C_ulBufferDone			0x1UL	/* buffer header flag; no device reads it here */
 
 #define SND_pc_M_hCreateLock(bOwned)			SND_fn_hCreateLock(bOwned)
 #define SND_pc_M_ulWaitLock(hLock,ulMs)			SND_fn_ulWaitLock((hLock),(ulMs))

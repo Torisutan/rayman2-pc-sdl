@@ -26,7 +26,7 @@
 #include "SND/sdl_snd.h"
 
 #define C_ulPlatformWin32NT		2		/* OSVERSIONINFOA dwPlatformId of Windows NT */
-#define C_ulAllPcmFormats		0xFFF	/* WAVE_FORMAT_1M08 .. WAVE_FORMAT_4S16 */
+#define C_ulAllPcmFormats		0xFFF	/* SND_pc_C_ulFormat1M08 .. SND_pc_C_ulFormat4S16 */
 
 typedef struct SND_tdstWaitableSnd_
 {
