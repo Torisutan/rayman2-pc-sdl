@@ -143,7 +143,7 @@ SND_pc_tdstBankDescElt *SND_pc_fn_pstCreateBankDescriptor(int lBankId, int lLeve
 
 int __cdecl SND_pc_fn_bLoadBankBnmFile(SND_pc_tdstBankDescElt *pElt)
 {
-    HANDLE hFile;
+    tdhSndFile hFile;
     tdstSndBankHead stHead;
     char szPath[256];
     unsigned long ulSec0;
@@ -158,7 +158,7 @@ int __cdecl SND_pc_fn_bLoadBankBnmFile(SND_pc_tdstBankDescElt *pElt)
     pElt->eState = 2;
     SND_fn_vResolveFileName((char *)pElt->szFileName, szPath);
     hFile = SND_fn_hOpenFileReadSnd(szPath);
-    if (hFile == (HANDLE)0xffffffff)
+    if (hFile == OPENFILESND_FAILED)
     {
         SND_fn_vDisplayError(10, szPath);
         return 0;
