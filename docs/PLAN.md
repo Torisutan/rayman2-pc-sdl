@@ -698,6 +698,27 @@ consoles' one-file-many-branches rule. Consoles: open decision "Console renderer
 8. Linux (compiler, asm C branches from Phase 4, calling-convention macros, case-sensitive data
    paths); `WIN64` (pointer-carrying level data widened at load); the consoles (GX2 and GU drivers
    linked in, big-endian data, memory). macOS (`OSX`) is in scope but postponed until after these.
+   **Linux decided 27.11.2026 (user):** toolchain WSL2 + Ubuntu; first target i686 (`-m32`, ILP32:
+   pointers and `long` 32-bit as on Windows x86, so the level data loads unchanged); x86_64 waits
+   for the "64-bit data" decision. Case-sensitive data paths: measured on the real data first.
+   **Inventory 27.11.2026** (SDL gate config, x86, preprocessed with its defines, system headers
+   excluded; a gcc pass on Linux completes it):
+   - Win32 calls left in the SDL objects: saves (`GAM_save_slot`: `CopyFileA`, `DeleteFileA`,
+     `Find*FileA`, `RemoveDirectoryA`, `Get/SetCurrentDirectoryA`; `SAI_Save`: `DeleteFileA`), the
+     driver loaders (`GLI_linkdrv`: `LoadLibraryA`, `GetProcAddress`, `GetModuleHandleA`; `SND`: the
+     same plus `FreeLibrary`, `GetModuleFileNameA`), `ShellExecuteA` (`Procedure`), `GetTickCount`
+     (`GLI_fastload`, `RND`), `sdl_main` (`CreateMutexA`, `GetWindowLongA`, `SetErrorMode`),
+     `regress` (`ExitProcess`, `GetEnvironmentVariableA`).
+   - MSVC syntax reaching the compiler: `__cdecl` 5077 lines in 371 files, `__stdcall` 579 in 49
+     (SND, the GliDX6vf headers, `dinput_dx6.h`), `__declspec` 79 in 37 (GliDX6vf exports),
+     `__fastcall` 8 (`MTH_fopt.h`, `pc_light_pipeline.c`), `__int64`/`i64` 24 in 10; `__asm`: the MTH
+     asm (C branch under `LINUX`) plus four unfenced blocks, `AI/FuncRay2.c:474`, `GLI/Texture.c:39`
+     (FPU control word), `MMG/SNA.c:173` (`int 3`), `SND/SND.c:2486`; C runtime names `_stricmp` 30,
+     `_chdir` 6, `_access` 4, `_itoa`, `_strupr`, `_mkdir`, `_getcwd`, `_snprintf`, `_strnicmp`.
+     `windows.h` is included by 35 compiled files.
+   Order, one per session: gcc `-m32` compile-only pass; calling-convention form and the per-target
+   types header; CMake Linux branch; GL driver loader through SDL (6f); case measurement on the
+   data; a Linux regression runner, gated on its own baseline.
 
 **Platform macros (decided 2026-11-24).** Modelled on the original engine's three kinds: target
 macros named after the platform (`U64`, `NITRO`, `WIN32`), a group macro derived from them
@@ -850,7 +871,8 @@ vcpkg in manifest mode (`vcpkg.json`, triplet `x86-windows`).
 - **`long` on LP64 (Linux, macOS; new 26.11.2026):** the code assumes a 32-bit `long` in file
   headers, `.gpt` dwords and float bit tests (`docs/PORTABILITY.md` section 3). Fixed-width types
   per target in the base headers, or `-m32`-like data models where available; decide before the
-  first Linux build, measured with a Linux toolchain then.
+  first Linux build, measured with a Linux toolchain then. The first Linux build is i686 (ILP32,
+  decided 27.11.2026), so this stays open until x86_64.
 - **Big-endian targets (Wii U):** the data files are little-endian. The choices are byte-swapping
   at load time, which needs type information for every relocated block, or an offline data
   converter. Decide it when Phase 4's portability list exists.
