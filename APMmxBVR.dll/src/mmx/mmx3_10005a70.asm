@@ -3,8 +3,8 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_10005a70
-	PUBLIC _FUN_10005c38
+	PUBLIC _SND_pc_fn_vDecodeMonoADPCM
+	PUBLIC _SND_pc_fn_vDecodeStereoADPCM
 
 _DATA	SEGMENT
 	PUBLIC _SND_pc_a_lIndexTableADPCM
@@ -23,20 +23,20 @@ _SND_pc_a_lStepTableADPCM	dd 07h, 08h, 09h, 0Ah, 0Bh, 0Ch, 0Dh, 0Eh	; 100129b0
 	dd 01BDCh, 01EA5h, 021B6h, 02515h, 028CAh, 02CDFh, 0315Bh, 0364Bh
 	dd 03BB9h, 041B2h, 04844h, 04F7Eh, 05771h, 0602Fh, 069CEh, 07462h
 	dd 07FFFh
-	PUBLIC _SND_pc_q12B14
-_SND_pc_q12B14	dd 020001h, 080004h, 040008h, 010002h	; 10012b14
-	PUBLIC _SND_pc_q12B24
-_SND_pc_q12B24	dd 01000Fh, 040002h	; 10012b24
-	PUBLIC _SND_pc_q12B2C
-_SND_pc_q12B2C	dd 07FFF7FA7h, 07FFF7FA7h	; 10012b2c
-	PUBLIC _SND_pc_q12B34
-_SND_pc_q12B34	dd 080008000h, 080008000h	; 10012b34
-	PUBLIC _SND_pc_q12B3C
-_SND_pc_q12B3C	dd 070007h, 070007h	; 10012b3c
+	PUBLIC _SND_pc_a8_wStepMultiplierADPCM
+_SND_pc_a8_wStepMultiplierADPCM	dd 020001h, 080004h, 040008h, 010002h	; 10012b14
+	PUBLIC _SND_pc_a4_wNibbleBitMaskADPCM
+_SND_pc_a4_wNibbleBitMaskADPCM	dd 01000Fh, 040002h	; 10012b24
+	PUBLIC _SND_pc_a4_wIndexMaxBiasADPCM
+_SND_pc_a4_wIndexMaxBiasADPCM	dd 07FFF7FA7h, 07FFF7FA7h	; 10012b2c
+	PUBLIC _SND_pc_a4_wIndexMinBiasADPCM
+_SND_pc_a4_wIndexMinBiasADPCM	dd 080008000h, 080008000h	; 10012b34
+	PUBLIC _SND_pc_a4_wMagnitudeMaskADPCM
+_SND_pc_a4_wMagnitudeMaskADPCM	dd 070007h, 070007h	; 10012b3c
 _DATA	ENDS
 
 _TEXT	SEGMENT
-_FUN_10005a70:
+_SND_pc_fn_vDecodeMonoADPCM:
 	push ebp		; 10005a70 55
 	mov ebp, esp		; 10005a71 8bec
 	sub ebp, 1fh		; 10005a73 83ed1f
@@ -48,7 +48,7 @@ _FUN_10005a70:
 	mov ebx, dword ptr [ebp + 10h]		; 10005a86 8b5d10
 	db 00Fh, 075h, 0C0h		; pcmpeqw mm0, mm0		; 10005a89 0f75c0
 	db 00Fh, 06Fh, 00Dh
-	dd _SND_pc_q12B14		; movq mm1, qword ptr [0x10012b14]		; 10005a8c 0f6f0d142b0110
+	dd _SND_pc_a8_wStepMultiplierADPCM		; movq mm1, qword ptr [0x10012b14]		; 10005a8c 0f6f0d142b0110
 	sub esp, 60h		; 10005a93 83ec60
 	mov ecx, dword ptr [ebx]		; 10005a96 8b0b
 	db 00Fh, 06Fh, 0D8h		; movq mm3, mm0		; 10005a98 0f6fd8
@@ -57,24 +57,24 @@ _FUN_10005a70:
 	mov ebx, dword ptr [ebp + 0ch]		; 10005aa3 8b5d0c
 	db 00Fh, 06Fh, 0EBh		; movq mm5, mm3		; 10005aa6 0f6feb
 	db 00Fh, 06Fh, 015h
-	dd _SND_pc_q12B24		; movq mm2, qword ptr [0x10012b24]		; 10005aa9 0f6f15242b0110
+	dd _SND_pc_a4_wNibbleBitMaskADPCM		; movq mm2, qword ptr [0x10012b24]		; 10005aa9 0f6f15242b0110
 	db 00Fh, 072h, 0D3h, 01Dh		; psrld mm3, 0x1d		; 10005ab0 0f72d31d
 	mov edx, dword ptr [ebp + 14h]		; 10005ab4 8b5514
 	db 00Fh, 0EFh, 0E4h		; pxor mm4, mm4		; 10005ab7 0fefe4
 	mov ecx, dword ptr [ebx]		; 10005aba 8b0b
 	db 00Fh, 072h, 0D5h, 01Ch		; psrld mm5, 0x1c		; 10005abc 0f72d51c
 	db 00Fh, 06Fh, 035h
-	dd _SND_pc_q12B2C		; movq mm6, qword ptr [0x10012b2c]		; 10005ac0 0f6f352c2b0110
+	dd _SND_pc_a4_wIndexMaxBiasADPCM		; movq mm6, qword ptr [0x10012b2c]		; 10005ac0 0f6f352c2b0110
 	mov ebx, dword ptr [edx + 8]		; 10005ac7 8b5a08
 	db 00Fh, 06Fh, 03Dh
-	dd _SND_pc_q12B34		; movq mm7, qword ptr [0x10012b34]		; 10005aca 0f6f3d342b0110
+	dd _SND_pc_a4_wIndexMinBiasADPCM		; movq mm7, qword ptr [0x10012b34]		; 10005aca 0f6f3d342b0110
 	db 00Fh, 07Fh, 044h, 024h, 020h		; movq qword ptr [esp + 0x20], mm0		; 10005ad1 0f7f442420
 	db 00Fh, 07Fh, 04Ch, 024h, 028h		; movq qword ptr [esp + 0x28], mm1		; 10005ad6 0f7f4c2428
 	db 00Fh, 07Fh, 054h, 024h, 010h		; movq qword ptr [esp + 0x10], mm2		; 10005adb 0f7f542410
 	db 00Fh, 07Fh, 05Ch, 024h, 008h		; movq qword ptr [esp + 8], mm3		; 10005ae0 0f7f5c2408
 	db 00Fh, 07Fh, 064h, 024h, 018h		; movq qword ptr [esp + 0x18], mm4		; 10005ae5 0f7f642418
 	db 00Fh, 06Fh, 02Dh
-	dd _SND_pc_q12B3C		; movq mm5, qword ptr [0x10012b3c]		; 10005aea 0f6f2d3c2b0110
+	dd _SND_pc_a4_wMagnitudeMaskADPCM		; movq mm5, qword ptr [0x10012b3c]		; 10005aea 0f6f2d3c2b0110
 	db 00Fh, 07Fh, 02Ch, 024h		; movq qword ptr [esp], mm5		; 10005af1 0f7f2c24
 	db 00Fh, 07Fh, 074h, 024h, 038h		; movq qword ptr [esp + 0x38], mm6		; 10005af5 0f7f742438
 	db 00Fh, 07Fh, 07Ch, 024h, 030h		; movq qword ptr [esp + 0x30], mm7		; 10005afa 0f7f7c2430
@@ -186,7 +186,7 @@ L10005c28::
 	db 00Fh, 06Fh, 0C3h		; movq mm0, mm3		; 10005c2e 0f6fc3
 	jmp NEAR PTR L10005b54		; 10005c31 e91effffff
 	db 08Bh, 0C0h		; ALIGN filler		; 10005c36 8bc0
-_FUN_10005c38:
+_SND_pc_fn_vDecodeStereoADPCM:
 	push ebp		; 10005c38 55
 	mov ebp, esp		; 10005c39 8bec
 	sub ebp, 1fh		; 10005c3b 83ed1f
@@ -198,7 +198,7 @@ _FUN_10005c38:
 	mov ebx, dword ptr [ebp + 10h]		; 10005c4e 8b5d10
 	db 00Fh, 075h, 0C0h		; pcmpeqw mm0, mm0		; 10005c51 0f75c0
 	db 00Fh, 06Fh, 00Dh
-	dd _SND_pc_q12B14		; movq mm1, qword ptr [0x10012b14]		; 10005c54 0f6f0d142b0110
+	dd _SND_pc_a8_wStepMultiplierADPCM		; movq mm1, qword ptr [0x10012b14]		; 10005c54 0f6f0d142b0110
 	sub esp, 60h		; 10005c5b 83ec60
 	mov ecx, dword ptr [ebx]		; 10005c5e 8b0b
 	db 00Fh, 06Fh, 0D8h		; movq mm3, mm0		; 10005c60 0f6fd8
@@ -207,7 +207,7 @@ _FUN_10005c38:
 	mov ebx, dword ptr [ebp + 0ch]		; 10005c6b 8b5d0c
 	db 00Fh, 06Fh, 0EBh		; movq mm5, mm3		; 10005c6e 0f6feb
 	db 00Fh, 06Fh, 015h
-	dd _SND_pc_q12B24		; movq mm2, qword ptr [0x10012b24]		; 10005c71 0f6f15242b0110
+	dd _SND_pc_a4_wNibbleBitMaskADPCM		; movq mm2, qword ptr [0x10012b24]		; 10005c71 0f6f15242b0110
 	db 00Fh, 072h, 0D3h, 01Dh		; psrld mm3, 0x1d		; 10005c78 0f72d31d
 	mov edx, dword ptr [ebp + 14h]		; 10005c7c 8b5514
 	db 00Fh, 0EFh, 0E4h		; pxor mm4, mm4		; 10005c7f 0fefe4
@@ -215,9 +215,9 @@ _FUN_10005c38:
 	db 00Fh, 072h, 0D5h, 01Ch		; psrld mm5, 0x1c		; 10005c84 0f72d51c
 	mov eax, dword ptr [edx + 14h]		; 10005c88 8b4214
 	db 00Fh, 06Fh, 035h
-	dd _SND_pc_q12B34		; movq mm6, qword ptr [0x10012b34]		; 10005c8b 0f6f35342b0110
+	dd _SND_pc_a4_wIndexMinBiasADPCM		; movq mm6, qword ptr [0x10012b34]		; 10005c8b 0f6f35342b0110
 	db 00Fh, 06Fh, 03Dh
-	dd _SND_pc_q12B2C		; movq mm7, qword ptr [0x10012b2c]		; 10005c92 0f6f3d2c2b0110
+	dd _SND_pc_a4_wIndexMaxBiasADPCM		; movq mm7, qword ptr [0x10012b2c]		; 10005c92 0f6f3d2c2b0110
 	mov ebx, dword ptr [edx + 8]		; 10005c99 8b5a08
 	db 00Fh, 07Fh, 044h, 024h, 020h		; movq qword ptr [esp + 0x20], mm0		; 10005c9c 0f7f442420
 	db 00Fh, 07Fh, 04Ch, 024h, 028h		; movq qword ptr [esp + 0x28], mm1		; 10005ca1 0f7f4c2428

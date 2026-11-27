@@ -77,10 +77,12 @@ struct SND_pc_tdstVoiceADPCM_
 };
 
 /* 0x100055C0 */
-void	FUN_100055c0(long *p_lMix,long *p_lMixEnd,void **pp_vDest);
-void	FUN_10005960(long *p_lMix,long *p_lMixEnd,long *p_lDecoded,SND_pc_tdstVoiceADPCM *p_stVoice);
-void	FUN_10005a70(unsigned long ulNbSamples,char **pp_cSrc,long **pp_lDest,SND_pc_tdstDecoderStateADPCM *p_stState);
-void	FUN_10005c38(unsigned long ulNbSamples,char **pp_cSrc,long **pp_lDest,SND_pc_tdstDecoderStateADPCM *p_stState);
+void	SND_pc_fn_vSaturateMixToPcm16ADPCM(long *p_lMix,long *p_lMixEnd,void **pp_vDest);
+
+void	SND_pc_fn_vMixVoiceADPCM(long *p_lMix,long *p_lMixEnd,long *p_lDecoded,SND_pc_tdstVoiceADPCM *p_stVoice);
+
+void	SND_pc_fn_vDecodeMonoADPCM(unsigned long ulNbSamples,char **pp_cSrc,long **pp_lDest,SND_pc_tdstDecoderStateADPCM *p_stState);
+void	SND_pc_fn_vDecodeStereoADPCM(unsigned long ulNbSamples,char **pp_cSrc,long **pp_lDest,SND_pc_tdstDecoderStateADPCM *p_stState);
 
 void	SND_pc_fn_vInitializeCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection);
 void	SND_pc_fn_vDeleteCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection);

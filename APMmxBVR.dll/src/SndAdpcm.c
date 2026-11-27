@@ -521,9 +521,9 @@ long FUN_100018d0(SndBool bStream,unsigned long ulNbSamples,void *p_vDest,unsign
 				if (p_stVoice->ulPos > p_stVoice->ulNbSamples && p_stVoice->bLoop)
 					p_stVoice->ulPos -= p_stVoice->ulNbSamples;
 				if (p_stVoice->wNbChannels == 1)
-					FUN_10005a70(ulChunk,&p_stVoice->p_cCurrent,&p_lDecoded,&p_stVoice->stCurrentState);
+					SND_pc_fn_vDecodeMonoADPCM(ulChunk,&p_stVoice->p_cCurrent,&p_lDecoded,&p_stVoice->stCurrentState);
 				else
-					FUN_10005c38(ulChunk,&p_stVoice->p_cCurrent,&p_lDecoded,&p_stVoice->stCurrentState);
+					SND_pc_fn_vDecodeStereoADPCM(ulChunk,&p_stVoice->p_cCurrent,&p_lDecoded,&p_stVoice->stCurrentState);
 				if (bEnd)
 					bEnd = FUN_10001740(p_stVoice,ulTime);
 				ulRest -= ulChunk;
@@ -531,11 +531,11 @@ long FUN_100018d0(SndBool bStream,unsigned long ulNbSamples,void *p_vDest,unsign
 			p_lEnd = &SND_pc_s_a_lMixBuffer[(ulNb - (ulRest << 9) / p_stVoice->ulStep) * 2];
 			if (p_lEnd > p_lMixEnd)
 				p_lEnd = p_lMixEnd;
-			FUN_10005960(SND_pc_s_a_lMixBuffer,p_lEnd,SND_pc_s_a_lDecodeBuffer,p_stVoice);
+			SND_pc_fn_vMixVoiceADPCM(SND_pc_s_a_lMixBuffer,p_lEnd,SND_pc_s_a_lDecodeBuffer,p_stVoice);
 		}
 		if (lNbMixed == 0)
 			return 0x12;
-		FUN_100055c0(SND_pc_s_a_lMixBuffer,p_lMixEnd,&p_vOut);
+		SND_pc_fn_vSaturateMixToPcm16ADPCM(SND_pc_s_a_lMixBuffer,p_lMixEnd,&p_vOut);
 	}
 	return 0;
 }
@@ -1023,7 +1023,7 @@ long FUN_100025a0(SND_pc_tdstHeaderADPCM *p_stHeader,void *p_vDest)
 			{
 				p_lEnd = p_lBuffer + p_stHeader->ulNbSamples;
 				p_cSrc = (char *)p_stHeader + sizeof(SND_pc_tdstHeaderADPCM);
-				FUN_10005a70(p_stHeader->ulNbSamples,&p_cSrc,&p_lOut,&stState);
+				SND_pc_fn_vDecodeMonoADPCM(p_stHeader->ulNbSamples,&p_cSrc,&p_lOut,&stState);
 			}
 			else
 			{
@@ -1039,7 +1039,7 @@ long FUN_100025a0(SND_pc_tdstHeaderADPCM *p_stHeader,void *p_vDest)
 			{
 				p_lEnd = p_lBuffer + p_stHeader->ulNbSamples * 2;
 				p_cSrc = (char *)p_stHeader + sizeof(SND_pc_tdstHeaderADPCM);
-				FUN_10005c38(p_stHeader->ulNbSamples,&p_cSrc,&p_lOut,&stState);
+				SND_pc_fn_vDecodeStereoADPCM(p_stHeader->ulNbSamples,&p_cSrc,&p_lOut,&stState);
 			}
 			else
 			{
@@ -1049,7 +1049,7 @@ long FUN_100025a0(SND_pc_tdstHeaderADPCM *p_stHeader,void *p_vDest)
 		}
 		if (lErr != 0x11)
 		{
-			FUN_100055c0(p_lBuffer,p_lEnd,&p_vDest);
+			SND_pc_fn_vSaturateMixToPcm16ADPCM(p_lBuffer,p_lEnd,&p_vDest);
 			SND_fn_vFreeSnd(p_lBuffer);
 		}
 	}

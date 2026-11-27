@@ -3,10 +3,10 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_100055c0
+	PUBLIC _SND_pc_fn_vSaturateMixToPcm16ADPCM
 
 _TEXT	SEGMENT
-_FUN_100055c0:
+_SND_pc_fn_vSaturateMixToPcm16ADPCM:
 	push ebp		; 100055c0 55
 	mov ebp, esp		; 100055c1 8bec
 	sub ebp, 1fh		; 100055c3 83ed1f

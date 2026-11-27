@@ -3,16 +3,16 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_10005650
-	PUBLIC _FUN_100056d8
-	PUBLIC _FUN_10005798
-	PUBLIC _FUN_100057e0
-	PUBLIC _FUN_10005868
-	PUBLIC _FUN_10005918
-	PUBLIC _FUN_10005960
+	PUBLIC _SND_pc_fn_vMixMono16NativeADPCM
+	PUBLIC _SND_pc_fn_vMixMono16StepADPCM
+	PUBLIC _SND_pc_fn_vMixMono16TailADPCM
+	PUBLIC _SND_pc_fn_vMixStereo16NativeADPCM
+	PUBLIC _SND_pc_fn_vMixStereo16StepADPCM
+	PUBLIC _SND_pc_fn_vMixStereo16TailADPCM
+	PUBLIC _SND_pc_fn_vMixVoiceADPCM
 
 _TEXT	SEGMENT
-_FUN_10005650:
+_SND_pc_fn_vMixMono16NativeADPCM:
 	mov edx, dword ptr [ebp + 10h]		; 10005650 8b5510
 	mov eax, dword ptr [ebp + 8]		; 10005653 8b4508
 	mov ecx, dword ptr [ebp + 14h]		; 10005656 8b4d14
@@ -58,7 +58,7 @@ L10005660::
 	db 00Fh, 077h		; emms 		; 100056d4 0f77
 	ret		; 100056d6 c3
 	nop		; 100056d7 90
-_FUN_100056d8:
+_SND_pc_fn_vMixMono16StepADPCM:
 	mov edx, dword ptr [ebp + 10h]		; 100056d8 8b5510
 	mov eax, dword ptr [ebp + 8]		; 100056db 8b4508
 	mov ecx, dword ptr [esp + 1ch]		; 100056de 8b4c241c
@@ -121,7 +121,7 @@ L100056ee::
 	db 00Fh, 077h		; emms 		; 10005793 0f77
 	ret		; 10005795 c3
 	db 08Bh, 0C0h		; ALIGN filler		; 10005796 8bc0
-_FUN_10005798:
+_SND_pc_fn_vMixMono16TailADPCM:
 	mov esi, dword ptr [esp + 30h]		; 10005798 8b742430
 	mov edx, dword ptr [ebp + 10h]		; 1000579c 8b5510
 	mov ebx, dword ptr [ebp + 8]		; 1000579f 8b5d08
@@ -147,7 +147,7 @@ L100057a9::
 	jb SHORT L100057a9		; 100057db 72cc
 	ret		; 100057dd c3
 	db 08Bh, 0C0h		; ALIGN filler		; 100057de 8bc0
-_FUN_100057e0:
+_SND_pc_fn_vMixStereo16NativeADPCM:
 	mov edx, dword ptr [ebp + 10h]		; 100057e0 8b5510
 	mov eax, dword ptr [ebp + 8]		; 100057e3 8b4508
 	mov ecx, dword ptr [ebp + 14h]		; 100057e6 8b4d14
@@ -192,7 +192,7 @@ L100057f0::
 	ret		; 10005862 c3
 	db 02Eh, 08Bh, 0C0h		; ALIGN filler		; 10005863 2e8bc0
 	db 08Bh, 0C0h		; ALIGN filler		; 10005866 8bc0
-_FUN_10005868:
+_SND_pc_fn_vMixStereo16StepADPCM:
 	mov edx, dword ptr [ebp + 10h]		; 10005868 8b5510
 	mov edi, dword ptr [esp + 2ch]		; 1000586b 8b7c242c
 	mov esi, dword ptr [esp + 30h]		; 1000586f 8b742430
@@ -250,7 +250,7 @@ L1000587e::
 	ret		; 10005913 c3
 	db 02Eh, 08Bh, 0C0h		; ALIGN filler		; 10005914 2e8bc0
 	nop		; 10005917 90
-_FUN_10005918:
+_SND_pc_fn_vMixStereo16TailADPCM:
 	mov esi, dword ptr [esp + 30h]		; 10005918 8b742430
 	mov edx, dword ptr [ebp + 10h]		; 1000591c 8b5510
 	mov ebx, dword ptr [ebp + 8]		; 1000591f 8b5d08
@@ -275,7 +275,7 @@ L10005929::
 	cmp ebx, dword ptr [ebp + 0ch]		; 1000595a 3b5d0c
 	jb SHORT L10005929		; 1000595d 72ca
 	ret		; 1000595f c3
-_FUN_10005960:
+_SND_pc_fn_vMixVoiceADPCM:
 	push ebp		; 10005960 55
 	mov ebp, esp		; 10005961 8bec
 	sub ebp, 1fh		; 10005963 83ed1f
@@ -325,17 +325,17 @@ L10005991::
 	cmp esi, 2		; 100059f0 83fe02
 	je SHORT L10005a08		; 100059f3 7413
 	xor esi, esi		; 100059f5 33f6
-	call _FUN_10005650		; 100059f7 e854fcffff
+	call _SND_pc_fn_vMixMono16NativeADPCM		; 100059f7 e854fcffff
 	cmp eax, dword ptr [ebp + 0ch]		; 100059fc 3b450c
 	jae SHORT L10005a19		; 100059ff 7318
-	call _FUN_10005798		; 10005a01 e892fdffff
+	call _SND_pc_fn_vMixMono16TailADPCM		; 10005a01 e892fdffff
 	jmp SHORT L10005a19		; 10005a06 eb11
 L10005a08::
 	xor esi, esi		; 10005a08 33f6
-	call _FUN_100057e0		; 10005a0a e8d1fdffff
+	call _SND_pc_fn_vMixStereo16NativeADPCM		; 10005a0a e8d1fdffff
 	cmp eax, dword ptr [ebp + 0ch]		; 10005a0f 3b450c
 	jae SHORT L10005a19		; 10005a12 7305
-	call _FUN_10005918		; 10005a14 e8fffeffff
+	call _SND_pc_fn_vMixStereo16TailADPCM		; 10005a14 e8fffeffff
 L10005a19::
 	add esp, 40h		; 10005a19 83c440
 	popad		; 10005a1c 61
@@ -347,17 +347,17 @@ L10005a21::
 	cmp esi, 2		; 10005a23 83fe02
 	je SHORT L10005a3b		; 10005a26 7413
 	xor esi, esi		; 10005a28 33f6
-	call _FUN_100056d8		; 10005a2a e8a9fcffff
+	call _SND_pc_fn_vMixMono16StepADPCM		; 10005a2a e8a9fcffff
 	cmp eax, dword ptr [ebp + 0ch]		; 10005a2f 3b450c
 	jae SHORT L10005a19		; 10005a32 73e5
-	call _FUN_10005798		; 10005a34 e85ffdffff
+	call _SND_pc_fn_vMixMono16TailADPCM		; 10005a34 e85ffdffff
 	jmp SHORT L10005a19		; 10005a39 ebde
 L10005a3b::
 	xor esi, esi		; 10005a3b 33f6
-	call _FUN_10005868		; 10005a3d e826feffff
+	call _SND_pc_fn_vMixStereo16StepADPCM		; 10005a3d e826feffff
 	cmp eax, dword ptr [ebp + 0ch]		; 10005a42 3b450c
 	jae SHORT L10005a19		; 10005a45 73d2
-	call _FUN_10005918		; 10005a47 e8ccfeffff
+	call _SND_pc_fn_vMixStereo16TailADPCM		; 10005a47 e8ccfeffff
 	jmp SHORT L10005a19		; 10005a4c ebcb
 L10005a4e::
 	mov eax, dword ptr [ecx + 0cch]		; 10005a4e 8b81cc000000
