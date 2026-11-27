@@ -104,11 +104,42 @@ def press(key, hold=0.15):
             time.sleep(hold)
 
 
+def build_dll_folder(exe, game):
+    """DLL/: a junction to the install's, or, when the build has driver modules of its own (DLL/
+    beside the exe, e.g. GliGL3vf.dll), a folder of hardlinks to the install's files with the
+    build's copied over them. Libraries beside the exe (SDL3.dll) are copied beside the sandbox's."""
+    box, gdll = os.path.join(BOX, "DLL"), os.path.join(game, "DLL")
+    own = os.path.join(os.path.dirname(exe), "DLL")
+    if os.path.isjunction(box) != (not os.path.isdir(own)) and os.path.lexists(box):
+        if os.path.isjunction(box):
+            os.rmdir(box)                       # the link only, never the install's folder
+        else:
+            for name in os.listdir(box):        # hardlinks and copies only (mirror() of files)
+                os.remove(os.path.join(box, name))
+            os.rmdir(box)
+    if os.path.isdir(own):
+        os.makedirs(box, exist_ok=True)
+        for name in os.listdir(gdll):
+            s, d = os.path.join(gdll, name), os.path.join(box, name)
+            if os.path.isfile(s) and not os.path.exists(d):
+                os.link(s, d)
+        for name in os.listdir(own):
+            d = os.path.join(box, name)
+            if os.path.exists(d):
+                os.remove(d)                    # a hardlink of the install's file: unlinked only
+            shutil.copyfile(os.path.join(own, name), d)
+    else:
+        junction(box, gdll)
+    for name in os.listdir(os.path.dirname(exe)):
+        if name.lower().endswith(".dll"):
+            shutil.copyfile(os.path.join(os.path.dirname(exe), name), os.path.join(BOX, name))
+
+
 def build_sandbox(exe):
     game = game_dir()
     gdata = os.path.join(game, "Data")
     os.makedirs(BOX, exist_ok=True)
-    junction(os.path.join(BOX, "DLL"), os.path.join(game, "DLL"))
+    build_dll_folder(exe, game)
     data = os.path.join(BOX, "Data")
     os.makedirs(data, exist_ok=True)
     for name in os.listdir(gdata):

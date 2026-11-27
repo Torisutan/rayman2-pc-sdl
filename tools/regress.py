@@ -6,9 +6,9 @@ tools/build_ref.py for the VC5 reference). See Rayman2.exe/src/app/regress.c for
 and hashed.
 
   python tools/regress.py run EXE OUT [--level Morb_00] [--frames 1800] [--input SCRIPT]
-                                      [--record SCRIPT] [--timeout 300] [--dx6]
+                                      [--record SCRIPT] [--timeout 300] [--dx6 | --gl3]
       run EXE in the sandbox (tools/run.py) and write the per-frame hash file OUT
-  python tools/regress.py suite EXE OUTDIR [--only NAME ...] [--suite FILE] [--dx6]
+  python tools/regress.py suite EXE OUTDIR [--only NAME ...] [--suite FILE] [--dx6 | --gl3]
       run every scenario of tools/regress/suite.txt (level, frames, input script) into
       OUTDIR/NAME.txt
   python tools/regress.py diff A B [--report FIELD ...]
@@ -19,6 +19,7 @@ and hashed.
       --report actor.matrix); the modern build gates against its own baseline.
 
 --dx6: the Direct3D 6 driver (docs/PLAYTEST.md DX6 keys) instead of the install's ubi.ini driver.
+--gl3: the OpenGL 3.3 driver module (GliGL3vf.dll, built into DLL/ beside the exe), same mode.
 The display mode is part of the keys; --mode, given too, replaces it.
 
 Exit code 0 = run complete / files identical.
@@ -32,6 +33,8 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 DX6_KEYS = [("GLI_DllFile", "GliDX6"), ("GLI_Dll", "DirectX6"), ("GLI_Driver", "display"),
             ("GLI_Device", "Direct3D HAL"), ("GLI_Mode", "1 - 1920 x 1080 x 16")]
+GL3_KEYS = [("GLI_DllFile", "GliGL3"), ("GLI_Dll", "OpenGL3"), ("GLI_Driver", "display"),
+            ("GLI_Device", "OpenGL 3.3"), ("GLI_Mode", "1 - 1920 x 1080 x 16")]
 sys.path.insert(0, HERE)
 import run  # noqa: E402
 
@@ -43,9 +46,8 @@ def do_run(a):
     subprocess.run(["taskkill", "/F", "/IM", "Rayman2.exe"], capture_output=True)
     time.sleep(0.5)
     exe = run.build_sandbox(os.path.abspath(a.exe))
-    if a.dx6:
-        for key, value in DX6_KEYS:
-            run.set_ini(os.path.join(run.BOX, "ubi.ini"), key, value)
+    for key, value in (DX6_KEYS if a.dx6 else GL3_KEYS if a.gl3 else []):
+        run.set_ini(os.path.join(run.BOX, "ubi.ini"), key, value)
     if a.mode:
         run.set_mode(os.path.join(run.BOX, "ubi.ini"), a.mode)
     out = os.path.abspath(a.out)
@@ -91,7 +93,7 @@ def do_suite(a):
             continue
         r = argparse.Namespace(exe=a.exe, out=os.path.join(a.outdir, name + ".txt"), level=level,
                                frames=frames, input=script, record=None, timeout=a.timeout, mode=a.mode,
-                               dx6=a.dx6)
+                               dx6=a.dx6, gl3=a.gl3)
         rc |= do_run(r)
     return rc
 
@@ -165,6 +167,7 @@ def main():
     r.add_argument("--timeout", type=float, default=300)
     r.add_argument("--mode", help="display mode WxH (default: the install's ubi.ini, 1920x1080)")
     r.add_argument("--dx6", action="store_true", help="the Direct3D 6 driver (docs/PLAYTEST.md DX6 keys)")
+    r.add_argument("--gl3", action="store_true", help="the OpenGL 3.3 driver module (DLL/GliGL3vf.dll beside the exe)")
     u = sub.add_parser("suite")
     u.add_argument("exe")
     u.add_argument("outdir")
@@ -173,6 +176,7 @@ def main():
     u.add_argument("--timeout", type=float, default=300)
     u.add_argument("--mode", help="display mode WxH (default: the install's ubi.ini, 1920x1080)")
     u.add_argument("--dx6", action="store_true", help="the Direct3D 6 driver (docs/PLAYTEST.md DX6 keys)")
+    u.add_argument("--gl3", action="store_true", help="the OpenGL 3.3 driver module (DLL/GliGL3vf.dll beside the exe)")
     d = sub.add_parser("diff")
     d.add_argument("a")
     d.add_argument("b")
