@@ -13,37 +13,6 @@
 #include <math.h>
 #include <process.h>
 
-typedef struct _SND_pc_tdstSampleVoice {
-	unsigned long			ulPos;
-	long					lInc;
-	unsigned long			ulEnd;
-	unsigned long			ulLoop;
-	void					*pvData;
-	long					lVol;
-	tdstBlockResourceMem	*pRes;
-	SND_td_pfn_vSoundCallback fn_callback;
-	long					lPan;
-	SndBool					b8Bits;
-	SndBool					bResLoop;
-	SndBool					bPlaying;
-	SndBool					bLooping;
-	SndBool					bCallback;
-	SndBool					bPitchable;
-	long					l3C;
-	SndBool					bAudible;
-	long					lSpace;
-	long					par_callback;
-	long					prio;
-	long					lNbIncSteps;
-	long					lIncRampLength;
-	long					lIncStep;
-	SndBool					bPaused;
-	SndBool					bStereo;
-	SndBool					bBuffer;
-	long					l68;
-	long					l6C;
-} SND_pc_tdstSampleVoice;
-
 #define SND_pc_C_NbVoices 64
 
 typedef struct _SND_pc_tdstBufferClient *SND_pc_p_tdstBufferClient;

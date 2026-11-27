@@ -83,6 +83,37 @@ SndBool SND_fn_bIsResourceLoopingSample(tduRefRes res);
 /* 0x1000AEF0 */
 SndBool FUN_1000aef0(tduRefRes res,unsigned char ucVolume);
 
+typedef struct _SND_pc_tdstSampleVoice {
+	unsigned long			ulPos;
+	long					lInc;
+	unsigned long			ulEnd;
+	unsigned long			ulLoop;
+	void					*pvData;
+	long					lVol;
+	tdstBlockResourceMem	*pRes;
+	SND_td_pfn_vSoundCallback fn_callback;
+	long					lPan;
+	SndBool					b8Bits;
+	SndBool					bResLoop;
+	SndBool					bPlaying;
+	SndBool					bLooping;
+	SndBool					bCallback;
+	SndBool					bPitchable;
+	long					l3C;
+	SndBool					bAudible;
+	long					lSpace;
+	long					par_callback;
+	long					prio;
+	long					lNbIncSteps;
+	long					lIncRampLength;
+	long					lIncStep;
+	SndBool					bPaused;
+	SndBool					bStereo;
+	SndBool					bBuffer;
+	long					l68;
+	long					l6C;
+} SND_pc_tdstSampleVoice;
+
 #ifdef __cplusplus
 }
 #endif
