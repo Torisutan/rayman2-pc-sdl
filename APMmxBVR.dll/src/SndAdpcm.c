@@ -62,22 +62,22 @@ long SND_pc_g_lSizeOfVoicesADPCM = sizeof(SND_pc_s_a_stVoice);
 
 void SND_pc_fn_vInitializeCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
-	InitializeCriticalSection(p_stCriticalSection);
+	SND_pc_M_vInitCriticalSection(p_stCriticalSection);
 }
 
 void SND_pc_fn_vDeleteCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
-	DeleteCriticalSection(p_stCriticalSection);
+	SND_pc_M_vDeleteCriticalSection(p_stCriticalSection);
 }
 
 void SND_pc_fn_vEnterCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
-	EnterCriticalSection(p_stCriticalSection);
+	SND_pc_M_vEnterCriticalSection(p_stCriticalSection);
 }
 
 void SND_pc_fn_vLeaveCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
-	LeaveCriticalSection(p_stCriticalSection);
+	SND_pc_M_vLeaveCriticalSection(p_stCriticalSection);
 }
 
 

@@ -2082,11 +2082,11 @@ void SND_fn_vUpdateLastError(unsigned long ulChannelId, unsigned short uwErrNum,
 void __stdcall SND_fn_vDisplayError(unsigned short uwErrNum, char *message)
 {
     SND_fn_vEnterCriticalSectionForErrorDisplay();
-    SND_M_UpdateLastError((unsigned long)GetCurrentThreadId(), uwErrNum,
+    SND_M_UpdateLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId(), uwErrNum,
                           C_lErmNoDebugData, C_ucErmOpenInfoWindow,
                           C_ucAllowStopForDebug, message);
-    SND_M_CheckError((unsigned long)GetCurrentThreadId());
-    SND_M_ClearLastError((unsigned long)GetCurrentThreadId());
+    SND_M_CheckError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+    SND_M_ClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
     SND_fn_vQuitCriticalSectionForErrorDisplay();
 }
 
@@ -2111,17 +2111,17 @@ void __stdcall SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr)
 {
     unsigned char ucChannel;
 
-    GetCurrentThreadId();
+    SND_pc_M_ulGetCurrentThreadId();
     SND_fn_vCheckMemory();              /* 0x403290 */
-    ucChannel = Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0);
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
     Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
     Mmg_fn_vTestMallocIntegrityAt(pvPtr);   /* 0x403290 */
     SND_M_fn_vGenFree(pvPtr, ucChannel);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
     }
     SND_fn_vQuitCriticalSectionForErrorDisplay();
@@ -2142,10 +2142,10 @@ void __stdcall SND_fn_vInitMallocSnd(void)
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(g_ucSndModuleId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         ERM_fn_vUpdateLastError(7, g_ucSndModuleId,
-                                (unsigned long)GetCurrentThreadId(),
+                                (unsigned long)SND_pc_M_ulGetCurrentThreadId(),
                                 1, -1, 0xFF, 0xFF, SND_C_szEmpty);
     }
     SND_fn_vQuitCriticalSectionForErrorDisplay();
@@ -2168,15 +2168,15 @@ void *__stdcall SND_fn_pvMallocSnd(unsigned long nb_octets)
     void          *ptr_temp;
     unsigned char  ucChannel;
 
-    ucChannel = Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0);
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
     Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
     ptr_temp = SND_M_fn_p_vGenAlloc(nb_octets, ucChannel);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
         SND_PrintUsedStaticMemory();
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
         ptr_temp = NULL;
     }
@@ -2191,15 +2191,15 @@ void *__stdcall SND_fn_pvReAllocSnd(void *pvPtr, unsigned long ulNbBytes)
     unsigned char  ucChannel;
     void          *pvNew;
 
-    ucChannel = Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0);
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
     Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
     pvNew = fn_p_vGenRealloc(pvPtr, ulNbBytes, ucChannel);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
         SND_PrintUsedStaticMemory();
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
     }
     SND_fn_vQuitCriticalSectionForErrorDisplay();
@@ -2212,15 +2212,15 @@ void __stdcall SND_fn_vFreeSnd(void *pvPtr)
 {
     unsigned char ucChannel;
 
-    ucChannel = Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0);
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
     Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
     Mmg_fn_vTestMallocIntegrityAt(pvPtr);  /* 0x403290 */
     SND_M_fn_vGenFree(pvPtr, ucChannel);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
     }
     SND_fn_vQuitCriticalSectionForErrorDisplay();
@@ -2241,15 +2241,15 @@ void *__stdcall SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBy
     void          *ptr_temp;
 
     SND_fn_vCheckMemory();             /* 0x403290 */
-    ucChannel = Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0);
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
     Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
     ptr_temp = SND_M_fn_p_vGenAlloc(ulNbBytes, ucChannel);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
         SND_fn_vCheckMemory();
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
         ptr_temp = NULL;
     }
@@ -2267,15 +2267,15 @@ void *__stdcall SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
     void          *p_vPtr;
 
     SND_fn_vCheckMemory();             /* 0x403290 */
-    ucChannel = Mmg_fn_ucGiveChannelId(GetCurrentThreadId(), 0);
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
     Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
     p_vPtr = fn_p_vGenRealloc(pvPtr, ulNbBytes, ucChannel);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
     if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)GetCurrentThreadId()) != 0) {
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
         SND_fn_vCheckMemory();
-        ERM_fn_vClearLastError((unsigned long)GetCurrentThreadId());
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
         SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
     }
     SND_fn_vQuitCriticalSectionForErrorDisplay();
@@ -2543,10 +2543,10 @@ SndBool __stdcall SND_fn_bTestSnd_MMX(void)
 }
 
 /* 0x0045B4F0 */
-SndBool __stdcall SND_fn_bTestSnd_WinMM(WAVEFORMATEX *p_stFormat)
+SndBool __stdcall SND_fn_bTestSnd_WinMM(SND_pc_tdstWaveFormat *p_stFormat)
 {
     unsigned long a_ulFormatBits[12];
-    WAVEOUTCAPSA  stCaps;
+    SND_pc_tdstDeviceCaps stCaps;
     long          lRateIndex;
 
     a_ulFormatBits[0]  = WAVE_FORMAT_1M08;
@@ -2561,7 +2561,7 @@ SndBool __stdcall SND_fn_bTestSnd_WinMM(WAVEFORMATEX *p_stFormat)
     a_ulFormatBits[9]  = WAVE_FORMAT_4S08;
     a_ulFormatBits[10] = WAVE_FORMAT_4M16;
     a_ulFormatBits[11] = WAVE_FORMAT_4S16;
-    if (waveOutGetDevCapsA(WAVE_MAPPER, &stCaps, sizeof(stCaps)) == 0)
+    if (SND_pc_M_ulGetDeviceCaps(&stCaps) == 0)
     {
         if (p_stFormat->nSamplesPerSec <= 11025)
             lRateIndex = 0;
@@ -2577,7 +2577,7 @@ SndBool __stdcall SND_fn_bTestSnd_WinMM(WAVEFORMATEX *p_stFormat)
 /* 0x0045B5C0 */
 SndBool __stdcall SND_fn_bTestSnd_Win32(void)
 {
-    OSVERSIONINFOA stVersion;
+    SND_pc_tdstOsVersion stVersion;
     unsigned long *pulCur;
     int iCount;
 
@@ -2588,14 +2588,14 @@ SndBool __stdcall SND_fn_bTestSnd_Win32(void)
         pulCur = pulCur + 1;
     }
     stVersion.dwOSVersionInfoSize = 0x94;
-    GetVersionExA(&stVersion);
+    SND_pc_M_bGetOsVersion(&stVersion);
     return stVersion.dwPlatformId != 0;
 }
 
 /* 0x0045B600 */
 SndBool __stdcall SND_fn_bTestSnd_WinNT(void)
 {
-    OSVERSIONINFOA stVersion;
+    SND_pc_tdstOsVersion stVersion;
     unsigned long *pulCur;
     int iCount;
 
@@ -2606,7 +2606,7 @@ SndBool __stdcall SND_fn_bTestSnd_WinNT(void)
         pulCur = pulCur + 1;
     }
     stVersion.dwOSVersionInfoSize = 0x94;
-    GetVersionExA(&stVersion);
+    SND_pc_M_bGetOsVersion(&stVersion);
     return stVersion.dwPlatformId == 2;
 }
 
@@ -3360,7 +3360,7 @@ typedef struct SND_pc_tdstSndErrorOccurElement
 static SND_pc_tdstSndErrorOccurElement SND_g_astErrorOccurArray[69];
 
 /* 0x004B746C */
-static HWND SND_pc_hMainWindow;
+static SND_pc_tdhWindow SND_pc_hMainWindow;
 
 /* 0x0049F14C */
 extern unsigned char g_ucErmModuleId;
@@ -3371,9 +3371,9 @@ void __stdcall SND_fn_vInitErrorSnd(void *pInitStruct)
 
     typedef struct _SND_tdstInitStruct
     {
-        HINSTANCE hProcessInstance;
-        HWND hMainWindow;
-        HANDLE hMutexDX;
+        SND_pc_tdhInstance hProcessInstance;
+        SND_pc_tdhWindow hMainWindow;
+        SND_pc_tdhLock hMutexDX;
     } SND_tdstInitStruct;
 
     SND_pc_hMainWindow = ((SND_tdstInitStruct *)pInitStruct)->hMainWindow;
@@ -3399,16 +3399,16 @@ void __stdcall _snd_assert(char *test, char *file, int line)
     char titre[256];
     char texte[256];
 
-    DebugBreak();
+    SND_pc_M_vBreak();
     strcpy(titre, "Sound-Assertion failed in ");
     strcat(titre, file);
     sprintf(texte, " (Line n\xb0 %d)", line);
     strcat(titre, texte);
 
     SND_fn_vEnterCriticalSectionForErrorDisplay();
-    MessageBoxA(SND_pc_hMainWindow, test, titre, 0x40000);
+    SND_pc_M_vAssertBox(SND_pc_hMainWindow, test, titre);
     SND_fn_vQuitCriticalSectionForErrorDisplay();
-    DebugBreak();
+    SND_pc_M_vBreak();
 }
 
 int __stdcall snd_erreur_init(int num_err)

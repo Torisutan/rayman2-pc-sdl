@@ -57,26 +57,26 @@ long			SND_pc_lEffectState;
 
 SND_pc_tdhDevice	SND_pc_hWaveOut = NULL;
 SND_pc_tdhThread	SND_pc_hThread = NULL;
-WAVEFORMATEX	SND_pc_stWaveFormat = {0};
+SND_pc_tdstWaveFormat	SND_pc_stWaveFormat = {0};
 long			SND_pc_lNbStats = 0;
 SND_pc_tdhLock	SND_pc_hMutexDX = NULL;
 double			SND_pc_dAvgInQueue = 0;
-UINT			SND_pc_uiMsgLibereDriver = 0;
-DWORD			SND_pc_dwThreadId = 0;
+unsigned int	SND_pc_uiMsgLibereDriver = 0;
+unsigned long	SND_pc_dwThreadId = 0;
 long			SND_pc_lNbUnderrun = 0;
 long			SND_pc_a_lBufferState[SND_pc_C_NbBuffers] = {0};
 long			SND_pc_lLastLockedOperation = 0;
 double			SND_pc_dAvgQueued = 0;
 double			SND_pc_dAvgDone = 0;
 char			SND_pc_szDebugStats[0x100] = {0};
-UINT			SND_pc_uiMsgInitSnd = 0;
+unsigned int	SND_pc_uiMsgInitSnd = 0;
 char			*SND_pc_a_pBuffers[SND_pc_C_NbBuffers] = {0};
 SndBool			SND_pc_b8BitsOutput = FALSE;
-WAVEHDR			SND_pc_a_stWaveHdr[SND_pc_C_NbBuffers] = {0};
+SND_pc_tdstBufferHeader	SND_pc_a_stWaveHdr[SND_pc_C_NbBuffers] = {0};
 SND_pc_tdstBufferClientList	SND_pc_stBufferClients = {0};
 SND_pc_tdhLock	SND_pc_hSampleMutex = NULL;
-UINT			SND_pc_uiMsgDesInitSnd = 0;
-UINT			SND_pc_uiMsgPrendDriver = 0;
+unsigned int	SND_pc_uiMsgDesInitSnd = 0;
+unsigned int	SND_pc_uiMsgPrendDriver = 0;
 SndBool			SND_pc_bDebugStats = FALSE;
 SndBool			SND_pc_bReverse = FALSE;
 SndBool			SND_pc_bDolby = FALSE;
@@ -90,9 +90,9 @@ SndBool			SND_pc_bForceReleased = FALSE;
 long			SND_pc_l27C8C = 0;
 long			SND_pc_a27C90[13] = {0};
 
-extern HWND		SND_pc_hMainWindow;
-extern HINSTANCE SND_pc_hProcessInstance;
-extern HINSTANCE SND_pc_hFirstProcessInstance;
+extern SND_pc_tdhWindow	SND_pc_hMainWindow;
+extern SND_pc_tdhInstance SND_pc_hProcessInstance;
+extern SND_pc_tdhInstance SND_pc_hFirstProcessInstance;
 
 SND_pc_tdstPerfCounter	SND_pc_stPerfFrequency_9785;
 SND_pc_tdstPerfCounter	SND_pc_stPerfCounter;
@@ -673,9 +673,9 @@ void FUN_10008b90(void)
 {
 }
 
-DWORD SND_pc_fn_ulWaitObjectOrBreak(HANDLE hHandle,DWORD dwMilliseconds)
+unsigned long SND_pc_fn_ulWaitObjectOrBreak(SND_pc_tdhWaitable hHandle,unsigned long dwMilliseconds)
 {
-	DWORD dwResult;
+	unsigned long dwResult;
 
 	dwResult = SND_pc_M_ulWaitLock(hHandle,50000);
 	if (dwResult == SND_pc_C_ulWaitTimedOut)
@@ -816,7 +816,7 @@ void SND_pc_fn_vOpenWaveOut(void)
 			SND_pc_bDriverTaken = TRUE;
 			for (i = 0; i < SND_pc_lNbBuffers; i++)
 			{
-				memset(&SND_pc_a_stWaveHdr[i],0,sizeof(WAVEHDR));
+				memset(&SND_pc_a_stWaveHdr[i],0,sizeof(SND_pc_tdstBufferHeader));
 				SND_pc_a_stWaveHdr[i].lpData = SND_pc_a_pBuffers[i];
 				SND_pc_a_stWaveHdr[i].dwBufferLength = SND_pc_lBufferLength;
 				SND_pc_a_stWaveHdr[i].dwFlags = 0;
@@ -1308,7 +1308,7 @@ void SND_pc_fn_vTakeWaveOut(void)
 	if (SND_pc_M_ulGetCurrentThreadId() != SND_pc_dwThreadId)
 	{
 		hEvent = SND_pc_M_hCreateEvent();
-		if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgPrendDriver,(WPARAM)hEvent,0))
+		if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgPrendDriver,(SND_pc_tdulMessageParam)hEvent,0))
 			SND_M_DisplayError(0x1D,"Error on PostThreadMessage");
 		SND_pc_M_ulWaitEventOrBreak(hEvent);
 		SND_pc_M_bDeleteEvent(hEvent);
@@ -1331,7 +1331,7 @@ void SND_pc_fn_vReleaseWaveOut(void)
 		if (SND_pc_M_ulGetCurrentThreadId() != SND_pc_dwThreadId)
 		{
 			hEvent = SND_pc_M_hCreateEvent();
-			if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgLibereDriver,(WPARAM)hEvent,0))
+			if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgLibereDriver,(SND_pc_tdulMessageParam)hEvent,0))
 				SND_M_DisplayError(0x1D,"Error on PostThreadMessage");
 			SND_pc_M_ulWaitEventOrBreak(hEvent);
 			SND_pc_M_bDeleteEvent(hEvent);
@@ -1514,7 +1514,7 @@ int SND_fn_iInitSample(SND_tdstInitStruct *pInitStruct)
 	pMsg->pInitStruct = pInitStruct;
 	pMsg->iResult = C_INIT_FAILED;
 	hEvent = SND_pc_M_hCreateEvent();
-	if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgInitSnd,(WPARAM)hEvent,(LPARAM)pMsg))
+	if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgInitSnd,(SND_pc_tdulMessageParam)hEvent,(SND_pc_tdlMessageParam)pMsg))
 		SND_M_DisplayError(0x1D,"Error on PostThreadMessage");
 	SND_pc_M_ulWaitEventOrBreak(hEvent);
 
@@ -1580,7 +1580,7 @@ void SND_fn_vDesInitSample(void)
 			return;
 		}
 		hEvent = SND_pc_M_hCreateEvent();
-		if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgDesInitSnd,(WPARAM)hEvent,0))
+		if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgDesInitSnd,(SND_pc_tdulMessageParam)hEvent,0))
 		{
 			GetLastError();
 			SND_pc_fn_vDesInitWaveOut();

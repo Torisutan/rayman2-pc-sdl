@@ -305,7 +305,7 @@ void __stdcall SND_fn_vNextElement(long voice)
         unsigned long ulEndingTrack;
         SndBool sequence_is_finished;
 		int i;
-		SECURITY_ATTRIBUTES stSecurity;
+		SND_pc_tdstThreadSecurity stSecurity;
 
         stActiveSequence[voice].bManagingSequence=TRUE;
 
@@ -378,14 +378,13 @@ void __stdcall SND_fn_vNextElement(long voice)
   												if (stActiveSequence[voice].pfnSoundCallback)
 													{
 
-														stSecurity.nLength = sizeof(SECURITY_ATTRIBUTES);
-														stSecurity.bInheritHandle = TRUE;
-														stSecurity.lpSecurityDescriptor = NULL;
+														SND_pc_M_vInitThreadSecurity(stSecurity);
+
 														SND_pc_g_stSeqCallbackArg.pfnCallback = stActiveSequence[voice].pfnSoundCallback;
 														SND_pc_g_stSeqCallbackArg.lParCallback = stActiveSequence[voice].lParSoundCallback;
-														SND_pc_g_hSeqCallbackThread = CreateThread(&stSecurity, 0,
-															(LPTHREAD_START_ROUTINE)SND_pc_fn_ulSeqCallbackThread,
-															&SND_pc_g_stSeqCallbackArg, 0, &SND_pc_g_dwSeqCallbackThreadId);
+														SND_pc_g_hSeqCallbackThread = SND_pc_M_hCreateThread(&stSecurity,
+															(SND_pc_tdpfnThreadProc)SND_pc_fn_ulSeqCallbackThread,
+															&SND_pc_g_stSeqCallbackArg, &SND_pc_g_dwSeqCallbackThreadId);
 														if (SND_pc_g_hSeqCallbackThread == NULL)
 															SND_fn_vDisplayError(0x27, "");
 														stActiveSequence[voice].pfnSoundCallback = NULL;
@@ -408,7 +407,7 @@ void __stdcall SND_fn_vStopSnd(long voie);
 /* 0x0045B0B0 */
 void __stdcall SND_fn_vStopSeq(long voice)
 {
-		SECURITY_ATTRIBUTES stSecurity;
+		SND_pc_tdstThreadSecurity stSecurity;
 
         if (stActiveSequence[voice].bActive)
         {
@@ -420,14 +419,13 @@ void __stdcall SND_fn_vStopSeq(long voice)
   			if (stActiveSequence[voice].pfnSoundCallback)
 				{
 
-					stSecurity.nLength = sizeof(SECURITY_ATTRIBUTES);
-					stSecurity.bInheritHandle = TRUE;
-					stSecurity.lpSecurityDescriptor = NULL;
+					SND_pc_M_vInitThreadSecurity(stSecurity);
+
 					SND_pc_g_stSeqCallbackArg.pfnCallback = stActiveSequence[voice].pfnSoundCallback;
 					SND_pc_g_stSeqCallbackArg.lParCallback = stActiveSequence[voice].lParSoundCallback;
-					SND_pc_g_hSeqCallbackThread = CreateThread(&stSecurity, 0,
-						(LPTHREAD_START_ROUTINE)SND_pc_fn_ulSeqCallbackThread,
-						&SND_pc_g_stSeqCallbackArg, 0, &SND_pc_g_dwSeqCallbackThreadId);
+					SND_pc_g_hSeqCallbackThread = SND_pc_M_hCreateThread(&stSecurity,
+						(SND_pc_tdpfnThreadProc)SND_pc_fn_ulSeqCallbackThread,
+						&SND_pc_g_stSeqCallbackArg, &SND_pc_g_dwSeqCallbackThreadId);
 					if (SND_pc_g_hSeqCallbackThread == NULL)
 						SND_fn_vDisplayError(0x27, "");
 					stActiveSequence[voice].pfnSoundCallback = NULL;

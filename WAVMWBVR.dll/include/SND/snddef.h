@@ -187,12 +187,48 @@
 #define SND_C_RES_FANTOME_PTR NULL
 #define SND_C_RES_FANTOME_ID -1
 
+#if !defined(GAMECONSOLE) && !defined(GENERIC)
+
+#if defined(USE_SDL)
+/* SDL backend (sdl_sndwave.c): locks, events and the output device are its objects; the waveOut
+ * format, buffer header and message types stay as the shared code fills them on Windows. */
+#include "sdl_sndwave.h"
+#define SND_pc_tdhLock					void *
+#define SND_pc_tdhEvent					void *
+#define SND_pc_tdhThread				void *
+#define SND_pc_tdhWaitable				void *
+#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
+#define SND_pc_tdstPerfCounter			SND_tdstPerfCounter
+#define SND_pc_tdhDevice				void *
+#define SND_pc_tdhWindow				HWND
+#define SND_pc_tdhInstance				HINSTANCE
+#define SND_pc_tdstWaveFormat			WAVEFORMATEX
+#define SND_pc_tdstBufferHeader			WAVEHDR
+#define SND_pc_tdulMessageParam			WPARAM
+#define SND_pc_tdlMessageParam			LPARAM
+#else
+#define SND_pc_tdhLock					HANDLE
+#define SND_pc_tdhEvent					HANDLE
+#define SND_pc_tdhThread				HANDLE
+#define SND_pc_tdhWaitable				HANDLE
+#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
+#define SND_pc_tdstPerfCounter			LARGE_INTEGER
+#define SND_pc_tdhDevice				HWAVEOUT
+#define SND_pc_tdhWindow				HWND
+#define SND_pc_tdhInstance				HINSTANCE
+#define SND_pc_tdstWaveFormat			WAVEFORMATEX
+#define SND_pc_tdstBufferHeader			WAVEHDR
+#define SND_pc_tdulMessageParam			WPARAM
+#define SND_pc_tdlMessageParam			LPARAM
+#endif /* USE_SDL */
+#endif
+
 typedef struct _SND_tdstInitStruct
 {
 #if !defined(GAMECONSOLE) && !defined(GENERIC)
-        HINSTANCE hProcessInstance;
-        HWND hMainWindow;
-        HANDLE hMutexDX;
+        SND_pc_tdhInstance hProcessInstance;
+        SND_pc_tdhWindow hMainWindow;
+        SND_pc_tdhLock hMutexDX;
 #else
         int bidon;
 #endif
@@ -213,15 +249,7 @@ typedef struct _SND_tdstInitStruct
  * the error box. The SDL output has no message thread: every caller counts as the driver's thread (one
  * thread id), so taking and releasing the device always goes the direct way, under the sample lock, and
  * nothing is posted (the waveOut thread's messages have no receiver here). APM's critical section is
- * still Win32 (SND_pc_tdstCriticalSection). */
-#include "sdl_sndwave.h"
-#define SND_pc_tdhLock					void *
-#define SND_pc_tdhEvent					void *
-#define SND_pc_tdhThread				void *
-#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
-#define SND_pc_tdstPerfCounter			SND_tdstPerfCounter
-#define SND_pc_tdhDevice				void *
-
+ * still Win32. */
 #define SND_pc_C_ulWaitForever			SND_C_ulWaitForever
 #define SND_pc_C_ulWaitTimedOut			SND_C_ulWaitTimedOut
 
@@ -229,6 +257,11 @@ typedef struct _SND_tdstInitStruct
 #define SND_pc_M_ulWaitLock(hLock,ulMs)			SND_fn_ulWaitLock((hLock),(ulMs))
 #define SND_pc_M_bReleaseLock(hLock)			SND_fn_bReleaseLock(hLock)
 #define SND_pc_M_bDeleteLock(hLock)				SND_fn_bDeleteLock(hLock)
+
+#define SND_pc_M_vInitCriticalSection(p_stCs)	InitializeCriticalSection(p_stCs)
+#define SND_pc_M_vDeleteCriticalSection(p_stCs)	DeleteCriticalSection(p_stCs)
+#define SND_pc_M_vEnterCriticalSection(p_stCs)	EnterCriticalSection(p_stCs)
+#define SND_pc_M_vLeaveCriticalSection(p_stCs)	LeaveCriticalSection(p_stCs)
 
 #define SND_pc_M_ulLockOrBreak(hLock)			SND_pc_fn_ulWaitObjectOrBreak((hLock),SND_C_ulWaitForever)
 #define SND_pc_M_ulWaitEventOrBreak(hEvent)		SND_fn_ulWaitEventOrBreak(hEvent)
@@ -257,13 +290,6 @@ typedef struct _SND_tdstInitStruct
 #define SND_pc_M_vErrorBox(szText,szCaption)	SND_fn_vErrorBox((szText),(szCaption))
 #define SND_pc_M_vBreak()						SND_fn_vBreak()
 #else
-#define SND_pc_tdhLock					HANDLE
-#define SND_pc_tdhEvent					HANDLE
-#define SND_pc_tdhThread				HANDLE
-#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
-#define SND_pc_tdstPerfCounter			LARGE_INTEGER
-#define SND_pc_tdhDevice				HWAVEOUT
-
 #define SND_pc_C_ulWaitForever			INFINITE
 #define SND_pc_C_ulWaitTimedOut			WAIT_TIMEOUT
 
@@ -271,6 +297,11 @@ typedef struct _SND_tdstInitStruct
 #define SND_pc_M_ulWaitLock(hLock,ulMs)			WaitForSingleObject((hLock),(ulMs))
 #define SND_pc_M_bReleaseLock(hLock)			ReleaseMutex(hLock)
 #define SND_pc_M_bDeleteLock(hLock)				CloseHandle(hLock)
+
+#define SND_pc_M_vInitCriticalSection(p_stCs)	InitializeCriticalSection(p_stCs)
+#define SND_pc_M_vDeleteCriticalSection(p_stCs)	DeleteCriticalSection(p_stCs)
+#define SND_pc_M_vEnterCriticalSection(p_stCs)	EnterCriticalSection(p_stCs)
+#define SND_pc_M_vLeaveCriticalSection(p_stCs)	LeaveCriticalSection(p_stCs)
 
 #define SND_pc_M_ulLockOrBreak(hLock)			SND_pc_fn_ulWaitObjectOrBreak((hLock),INFINITE)
 #define SND_pc_M_ulWaitEventOrBreak(hEvent)		SND_pc_fn_ulWaitObjectOrBreak((hEvent),INFINITE)

@@ -110,7 +110,7 @@ SndBool __stdcall SND_fn_bIsDataDirectory(const char *szDir)
 void __stdcall SND_fn_vResolveFileName(char *czRelativeName, char *czAbsoluteName)
 {
     int    iDir;
-    HANDLE hFile;
+    tdhSndFile hFile;
     char   szPath[0x100];
     char   szMsg[0x100];
 
@@ -119,7 +119,7 @@ void __stdcall SND_fn_vResolveFileName(char *czRelativeName, char *czAbsoluteNam
         strcpy(szPath, SND_pc_szDataDirectory[iDir]);
         strcat(szPath, czRelativeName);
         hFile = SND_fn_hOpenFileReadSnd(szPath);
-        if (hFile != INVALID_HANDLE_VALUE)
+        if (hFile != OPENFILESND_FAILED)
         {
             SND_fn_vCloseFileSnd(hFile);
             strncpy(czAbsoluteName, szPath, 0x100);
@@ -132,7 +132,7 @@ void __stdcall SND_fn_vResolveFileName(char *czRelativeName, char *czAbsoluteNam
         strcat(szPath, SND_pc_szDataDirectory[iDir]);
         strcat(szPath, czRelativeName);
         hFile = SND_fn_hOpenFileReadSnd(szPath);
-        if (hFile != INVALID_HANDLE_VALUE)
+        if (hFile != OPENFILESND_FAILED)
         {
             SND_fn_vCloseFileSnd(hFile);
             strncpy(czAbsoluteName, szPath, 0x100);
@@ -146,27 +146,27 @@ void __stdcall SND_fn_vResolveFileName(char *czRelativeName, char *czAbsoluteNam
 
 SndBool __stdcall SND_fn_bSetCurrentDirectory(char *czDir)
 {
-    return SetCurrentDirectoryA(czDir);
+    return SND_pc_M_bSetCurrentDirectory(czDir);
 }
 
 SndBool __stdcall SND_fn_bGetCurrentDirectory(char *czDir, int iMaxChar)
 {
-    return GetCurrentDirectoryA(iMaxChar, czDir);
+    return SND_pc_M_ulGetCurrentDirectory(czDir, iMaxChar);
 }
 
 SndBool __stdcall SND_fn_bLoadDataInMemAndSwap(void *adr, unsigned long ulNbBytes, char *czFileName,
                                                unsigned long ulOffset, SndBool bSwap)
 {
-    HANDLE hFile;
-    DWORD  dwRead;
+    tdhSndFile hFile;
+    unsigned long dwRead;
     int            iPairs;
     unsigned char *p;
     unsigned char  ucTmp;
 
     hFile = SND_fn_hOpenFileReadSnd(czFileName);
-    if (hFile != INVALID_HANDLE_VALUE)
+    if (hFile != OPENFILESND_FAILED)
     {
-        SND_fn_dwSeekFileSnd(hFile, ulOffset, 0);
+        SND_fn_dwSeekFileSnd(hFile, ulOffset, SEEKFILESND_BEGIN);
         dwRead = SND_fn_dwReadFileSnd(hFile, ulNbBytes, adr);
         SND_fn_vCloseFileSnd(hFile);
         if (bSwap != 0)
@@ -191,64 +191,64 @@ SndBool __stdcall SND_fn_bLoadDataInMem(void *adr, unsigned long ulNbBytes, char
     return SND_fn_bLoadDataInMemAndSwap(adr, ulNbBytes, czFileName, ulOffset, 0);
 }
 
-unsigned long __stdcall SND_fn_dwFileSndLength(HANDLE hSndFile)
+unsigned long __stdcall SND_fn_dwFileSndLength(tdhSndFile hSndFile)
 {
-    return GetFileSize(hSndFile, NULL);
+    return SND_pc_M_ulGetFileSize(hSndFile);
 }
 
-HANDLE __stdcall SND_fn_hOpenFileReadSnd(char *czFileName)
+tdhSndFile __stdcall SND_fn_hOpenFileReadSnd(char *czFileName)
 {
-    HANDLE hFile;
-    DWORD  dwError;
+    tdhSndFile hFile;
+    unsigned long dwError;
     char   szCwd[0x50];
-    LPSTR  pszMsg;
+    char   *pszMsg;
     char   szMsg[0x100];
 
-    hFile = CreateFileA(czFileName, GENERIC_READ, FILE_SHARE_READ, NULL,
-                        OPEN_EXISTING, 0, NULL);
-    if (hFile == INVALID_HANDLE_VALUE)
+    hFile = SND_pc_M_hOpenFile(czFileName, OPENFILESND_READ);
+
+    if (hFile == OPENFILESND_FAILED)
     {
-        GetCurrentDirectoryA(0x50, szCwd);
-        dwError = GetLastError();
+        SND_pc_M_ulGetCurrentDirectory(szCwd, 0x50);
+        dwError = SND_pc_M_ulGetLastError();
         if ((dwError != 2) && (dwError != 3))
         {
-            FormatMessageA(0x1100, NULL, dwError, 0x400, (LPSTR)&pszMsg, 0, NULL);
+            SND_pc_M_ulFormatErrorText(dwError, &pszMsg);
             strcpy(szMsg, czFileName);
             strcat(szMsg, " -> ");
             strncat(szMsg, pszMsg, 0xff - strlen(szMsg));
-            LocalFree(pszMsg);
+            SND_pc_M_vFreeErrorText(pszMsg);
         }
     }
     return hFile;
 }
 
-unsigned long __stdcall SND_fn_dwReadFileSnd(HANDLE hSndFile, unsigned long dwNbBytes, void *ptr)
+unsigned long __stdcall SND_fn_dwReadFileSnd(tdhSndFile hSndFile, unsigned long dwNbBytes, void *ptr)
 {
-    BOOL  bOk;
-    DWORD dwRead;
+    int   bOk;
+    unsigned long dwRead;
 
     dwRead = 0;
-    bOk = ReadFile(hSndFile, ptr, dwNbBytes, &dwRead, NULL);
+    bOk = SND_pc_M_bReadFile(hSndFile, ptr, dwNbBytes, &dwRead);
     if (bOk == 0)
-        GetLastError();
+        SND_pc_M_ulGetLastError();
     return dwRead;
 }
 
-unsigned long __stdcall SND_fn_dwWriteFileSnd(HANDLE hSndFile, unsigned long dwNbBytes, void *ptr)
+unsigned long __stdcall SND_fn_dwWriteFileSnd(tdhSndFile hSndFile, unsigned long dwNbBytes, void *ptr)
 {
-    DWORD dwWritten;
+    unsigned long dwWritten;
 
     dwWritten = 0;
-    WriteFile(hSndFile, ptr, dwNbBytes, &dwWritten, NULL);
+    SND_pc_M_bWriteFile(hSndFile, ptr, dwNbBytes, &dwWritten);
     return dwWritten;
 }
 
-unsigned long __stdcall SND_fn_dwSeekFileSnd(HANDLE hSndFile, unsigned long dwOffset, unsigned long dwOrigin)
+unsigned long __stdcall SND_fn_dwSeekFileSnd(tdhSndFile hSndFile, unsigned long dwOffset, unsigned long dwOrigin)
 {
-    return SetFilePointer(hSndFile, dwOffset, NULL, dwOrigin);
+    return SND_pc_M_ulSeekFile(hSndFile, dwOffset, dwOrigin);
 }
 
-void __stdcall SND_fn_vCloseFileSnd(HANDLE hSndFile)
+void __stdcall SND_fn_vCloseFileSnd(tdhSndFile hSndFile)
 {
-    CloseHandle(hSndFile);
+    SND_pc_M_bCloseFile(hSndFile);
 }

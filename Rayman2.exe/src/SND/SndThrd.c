@@ -15,13 +15,13 @@ typedef struct SND_pc_tdstMouchard_ {
     unsigned long ulThreadId;
 } SND_pc_tdstMouchard;
 
-static CRITICAL_SECTION    SND_pc_g_stErrDispCs;          /* 0x004B8508 */
-static HANDLE              SND_pc_g_hSoundMutex;          /* 0x004B8520 */
+static SND_pc_tdstCriticalSection SND_pc_g_stErrDispCs;   /* 0x004B8508 */
+static SND_pc_tdhLock      SND_pc_g_hSoundMutex;          /* 0x004B8520 */
 static unsigned long       SND_pc_g_ulMutexLocked;        /* 0x004B8524 */
 static unsigned long       SND_pc_g_ulMutexWaitFlag;      /* 0x004B8528 */
 static SND_pc_tdstMouchard SND_pc_g_stMutexMouchard;      /* 0x004B8530 */
 static unsigned long       SND_pc_g_ulThreadInitDone;     /* 0x004B85B8 */
-static HANDLE              SND_pc_g_hErrDispBusyEvent;    /* 0x004B85BC */
+static SND_pc_tdhEvent     SND_pc_g_hErrDispBusyEvent;    /* 0x004B85BC */
 static SND_pc_tdstMouchard SND_pc_g_stErrDispMouchard;    /* 0x004B85C0 */
 
 static const char SND_C_szLastCallFmt[] =
@@ -37,14 +37,14 @@ void __stdcall SND_fn_vMouchardThreadsnd(char *szFile, long lLine)
 {
     strncpy(SND_pc_g_stMutexMouchard.szFile, szFile, 0x80);
     SND_pc_g_stMutexMouchard.lLine      = lLine;
-    SND_pc_g_stMutexMouchard.ulThreadId = GetCurrentThreadId();
+    SND_pc_g_stMutexMouchard.ulThreadId = SND_pc_M_ulGetCurrentThreadId();
 }
 
 void __stdcall SND_pc_fn_vMouchardErrorDisplay(char *szFile, long lLine)
 {
     strncpy(SND_pc_g_stErrDispMouchard.szFile, szFile, 0x80);
     SND_pc_g_stErrDispMouchard.lLine      = lLine;
-    SND_pc_g_stErrDispMouchard.ulThreadId = GetCurrentThreadId();
+    SND_pc_g_stErrDispMouchard.ulThreadId = SND_pc_M_ulGetCurrentThreadId();
 }
 
 void __stdcall SND_fn_vEnterCriticalSectionThreadSnd_(void)
@@ -57,12 +57,12 @@ void __stdcall SND_fn_vEnterCriticalSectionThreadSnd_(void)
     if (SND_pc_g_hSoundMutex != NULL) {
         unsigned long ulResult;
 
-        ulResult = WaitForSingleObject(SND_pc_g_hSoundMutex, INFINITE);
+        ulResult = SND_pc_M_ulWaitLock(SND_pc_g_hSoundMutex, SND_pc_C_ulWaitForever);
         SND_pc_g_ulMutexWaitFlag = 0;
         if (ulResult == 0) {
             SND_pc_g_ulMutexLocked = 1;
         } else {
-            GetLastError();
+            SND_pc_M_ulGetLastError();
             sprintf(szBuffer, SND_C_szLastCallFmt,
                     (unsigned int)SND_pc_g_stMutexMouchard.ulThreadId,
                     (int)SND_pc_g_stMutexMouchard.lLine,
@@ -88,13 +88,13 @@ int __stdcall SND_fn_bTryToEnterCriticalSectionThreadSnd(void)
                 (unsigned int)SND_pc_g_stMutexMouchard.ulThreadId,
                 (int)SND_pc_g_stMutexMouchard.lLine,
                 SND_pc_g_stMutexMouchard.szFile);
-        ulResult = WaitForSingleObject(SND_pc_g_hSoundMutex, 0x64);
+        ulResult = SND_pc_M_ulWaitLock(SND_pc_g_hSoundMutex, 0x64);
         SND_pc_g_ulMutexWaitFlag = 0;
         if (ulResult == 0) {
             SND_pc_g_ulMutexLocked = 1;
             return 1;
         }
-        GetLastError();
+        SND_pc_M_ulGetLastError();
         SND_fn_vDisplayError(E_uwSndSystemError, (char *)SND_C_szDeadLockMsg);
         return 0;
     }
@@ -105,7 +105,7 @@ int __stdcall SND_fn_bTryToEnterCriticalSectionThreadSnd(void)
 void __stdcall SND_fn_vQuitCriticalSectionThreadSnd(void)
 {
     SND_pc_g_ulMutexLocked = 0;
-    ReleaseMutex(SND_pc_g_hSoundMutex);
+    SND_pc_M_bReleaseLock(SND_pc_g_hSoundMutex);
 }
 
 void __stdcall SND_fn_vWaitForValueThreadSnd(unsigned long *p_ulValue,
@@ -115,7 +115,7 @@ void __stdcall SND_fn_vWaitForValueThreadSnd(unsigned long *p_ulValue,
 
     while ((*p_ulValue != ulExpected) && (lTries < 10)) {
         lTries++;
-        Sleep(0x64);
+        SND_pc_M_vSleep(0x64);
     }
     if (*p_ulValue != ulExpected) {
         SND_fn_vDisplayError(E_uwSndThreadDeadLockError,
@@ -125,37 +125,37 @@ void __stdcall SND_fn_vWaitForValueThreadSnd(unsigned long *p_ulValue,
 
 void __cdecl SND_pc_fn_vInitErrorDisplayCs(void)
 {
-    InitializeCriticalSection(&SND_pc_g_stErrDispCs);
-    SND_pc_g_hErrDispBusyEvent = CreateEventA(NULL, 1, 0, NULL);
+    SND_pc_M_vInitCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_g_hErrDispBusyEvent = SND_pc_M_hCreateManualEvent();
 }
 
 void __cdecl SND_pc_fn_vDesInitErrorDisplayCs(void)
 {
-    HANDLE hEvent = SND_pc_g_hErrDispBusyEvent;
+    SND_pc_tdhEvent hEvent = SND_pc_g_hErrDispBusyEvent;
 
-    LeaveCriticalSection(&SND_pc_g_stErrDispCs);
-    DeleteCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_M_vLeaveCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_M_vDeleteCriticalSection(&SND_pc_g_stErrDispCs);
     SND_pc_g_hErrDispBusyEvent = NULL;
-    ResetEvent(hEvent);
-    CloseHandle(hEvent);
+    SND_pc_M_bResetEvent(hEvent);
+    SND_pc_M_bDeleteEvent(hEvent);
 }
 
 void __stdcall SND_fn_vEnterCriticalSectionForErrorDisplay(void)
 {
-    EnterCriticalSection(&SND_pc_g_stErrDispCs);
-    SetEvent(SND_pc_g_hErrDispBusyEvent);
+    SND_pc_M_vEnterCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_M_bSetEvent(SND_pc_g_hErrDispBusyEvent);
     SND_pc_fn_vMouchardErrorDisplay((char *)SND_C_szSndThrdSrcFile, 0x13A);
 }
 
 void __stdcall SND_fn_vQuitCriticalSectionForErrorDisplay(void)
 {
-    ResetEvent(SND_pc_g_hErrDispBusyEvent);
-    LeaveCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_M_bResetEvent(SND_pc_g_hErrDispBusyEvent);
+    SND_pc_M_vLeaveCriticalSection(&SND_pc_g_stErrDispCs);
 }
 
 int __stdcall SND_fn_bEnterCriticalSectionForDriverThreadSnd(void)
 {
-    HANDLE aHandles[2];
+    SND_pc_tdhWaitable aHandles[2];
     char   szBuffer[256];
 
     if (SND_pc_g_ulThreadInitDone == 0) {
@@ -168,13 +168,13 @@ int __stdcall SND_fn_bEnterCriticalSectionForDriverThreadSnd(void)
                 SND_pc_g_stMutexMouchard.szFile);
         aHandles[0] = SND_pc_g_hSoundMutex;
         aHandles[1] = SND_pc_g_hErrDispBusyEvent;
-        if (WaitForMultipleObjects(2, aHandles, 0, INFINITE) == 0) {
-            if (WaitForSingleObject(SND_pc_g_hErrDispBusyEvent, 0) != 0) {
+        if (SND_pc_M_ulWaitAny(2, aHandles, SND_pc_C_ulWaitForever) == 0) {
+            if (SND_pc_M_ulWaitEvent(SND_pc_g_hErrDispBusyEvent, 0) != 0) {
                 SND_pc_g_ulMutexWaitFlag = 0;
                 SND_pc_g_ulMutexLocked   = 1;
                 return 1;
             }
-            ReleaseMutex(SND_pc_g_hSoundMutex);
+            SND_pc_M_bReleaseLock(SND_pc_g_hSoundMutex);
         }
     }
     return 0;
@@ -254,7 +254,7 @@ void __stdcall dbgSND_fn_vSendRequestSound(void *pEvt)
 
 void __stdcall SND_fn_vInitThreadSnd(void)
 {
-    SND_pc_g_hSoundMutex      = CreateMutexA(NULL, 1, NULL);
+    SND_pc_g_hSoundMutex      = SND_pc_M_hCreateLock(1);
     SND_pc_g_ulMutexLocked    = 0;
     SND_pc_g_ulThreadInitDone = 1;
     SND_pc_g_ulMutexWaitFlag  = 0;
@@ -263,11 +263,11 @@ void __stdcall SND_fn_vInitThreadSnd(void)
 
 void __stdcall SND_fn_vDesInitThreadSnd(void)
 {
-    HANDLE hMutex;
+    SND_pc_tdhLock hMutex;
 
     SND_pc_fn_vDesInitErrorDisplayCs();
     hMutex = SND_pc_g_hSoundMutex;
     SND_pc_g_hSoundMutex = NULL;
-    ReleaseMutex(hMutex);
-    CloseHandle(hMutex);
+    SND_pc_M_bReleaseLock(hMutex);
+    SND_pc_M_bDeleteLock(hMutex);
 }

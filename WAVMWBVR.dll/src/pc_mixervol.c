@@ -19,9 +19,9 @@ UINT				SND_pc_uMixerId = 0;
 HMIXER				SND_pc_hMixer = NULL;
 long				SND_pc_lMixerOk = 0;
 
-HWND				SND_pc_hMainWindow = NULL;
-HINSTANCE			SND_pc_hFirstProcessInstance = NULL;
-HINSTANCE			SND_pc_hProcessInstance = NULL;
+SND_pc_tdhWindow	SND_pc_hMainWindow = NULL;
+SND_pc_tdhInstance	SND_pc_hFirstProcessInstance = NULL;
+SND_pc_tdhInstance	SND_pc_hProcessInstance = NULL;
 
 long SND_pc_fn_lOpenMixerVolume(SND_pc_tdhDevice hWaveOut)
 {
