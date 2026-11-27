@@ -1,0 +1,22 @@
+# Regression input for Ski_10 into the Hall of Doors (Mapmonde, from script frame ~780): play.txt
+# up to the level change, ENTER twice on the save question, then only moves along the paths
+# between the doors (no jump, no shot).
+60   300  UP
+150  160  A
+300  500  UP,RIGHT
+360  370  A
+420  425  SPACE
+500  700  LEFT
+560  570  A
+700  720  SPACE
+720  780  UP
+860  865  ENTER
+900  905  ENTER
+950  1050 DOWN
+1050 1200 LEFT
+1200 1350 RIGHT
+1350 1500 RIGHT
+1500 1650 DOWN
+1650 1800 LEFT
+1800 1950 UP
+1950 2050 RIGHT
