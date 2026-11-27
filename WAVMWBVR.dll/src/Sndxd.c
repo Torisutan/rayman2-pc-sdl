@@ -15,6 +15,7 @@
 
 #include "sndres.h"
 #include "sndxdwav.h"
+#include "sndxdadpcm.h"
 #include "snd_pc.h"
 
 typedef struct _micro_description *p_micro_description;
