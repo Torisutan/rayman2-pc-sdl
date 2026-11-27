@@ -42,6 +42,11 @@ void *			SND_fn_hCreateEvent(void);
 int				SND_fn_bSetEvent(void *hEvent);
 unsigned long	SND_fn_ulWaitEventOrBreak(void *hEvent);
 int				SND_fn_bDeleteEvent(void *hEvent);
+/* critical section (APM's voice table): a recursive SDL mutex in *p_hCs */
+void			SND_fn_vInitCriticalSection(void **p_hCs);
+void			SND_fn_vDeleteCriticalSection(void **p_hCs);
+void			SND_fn_vEnterCriticalSection(void **p_hCs);
+void			SND_fn_vLeaveCriticalSection(void **p_hCs);
 /* timing, the voice-end callback thread (detached), the error box, the debugger break */
 int				SND_fn_bGetPerfCounter(SND_tdstPerfCounter *p_stCounter);
 int				SND_fn_bGetPerfFrequency(SND_tdstPerfCounter *p_stFrequency);

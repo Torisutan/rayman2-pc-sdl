@@ -197,7 +197,7 @@
 #define SND_pc_tdhEvent					void *
 #define SND_pc_tdhThread				void *
 #define SND_pc_tdhWaitable				void *
-#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
+#define SND_pc_tdstCriticalSection		void *
 #define SND_pc_tdstPerfCounter			SND_tdstPerfCounter
 #define SND_pc_tdhDevice				void *
 #define SND_pc_tdhWindow				HWND
@@ -248,8 +248,8 @@ typedef struct _SND_tdstInitStruct
 /* SDL backend (sdl_sndwave.c): output device, locks, events, the voice-end callback thread, timing and
  * the error box. The SDL output has no message thread: every caller counts as the driver's thread (one
  * thread id), so taking and releasing the device always goes the direct way, under the sample lock, and
- * nothing is posted (the waveOut thread's messages have no receiver here). APM's critical section is
- * still Win32. */
+ * nothing is posted (the waveOut thread's messages have no receiver here).
+ * APM's critical section is an SDL mutex. */
 #define SND_pc_C_ulWaitForever			SND_C_ulWaitForever
 #define SND_pc_C_ulWaitTimedOut			SND_C_ulWaitTimedOut
 
@@ -258,10 +258,10 @@ typedef struct _SND_tdstInitStruct
 #define SND_pc_M_bReleaseLock(hLock)			SND_fn_bReleaseLock(hLock)
 #define SND_pc_M_bDeleteLock(hLock)				SND_fn_bDeleteLock(hLock)
 
-#define SND_pc_M_vInitCriticalSection(p_stCs)	InitializeCriticalSection(p_stCs)
-#define SND_pc_M_vDeleteCriticalSection(p_stCs)	DeleteCriticalSection(p_stCs)
-#define SND_pc_M_vEnterCriticalSection(p_stCs)	EnterCriticalSection(p_stCs)
-#define SND_pc_M_vLeaveCriticalSection(p_stCs)	LeaveCriticalSection(p_stCs)
+#define SND_pc_M_vInitCriticalSection(p_stCs)	SND_fn_vInitCriticalSection(p_stCs)
+#define SND_pc_M_vDeleteCriticalSection(p_stCs)	SND_fn_vDeleteCriticalSection(p_stCs)
+#define SND_pc_M_vEnterCriticalSection(p_stCs)	SND_fn_vEnterCriticalSection(p_stCs)
+#define SND_pc_M_vLeaveCriticalSection(p_stCs)	SND_fn_vLeaveCriticalSection(p_stCs)
 
 #define SND_pc_M_ulLockOrBreak(hLock)			SND_pc_fn_ulWaitObjectOrBreak((hLock),SND_C_ulWaitForever)
 #define SND_pc_M_ulWaitEventOrBreak(hEvent)		SND_fn_ulWaitEventOrBreak(hEvent)

@@ -344,6 +344,27 @@ int SND_fn_bDeleteEvent(void *hEvent)
 	return 1;
 }
 
+void SND_fn_vInitCriticalSection(void **p_hCs)
+{
+	*p_hCs = SDL_CreateMutex();
+}
+
+void SND_fn_vDeleteCriticalSection(void **p_hCs)
+{
+	SDL_DestroyMutex((SDL_Mutex *)*p_hCs);
+	*p_hCs = NULL;
+}
+
+void SND_fn_vEnterCriticalSection(void **p_hCs)
+{
+	SDL_LockMutex((SDL_Mutex *)*p_hCs);
+}
+
+void SND_fn_vLeaveCriticalSection(void **p_hCs)
+{
+	SDL_UnlockMutex((SDL_Mutex *)*p_hCs);
+}
+
 int SND_fn_bGetPerfCounter(SND_tdstPerfCounter *p_stCounter)
 {
 	p_stCounter->QuadPart = (long long)SDL_GetPerformanceCounter();

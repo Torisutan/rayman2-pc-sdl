@@ -968,15 +968,33 @@ mixer and decoders from the file formats):
      Measured with `tools/local/snd_win32.py` (Win32 imports per object): `sndwave.obj` and
      `pc_sndtrans.obj` call no Win32 function any more (52 -> 34 in the sound code); regression 5/5
      identical to `base_modern`; capture and the focus test (release and restore) as before.
-   - **Still Win32 in the SDL build (for the Linux step; needs seams from the decomp, order M32):**
-     APM's critical section (`SndAdpcm.c`); in the exe's SND module `SndThrd.c` (mutex, events,
-     critical section, `WaitForMultipleObjects`, `Sleep`), `sndfile.c` (file functions; the original
-     engine's `sndfile.h` has per-platform `OPENFILESND_*` macros), `SND.c` (`GetCurrentThreadId`,
-     the `SND_fn_bTestSnd_*` tests: `GetVersionExA`, `waveOutGetDevCapsA`, `MessageBoxA`),
-     `sndseq.c` (`CreateThread`); Win32 types in shared code: `WAVEHDR` / `WAVEFORMATEX` /
-     `MSG` / `WPARAM` in `sndwave.c`, `HANDLE` / `DWORD` in `SND_pc_fn_ulWaitObjectOrBreak`, the
-     init struct's `HINSTANCE` / `HANDLE` (and the two `HINSTANCE` globals `sdl_sndwave.c` defines
-     in `pc_mixervol.c`'s place).
+   - **The rest of the sound code (27.11.2026; seams from the decomp, order M32).** The sound code
+     of the SDL build calls no Win32 function (`snd_win32.py`: 34 -> 0).
+     - Exe, `SND/snddef.h` `USE_SDL` branch -> `SND/sdl_snd.c`: the sound mutex, the error-display
+       lock and event and SndThrd.c's wait for either (one guard mutex and one condition over lock
+       and event records; a lock keeps owner and depth, so it stays recursive and leaving the
+       error-display section unheld, as `SND_pc_fn_vDesInitErrorDisplayCs` does, does nothing),
+       sleep, the thread id (`SDL_GetCurrentThreadID`, the id MMG's channels and ERM's slots
+       get), sndseq.c's callback threads (detached SDL threads; the handle is only tested against
+       NULL), the assert box, the break, and the driver tests (every PCM format bit: SDL converts;
+       platform answered as Windows NT, so the sound initialisation goes as on the PC). The
+       exe needs its own backend: in the DLL build it does not contain `sdl_sndwave.c`.
+     - Exe, `SND/sndfile.h` without `FILE_MODE_C_WIN95` -> `SND/SND_file.c` (C runtime streams,
+       as `MMG/SNA_file.c`): handle `void *`, the Win32 numbers kept (the drivers test the open
+       against `INVALID_HANDLE_VALUE` and seek with 0 and 1), 32-bit signed seeks (APM seeks by
+       -8 as `unsigned long`), working directory through `_chdir`/`_getcwd` (WIN32) or
+       `chdir`/`getcwd`. The error text is `errno`'s; the last error passed in gives no more.
+       Also the `ansi` gate (`RAYMAN2_C_RUNTIME`).
+     - Driver: APM's critical section is a recursive SDL mutex (`sdl_sndwave.c`).
+     - Measured: regression 5/5 identical to `base_modern` for `build-sndlink`, `build-sdl` and
+       `build-ansi`. Capture (`build-sndlink`, Morb_00, 30 s): 2,955 buffers, 29.5 s, RMS per
+       second within a few percent of the capture before (the first, partial second follows the
+       level load). Focus test (minimized 12.9 -> 19.5 s): 23.1 s of output, so the output stops
+       while minimized and resumes; the game closes cleanly.
+     - **Still Win32 types in the SDL branches** (they block a non-Windows compile only):
+       `HINSTANCE` (init struct), `WAVEFORMATEX`, `WAVEHDR`, `WPARAM` / `LPARAM` (driver), the
+       `WAVE_FORMAT_*` bits in `SND_fn_bTestSnd_WinMM`. `sndldbin.c` tests the bank open against
+       `(HANDLE)0xffffffff`, which is not `INVALID_HANDLE_VALUE` on x64 (order M33).
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
    entry points of `sndmix_pc.h`). Selected by `OPTIMIZED_FOR_MMX_WITH_ASM` (Platform macros): the
    C branch by default on every target (decided 27.11.2026: x64 is a goal, and the asm needs the retail
