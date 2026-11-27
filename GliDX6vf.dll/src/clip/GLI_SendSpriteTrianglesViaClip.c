@@ -2,11 +2,7 @@
 #include "GliDX6vf/GliDX6vf_State.h"
 #include "GliDX6vf/clip_staging.h"
 
-#define FUN10006290_CTX_FLAGS1_OFFSET   0x10
-#define FUN10006290_CTX_FOG_ENABLE      0x2d3f4
-#define FUN10006290_CTX_DIFFUSE_OFFSET  0x2d3d4
-
-void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, int param_2)
+void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobals)
 {
 
     short idx[6];
@@ -16,11 +12,11 @@ void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, int param_2)
     idx[0] = 0;  idx[1] = 1;  idx[2] = 2;
     idx[3] = 3;  idx[4] = 2;  idx[5] = 0;
 
-    *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_FLAGS1_OFFSET) |= 2u;
+    p_stGlobals->lCurrentDrawMask |= 2;
 
     GLI_ResetClipPipeline();
 
-    if (*(int *)((unsigned char *)GLI_g_GliBigGlobals + FUN10006290_CTX_FOG_ENABLE) != 0) {
+    if (GLI_g_GliBigGlobals->xFogIsOn != 0) {
         GLI_g_PipelineLabels[GLI_g_PipelineCount] = GLI_PL_CopyFog;
         GLI_g_PipelineCount++;
     }
@@ -60,11 +56,11 @@ void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, int param_2)
         *(unsigned int *)(GLI_g_pStagingCursor + 0x4c);
 
     *(unsigned int *)(GLI_g_pStagingCursor + 0x10)  =
-        *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_DIFFUSE_OFFSET);
+        p_stGlobals->ulColorInitForSprite;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x30)  =
-        *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_DIFFUSE_OFFSET);
+        p_stGlobals->ulColorInitForSprite;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x50)  =
-        *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_DIFFUSE_OFFSET);
+        p_stGlobals->ulColorInitForSprite;
     GLI_g_pUVSrc[0] = &uv_vals[0];
     GLI_g_pUVSrc[1] = &uv_vals[2];
     GLI_g_pUVSrc[2] = &uv_vals[4];
@@ -96,11 +92,11 @@ void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, int param_2)
         *(unsigned int *)(GLI_g_pStagingCursor + 0x4c);
 
     *(unsigned int *)(GLI_g_pStagingCursor + 0x10)  =
-        *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_DIFFUSE_OFFSET);
+        p_stGlobals->ulColorInitForSprite;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x30)  =
-        *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_DIFFUSE_OFFSET);
+        p_stGlobals->ulColorInitForSprite;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x50)  =
-        *(unsigned int *)((unsigned char *)param_2 + FUN10006290_CTX_DIFFUSE_OFFSET);
+        p_stGlobals->ulColorInitForSprite;
     GLI_g_pUVSrc[0] = &uv_vals[0];
     GLI_g_pUVSrc[1] = &uv_vals[2];
     GLI_g_pUVSrc[2] = &uv_vals[4];

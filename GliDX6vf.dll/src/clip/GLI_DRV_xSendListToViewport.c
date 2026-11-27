@@ -4,14 +4,6 @@
 #include "GliDX6vf/GLI_DiagLog.h"
 #include "GliDX6vf/GLI_DX6Constants.h"
 
-#define CTX_CURRENT_DRAW_MASK_OFFSET   0x10
-#define CTX_CURRENT_TEXTURE_OFFSET     0x2d3b4
-#define CTX_CURRENT_MATERIAL_OFFSET    0x2d3b8
-#define CTX_ZLIST_OFFSET               0x2d3e4
-#define CTX_ACTIVE_FOG_OFFSET          0x2d3ec
-#define CTX_LAST_FOG_OFFSET            0x2d3f0
-#define CTX_FOG_ON_OFFSET              0x2d3f4
-
 #define ZLIST_BUCKET_ARRAY_OFFSET   8
 #define ZLIST_SELECTOR_STRIDE       0x4000
 
@@ -37,9 +29,9 @@
 #define GLI_C_Tex_lAddTransparencyTexture 0x00000020u
 
 static void GLI_ApplyViewingListInitialRenderState(void);
-static void GLI_ApplyViewingListNodeRenderState(unsigned char *ctx);
+static void GLI_ApplyViewingListNodeRenderState(GLI_tdstInternalGlobalValuesFor3dEngine *ctx);
 
-#define GLI_CTXP ((unsigned char *)GLI_g_GliBigGlobals)
+#define GLI_CTXP GLI_g_GliBigGlobals
 
 static void GLI_ApplyViewingListInitialRenderState(void)
 {
@@ -52,23 +44,23 @@ static void GLI_ApplyViewingListInitialRenderState(void)
 #undef GLI_CTXP
 #define GLI_CTXP ctx
 
-#define M_Big ((unsigned char *)GLI_g_GliBigGlobals)
-#define M_Texture (*(unsigned char **)(GLI_CTXP + CTX_CURRENT_TEXTURE_OFFSET))
+#define M_Big GLI_g_GliBigGlobals
+#define M_Texture ((unsigned char *)GLI_CTXP->p_stCurrentTexture)
 
-static void GLI_ApplyViewingListNodeRenderState(unsigned char *ctx)
+static void GLI_ApplyViewingListNodeRenderState(GLI_tdstInternalGlobalValuesFor3dEngine *ctx)
 {
     unsigned char ucCyclingMode;
 
-    if (*(unsigned int *)(GLI_CTXP + CTX_CURRENT_DRAW_MASK_OFFSET) & CTX_DRAW_MASK_ZTEST_BIT) {
+    if (GLI_CTXP->lCurrentDrawMask & CTX_DRAW_MASK_ZTEST_BIT) {
         GLI_EnsureZFuncGreaterequal();
     } else {
         GLI_EnsureZFuncAlways();
     }
 
-    if (*(int *)(M_Big + CTX_FOG_ON_OFFSET)) {
-        if (*(void **)(M_Big + CTX_LAST_FOG_OFFSET) != *(void **)(M_Big + CTX_ACTIVE_FOG_OFFSET)) {
-            GLI_UpdateFogParameters(*(float **)(M_Big + CTX_ACTIVE_FOG_OFFSET));
-            *(void **)(M_Big + CTX_LAST_FOG_OFFSET) = *(void **)(M_Big + CTX_ACTIVE_FOG_OFFSET);
+    if (M_Big->xFogIsOn) {
+        if (M_Big->p_stLastComputedFog != M_Big->p_stActiveFog) {
+            GLI_UpdateFogParameters((float *)M_Big->p_stActiveFog);
+            M_Big->p_stLastComputedFog = M_Big->p_stActiveFog;
         }
         if (GLI_g_FogEnableState == 0) {
             GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_FOGENABLE, 1);
@@ -154,7 +146,7 @@ static void GLI_ApplyViewingListNodeRenderState(unsigned char *ctx)
 #undef M_Big
 
 #undef GLI_CTXP
-#define GLI_CTXP ((unsigned char *)GLI_g_GliBigGlobals)
+#define GLI_CTXP GLI_g_GliBigGlobals
 
 __declspec(dllexport) void __cdecl GLI_DRV_xSendListToViewport(void *pVpt)
 {
@@ -167,14 +159,14 @@ __declspec(dllexport) void __cdecl GLI_DRV_xSendListToViewport(void *pVpt)
 
     (void)pVpt;
 
-    if (*(void **)(GLI_CTXP +CTX_ZLIST_OFFSET) == NULL) {
+    if (GLI_CTXP->p_TheZListe == NULL) {
         GLI_DiagLog("xSendListToViewport SKIP — z-list NULL");
         return;
     }
     GLI_DiagLog("xSendListToViewport ENTER vpt=%p", pVpt);
 
-    *(int  *)(GLI_CTXP +CTX_CURRENT_DRAW_MASK_OFFSET) = -1;
-    *(void **)(GLI_CTXP +CTX_CURRENT_TEXTURE_OFFSET)  = NULL;
+    GLI_CTXP->lCurrentDrawMask   = -1;
+    GLI_CTXP->p_stCurrentTexture = NULL;
     GLI_g_SetGlobalAlpha(GLI_VIEWINGLIST_ALPHA_RESET);
     GLI_ResetStagingCursor();
     GLI_ApplyViewingListInitialRenderState();
@@ -182,7 +174,7 @@ __declspec(dllexport) void __cdecl GLI_DRV_xSendListToViewport(void *pVpt)
     selectorByteOffset = 0;
     bucketBaseOffset   = 0;
     do {
-        unsigned char *zlist     = *(unsigned char **)(GLI_CTXP +CTX_ZLIST_OFFSET);
+        unsigned char *zlist     = (unsigned char *)GLI_CTXP->p_TheZListe;
         int            minBucket = *(int *)(zlist + selectorByteOffset);
         int            maxBucket = *(int *)(zlist + selectorByteOffset + 4);
 
@@ -206,23 +198,23 @@ __declspec(dllexport) void __cdecl GLI_DRV_xSendListToViewport(void *pVpt)
                     }
 #endif
 
-                    if (*(unsigned int *)(GLI_CTXP +CTX_CURRENT_TEXTURE_OFFSET)   != node[ZNODE_TEXTURE]  ||
-                        *(unsigned int *)(GLI_CTXP +CTX_CURRENT_DRAW_MASK_OFFSET) != node[ZNODE_DRAWMASK] ||
-                        *(unsigned int *)(GLI_CTXP +CTX_LAST_FOG_OFFSET)          != node[ZNODE_FOG]) {
+                    if ((unsigned int)GLI_CTXP->p_stCurrentTexture  != node[ZNODE_TEXTURE]  ||
+                        (unsigned int)GLI_CTXP->lCurrentDrawMask    != node[ZNODE_DRAWMASK] ||
+                        (unsigned int)GLI_CTXP->p_stLastComputedFog != node[ZNODE_FOG]) {
 
                         GLI_FlushStagedPrimitives();
 
-                        *(unsigned int *)(GLI_CTXP +CTX_CURRENT_DRAW_MASK_OFFSET) = node[ZNODE_DRAWMASK];
-                        *(unsigned int *)(GLI_CTXP +CTX_CURRENT_TEXTURE_OFFSET)   = node[ZNODE_TEXTURE];
-                        *(unsigned int *)(GLI_CTXP +CTX_CURRENT_MATERIAL_OFFSET)  = node[ZNODE_MATERIAL];
+                        GLI_CTXP->lCurrentDrawMask   = (long)node[ZNODE_DRAWMASK];
+                        GLI_CTXP->p_stCurrentTexture = (struct GLI_tdstTexture *)node[ZNODE_TEXTURE];
+                        GLI_CTXP->hCurrentMaterial   = (struct GLI_tdstMaterial_ *)node[ZNODE_MATERIAL];
 
                         if (node[ZNODE_FOG] != 0) {
-                            *(unsigned int *)(GLI_CTXP +CTX_FOG_ON_OFFSET)     = 1;
-                            *(unsigned int *)(GLI_CTXP +CTX_ACTIVE_FOG_OFFSET) = node[ZNODE_FOG];
+                            GLI_CTXP->xFogIsOn      = 1;
+                            GLI_CTXP->p_stActiveFog = (struct tdstFogParams_ *)node[ZNODE_FOG];
                         } else {
-                            *(unsigned int *)(GLI_CTXP +CTX_LAST_FOG_OFFSET)   = 0;
-                            *(unsigned int *)(GLI_CTXP +CTX_ACTIVE_FOG_OFFSET) = 0;
-                            *(unsigned int *)(GLI_CTXP +CTX_FOG_ON_OFFSET)     = 0;
+                            GLI_CTXP->p_stLastComputedFog = NULL;
+                            GLI_CTXP->p_stActiveFog       = NULL;
+                            GLI_CTXP->xFogIsOn            = 0;
                         }
 
                         GLI_ResetStagingCursor();

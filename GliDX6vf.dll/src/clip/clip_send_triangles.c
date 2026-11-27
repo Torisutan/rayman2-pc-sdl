@@ -3,16 +3,10 @@
 #include "GliDX6vf/clip_staging.h"
 #include "GliDX6vf/GLI_DiagLog.h"
 
-#define CTX_FLAGS1_OFFSET   0x10
-#define CTX_FLAGS2_OFFSET   0x18
-#define CTX_FLAGS3_OFFSET   0x10
-#define CTX_FOG_FLAG_OFFSET 0x2d3f4
-#define CTX_TEX_PTR_OFFSET  0x2d3b4
-
 __declspec(dllexport) void __cdecl
-GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
+GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT)
 {
-    unsigned char *ctx;
+    GLI_tdstInternalGlobalValuesFor3dEngine *ctx;
     unsigned int ctx18;
     unsigned char *tex;
     DWORD bitmask;
@@ -20,11 +14,11 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
     GLI_M_DiagCountSend();
     if (GLI_g_ActivateGliFlag && GLI_DiagVerbose()) {
         GLI_DiagLog("send xSendElementTIToClip_TRIANGLES #%lu element=%p pGMT=%p",
-                    GLI_g_DiagSendCount, element, pGMT);
+                    GLI_g_DiagSendCount, element, (void *)p_stGlobaleMT);
     }
     GLI_g_pElementBlock = element;
     GLI_SnapshotClipWindow();
-    *(unsigned int *)((unsigned char *)pGMT + 0x10) |= 2u;
+    p_stGlobaleMT->lCurrentDrawMask |= 2;
     GLI_g_VertexStride = 10.0f;
     GLI_ResetClipPipeline();
 
@@ -34,33 +28,33 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
     bitmask |= 0x2u;
     GLI_g_PipelineBitmask = bitmask;
 
-    if ((*(unsigned int *)((unsigned char *)pGMT + 0x10) & 0x400000u) == 0)
+    if ((p_stGlobaleMT->lCurrentDrawMask & 0x400000u) == 0)
         GLI_g_PipelineLabels[GLI_g_PipelineCount] = GLI_PL_LoadColorsFromCtx;
     else
         GLI_g_PipelineLabels[GLI_g_PipelineCount] = GLI_PL_LoadColorsFromElement;
     GLI_g_PipelineCount++;
 
-    ctx = (unsigned char *)GLI_g_GliBigGlobals;
+    ctx = GLI_g_GliBigGlobals;
 
-    if (*(int *)(ctx + CTX_FOG_FLAG_OFFSET) != 0) {
+    if (ctx->xFogIsOn != 0) {
         GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_CopyFog;
         bitmask |= 0x1u;
         GLI_g_PipelineBitmask = bitmask;
     }
 
-    if (*(unsigned int *)(ctx + CTX_FLAGS2_OFFSET) & 0x100u) {
+    if (ctx->lClippingModeMask & 0x100u) {
         GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_BackfaceCull;
         bitmask |= 0x8u;
         GLI_g_PipelineBitmask = bitmask;
     }
 
-    if ((*(unsigned int *)(ctx + CTX_FLAGS3_OFFSET) & 0x100000u) == 0) {
+    if ((ctx->lCurrentDrawMask & 0x100000u) == 0) {
         GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_CulledVertexCheck;
         bitmask |= 0x10u;
         GLI_g_PipelineBitmask = bitmask;
     }
 
-    ctx18 = *(unsigned int *)(ctx + CTX_FLAGS2_OFFSET);
+    ctx18 = ctx->lClippingModeMask;
     {
         unsigned int low_nibble = ctx18 & 0xfu;
         if (low_nibble != 0) {
@@ -91,7 +85,7 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
                     break;
                 }
 
-                ctx18 = *(unsigned int *)(ctx + CTX_FLAGS2_OFFSET);
+                ctx18 = ctx->lClippingModeMask;
                 switch (ctx18 & 0xcu) {
                 case 0:
                     break;
@@ -115,8 +109,8 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
         }
     }
 
-    if (*(unsigned int *)(ctx + CTX_FLAGS2_OFFSET) & 0x200u) {
-        if (*(unsigned int *)(ctx + CTX_FLAGS3_OFFSET) & 0x100000u) {
+    if (ctx->lClippingModeMask & 0x200u) {
+        if (ctx->lCurrentDrawMask & 0x100000u) {
             GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_FlagClipComposite;
             bitmask |= 0x1000u;
         } else {
@@ -126,18 +120,18 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
         GLI_g_PipelineBitmask = bitmask;
     }
 
-    if (*(unsigned int *)(ctx + CTX_FLAGS2_OFFSET) & 0x100u) {
+    if (ctx->lClippingModeMask & 0x100u) {
         GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_ZNearClip;
         bitmask |= 0x4000u;
         GLI_g_PipelineBitmask = bitmask;
     }
 
-    if (*(unsigned int *)((unsigned char *)pGMT + 0x10) & 0x400u) {
+    if (p_stGlobaleMT->lCurrentDrawMask & 0x400u) {
         unsigned int sel;
-        if (*(unsigned int *)((unsigned char *)pGMT + 0x0c) & 0x2000000u)
-            sel = *(unsigned int *)((unsigned char *)pGMT + 0x10) & 0x80000u;
+        if (p_stGlobaleMT->lHierachDrawMask & 0x2000000u)
+            sel = p_stGlobaleMT->lCurrentDrawMask & 0x80000u;
         else
-            sel = (~*(unsigned int *)((unsigned char *)pGMT + 0x10) >> 0x13) & 1u;
+            sel = (~(unsigned long)p_stGlobaleMT->lCurrentDrawMask >> 0x13) & 1u;
         if (sel != 0) {
             GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_BackfaceCullA;
             bitmask |= 0x8000u;
@@ -148,7 +142,7 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
         GLI_g_PipelineBitmask = bitmask;
     }
 
-    ctx18 = *(unsigned int *)(ctx + CTX_FLAGS2_OFFSET);
+    ctx18 = ctx->lClippingModeMask;
     if (ctx18 & 0xf0u) {
 
         switch (ctx18 & 0x30u) {
@@ -171,7 +165,7 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
             break;
         }
 
-        ctx18 = *(unsigned int *)(ctx + CTX_FLAGS2_OFFSET);
+        ctx18 = ctx->lClippingModeMask;
         switch (ctx18 & 0xc0u) {
         case 0:
             break;
@@ -193,11 +187,11 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
         }
     }
 
-    tex = *(unsigned char **)((unsigned char *)pGMT + CTX_TEX_PTR_OFFSET);
+    tex = (unsigned char *)p_stGlobaleMT->p_stCurrentTexture;
     if (tex != NULL) {
         if (*(int *)(tex + 0x28) != 0) {
             GLI_g_UVScrollU = *(float *)(tex + 0x20);
-            GLI_g_UVScrollV = *(float *)(*(unsigned char **)((unsigned char *)pGMT + CTX_TEX_PTR_OFFSET) + 0x24);
+            GLI_g_UVScrollV = *(float *)((unsigned char *)p_stGlobaleMT->p_stCurrentTexture + 0x24);
             if (GLI_g_UVScrollU == 0.0f && GLI_g_UVScrollV == 0.0f) {
                 GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_CopyUV;
                 bitmask |= 0x2000000u;
@@ -213,11 +207,11 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
             GLI_g_PipelineBitmask = bitmask;
         }
 
-        tex = *(unsigned char **)((unsigned char *)pGMT + CTX_TEX_PTR_OFFSET);
+        tex = (unsigned char *)p_stGlobaleMT->p_stCurrentTexture;
         if (*(unsigned char *)(tex + 0x45) & 4u) {
             GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_ScaleU;
         }
-        tex = *(unsigned char **)((unsigned char *)pGMT + CTX_TEX_PTR_OFFSET);
+        tex = (unsigned char *)p_stGlobaleMT->p_stCurrentTexture;
         if (*(unsigned char *)(tex + 0x45) & 8u) {
             GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_ScaleV;
         }
@@ -248,26 +242,25 @@ GLI_DRV_xSendElementTIToClip_TRIANGLES(void *element, void *pGMT)
 
 /* 0x100065c0 */
 __declspec(dllexport) void __cdecl
-GLI_DRV_xSendSingleTriangleToClip_TRIANGLES(void *pVertices, void *pUVSrc, void *pGMT)
+GLI_DRV_xSendSingleTriangleToClip_TRIANGLES(void *pVertices, void *pUVSrc, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT)
 {
-    unsigned char      *gmt = (unsigned char *)pGMT;
     const unsigned int *src = (const unsigned int *)pVertices;
     short               indices[3];
 
     GLI_M_DiagCountSend();
     if (GLI_g_ActivateGliFlag && GLI_DiagVerbose()) {
         GLI_DiagLog("send xSendSingleTriangleToClip_TRIANGLES #%lu pVertices=%p pUVSrc=%p pGMT=%p",
-                    GLI_g_DiagSendCount, pVertices, pUVSrc, pGMT);
+                    GLI_g_DiagSendCount, pVertices, pUVSrc, (void *)p_stGlobaleMT);
     }
     indices[0] = 0;
     indices[1] = 1;
     indices[2] = 2;
 
-    *(unsigned int *)(gmt + 0x10) |= 2u;
+    p_stGlobaleMT->lCurrentDrawMask |= 2;
 
     GLI_ResetClipPipeline();
 
-    if (*(int *)((unsigned char *)GLI_g_GliBigGlobals + CTX_FOG_FLAG_OFFSET) != 0) {
+    if (GLI_g_GliBigGlobals->xFogIsOn != 0) {
         GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_CopyFog;
     }
     GLI_g_PipelineLabels[GLI_g_PipelineCount++] = GLI_PL_BackfaceCull;

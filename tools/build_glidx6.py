@@ -95,7 +95,12 @@ def ddraw_lib(vc6_lib, out):
 
 
 def load_tus():
+    """-> (link order, base flags); sets INC to tu.json's `include` (header dirs from the repository root,
+    in search order: the DLL's own, then the exe's shared GLI declarations) when it has one."""
+    global INC
     cfg = json.load(open(os.path.join(DLL_DIR, "tu.json")))
+    if "include" in cfg:
+        INC = ";".join(os.path.join(build.ROOT, d) for d in cfg["include"])
     return [t["src"] for t in cfg["link_order"]], cfg["base_flags"]
 
 

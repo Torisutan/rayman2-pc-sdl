@@ -3,19 +3,13 @@
 #include "GliDX6vf/clip_staging.h"
 #include "GliDX6vf/GLI_DiagLog.h"
 
-#define CTX_YMAX_OFFSET         0x2d3b0
-#define CTX_DIFFUSE_OFFSET      0x2d3d4
-#define CTX_SPECULAR_OFFSET     0x2d3d8
-#define CTX_TEXTURE_PTR_OFFSET  0x2d3b4
-#define CTX_FOG_ALPHA_FLAG      0x2d3f8
-
 #define TEX_XADDU_OFFSET            0x20
 #define TEX_XADDV_OFFSET            0x24
 #define TEX_INCREMENT_IS_ENABLE     0x28
 
 __declspec(dllexport) void __cdecl
 GLI_DRV_vSendSpriteToClipWithUV(float *param_1, float *param_2,
-                                  float param_3, int param_4)
+                                  float param_3, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobals)
 {
     unsigned int uVar4;
     int tex;
@@ -24,7 +18,7 @@ GLI_DRV_vSendSpriteToClipWithUV(float *param_1, float *param_2,
     GLI_M_DiagCountSend();
     if (GLI_g_ActivateGliFlag && GLI_DiagVerbose()) {
         GLI_DiagLog("send vSendSpriteToClipWithUV #%lu p1=%p uv=%p z=0x%08x ctx=0x%x",
-                    GLI_g_DiagSendCount, (void *)param_1, (void *)param_2, *(unsigned int *)&param_3, param_4);
+                    GLI_g_DiagSendCount, (void *)param_1, (void *)param_2, *(unsigned int *)&param_3, (int)p_stGlobals);
     }
     GLI_ResetStagingCursor();
 
@@ -46,33 +40,33 @@ GLI_DRV_vSendSpriteToClipWithUV(float *param_1, float *param_2,
     *(float *)(GLI_g_pStagingCursor + 0x6c) = param_3;
     *(float *)(GLI_g_pStagingCursor + 0x68) = param_3;
 
-    *(unsigned int *)(GLI_g_pStagingCursor + 0x10) = *(unsigned int *)((unsigned char *)param_4 + CTX_DIFFUSE_OFFSET);
-    *(unsigned int *)(GLI_g_pStagingCursor + 0x30) = *(unsigned int *)((unsigned char *)param_4 + CTX_DIFFUSE_OFFSET);
-    *(unsigned int *)(GLI_g_pStagingCursor + 0x50) = *(unsigned int *)((unsigned char *)param_4 + CTX_DIFFUSE_OFFSET);
-    *(unsigned int *)(GLI_g_pStagingCursor + 0x70) = *(unsigned int *)((unsigned char *)param_4 + CTX_DIFFUSE_OFFSET);
+    *(unsigned int *)(GLI_g_pStagingCursor + 0x10) = p_stGlobals->ulColorInitForSprite;
+    *(unsigned int *)(GLI_g_pStagingCursor + 0x30) = p_stGlobals->ulColorInitForSprite;
+    *(unsigned int *)(GLI_g_pStagingCursor + 0x50) = p_stGlobals->ulColorInitForSprite;
+    *(unsigned int *)(GLI_g_pStagingCursor + 0x70) = p_stGlobals->ulColorInitForSprite;
 
     {
         if (param_1[1]    < 0.0f) return;
         if (param_1[5]    < 0.0f) return;
         if (param_1[9]    < 0.0f) return;
         if (param_1[0xd]  < 0.0f) return;
-        if (param_1[1]    > *(float *)((unsigned char *)GLI_g_GliBigGlobals + CTX_YMAX_OFFSET)) return;
-        if (param_1[5]    > *(float *)((unsigned char *)GLI_g_GliBigGlobals + CTX_YMAX_OFFSET)) return;
-        if (param_1[9]    > *(float *)((unsigned char *)GLI_g_GliBigGlobals + CTX_YMAX_OFFSET)) return;
-        if (param_1[0xd]  > *(float *)((unsigned char *)GLI_g_GliBigGlobals + CTX_YMAX_OFFSET)) return;
+        if (param_1[1]    > GLI_g_GliBigGlobals->fYMaxClipping) return;
+        if (param_1[5]    > GLI_g_GliBigGlobals->fYMaxClipping) return;
+        if (param_1[9]    > GLI_g_GliBigGlobals->fYMaxClipping) return;
+        if (param_1[0xd]  > GLI_g_GliBigGlobals->fYMaxClipping) return;
     }
 
-    if (*(int *)((unsigned char *)param_4 + CTX_FOG_ALPHA_FLAG) != 0) {
+    if (p_stGlobals->xTextureDontAcceptFog != 0) {
         uVar4 = 0xff000000u;
     } else {
-        uVar4 = *(unsigned int *)((unsigned char *)param_4 + CTX_SPECULAR_OFFSET);
+        uVar4 = p_stGlobals->ulSpecularColorForSprite;
     }
     *(unsigned int *)(GLI_g_pStagingCursor + 0x14) = uVar4;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x34) = uVar4;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x54) = uVar4;
     *(unsigned int *)(GLI_g_pStagingCursor + 0x74) = uVar4;
 
-    tex = *(int *)((unsigned char *)param_4 + CTX_TEXTURE_PTR_OFFSET);
+    tex = (int)p_stGlobals->p_stCurrentTexture;
 
 #ifdef GLI_DX6_FIXES
     if (tex != 0 && *(int *)((unsigned char *)tex + TEX_INCREMENT_IS_ENABLE) != 0) {

@@ -1,7 +1,6 @@
 #include "GliDX6vf/GliDX6vf.h"
 #include "GliDX6vf/GliDX6vf_State.h"
 
-#define GLI_BIGGLOBALS_VIEWING_LIST_BLOCK_OFFSET 0x2d3e4
 #define GLI_VIEWING_LIST_FIRST_MIN_OFFSET 0x0
 #define GLI_VIEWING_LIST_FIRST_MAX_OFFSET 0x4
 #define GLI_VIEWING_LIST_BUCKET_HEAD_OFFSET 0x4008
@@ -9,7 +8,7 @@
 #define GLI_VIEWING_LIST_ALLOC_CURSOR_OFFSET 0x10010
 #define GLI_VIEWING_LIST_ALLOC_BASE_OFFSET 0x10014
 
-#define M_ZList (*(unsigned char **)((unsigned char *)GLI_g_GliBigGlobals + GLI_BIGGLOBALS_VIEWING_LIST_BLOCK_OFFSET))
+#define M_ZList ((unsigned char *)GLI_g_GliBigGlobals->p_TheZListe)
 
 void __cdecl GLI_DRV_xClearViewingList(void)
 {

@@ -228,7 +228,7 @@
 "name": "GLI_PL_CulledVertexCheck",
 "src": "clip/clip_pipeline_labels.c",
 "len": 75,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x10002B10",

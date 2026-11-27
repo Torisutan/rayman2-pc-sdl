@@ -2,11 +2,6 @@
 #include "GliDX6vf/GliDX6vf_State.h"
 #include "GliDX6vf/GLI_DX6Constants.h"
 
-#define GLI_ELEMENT_FLAGS_OFFSET 0x10
-#define GLI_ELEMENT_STATE_OFFSET 0x18
-#define GLI_ELEMENT_TEXTURE_SLOT_OFFSET 0x2d3b4
-#define GLI_ELEMENT_DEFER_OPAQUE_OFFSET 0x2d3f8
-#define GLI_ELEMENT_ALPHA_OFFSET 0x2d408
 #define GLI_TEXTURE_D3D_HANDLE_OFFSET 0x10
 #define GLI_TEXTURE_FLAGS_OFFSET 0x14
 #define GLI_TEXTURE_ADDRESS_OFFSET 0x45
@@ -37,48 +32,48 @@ static __inline void GLI_SetModulatedAlphaState(void)
     GLI_g_TextureStageColorOp = 2;
 }
 
-#define M_Big ((unsigned char *)GLI_g_GliBigGlobals)
-#define M_Texture (*(unsigned char **)(elem + GLI_ELEMENT_TEXTURE_SLOT_OFFSET))
+#define M_Big GLI_g_GliBigGlobals
+#define M_Texture ((unsigned char *)elem->p_stCurrentTexture)
 
-__declspec(dllexport) void __cdecl GLI_DRV_vDoOpaqueTextureSelection(void *element)
+__declspec(dllexport) void __cdecl GLI_DRV_vDoOpaqueTextureSelection(GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobaleMT)
 {
-    unsigned char *elem;
+    GLI_tdstInternalGlobalValuesFor3dEngine *elem;
     int hasTexture;
     unsigned char ucAddressMode;
 
-    elem = (unsigned char *)element;
+    elem = p_stGlobaleMT;
     if (M_Texture != NULL && *(int *)M_Texture != 0) {
         hasTexture = 1;
     } else {
         hasTexture = 0;
     }
 
-    *(DWORD *)(elem + GLI_ELEMENT_DEFER_OPAQUE_OFFSET) = 0;
+    elem->xTextureDontAcceptFog = 0;
 
-    if (*(DWORD *)(M_Big + 0x2d3fc) != 0) {
-        *(DWORD *)(M_Big + 0x2d3fc) = 3;
+    if (M_Big->lAMirrorIsDetected != 0) {
+        M_Big->lAMirrorIsDetected = 3;
     }
-    if ((*(DWORD *)(M_Big + 0x2d3fc) == 0 && hasTexture && (M_Texture[GLI_TEXTURE_FLAGS_OFFSET] & 0x38)) ||
-        (!(*(DWORD *)(elem + GLI_ELEMENT_FLAGS_OFFSET) & 8) && *(float *)(elem + GLI_ELEMENT_ALPHA_OFFSET) < 0.98f)) {
-        *(DWORD *)(elem + GLI_ELEMENT_STATE_OFFSET) |= 0x8000;
+    if ((M_Big->lAMirrorIsDetected == 0 && hasTexture && (M_Texture[GLI_TEXTURE_FLAGS_OFFSET] & 0x38)) ||
+        (!(elem->lCurrentDrawMask & 8) && elem->xGlobalAlpha < 0.98f)) {
+        elem->lClippingModeMask |= 0x8000;
         if (hasTexture && !(M_Texture[GLI_TEXTURE_FLAGS_OFFSET] & 8)) {
-            *(DWORD *)(elem + GLI_ELEMENT_DEFER_OPAQUE_OFFSET) = 1;
+            elem->xTextureDontAcceptFog = 1;
         }
         return;
     }
 
-    *(DWORD *)(elem + GLI_ELEMENT_STATE_OFFSET) &= 0xffff7fff;
+    elem->lClippingModeMask &= 0xffff7fff;
 
-    if (*(DWORD *)(elem + GLI_ELEMENT_FLAGS_OFFSET) & 0x40000000) {
+    if (elem->lCurrentDrawMask & 0x40000000) {
         GLI_EnsureZFuncGreaterequal();
     } else {
         GLI_EnsureZFuncAlways();
     }
 
-    if (*(DWORD *)(M_Big + 0x2d3f4)) {
-        if (*(void **)(M_Big + 0x2d3f0) != *(void **)(M_Big + 0x2d3ec)) {
-            GLI_UpdateFogParameters(*(float **)(M_Big + 0x2d3ec));
-            *(void **)(M_Big + 0x2d3f0) = *(void **)(M_Big + 0x2d3ec);
+    if (M_Big->xFogIsOn) {
+        if (M_Big->p_stLastComputedFog != M_Big->p_stActiveFog) {
+            GLI_UpdateFogParameters((float *)M_Big->p_stActiveFog);
+            M_Big->p_stLastComputedFog = M_Big->p_stActiveFog;
         }
         if (GLI_g_FogEnableState == 0) {
             GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3, GLI_D3DRS_FOGENABLE, 1);
@@ -91,7 +86,7 @@ __declspec(dllexport) void __cdecl GLI_DRV_vDoOpaqueTextureSelection(void *eleme
         }
     }
 
-    if (*(DWORD *)(elem + GLI_ELEMENT_FLAGS_OFFSET) & 0x08000000) {
+    if (elem->lCurrentDrawMask & 0x08000000) {
         GLI_EnsureZWriteEnabled();
     } else {
         GLI_DisableZWriteIfEnabled();
@@ -100,7 +95,7 @@ __declspec(dllexport) void __cdecl GLI_DRV_vDoOpaqueTextureSelection(void *eleme
     if (hasTexture) {
         if (*(DWORD *)(M_Texture + GLI_TEXTURE_FLAGS_OFFSET) & 0x100) {
             GLI_SetAlphaTestMode(5);
-        } else if (*(BYTE *)(M_Big + 0x2d3fc) & 2) {
+        } else if (M_Big->lAMirrorIsDetected & 2) {
             GLI_SetModulatedAlphaState();
         } else {
             GLI_SetAlphaTestMode(4);

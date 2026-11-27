@@ -4,19 +4,6 @@
 #include "GliDX6vf/GLI_DX6Constants.h"
 #include <string.h>
 
-#define GLI_CTX_FLAGS1_OFFSET          0x10
-#define GLI_CTX_FLAGS2_OFFSET          0x18
-#define GLI_CTX_CLIP_EDGE_A_OFFSET     0x2d3a4
-#define GLI_CTX_CLIP_EDGE_B_OFFSET     0x2d3a8
-#define GLI_CTX_CLIP_EDGE_C_OFFSET     0x2d3ac
-#define GLI_CTX_CLIP_EDGE_D_OFFSET     0x2d3b0
-#define GLI_CTX_NODE_FIELD_B4_OFFSET   0x2d3b4
-
-#define GLI_CTX_NODE_FIELD_B8_OFFSET   0x2d3b8
-#define GLI_CTX_LIST_BLOCK_PTR_OFFSET  0x2d3e4
-#define GLI_CTX_LIST_SELECTOR_OFFSET   0x2d3e8
-#define GLI_CTX_NODE_FIELD_EC_OFFSET   0x2d3ec
-
 #define GLI_LIST_NODE_CURSOR_OFFSET    0x4008
 #define GLI_LIST_ALLOC_CURSOR_OFFSET   0x10010
 #define GLI_LIST_ALLOC_BOUND_OFFSET    0x10014
@@ -42,9 +29,8 @@ void __cdecl GLI_PipelineTerminal(void);  /* 0x10006290 */
 static void __cdecl GLI_PipelineAdvanceCursor60(void);
 static void __cdecl GLI_PipelineListAppend(void);
 
-#define GLI_BIG_BYTES()        ((unsigned char *)GLI_g_GliBigGlobals)
-#define GLI_LIST_BLOCK_BASE()  (*(unsigned char **)(GLI_BIG_BYTES() + GLI_CTX_LIST_BLOCK_PTR_OFFSET))
-#define GLI_LIST_SELECTOR()    (*(int *)(GLI_BIG_BYTES() + GLI_CTX_LIST_SELECTOR_OFFSET))
+#define GLI_LIST_BLOCK_BASE()  ((unsigned char *)GLI_g_GliBigGlobals->p_TheZListe)
+#define GLI_LIST_SELECTOR()    ((int)GLI_g_GliBigGlobals->ulCurrentZTable)
 #define GLI_LIST_NODE_PTR()    (*(unsigned char **)(GLI_LIST_BLOCK_BASE() + GLI_LIST_NODE_CURSOR_OFFSET))
 #define GLI_BUCKET_SLOT_PTR(b) (GLI_LIST_BLOCK_BASE() + GLI_BUCKET_ARRAY_BASE_OFFSET + \
                                 (GLI_LIST_SELECTOR() * GLI_BUCKET_SELECTOR_STRIDE + (int)(b)) * 4)
@@ -68,10 +54,10 @@ static void __cdecl GLI_InsertListNode(unsigned int param_1)
     }
 
     *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x00) = *(unsigned int *)(GLI_LIST_BLOCK_BASE() + GLI_LIST_ALLOC_CURSOR_OFFSET);
-    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x04) = *(unsigned int *)(GLI_BIG_BYTES() + GLI_CTX_NODE_FIELD_B4_OFFSET);
-    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x14) = *(unsigned int *)(GLI_BIG_BYTES() + GLI_CTX_NODE_FIELD_B8_OFFSET);
-    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x0c) = *(unsigned int *)(GLI_BIG_BYTES() + GLI_CTX_FLAGS1_OFFSET) & GLI_CTX_FLAGS1_NODE_FLAGS_MASK;
-    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x10) = *(unsigned int *)(GLI_BIG_BYTES() + GLI_CTX_NODE_FIELD_EC_OFFSET);
+    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x04) = (unsigned int)GLI_g_GliBigGlobals->p_stCurrentTexture;
+    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x14) = (unsigned int)GLI_g_GliBigGlobals->hCurrentMaterial;
+    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x0c) = (unsigned int)GLI_g_GliBigGlobals->lCurrentDrawMask & GLI_CTX_FLAGS1_NODE_FLAGS_MASK;
+    *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x10) = (unsigned int)GLI_g_GliBigGlobals->p_stActiveFog;
 
     *(unsigned int *)(GLI_LIST_NODE_PTR() + 0x08) = *(unsigned int *)GLI_BUCKET_SLOT_PTR(bucket);
     *(unsigned int *)GLI_BUCKET_SLOT_PTR(bucket) = (unsigned int)GLI_LIST_NODE_PTR();
@@ -94,8 +80,8 @@ static void __cdecl GLI_PipelineAdvanceCursor60(void)
 /* 0x100014f0 */
 static void __cdecl GLI_PipelineListAppend(void)
 {
-    unsigned char *ctx        = (unsigned char *)GLI_g_GliBigGlobals;
-    unsigned char *list_block = *(unsigned char **)(ctx + GLI_CTX_LIST_BLOCK_PTR_OFFSET);
+    GLI_tdstInternalGlobalValuesFor3dEngine *ctx = GLI_g_GliBigGlobals;
+    unsigned char *list_block = (unsigned char *)ctx->p_TheZListe;
     unsigned char *alloc_cur, *alloc_bnd, *limit;
     unsigned int   v0, v1, v2, key;
     unsigned char *stage;
@@ -128,8 +114,7 @@ static void __cdecl GLI_PipelineListAppend(void)
 
     GLI_InsertListNode(key);
 
-    *(int *)(*(unsigned char **)((unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_LIST_BLOCK_PTR_OFFSET)
-             + GLI_LIST_ALLOC_CURSOR_OFFSET) += 0x60;
+    *(int *)((unsigned char *)GLI_g_GliBigGlobals->p_TheZListe + GLI_LIST_ALLOC_CURSOR_OFFSET) += 0x60;
 }
 
 /* 0x100012f0 */
@@ -188,11 +173,11 @@ void __cdecl GLI_CopyStagedBlockC0(const void *src)
 /* 0x10001340 */
 void __cdecl GLI_FinalizeSpriteStaging(void)
 {
-    unsigned char *ctx = (unsigned char *)GLI_g_GliBigGlobals;
+    GLI_tdstInternalGlobalValuesFor3dEngine *ctx = GLI_g_GliBigGlobals;
 
-    if ((*(unsigned int *)(ctx + GLI_CTX_FLAGS2_OFFSET) & GLI_CTX_FLAGS2_LIST_MODE_BIT) != 0) {
+    if ((ctx->lClippingModeMask & GLI_CTX_FLAGS2_LIST_MODE_BIT) != 0) {
 
-        *(unsigned int *)(ctx + GLI_CTX_FLAGS1_OFFSET) &= GLI_CTX_FLAGS1_CLEAR_BIT2_MASK;
+        ctx->lCurrentDrawMask &= GLI_CTX_FLAGS1_CLEAR_BIT2_MASK;
         {
             unsigned char *alloc_cur, *alloc_bnd;
 
@@ -230,7 +215,7 @@ void __cdecl GLI_AppendTrianglePipelineTerminal(void)
 {
     DWORD          count;
 
-    if ((*(unsigned int *)((unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_FLAGS2_OFFSET) & GLI_CTX_FLAGS2_LIST_MODE_BIT) != 0) {
+    if ((GLI_g_GliBigGlobals->lClippingModeMask & GLI_CTX_FLAGS2_LIST_MODE_BIT) != 0) {
         count = GLI_g_PipelineCount;
         GLI_g_PipelineLabels[count] = GLI_PipelineListAppend;
     } else {
@@ -251,17 +236,17 @@ void __cdecl GLI_ResetClipPipeline(void)
 /* 0x10001560 */
 void __cdecl GLI_SnapshotClipWindow(void)
 {
-    unsigned char *ctx = (unsigned char *)GLI_g_GliBigGlobals;
+    GLI_tdstInternalGlobalValuesFor3dEngine *ctx = GLI_g_GliBigGlobals;
     unsigned int   old_flags;
 
-    GLI_g_ClipXGate = *(float *)(ctx + GLI_CTX_CLIP_EDGE_B_OFFSET);
-    GLI_g_ClipYGate = *(float *)(ctx + GLI_CTX_CLIP_EDGE_D_OFFSET);
-    GLI_g_ClipXMin = *(float *)(ctx + GLI_CTX_CLIP_EDGE_A_OFFSET);
-    GLI_g_ClipYMax = *(float *)(ctx + GLI_CTX_CLIP_EDGE_C_OFFSET);
-    GLI_g_ClipXMax = *(float *)(ctx + GLI_CTX_CLIP_EDGE_B_OFFSET);
-    GLI_g_ClipYMin = *(float *)(ctx + GLI_CTX_CLIP_EDGE_D_OFFSET);
+    GLI_g_ClipXGate = ctx->fXMaxClipping;
+    GLI_g_ClipYGate = ctx->fYMaxClipping;
+    GLI_g_ClipXMin = ctx->fXMinClipping;
+    GLI_g_ClipYMax = ctx->fYMinClipping;
+    GLI_g_ClipXMax = ctx->fXMaxClipping;
+    GLI_g_ClipYMin = ctx->fYMaxClipping;
 
-    old_flags = *(unsigned int *)(ctx + GLI_CTX_FLAGS2_OFFSET);
-    *(unsigned int *)(ctx + GLI_CTX_FLAGS2_OFFSET) =
+    old_flags = ctx->lClippingModeMask;
+    ctx->lClippingModeMask =
         old_flags | ((old_flags & GLI_CTX_FLAGS2_LOWNIBBLE_MASK) << 4);
 }

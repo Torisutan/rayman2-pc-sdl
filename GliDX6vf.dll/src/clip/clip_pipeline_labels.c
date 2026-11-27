@@ -1,42 +1,12 @@
 #include "GliDX6vf/GliDX6vf_State.h"
 #include "GliDX6vf/clip_staging.h"
 
-typedef struct GLI_tdstAligned3DVector
-{
-    float xX;
-    float xY;
-    float xZ;
-    float ALIGN;
-}
-GLI_tdstAligned3DVector;
-
-typedef struct GLI_tdstAligned2DVector
-{
-    float xX;
-    float xY;
-    float xOoZ;
-    unsigned long ulPackedColor;
-}
-GLI_tdstAligned2DVector;
-
-typedef struct GLI_tdst2DUVValues
-{
-    float xU;
-    float xV;
-} GLI_tdst2DUVValues;
-
 #define GLI_CLIP_ONE        1.0f
 #define GLI_INTERP_HI       0.98f
 #define GLI_INTERP_LO       0.02f
 #define GLI_INTERP_BIAS   (-49152.0f)
 
-#define GLI_CTX_ZNEAR_SUB_OFFSET 0x2d3bc
-#define GLI_CTX_FOG_TABLE_OFFSET 0x1e854
-#define GLI_CTX_VERTEX_BASE      0x2c
-#define GLI_CTX_VERTEX_STRIDE    0x10
-#define GLI_CTX_COLOR_OFFSET     0x2d3d4
-#define GLI_CTX_FOG_FLAG_OFFSET  0x2d3f4
-#define GLI_CTX_2D39C_OFFSET     0x2d39c
+#define GLI_CAMERA_XNEAR_OFFSET 0x6c
 
 #define GLI_PIPELINE_ADVANCE_AND_CALL() \
     do { GLI_g_pPipelineCursor++; (*GLI_g_pPipelineCursor)(); } while (0)
@@ -147,11 +117,11 @@ void __cdecl GLI_PL_CopyUV(void)
 void __cdecl GLI_PL_CopyFog(void)
 {
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x14) =
-        *(unsigned int *)((unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_FOG_TABLE_OFFSET + (int)GLI_g_pIndexArray[0] * 4);
+        ((unsigned int *)GLI_g_GliBigGlobals->GLI_aDEF_stColorsRLIS)[GLI_g_pIndexArray[0]];
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x34) =
-        *(unsigned int *)((unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_FOG_TABLE_OFFSET + (int)GLI_g_pIndexArray[1] * 4);
+        ((unsigned int *)GLI_g_GliBigGlobals->GLI_aDEF_stColorsRLIS)[GLI_g_pIndexArray[1]];
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x54) =
-        *(unsigned int *)((unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_FOG_TABLE_OFFSET + (int)GLI_g_pIndexArray[2] * 4);
+        ((unsigned int *)GLI_g_GliBigGlobals->GLI_aDEF_stColorsRLIS)[GLI_g_pIndexArray[2]];
 
     GLI_PIPELINE_ADVANCE_AND_CALL();
 }
@@ -159,9 +129,9 @@ void __cdecl GLI_PL_CopyFog(void)
 #define M_V ((GLI_tdstTLVertex *)GLI_g_pStagingCursor)
 #define M_UV(i) ((GLI_tdst2DUVValues *)GLI_g_pUVSrc[i])
 #define M_BITS(xFloat) (*(unsigned long *)&(xFloat))
-#define M_Ctx ((unsigned char *)GLI_g_GliBigGlobals)
-#define M_CtxVertex(i) ((GLI_tdstAligned3DVector *)(M_Ctx + GLI_CTX_VERTEX_BASE) + (i))
-#define M_CameraNear (*(float *)(*(unsigned char **)(M_Ctx + GLI_CTX_ZNEAR_SUB_OFFSET) + 0x6c))
+#define M_Ctx GLI_g_GliBigGlobals
+#define M_CtxVertex(i) (&M_Ctx->GLI_TurnedScaledDisplecedPoint[i])
+#define M_CameraNear (*(float *)((unsigned char *)M_Ctx->p_stCurrentCamera + GLI_CAMERA_XNEAR_OFFSET))
 void __cdecl GLI_PL_ZNearClip(void)
 {
     GLI_tdstTLVertex a_stOut[4];
@@ -192,8 +162,8 @@ void __cdecl GLI_PL_ZNearClip(void)
             fT = (M_CameraNear - pIn->xZ) / (pOut->xZ - pIn->xZ);
             stIn.xX = (pOut->xX - pIn->xX) * fT + pIn->xX;
             stIn.xY = (pOut->xY - pIn->xY) * fT + pIn->xY;
-            stIn.xZ = *(float *)(M_Ctx + GLI_CTX_2D39C_OFFSET);
-            GLI_ProjNearPlaneCallback(*(unsigned int *)(M_Ctx + GLI_CTX_ZNEAR_SUB_OFFSET), 1, &stIn.xX, &stProj);
+            stIn.xZ = M_Ctx->fZClipping;
+            GLI_ProjNearPlaneCallback((unsigned int)M_Ctx->p_stCurrentCamera, 1, &stIn.xX, &stProj);
             a_stOut[nOut].sx = stProj.xX;
             a_stOut[nOut].sy = stProj.xY;
             a_stOut[nOut].sz = a_stOut[nOut].rhw = stProj.xOoZ;
@@ -214,8 +184,8 @@ void __cdecl GLI_PL_ZNearClip(void)
             fT = (M_CameraNear - pIn->xZ) / (pOut->xZ - pIn->xZ);
             stIn.xX = (pOut->xX - pIn->xX) * fT + pIn->xX;
             stIn.xY = (pOut->xY - pIn->xY) * fT + pIn->xY;
-            stIn.xZ = *(float *)(M_Ctx + GLI_CTX_2D39C_OFFSET);
-            GLI_ProjNearPlaneCallback(*(unsigned int *)(M_Ctx + GLI_CTX_ZNEAR_SUB_OFFSET), 1, &stIn.xX, &stProj);
+            stIn.xZ = M_Ctx->fZClipping;
+            GLI_ProjNearPlaneCallback((unsigned int)M_Ctx->p_stCurrentCamera, 1, &stIn.xX, &stProj);
             a_stOut[nOut].sx = stProj.xX;
             a_stOut[nOut].sy = stProj.xY;
             a_stOut[nOut].sz = a_stOut[nOut].rhw = stProj.xOoZ;
@@ -394,16 +364,7 @@ GLI_M_DefinePlaneClip(GLI_PL_YMinClip, sy, M_BoundMinusCoord, GLI_g_ClipYMin)
 #undef M_UV
 #undef M_V
 
-#define GLI_CTX_VERTEX2C_OFFSET   0x2c
-#define GLI_CTX_VERTEX9C6C_OFFSET 0x9c6c
-#define GLI_CTX_FLAGTBL_OFFSET    0x138ac
-#define GLI_CTX_COLORS_OFFSET     0x284a4
-#define GLI_CTX_NEXT_VTXIDX       4
-#define GLI_CTX_PLANE_A           0x2d3c0
-#define GLI_CTX_PLANE_NX          0x2d3c4
-#define GLI_CTX_PLANE_NY          0x2d3c8
-#define GLI_CTX_PLANE_NZ          0x2d3cc
-#define GLI_CTX_SUBPTR_OFFSET     0x2d3bc
+#define GLI_GEOOBJ_NB_POINTS_OFFSET 0x2c
 
 #define GLI_FLAG_T_IO(prev, curr)  ((prev) / ((prev) - (curr)))
 
@@ -442,10 +403,10 @@ void __cdecl GLI_PL_ScaleV(void)
 void __cdecl GLI_PL_LoadColorsFromCtx(void)
 {
     short *idx = GLI_g_pIndexArray;
-    unsigned char *ctx = (unsigned char *)GLI_g_GliBigGlobals;
-    GLI_g_pUVSrc[0] = (float *)(ctx + GLI_CTX_COLORS_OFFSET + (int)(short)idx[0] * 8);
-    GLI_g_pUVSrc[1] = (float *)(ctx + GLI_CTX_COLORS_OFFSET + (int)(short)idx[1] * 8);
-    GLI_g_pUVSrc[2] = (float *)(ctx + GLI_CTX_COLORS_OFFSET + (int)(short)idx[2] * 8);
+    GLI_tdstInternalGlobalValuesFor3dEngine *ctx = GLI_g_GliBigGlobals;
+    GLI_g_pUVSrc[0] = (float *)&ctx->GLI_aDEF_stEnvUV[(short)idx[0]];
+    GLI_g_pUVSrc[1] = (float *)&ctx->GLI_aDEF_stEnvUV[(short)idx[1]];
+    GLI_g_pUVSrc[2] = (float *)&ctx->GLI_aDEF_stEnvUV[(short)idx[2]];
     GLI_PIPELINE_ADVANCE_AND_CALL();
 }
 
@@ -462,10 +423,10 @@ void __cdecl GLI_PL_LoadColorsFromElement(void)
 void __cdecl GLI_PL_CulledVertexCheck(void)
 {
     short *idx = GLI_g_pIndexArray;
-    unsigned char *ctx = (unsigned char *)GLI_g_GliBigGlobals;
-    unsigned int f0 = *(unsigned int *)(ctx + GLI_CTX_FLAGTBL_OFFSET + (int)(short)idx[0] * 4);
-    unsigned int f1 = *(unsigned int *)(ctx + GLI_CTX_FLAGTBL_OFFSET + (int)(short)idx[1] * 4);
-    unsigned int f2 = *(unsigned int *)(ctx + GLI_CTX_FLAGTBL_OFFSET + (int)(short)idx[2] * 4);
+    GLI_tdstInternalGlobalValuesFor3dEngine *ctx = GLI_g_GliBigGlobals;
+    unsigned int f0 = *(unsigned int *)&ctx->GLI_aDEF_xWaterPlaneDepth[(short)idx[0]];
+    unsigned int f1 = *(unsigned int *)&ctx->GLI_aDEF_xWaterPlaneDepth[(short)idx[1]];
+    unsigned int f2 = *(unsigned int *)&ctx->GLI_aDEF_xWaterPlaneDepth[(short)idx[2]];
     if ((f0 & f1 & f2) & 0x80000000u) return;
     GLI_PIPELINE_ADVANCE_AND_CALL();
 }
@@ -541,21 +502,21 @@ void __cdecl GLI_PL_LoadVertex(void)
 {
     unsigned char *v;
 
-    v = (unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_VERTEX9C6C_OFFSET + (int)GLI_g_pIndexArray[0] * 0x10;
+    v = (unsigned char *)&GLI_g_GliBigGlobals->GLI_ScreenPoint[GLI_g_pIndexArray[0]];
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x00) = *(unsigned int *)(v + 0);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x04) = *(unsigned int *)(v + 4);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x0c) = *(unsigned int *)(v + 8);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x08) = *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x0c);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x10) = *(unsigned int *)(v + 12);
 
-    v = (unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_VERTEX9C6C_OFFSET + (int)GLI_g_pIndexArray[1] * 0x10;
+    v = (unsigned char *)&GLI_g_GliBigGlobals->GLI_ScreenPoint[GLI_g_pIndexArray[1]];
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x20) = *(unsigned int *)(v + 0);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x24) = *(unsigned int *)(v + 4);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x2c) = *(unsigned int *)(v + 8);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x28) = *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x2c);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x30) = *(unsigned int *)(v + 12);
 
-    v = (unsigned char *)GLI_g_GliBigGlobals + GLI_CTX_VERTEX9C6C_OFFSET + (int)GLI_g_pIndexArray[2] * 0x10;
+    v = (unsigned char *)&GLI_g_GliBigGlobals->GLI_ScreenPoint[GLI_g_pIndexArray[2]];
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x40) = *(unsigned int *)(v + 0);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x44) = *(unsigned int *)(v + 4);
     *(unsigned int *)((unsigned char *)GLI_g_pStagingCursor + 0x4c) = *(unsigned int *)(v + 8);
@@ -568,14 +529,15 @@ void __cdecl GLI_PL_LoadVertex(void)
 #define M_V ((GLI_tdstTLVertex *)GLI_g_pStagingCursor)
 #define M_UV(i) ((GLI_tdst2DUVValues *)GLI_g_pUVSrc[i])
 #define M_BITS(xFloat) (*(unsigned long *)&(xFloat))
-#define M_Ctx ((unsigned char *)GLI_g_GliBigGlobals)
-#define M_CtxVertex(i) ((GLI_tdstAligned3DVector *)(M_Ctx + GLI_CTX_VERTEX2C_OFFSET) + (i))
-#define M_CtxProjected(i) ((GLI_tdstAligned2DVector *)(M_Ctx + GLI_CTX_VERTEX9C6C_OFFSET) + (i))
-#define M_Flag(i) (*(float *)(M_Ctx + GLI_CTX_FLAGTBL_OFFSET + (i) * 4))
-#define M_PlaneA (*(float *)(M_Ctx + GLI_CTX_PLANE_A))
-#define M_PlaneNX (*(float *)(M_Ctx + GLI_CTX_PLANE_NX))
-#define M_PlaneNY (*(float *)(M_Ctx + GLI_CTX_PLANE_NY))
-#define M_PlaneNZ (*(float *)(M_Ctx + GLI_CTX_PLANE_NZ))
+#define M_Ctx GLI_g_GliBigGlobals
+#define M_CtxVertex(i) (&M_Ctx->GLI_TurnedScaledDisplecedPoint[i])
+#define M_CtxProjected(i) (&M_Ctx->GLI_ScreenPoint[i])
+#define M_Flag(i) (M_Ctx->GLI_aDEF_xWaterPlaneDepth[i])
+
+#define M_PlaneA (*(float *)&M_Ctx->xWaterPlaneDistance)
+#define M_PlaneNX (M_Ctx->stWaterPlanNormale.xX)
+#define M_PlaneNY (M_Ctx->stWaterPlanNormale.xY)
+#define M_PlaneNZ (M_Ctx->stWaterPlanNormale.xZ)
 void __cdecl GLI_PL_FlagClip(void)
 {
     GLI_tdstTLVertex a_stOut[4];
@@ -598,7 +560,7 @@ void __cdecl GLI_PL_FlagClip(void)
 
     pSaveIndex = GLI_g_pIndexArray;
     nOut = 0;
-    sNew = *(short *)(*(unsigned char **)(M_Ctx + GLI_CTX_NEXT_VTXIDX) + 0x2c);
+    sNew = *(short *)((unsigned char *)M_Ctx->p_stObj + GLI_GEOOBJ_NB_POINTS_OFFSET);
     pNew = M_CtxVertex(sNew);
     pProj = M_CtxProjected(sNew);
     fPrev = M_Flag(GLI_g_pIndexArray[2]);
@@ -752,7 +714,7 @@ void __cdecl GLI_PL_FlagClipComposite(void)
     pSaveIndex = GLI_g_pIndexArray;
     nFront = 0;
     nBack = 0;
-    sNew = *(short *)(*(unsigned char **)(M_Ctx + GLI_CTX_NEXT_VTXIDX) + 0x2c);
+    sNew = *(short *)((unsigned char *)M_Ctx->p_stObj + GLI_GEOOBJ_NB_POINTS_OFFSET);
     pNew = M_CtxVertex(sNew);
     pProj = M_CtxProjected(sNew);
     fPrev = M_Flag(GLI_g_pIndexArray[2]);
@@ -773,7 +735,7 @@ void __cdecl GLI_PL_FlagClipComposite(void)
             pNew->xX -= fDist * M_PlaneNX;
             pNew->xY -= M_PlaneNY * fDist;
             pNew->xZ -= M_PlaneNZ * fDist;
-            GLI_ProjNearPlaneCallback(*(unsigned int *)(M_Ctx + GLI_CTX_SUBPTR_OFFSET), 1, &pNew->xX, pProj);
+            GLI_ProjNearPlaneCallback((unsigned int)M_Ctx->p_stCurrentCamera, 1, &pNew->xX, pProj);
             a_stFront[nFront].sx = pProj->xX;
             a_stFront[nFront].sy = pProj->xY;
             a_stFront[nFront].sz = a_stFront[nFront].rhw = pProj->xOoZ;
@@ -812,7 +774,7 @@ void __cdecl GLI_PL_FlagClipComposite(void)
             pNew->xX -= fDist * M_PlaneNX;
             pNew->xY -= M_PlaneNY * fDist;
             pNew->xZ -= M_PlaneNZ * fDist;
-            GLI_ProjNearPlaneCallback(*(unsigned int *)(M_Ctx + GLI_CTX_SUBPTR_OFFSET), 1, &pNew->xX, pProj);
+            GLI_ProjNearPlaneCallback((unsigned int)M_Ctx->p_stCurrentCamera, 1, &pNew->xX, pProj);
             a_stFront[nFront].sx = pProj->xX;
             a_stFront[nFront].sy = pProj->xY;
             a_stFront[nFront].sz = a_stFront[nFront].rhw = pProj->xOoZ;

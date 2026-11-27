@@ -4,6 +4,8 @@
 #include <windows.h>
 #include <objbase.h>
 
+#include "GLI/GLI_BigGlobals.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -257,7 +259,7 @@ extern RECT GLI_g_ScreenRect;
 extern DWORD GLI_g_DeviceDescFlags;
 extern unsigned char GLI_g_DeviceDesc[0xfc];
 extern HWND GLI_g_WindowHandle;
-extern void *GLI_g_GliBigGlobals;
+extern GLI_tdstInternalGlobalValuesFor3dEngine *GLI_g_GliBigGlobals;
 extern DWORD *GLI_g_TextureMemoryChannels;
 extern void **GLI_g_TextureAlreadyRead;
 extern void *GLI_g_ConvertBufferMipMapping;

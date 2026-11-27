@@ -6,8 +6,6 @@
 #include <string.h>
 #include <float.h>
 
-#define GLI_BIGGLOBALS_VIEWING_LIST_BLOCK_OFFSET 0x2d3e4
-#define GLI_BIGGLOBALS_VIEWING_LIST_RESET_OFFSET 0x2d3e8
 #define GLI_VIEWING_LIST_BLOCK_SIZE 0x10018
 #define GLI_VIEWING_LIST_SECONDARY_ALLOC_SIZE 0x30000
 #define GLI_VIEWING_LIST_SECONDARY_ALLOC_OFFSET 0x10014
@@ -31,16 +29,13 @@ GLI_DRV_xInitDriver(HWND hwnd, BOOL fullscreen, LONG width, LONG height, int bpp
     globals = (unsigned char *)GLI_g_GliBigGlobals;
     GLI_DiagLog("xInitDriver gliBigGlobals=%p", (void *)globals);
 
-    *(void **)((unsigned char *)GLI_g_GliBigGlobals + GLI_BIGGLOBALS_VIEWING_LIST_BLOCK_OFFSET) =
-        malloc(GLI_VIEWING_LIST_BLOCK_SIZE);
-    memset(*(void **)((unsigned char *)GLI_g_GliBigGlobals + GLI_BIGGLOBALS_VIEWING_LIST_BLOCK_OFFSET),
-           0, GLI_VIEWING_LIST_BLOCK_SIZE);
+    GLI_g_GliBigGlobals->p_TheZListe = malloc(GLI_VIEWING_LIST_BLOCK_SIZE);
+    memset(GLI_g_GliBigGlobals->p_TheZListe, 0, GLI_VIEWING_LIST_BLOCK_SIZE);
 
-    *(void **)(*(unsigned char **)((unsigned char *)GLI_g_GliBigGlobals +
-                                   GLI_BIGGLOBALS_VIEWING_LIST_BLOCK_OFFSET) +
+    *(void **)((unsigned char *)GLI_g_GliBigGlobals->p_TheZListe +
                GLI_VIEWING_LIST_SECONDARY_ALLOC_OFFSET) =
         malloc(GLI_VIEWING_LIST_SECONDARY_ALLOC_SIZE);
-    *(DWORD *)((unsigned char *)GLI_g_GliBigGlobals + GLI_BIGGLOBALS_VIEWING_LIST_RESET_OFFSET) = 0;
+    GLI_g_GliBigGlobals->ulCurrentZTable = 0;
 
     GLI_DRV_xClearViewingList();
 

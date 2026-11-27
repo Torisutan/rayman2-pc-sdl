@@ -36,7 +36,7 @@ void __cdecl GLI_SnapshotClipWindow(void);
 void __cdecl GLI_PipelineTerminal(void);
 
 /* 0x10006290 */
-void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, int param_2);
+void __cdecl GLI_SendSpriteTrianglesViaClip(unsigned int *param_1, GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobals);
 
 /* 0x10001050 */
 unsigned int __cdecl GLI_InterpolatePackedColor(unsigned int param_1,

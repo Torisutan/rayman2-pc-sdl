@@ -4,7 +4,13 @@
   "/c",
   "/O2",
   "/Gy",
-  "/MD"
+  "/MD",
+  "/Dinline=__inline",
+  "/W3"
+ ],
+ "include": [
+  "GliDX6vf.dll/include",
+  "Rayman2.exe/include"
  ],
  "link_order": [
   {

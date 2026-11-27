@@ -24,8 +24,8 @@ __declspec(dllexport) void __cdecl GLI_DRV_vFlipDevice(void)
                 GLI_g_IsFullscreen, (void *)GLI_g_pPrimarySurface,
                 (void *)GLI_g_pBackBufferSurface);
 
-    *(DWORD *)((unsigned char *)GLI_g_GliBigGlobals + 0x2d3fc) = 0;
-    *(DWORD *)((unsigned char *)GLI_g_GliBigGlobals + 0x2d404) = 0;
+    GLI_g_GliBigGlobals->lAMirrorIsDetected = 0;
+    GLI_g_GliBigGlobals->lDisplayMenuIsDetected = 0;
 
     hr = GLI_g_pBackBufferSurface->lpVtbl->GetFlipStatus(GLI_g_pBackBufferSurface, GLI_DDGBS_ISBLTDONE);
     while (hr == GLI_DDERR_WASSTILLDRAWING) {
