@@ -135,7 +135,17 @@ if(R2_GLI_DX6)
   endforeach()
   add_library(GliDX6vf STATIC ${R2_GLI_SOURCES})
   set_target_properties(GliDX6vf PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
-  target_include_directories(GliDX6vf PUBLIC ${R2_GLI_DIR}/include)
+  # tu.json's include list (relative to the repo root, in search order): the driver's own headers,
+  # then the exe's (GLI/GLI_BigGlobals.h, shared with the engine).
+  string(JSON R2_GLI_INC_COUNT LENGTH ${R2_GLI_TU_JSON} include)
+  math(EXPR R2_GLI_INC_LAST "${R2_GLI_INC_COUNT} - 1")
+  foreach(i RANGE ${R2_GLI_INC_LAST})
+    string(JSON inc GET ${R2_GLI_TU_JSON} include ${i})
+    target_include_directories(GliDX6vf PRIVATE ${CMAKE_SOURCE_DIR}/${inc})
+  endforeach()
+  target_include_directories(GliDX6vf INTERFACE ${R2_GLI_DIR}/include)
+  # inline=__inline: as tu.json's base_flags and the Rayman2 target (the engine headers write inline).
+  target_compile_definitions(GliDX6vf PRIVATE inline=__inline)
   target_compile_options(GliDX6vf PRIVATE $<$<NOT:$<CONFIG:Debug>>:/O2 /Gy>)
   if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     # Same policy as for Rayman2 below.
