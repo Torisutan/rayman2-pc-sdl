@@ -107,12 +107,14 @@ option(R2_FIX_BUGS "Fix the original engine's crashes and undefined behaviour (R
 if(R2_FIX_BUGS)
   list(APPEND R2_FORK_DEFINES RAYMAN2_FIX_BUGS)
 endif()
-# C runtime branches beside the Win32 ones: level data files (MMG/SNA_file.c), ini files
+# C runtime branches beside the Win32 ones: level data files (MMG/SNA_file.c), sound files
+# (SND/SND_file.c), ini files
 # (FIL/FIL_ini.c), the temp folder (FIL/FIL_path.c), memory (MMG/PrivMmg.h). Windows keeps the Win32 API (FILE_MODE_C_WIN95); this
 # option takes the C runtime there too, to check it against the regression run (docs/PLAN.md
 # Phase 5, step 3).
 option(R2_C_RUNTIME "C runtime instead of the Win32 API for files, ini files and memory (RAYMAN2_C_RUNTIME)" OFF)
-list(APPEND R2_SOURCES ${R2_DIR}/src/MMG/SNA_file.c ${R2_DIR}/src/FIL/FIL_ini.c ${R2_DIR}/src/FIL/FIL_path.c)
+list(APPEND R2_SOURCES ${R2_DIR}/src/MMG/SNA_file.c ${R2_DIR}/src/SND/SND_file.c ${R2_DIR}/src/FIL/FIL_ini.c
+  ${R2_DIR}/src/FIL/FIL_path.c)
 # The C branch of the MTH matrix product (MTH/MTH_Debug.c; MTH_C_DEV targets, docs/PLAN.md Phase 4).
 list(APPEND R2_SOURCES ${R2_DIR}/src/MTH/MTH_Debug.c)
 if(R2_C_RUNTIME)
