@@ -687,7 +687,7 @@ its condition.
 | `GAMECONSOLE` | group | any console: `snddef.h`'s list plus `PSP` and `WIIU` |
 | `USE_SDL` | backend | window, events, input, audio output and timers through SDL (SDL3; SDL2 on `WIIU`), on any target that takes it (Windows too, to compare against the Win32 path) |
 | `USE_GLI_DX6` | renderer | Direct3D 6 driver linked in (`GLI_DllFile=GliDX6`; CMake `R2_GLI_DX6`) |
-| `USE_GLI_GL` | renderer | own OpenGL driver linked in, only on a target without driver modules (desktops load `GliGL3`, ... as modules) |
+| `USE_GLI_GL` | renderer | the OpenGL driver: set when compiling it (the shared Direct3D 6 files take its branch of `GLI_DRV_M_*`); in the exe only on a target without driver modules, where it is linked in (desktops load `GliGL3`, ... as modules) |
 | `USE_GLI_GX2` | renderer | Wii U driver linked in (`GliGX2`) |
 | `USE_GLI_GU` | renderer | PSP driver linked in (`GliGU`) |
 | `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` | feature | MTH asm branch: 32-bit x86 MSVC / clang-cl only, not with `WIN64` |
@@ -942,28 +942,60 @@ way. Linked-in GL (`USE_GLI_GL`) only where a target has no driver modules.
    differing pixel share per image). New tool, public (`tools/`).
 3. `/W4` and an ASan suite over the driver, as for the sound drivers.
 
-**Sub-steps (one per session).**
-- 6a. Decomp order: the Direct3D calls in the shared clip files behind `GLI_DRV_M_*` names,
-  byte-neutral; and the linking decision carried out.
-- 6b. `GliGL3vf.dll/` skeleton: context, modes, windowed / fullscreen, clear and flip; boots to the
-  menu with an empty picture; regression unchanged.
-- 6c. Textures (formats, mips, colour key) and the triangle path with the render states.
-- 6d. Sprites, lines, black polygons, the 16-bit bitmap, Z region clears, fog; screenshot tool;
-  full measurement; DEVIATIONS row.
+**Sub-steps (one per session).** The user asked for 6a-6d in one go (27.11.2026).
+- 6a. **Done in the fork, decomp to confirm** (a4d8015; orders M36, M37): the 74 Direct3D calls of
+  the shared files behind `GLI_DRV_M_SetRenderState`, `_SetTextureStageState`, `_SetTexture`,
+  `_DrawPrimitive` (`GliDX6vf_State.h`; `USE_GLI_GL` branch: `GLI_fn_v*` of the GL driver). Shared:
+  `src/clip` (all), the render-state helpers, `GLI_DRV_vDoOpaqueTextureSelection`, and every file
+  without device calls (common functions and data, texture format and cost helpers, the entry
+  points that only call the device layer: `hChangeMode`, `bPrepareForGliWindowed`,
+  `vActivateGli`, `vCloseDriver`, `vClearZBufferRegion`, ...). `GliGL3vf.dll/CMakeLists.txt` lists
+  them.
+- 6b-6d. **Done, first version** (`GliGL3vf.dll/`, CMake `R2_GLI_GL3`, build tree `build-gl` with
+  triplet `x86-windows`): four files beside the shared ones. `ogl_dev.c` the device layer the shared
+  files call (`GLI_CreateOrResetDevice`, `GLI_ReleaseDeviceObjects`, `GLI_DestroyOrCleanupDevice`),
+  fullscreen through `SDL_SetWindowFullscreenMode`, flips, clears; `ogl_drv.c` init, caps, modes,
+  driver information, the 16-bit bitmap; `ogl_draw.c` GL functions through
+  `SDL_GL_GetProcAddress`, one shader program for DX6's fixed-function states, the device-call
+  functions; `ogl_tex.c` formats, cost table, download (DX6's packing, widened to RGBA8).
+  The window: `GAM/sdl_main.c` asks the bound driver (`GLI_fnl_InitDll` runs before the window
+  exists) for the driver information `"Window"`; GL3 answers `"OpenGL"`, other drivers know no
+  such name and keep their window (an unconditional `SDL_WINDOW_OPENGL` crashed the install's
+  default driver in all five scenarios; Direct3D 6 was unaffected).
+  Measured: regression suite with `--gl3` 5/5 identical to `base_modern` (so the hashed state,
+  `drv.2d` included, does not depend on the renderer); the gate build with the install's driver
+  and with `--dx6` unchanged; `/W4` over the driver's own files: no warning. Frames read back from
+  GL (a local debug dump, not committed) show menus, fonts, the cinematic letterbox, 3D levels with
+  textures, colour keys, alpha, particles, HUD sprites. **Not done:** screenshots against Direct3D 6
+  (the session was locked: Desktop Duplication refused; `tools/run.py --shot` needs an unlocked,
+  awake desktop), windowed / fullscreen switching by hand, ASan suite.
 - 6e. Windows x64 (with step 8's `WIN64` data work).
-- 6f. Linux, then macOS (with step 8).
+- 6f. Linux, then macOS (with step 8): the driver module through `SDL_LoadObject`, the shared
+  files' Win32 types (`GliDX6vf.h` includes `windows.h`) get a types header.
 
-**Open questions (to be answered from the DX6 driver before the sub-step that needs them).**
-- Which of the three 16-bit texture formats DX6 picks on a card that offers all of them, and
-  whether it ever uses 32-bit textures; the GL driver announces the same choice.
-- How DX6 applies the colour key (surface `SetColorKey` value, which formats) and its interplay
-  with `VerifyTextureIsReallyAlpha`.
-- The bit depth the exe expects in the mode list (DX6 lists 16-bpp modes only; SDL reports the
-  desktop formats).
-- SDL3 creates a GL context only on a window made with `SDL_WINDOW_OPENGL`: whether `sdl_main.c`
-  knows `GLI_DllFile` before it creates the window, or the window has to be created after the ini
-  read.
-- Which of the 26 non-matching DX6 functions touch the shared files (they specify the GL driver).
+**Answered from the DX6 driver (27.11.2026).**
+- Texture formats: DX6 selects 4444 (slot 0, alpha textures), 1555 (slot 1), 565 (slot 2), no
+  palette format (the 8-bit palette capability is cleared), X8R8G8B8 / A8R8G8B8 (slots 4, 5) in
+  32-bit modes; GL3 announces the same records, so `GLI_vSelectPixelFormatForTexture` picks as on
+  DX6, and packs as DX6 (`GLI_lConvertTexturePixels`), then widens to RGBA8.
+- Colour key: DX6 packs the key in the surface format, clears the alpha of key texels, moves near
+  misses off the key, sets it as the surface's source colour key; `COLORKEYENABLE` then drops key
+  texels. GL3: key texels get alpha 0, the shader discards alpha 0 while the key is on.
+- Mode list: 16 bpp, as DX6 (the ini mode names one of those).
+
+**Open questions.**
+- Texture memory: GL3 reports a fixed 1 GB (`C_ulTextureMemory`); DX6 reports what DirectDraw
+  measures. Whether the engine lowers texture quality on DX6 here: compare with DX6's
+  `GLI_pc_g_stGliCaps`.
+- Refresh rate: GL3 takes SDL's display mode, DX6 measures 70 vertical blanks; the extra wait
+  frames of a synchronised flip are timed by the engine (`SimulateFlipSynchroWithoutVSync`) since a
+  GL swap cannot wait for a blank without presenting.
+- Expected differences in the screenshots: 32-bit colour buffer and no dithering (DX6 renders into
+  a 16-bit mode), key discard after filtering, a texture-less stage reads white (as Direct3D's
+  fixed function, assumed).
+- With the key on, GL3 also discards alpha-0 texels of alpha formats (Direct3D compares colour only).
+- Which of the 26 non-matching DX6 functions are among the shared files (they specify the GL
+  driver too).
 
 ## Sound
 

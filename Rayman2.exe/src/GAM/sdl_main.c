@@ -25,6 +25,7 @@
 #include "GAM/GAM_globals.h"
 #include "GAM/GAM_types.h"
 #include "GLI/misc_trivial.h"
+#include "GLI/GLI_pc.h"
 #include "ERM/CpaError.h"
 #include "SND/SND.h"
 
@@ -642,6 +643,36 @@ void GAM_pc_fn_vChooseTheGoodInit(void)
 
 /*
  ----------------------------------------------------------------------------------------
+  Description   : Window flags the renderer driver asks for. GLI_fnl_InitDll has bound the
+                  driver before the window exists (fn_vInitEngineWhenInitApplication); an
+                  OpenGL driver module answers the driver information "Window" with
+                  "OpenGL": SDL creates GL contexts only on windows made for OpenGL. Other
+                  drivers (Direct3D 6) do not know the name; their window stays as it was.
+ ----------------------------------------------------------------------------------------
+ */
+extern HMODULE GLI_g_hDll;     /* GLI/Init_Gli.c: the bound renderer driver */
+
+static SDL_WindowFlags fn_ulDriverWindowFlags(void)
+{
+    long (__cdecl *p_fn_lGetDllInfo)(char const *, void *);
+    char szWindow[64];
+
+    if ( GLI_g_hDll == NULL )
+    {
+        return 0;
+    }
+    p_fn_lGetDllInfo = (long (__cdecl *)(char const *, void *))
+                       GLI_pc_M_pfnGetDriverProc(GLI_g_hDll, "GLI_DRV_lGetDllInfo");
+    szWindow[0] = 0;
+    if ( p_fn_lGetDllInfo != NULL && p_fn_lGetDllInfo("Window", szWindow) && strcmp(szWindow, "OpenGL") == 0 )
+    {
+        return SDL_WINDOW_OPENGL;
+    }
+    return 0;
+}
+
+/*
+ ----------------------------------------------------------------------------------------
   Description   : The window (320x200 client, resizable) and the display device on it.
                   The window is shown once the device exists: on PC the small window
                   stays on screen while the driver starts. ERM gets no window: its
@@ -653,7 +684,7 @@ int GAM_fn_bCreateMainWindow(HINSTANCE hInstance, int iShowCmd)
     (void)hInstance; (void)iShowCmd;
 
     gs_p_stSDLWindow = SDL_CreateWindow(C_szWndTitle, 0x140, 200,
-                                             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+                                             SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | fn_ulDriverWindowFlags());
     if ( gs_p_stSDLWindow == NULL )
     {
         return 0;

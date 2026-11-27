@@ -229,6 +229,16 @@ if(R2_USE_SDL)
   list(APPEND R2_SOURCES ${R2_DIR}/src/SND/sdl_snd.c)
   list(APPEND R2_FORK_DEFINES USE_SDL)
 endif()
+# OpenGL 3.3 renderer driver module (GliGL3vf.dll/, docs/PLAN.md "OpenGL driver"): built into
+# DLL/ beside the exe; ubi.ini GLI_DllFile=GliGL3 selects it. Needs the SDL backend with SDL3 as
+# a shared library (triplet x86-windows), which the exe and the driver share.
+option(R2_GLI_GL3 "Build the OpenGL 3.3 renderer driver module (DLL/GliGL3vf.dll)" OFF)
+if(R2_GLI_GL3)
+  if(NOT R2_USE_SDL OR NOT TARGET SDL3::SDL3-shared)
+    message(FATAL_ERROR "R2_GLI_GL3 needs R2_USE_SDL with SDL3 as a shared library (-DVCPKG_TARGET_TRIPLET=x86-windows)")
+  endif()
+  add_subdirectory(GliGL3vf.dll)
+endif()
 
 add_executable(Rayman2 WIN32 ${R2_SOURCES} ${R2_RC} ${R2_ICO})
 set_target_properties(Rayman2 PROPERTIES OUTPUT_NAME Rayman2 MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
