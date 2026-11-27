@@ -208,17 +208,61 @@ typedef struct _SND_tdstInitStruct
 
 #if !defined(GAMECONSOLE) && !defined(GENERIC)
 
+#if defined(USE_SDL)
+/* SDL backend (sdl_sndwave.c): output device, locks, events, the voice-end callback thread, timing and
+ * the error box. The SDL output has no message thread: every caller counts as the driver's thread (one
+ * thread id), so taking and releasing the device always goes the direct way, under the sample lock, and
+ * nothing is posted (the waveOut thread's messages have no receiver here). APM's critical section is
+ * still Win32 (SND_pc_tdstCriticalSection). */
+#include "sdl_sndwave.h"
+#define SND_pc_tdhLock					void *
+#define SND_pc_tdhEvent					void *
+#define SND_pc_tdhThread				void *
+#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
+#define SND_pc_tdstPerfCounter			SND_tdstPerfCounter
+#define SND_pc_tdhDevice				void *
+
+#define SND_pc_C_ulWaitForever			SND_C_ulWaitForever
+#define SND_pc_C_ulWaitTimedOut			SND_C_ulWaitTimedOut
+
+#define SND_pc_M_hCreateLock(bOwned)			SND_fn_hCreateLock(bOwned)
+#define SND_pc_M_ulWaitLock(hLock,ulMs)			SND_fn_ulWaitLock((hLock),(ulMs))
+#define SND_pc_M_bReleaseLock(hLock)			SND_fn_bReleaseLock(hLock)
+#define SND_pc_M_bDeleteLock(hLock)				SND_fn_bDeleteLock(hLock)
+
+#define SND_pc_M_ulLockOrBreak(hLock)			SND_pc_fn_ulWaitObjectOrBreak((hLock),SND_C_ulWaitForever)
+#define SND_pc_M_ulWaitEventOrBreak(hEvent)		SND_fn_ulWaitEventOrBreak(hEvent)
+
+#define SND_pc_M_hCreateEvent()					SND_fn_hCreateEvent()
+#define SND_pc_M_bSetEvent(hEvent)				SND_fn_bSetEvent(hEvent)
+#define SND_pc_M_bDeleteEvent(hEvent)			SND_fn_bDeleteEvent(hEvent)
+
+#define SND_pc_M_ulGetCurrentThreadId()			SND_C_ulDriverThreadId
+#define SND_pc_M_bPostMessage(ulThreadId,uiMsg,wParam,lParam)	FALSE
+
+#define SND_pc_M_ulOpenDevice(p_hDevice,p_stFormat)	SND_fn_ulOpenDevice((p_hDevice),(p_stFormat)->nSamplesPerSec,(p_stFormat)->nChannels,(p_stFormat)->wBitsPerSample)
+#define SND_pc_M_ulPrepareBuffer(hDevice,p_stHdr)	0
+#define SND_pc_M_ulWriteBuffer(hDevice,p_stHdr)		SND_fn_ulWriteDevice((hDevice),(p_stHdr)->lpData,(p_stHdr)->dwBufferLength)
+#define SND_pc_M_ulResetDevice(hDevice)				SND_fn_ulResetDevice(hDevice)
+#define SND_pc_M_ulCloseDevice(hDevice)				SND_fn_ulCloseDevice(hDevice)
+#define SND_pc_M_ulGetDeviceErrorText(ulErr,szText,ulSize)	SND_fn_ulGetDeviceErrorText((ulErr),(szText),(ulSize))
+
+#define SND_pc_M_bGetPerfCounter(p_stCounter)	SND_fn_bGetPerfCounter(p_stCounter)
+#define SND_pc_M_bGetPerfFrequency(p_stFreq)	SND_fn_bGetPerfFrequency(p_stFreq)
+
+#define SND_pc_M_pvAllocCallback(ulSize)		malloc(ulSize)
+#define SND_pc_M_vFreeCallback(pvBlock)			free(pvBlock)
+#define SND_pc_M_vStartCallbackThread(pfnProc,pvParam)	SND_fn_vStartCallbackThread((pfnProc),(pvParam))
+
+#define SND_pc_M_vErrorBox(szText,szCaption)	SND_fn_vErrorBox((szText),(szCaption))
+#define SND_pc_M_vBreak()						SND_fn_vBreak()
+#else
 #define SND_pc_tdhLock					HANDLE
 #define SND_pc_tdhEvent					HANDLE
 #define SND_pc_tdhThread				HANDLE
 #define SND_pc_tdstCriticalSection		CRITICAL_SECTION
 #define SND_pc_tdstPerfCounter			LARGE_INTEGER
-#if defined(USE_SDL)
-/* output device: an SDL audio stream (sdl_sndwave.c) */
-#define SND_pc_tdhDevice				void *
-#else
 #define SND_pc_tdhDevice				HWAVEOUT
-#endif /* USE_SDL */
 
 #define SND_pc_C_ulWaitForever			INFINITE
 #define SND_pc_C_ulWaitTimedOut			WAIT_TIMEOUT
@@ -247,22 +291,12 @@ typedef struct _SND_tdstInitStruct
 #define SND_pc_M_bGetMessage(p_stMsg)			GetMessageA((p_stMsg),NULL,0,0)
 #define SND_pc_M_bPeekMessage(p_stMsg)			PeekMessageA((p_stMsg),NULL,0,0,PM_NOREMOVE)
 
-#if defined(USE_SDL)
-#include "sdl_sndwave.h"
-#define SND_pc_M_ulOpenDevice(p_hDevice,p_stFormat)	SND_fn_ulOpenDevice((p_hDevice),(p_stFormat)->nSamplesPerSec,(p_stFormat)->nChannels,(p_stFormat)->wBitsPerSample)
-#define SND_pc_M_ulPrepareBuffer(hDevice,p_stHdr)	0
-#define SND_pc_M_ulWriteBuffer(hDevice,p_stHdr)		SND_fn_ulWriteDevice((hDevice),(p_stHdr)->lpData,(p_stHdr)->dwBufferLength)
-#define SND_pc_M_ulResetDevice(hDevice)				SND_fn_ulResetDevice(hDevice)
-#define SND_pc_M_ulCloseDevice(hDevice)				SND_fn_ulCloseDevice(hDevice)
-#define SND_pc_M_ulGetDeviceErrorText(ulErr,szText,ulSize)	SND_fn_ulGetDeviceErrorText((ulErr),(szText),(ulSize))
-#else
 #define SND_pc_M_ulOpenDevice(p_hDevice,p_stFormat)	waveOutOpen((p_hDevice),WAVE_MAPPER,(p_stFormat),GetCurrentThreadId(),0,CALLBACK_THREAD)
 #define SND_pc_M_ulPrepareBuffer(hDevice,p_stHdr)	waveOutPrepareHeader((hDevice),(p_stHdr),sizeof(WAVEHDR))
 #define SND_pc_M_ulWriteBuffer(hDevice,p_stHdr)		waveOutWrite((hDevice),(p_stHdr),sizeof(WAVEHDR))
 #define SND_pc_M_ulResetDevice(hDevice)				waveOutReset(hDevice)
 #define SND_pc_M_ulCloseDevice(hDevice)				waveOutClose(hDevice)
 #define SND_pc_M_ulGetDeviceErrorText(ulErr,szText,ulSize)	waveOutGetErrorTextA((ulErr),(szText),(ulSize))
-#endif /* USE_SDL */
 
 #define SND_pc_M_bGetPerfCounter(p_stCounter)	QueryPerformanceCounter(p_stCounter)
 #define SND_pc_M_bGetPerfFrequency(p_stFreq)	QueryPerformanceFrequency(p_stFreq)
@@ -273,6 +307,7 @@ typedef struct _SND_tdstInitStruct
 
 #define SND_pc_M_vErrorBox(szText,szCaption)	MessageBoxA(NULL,(szText),(szCaption),0)
 #define SND_pc_M_vBreak()						DebugBreak()
+#endif /* USE_SDL */
 #endif
 
 typedef unsigned long tdxId;

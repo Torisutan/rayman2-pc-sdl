@@ -223,4 +223,174 @@ long SND_pc_fn_lCloseMixerVolume(void)
 	return 0;
 }
 
+/*---- locks, events, timing, the callback thread, the error box (the SND_pc_M_* macros of SND/snddef.h) */
+#define C_ulBreakWaitMs		50000	/* SND_pc_fn_ulWaitObjectOrBreak's limit before it breaks */
+
+typedef struct SND_tdstEvent_
+{
+	SDL_Mutex		*p_stLock;
+	SDL_Condition	*p_stCondition;
+	int				bSet;
+} SND_tdstEvent;
+
+typedef struct SND_tdstCallbackThread_
+{
+	void			(*pfnProc)(void *);
+	void			*pvParam;
+} SND_tdstCallbackThread;
+
+void *SND_fn_hCreateLock(int bOwned)
+{
+	SDL_Mutex *p_stLock = SDL_CreateMutex();
+	if (p_stLock != NULL && bOwned)
+		SDL_LockMutex(p_stLock);
+	return p_stLock;
+}
+
+unsigned long SND_fn_ulWaitLock(void *hLock,unsigned long ulMs)
+{
+	Uint64 ullStart;
+
+	if (ulMs == SND_C_ulWaitForever)
+	{
+		SDL_LockMutex((SDL_Mutex *)hLock);
+		return 0;
+	}
+	ullStart = SDL_GetTicks();
+	while (!SDL_TryLockMutex((SDL_Mutex *)hLock))
+	{
+		if (SDL_GetTicks() - ullStart >= ulMs)
+			return SND_C_ulWaitTimedOut;
+		SDL_Delay(1);
+	}
+	return 0;
+}
+
+int SND_fn_bReleaseLock(void *hLock)
+{
+	SDL_UnlockMutex((SDL_Mutex *)hLock);
+	return 1;
+}
+
+int SND_fn_bDeleteLock(void *hLock)
+{
+	SDL_DestroyMutex((SDL_Mutex *)hLock);
+	return 1;
+}
+
+void *SND_fn_hCreateEvent(void)
+{
+	SND_tdstEvent *p_stEvent = (SND_tdstEvent *)SDL_calloc(1,sizeof(SND_tdstEvent));
+
+	if (p_stEvent == NULL)
+		return NULL;
+	p_stEvent->p_stLock = SDL_CreateMutex();
+	p_stEvent->p_stCondition = SDL_CreateCondition();
+	if (p_stEvent->p_stLock == NULL || p_stEvent->p_stCondition == NULL)
+	{
+		SND_fn_bDeleteEvent(p_stEvent);
+		return NULL;
+	}
+	return p_stEvent;
+}
+
+int SND_fn_bSetEvent(void *hEvent)
+{
+	SND_tdstEvent *p_stEvent = (SND_tdstEvent *)hEvent;
+
+	SDL_LockMutex(p_stEvent->p_stLock);
+	p_stEvent->bSet = 1;
+	SDL_SignalCondition(p_stEvent->p_stCondition);
+	SDL_UnlockMutex(p_stEvent->p_stLock);
+	return 1;
+}
+
+unsigned long SND_fn_ulWaitEventOrBreak(void *hEvent)
+{
+	SND_tdstEvent *p_stEvent = (SND_tdstEvent *)hEvent;
+	Uint64 ullStart = SDL_GetTicks();
+	Uint64 ullElapsed;
+	unsigned long ulResult = 0;
+
+	SDL_LockMutex(p_stEvent->p_stLock);
+	while (!p_stEvent->bSet)
+	{
+		ullElapsed = SDL_GetTicks() - ullStart;
+		if (ullElapsed >= C_ulBreakWaitMs)
+		{
+			ulResult = SND_C_ulWaitTimedOut;
+			break;
+		}
+		SDL_WaitConditionTimeout(p_stEvent->p_stCondition,p_stEvent->p_stLock,(Sint32)(C_ulBreakWaitMs - ullElapsed));
+	}
+	p_stEvent->bSet = 0;	/* auto-reset */
+	SDL_UnlockMutex(p_stEvent->p_stLock);
+	if (ulResult == SND_C_ulWaitTimedOut)
+		SND_fn_vBreak();
+	return ulResult;
+}
+
+int SND_fn_bDeleteEvent(void *hEvent)
+{
+	SND_tdstEvent *p_stEvent = (SND_tdstEvent *)hEvent;
+
+	if (p_stEvent == NULL)
+		return 0;
+	if (p_stEvent->p_stCondition != NULL)
+		SDL_DestroyCondition(p_stEvent->p_stCondition);
+	if (p_stEvent->p_stLock != NULL)
+		SDL_DestroyMutex(p_stEvent->p_stLock);
+	SDL_free(p_stEvent);
+	return 1;
+}
+
+int SND_fn_bGetPerfCounter(SND_tdstPerfCounter *p_stCounter)
+{
+	p_stCounter->QuadPart = (long long)SDL_GetPerformanceCounter();
+	return 1;
+}
+
+int SND_fn_bGetPerfFrequency(SND_tdstPerfCounter *p_stFrequency)
+{
+	p_stFrequency->QuadPart = (long long)SDL_GetPerformanceFrequency();
+	return 1;
+}
+
+static int SDLCALL fn_iRunCallbackThread(void *pvData)
+{
+	SND_tdstCallbackThread stThread = *(SND_tdstCallbackThread *)pvData;
+
+	SDL_free(pvData);
+	stThread.pfnProc(stThread.pvParam);
+	return 0;
+}
+
+void SND_fn_vStartCallbackThread(void (*pfnProc)(void *),void *pvParam)
+{
+	SND_tdstCallbackThread *p_stThread = (SND_tdstCallbackThread *)SDL_malloc(sizeof(SND_tdstCallbackThread));
+	SDL_Thread *p_stSdlThread;
+
+	if (p_stThread == NULL)
+		return;
+	p_stThread->pfnProc = pfnProc;
+	p_stThread->pvParam = pvParam;
+	p_stSdlThread = SDL_CreateThread(fn_iRunCallbackThread,"SndCallback",p_stThread);
+	if (p_stSdlThread == NULL)
+	{
+		SDL_free(p_stThread);
+		return;
+	}
+	SDL_DetachThread(p_stSdlThread);
+}
+
+void SND_fn_vErrorBox(const char *szText,const char *szCaption)
+{
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,szCaption,szText,NULL);
+}
+
+void SND_fn_vBreak(void)
+{
+	SDL_TriggerBreakpoint();
+}
+
 #endif /* USE_SDL */

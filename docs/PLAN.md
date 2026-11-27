@@ -958,11 +958,25 @@ mixer and decoders from the file formats):
      not compile the drivers (unchanged). Focus loss (27.11.2026): window minimized for 6.7 s during a capture
      of Morb_00 (no keystrokes; `SND_fn_vReleaseDriverSound` / restore): the output stops for 6.8 s,
      then 898 buffers in the remaining 8.7 s (real time again); the game closes cleanly.
-   - **Still Win32 in the SDL build (Windows only, for the Linux step):** in `sndwave.c` the lock,
-     event, timing, voice-end callback thread and error box macros, `WAVEHDR` / `WAVEFORMATEX`
-     in shared code, `HANDLE` in `SND_pc_fn_ulWaitObjectOrBreak`; `pc_sndtrans.c`'s lock; APM's
-     critical section; the init struct's `HINSTANCE` / `HANDLE` (and the two `HINSTANCE`
-     globals `sdl_sndwave.c` defines in `pc_mixervol.c`'s place); the exe's `SND_fn_bTestSnd_WinMM`.
+   - **System macros through SDL (27.11.2026).** The driver's `SND_pc_M_*` system group in
+     `SND/snddef.h` has a `USE_SDL` branch (Win32 the `#else`): locks (recursive SDL mutexes; a timed
+     wait polls), auto-reset events (mutex + condition), the voice-end callback thread (detached SDL
+     thread), the mix-time counter, the error box and the break, in `sdl_sndwave.c`. The SDL output
+     has no message thread, so the driver's thread id is one constant: taking and releasing the device
+     always goes the direct way under the sample lock, nothing is posted (in the Win32 branch a call
+     from another thread posts to the init thread, which in the SDL build has no receiver for it).
+     Measured with `tools/local/snd_win32.py` (Win32 imports per object): `sndwave.obj` and
+     `pc_sndtrans.obj` call no Win32 function any more (52 -> 34 in the sound code); regression 5/5
+     identical to `base_modern`; capture and the focus test (release and restore) as before.
+   - **Still Win32 in the SDL build (for the Linux step; needs seams from the decomp, order M32):**
+     APM's critical section (`SndAdpcm.c`); in the exe's SND module `SndThrd.c` (mutex, events,
+     critical section, `WaitForMultipleObjects`, `Sleep`), `sndfile.c` (file functions; the original
+     engine's `sndfile.h` has per-platform `OPENFILESND_*` macros), `SND.c` (`GetCurrentThreadId`,
+     the `SND_fn_bTestSnd_*` tests: `GetVersionExA`, `waveOutGetDevCapsA`, `MessageBoxA`),
+     `sndseq.c` (`CreateThread`); Win32 types in shared code: `WAVEHDR` / `WAVEFORMATEX` /
+     `MSG` / `WPARAM` in `sndwave.c`, `HANDLE` / `DWORD` in `SND_pc_fn_ulWaitObjectOrBreak`, the
+     init struct's `HINSTANCE` / `HANDLE` (and the two `HINSTANCE` globals `sdl_sndwave.c` defines
+     in `pc_mixervol.c`'s place).
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
    entry points of `sndmix_pc.h`). Selected by `OPTIMIZED_FOR_MMX_WITH_ASM` (Platform macros): the
    C branch by default on every target (decided 27.11.2026: x64 is a goal, and the asm needs the retail
