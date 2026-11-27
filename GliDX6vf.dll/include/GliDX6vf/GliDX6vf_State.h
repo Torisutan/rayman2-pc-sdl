@@ -374,10 +374,6 @@ typedef void (__cdecl *GLI_ProjCallback)(unsigned int ctxField, int mode,
                                          float *xy_in, void *xyzrhw_out);
 #define GLI_ProjNearPlaneCallback ((GLI_ProjCallback)GLI_g_SerialProjection)
 
-
-/* Device calls of the files the OpenGL driver shares with this one (clip pipeline, render
-   states, opaque texture selection): one branch per driver, as the platform glue elsewhere.
-   The Direct3D 6 branch is the call through the device's table. */
 #if defined(USE_GLI_GL)
 void __cdecl GLI_fn_vSetRenderState(DWORD ulState, DWORD ulValue);
 void __cdecl GLI_fn_vSetTextureStageState(DWORD ulStage, DWORD ulType, DWORD ulValue);
@@ -400,7 +396,7 @@ void __cdecl GLI_fn_vDrawPrimitive(DWORD ulType, DWORD ulVertexType, void *p_vVe
     GLI_g_pDirect3DDevice3->lpVtbl->SetTexture(GLI_g_pDirect3DDevice3, Stage, Texture)
 #define GLI_DRV_M_DrawPrimitive(Type, VertexType, Vertices, Count, Flags) \
     GLI_g_pDirect3DDevice3->lpVtbl->DrawPrimitive(GLI_g_pDirect3DDevice3, Type, VertexType, Vertices, Count, Flags)
-#endif /* USE_GLI_GL */
+#endif
 
 #ifdef __cplusplus
 }
