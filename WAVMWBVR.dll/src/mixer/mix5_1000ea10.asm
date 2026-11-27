@@ -4,14 +4,14 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_1000ea10
-	PUBLIC _FUN_1000ead6
-	PUBLIC _FUN_1000ebde
-	PUBLIC _FUN_1000eca3
+	PUBLIC _SND_pc_fn_vMixStereo16Native
+	PUBLIC _SND_pc_fn_vMixStereo16HalfRate
+	PUBLIC _SND_pc_fn_vMixStereo16DoubleRate
+	PUBLIC _SND_pc_fn_vMixStereo16Step
 	EXTRN _SND_pc_a560A0_9930:DWORD
 
 _TEXT	SEGMENT
-_FUN_1000ea10:
+_SND_pc_fn_vMixStereo16Native:
 	push ebp		; 1000ea10 55
 	mov ebp, esp		; 1000ea11 8bec
 	pushad		; 1000ea13 60
@@ -88,7 +88,7 @@ L1000eacf::
 	mov esp, ebp		; 1000ead2 8be5
 	pop ebp		; 1000ead4 5d
 	ret		; 1000ead5 c3
-_FUN_1000ead6:
+_SND_pc_fn_vMixStereo16HalfRate:
 	push ebp		; 1000ead6 55
 	mov ebp, esp		; 1000ead7 8bec
 	pushad		; 1000ead9 60
@@ -185,7 +185,7 @@ L1000ebd7::
 	mov esp, ebp		; 1000ebda 8be5
 	pop ebp		; 1000ebdc 5d
 	ret		; 1000ebdd c3
-_FUN_1000ebde:
+_SND_pc_fn_vMixStereo16DoubleRate:
 	push ebp		; 1000ebde 55
 	mov ebp, esp		; 1000ebdf 8bec
 	pushad		; 1000ebe1 60
@@ -261,7 +261,7 @@ L1000ec9c::
 	mov esp, ebp		; 1000ec9f 8be5
 	pop ebp		; 1000eca1 5d
 	ret		; 1000eca2 c3
-_FUN_1000eca3:
+_SND_pc_fn_vMixStereo16Step:
 	push ebp		; 1000eca3 55
 	mov ebp, esp		; 1000eca4 8bec
 	pushad		; 1000eca6 60

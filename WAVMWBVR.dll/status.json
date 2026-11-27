@@ -3354,14 +3354,14 @@
 },
 {
 "addr": "0x10006860",
-"name": "FUN_10006860",
+"name": "SND_pc_fn_vLockTransitions",
 "src": "Win95/pc_sndtrans.c",
 "len": 32,
 "verdict": "EXACT"
 },
 {
 "addr": "0x10006880",
-"name": "FUN_10006880",
+"name": "SND_pc_fn_vUnlockTransitions",
 "src": "Win95/pc_sndtrans.c",
 "len": 17,
 "verdict": "EXACT"
@@ -3452,7 +3452,7 @@
 },
 {
 "addr": "0x10007030",
-"name": "FUN_10007030",
+"name": "SND_pc_fn_iCreateTransitionLock",
 "src": "Win95/pc_sndtrans.c",
 "len": 30,
 "verdict": "EXACT"
@@ -3683,14 +3683,14 @@
 },
 {
 "addr": "0x10008310",
-"name": "FUN_10008310",
+"name": "SND_pc_fn_vRunVoiceCallback",
 "src": "sndwave.c",
 "len": 20,
 "verdict": "EXACT"
 },
 {
 "addr": "0x10008330",
-"name": "FUN_10008330",
+"name": "SND_pc_fn_vStartVoiceCallbackThread",
 "src": "sndwave.c",
 "len": 44,
 "verdict": "EXACT"
@@ -3774,7 +3774,7 @@
 },
 {
 "addr": "0x10008BA0",
-"name": "FUN_10008ba0",
+"name": "SND_pc_fn_ulWaitObjectOrBreak",
 "src": "sndwave.c",
 "len": 37,
 "verdict": "EXACT"
@@ -3795,7 +3795,7 @@
 },
 {
 "addr": "0x10008C90",
-"name": "FUN_10008c90",
+"name": "SND_pc_fn_vMixAndWriteBuffer",
 "src": "sndwave.c",
 "len": 568,
 "verdict": "EXACT"
@@ -3816,7 +3816,7 @@
 },
 {
 "addr": "0x10008F60",
-"name": "FUN_10008f60",
+"name": "SND_pc_fn_vOpenWaveOut",
 "src": "sndwave.c",
 "len": 480,
 "verdict": "MISMATCH"
@@ -3830,14 +3830,14 @@
 },
 {
 "addr": "0x10009150",
-"name": "FUN_10009150",
+"name": "SND_pc_fn_vCloseWaveOut",
 "src": "sndwave.c",
 "len": 95,
 "verdict": "EXACT"
 },
 {
 "addr": "0x100091B0",
-"name": "FUN_100091b0",
+"name": "SND_pc_fn_vDesInitWaveOut",
 "src": "sndwave.c",
 "len": 147,
 "verdict": "EXACT"
@@ -3851,21 +3851,21 @@
 },
 {
 "addr": "0x10009260",
-"name": "FUN_10009260",
+"name": "SND_pc_fn_iInitWaveOut",
 "src": "sndwave.c",
 "len": 349,
 "verdict": "EXACT"
 },
 {
 "addr": "0x100093C0",
-"name": "FUN_100093c0",
+"name": "SND_pc_fn_ulWaveOutThread",
 "src": "sndwave.c",
 "len": 982,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x100097A0",
-"name": "FUN_100097a0",
+"name": "SND_pc_fn_vSelectAudibleVoices",
 "src": "sndwave.c",
 "len": 214,
 "verdict": "EXACT"
@@ -3921,14 +3921,14 @@
 },
 {
 "addr": "0x10009C20",
-"name": "FUN_10009c20",
+"name": "SND_pc_fn_vTakeWaveOut",
 "src": "sndwave.c",
 "len": 134,
 "verdict": "EXACT"
 },
 {
 "addr": "0x10009CB0",
-"name": "FUN_10009cb0",
+"name": "SND_pc_fn_vReleaseWaveOut",
 "src": "sndwave.c",
 "len": 171,
 "verdict": "EXACT"
@@ -4383,49 +4383,49 @@
 },
 {
 "addr": "0x1000AF10",
-"name": "FUN_1000af10",
+"name": "SND_pc_fn_lOpenMixerVolume",
 "src": "pc_mixervol.c",
 "len": 430,
 "verdict": "EXACT"
 },
 {
 "addr": "0x1000B0C0",
-"name": "FUN_1000b0c0",
+"name": "SND_pc_fn_ulGetMixerVolumeMax",
 "src": "pc_mixervol.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x1000B0D0",
-"name": "FUN_1000b0d0",
+"name": "SND_pc_fn_ulGetMixerVolumeMin",
 "src": "pc_mixervol.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x1000B0E0",
-"name": "FUN_1000b0e0",
+"name": "SND_pc_fn_ulGetMixerVolume",
 "src": "pc_mixervol.c",
 "len": 97,
 "verdict": "EXACT"
 },
 {
 "addr": "0x1000B150",
-"name": "FUN_1000b150",
+"name": "SND_pc_fn_vSetMixerVolume",
 "src": "pc_mixervol.c",
 "len": 80,
 "verdict": "EXACT"
 },
 {
 "addr": "0x1000B1A0",
-"name": "FUN_1000b1a0",
+"name": "SND_pc_fn_lIsMixerVolumeOk",
 "src": "pc_mixervol.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x1000B1B0",
-"name": "FUN_1000b1b0",
+"name": "SND_pc_fn_lCloseMixerVolume",
 "src": "pc_mixervol.c",
 "len": 37,
 "verdict": "EXACT"

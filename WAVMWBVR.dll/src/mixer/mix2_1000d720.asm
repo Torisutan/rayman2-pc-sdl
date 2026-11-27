@@ -4,8 +4,8 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_1000d720
-	PUBLIC _FUN_1000d869
+	PUBLIC _SND_pc_fn_vMixReverbFir32
+	PUBLIC _SND_pc_fn_vMixFirHistory
 	EXTRN _SND_pc_a27C90:DWORD
 
 _DATA	SEGMENT
@@ -18,7 +18,7 @@ _SND_pc_a21FC0	db 01000h dup (0)	; 10021fc0
 _DATA	ENDS
 
 _TEXT	SEGMENT
-_FUN_1000d720:
+_SND_pc_fn_vMixReverbFir32:
 	push ebp		; 1000d720 55
 	mov ebp, esp		; 1000d721 8bec
 	pushad		; 1000d723 60
@@ -119,7 +119,7 @@ L1000d862::
 	mov esp, ebp		; 1000d865 8be5
 	pop ebp		; 1000d867 5d
 	ret		; 1000d868 c3
-_FUN_1000d869:
+_SND_pc_fn_vMixFirHistory:
 	push ebp		; 1000d869 55
 	mov ebp, esp		; 1000d86a 8bec
 	pushad		; 1000d86c 60

@@ -5,6 +5,7 @@
 #if defined(_DLL_COMPILATION_MODE)
 #include "snddll.h"
 #endif
+#include "sndmixvol_pc.h"
 
 MIXERCONTROL		SND_pc_stMixerControl = {0};
 MIXERCONTROLDETAILS	SND_pc_stMixerDetails = {0};
@@ -17,12 +18,12 @@ MIXERCONTROLDETAILS_UNSIGNED SND_pc_stMixerValue = {0};
 UINT				SND_pc_uMixerId = 0;
 HMIXER				SND_pc_hMixer = NULL;
 long				SND_pc_lMixerOk = 0;
-/* 0x10009260 */
+
 HWND				SND_pc_hMainWindow = NULL;
 HINSTANCE			SND_pc_hFirstProcessInstance = NULL;
 HINSTANCE			SND_pc_hProcessInstance = NULL;
 
-long FUN_1000af10(HWAVEOUT hWaveOut)
+long SND_pc_fn_lOpenMixerVolume(SND_pc_tdhDevice hWaveOut)
 {
 	SND_pc_dwMixerDevs = mixerGetNumDevs();
 	if (SND_pc_dwMixerDevs == 0) {
@@ -73,34 +74,34 @@ long FUN_1000af10(HWAVEOUT hWaveOut)
 	return 0;
 }
 
-unsigned long FUN_1000b0c0(void)
+unsigned long SND_pc_fn_ulGetMixerVolumeMax(void)
 {
 	return SND_pc_stMixerControl.Bounds.dwMaximum;
 }
 
-unsigned long FUN_1000b0d0(void)
+unsigned long SND_pc_fn_ulGetMixerVolumeMin(void)
 {
 	return SND_pc_stMixerControl.Bounds.dwMinimum;
 }
 
-unsigned long FUN_1000b0e0(void)
+unsigned long SND_pc_fn_ulGetMixerVolume(void)
 {
 	unsigned long ulMin;
 	unsigned long ulStep;
 
 	if (SND_pc_lMixerOk != 0) {
-		ulMin = FUN_1000b0d0();
-		ulStep = (FUN_1000b0c0() - ulMin) / 100;
+		ulMin = SND_pc_fn_ulGetMixerVolumeMin();
+		ulStep = (SND_pc_fn_ulGetMixerVolumeMax() - ulMin) / 100;
 		if (mixerGetControlDetailsA((HMIXEROBJ)SND_pc_hMixer,&SND_pc_stMixerDetails,
 			MIXER_OBJECTF_HMIXER | MIXER_GETCONTROLDETAILSF_VALUE) != 0) {
 			return 1;
 		}
-		return (SND_pc_stMixerValue.dwValue - FUN_1000b0d0()) / ulStep;
+		return (SND_pc_stMixerValue.dwValue - SND_pc_fn_ulGetMixerVolumeMin()) / ulStep;
 	}
 	return 0;
 }
 
-void FUN_1000b150(unsigned long ulVolume)
+void SND_pc_fn_vSetMixerVolume(unsigned long ulVolume)
 {
 	unsigned long ulMin;
 	unsigned long ulStep;
@@ -108,19 +109,19 @@ void FUN_1000b150(unsigned long ulVolume)
 	if (SND_pc_lMixerOk == 0) {
 		return;
 	}
-	ulMin = FUN_1000b0d0();
-	ulStep = (FUN_1000b0c0() - ulMin) / 100;
-	SND_pc_stMixerValue.dwValue = FUN_1000b0d0() + ulStep * ulVolume;
+	ulMin = SND_pc_fn_ulGetMixerVolumeMin();
+	ulStep = (SND_pc_fn_ulGetMixerVolumeMax() - ulMin) / 100;
+	SND_pc_stMixerValue.dwValue = SND_pc_fn_ulGetMixerVolumeMin() + ulStep * ulVolume;
 	mixerSetControlDetails((HMIXEROBJ)SND_pc_hMixer,&SND_pc_stMixerDetails,
 		MIXER_OBJECTF_HMIXER | MIXER_SETCONTROLDETAILSF_VALUE);
 }
 
-long FUN_1000b1a0(void)
+long SND_pc_fn_lIsMixerVolumeOk(void)
 {
 	return SND_pc_lMixerOk;
 }
 
-long FUN_1000b1b0(void)
+long SND_pc_fn_lCloseMixerVolume(void)
 {
 	if (mixerClose(SND_pc_hMixer) != 0) {
 		SND_fn_vDisplayError(0x41,"");

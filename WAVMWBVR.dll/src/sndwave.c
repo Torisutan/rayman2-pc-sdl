@@ -86,11 +86,11 @@ long			SND_pc_lEffectState;
 
 #define SND_pc_C_NbBuffers 100
 
-HWAVEOUT		SND_pc_hWaveOut = NULL;
-HANDLE			SND_pc_hThread = NULL;
+SND_pc_tdhDevice	SND_pc_hWaveOut = NULL;
+SND_pc_tdhThread	SND_pc_hThread = NULL;
 WAVEFORMATEX	SND_pc_stWaveFormat = {0};
 long			SND_pc_lNbStats = 0;
-HANDLE			SND_pc_hMutexDX = NULL;
+SND_pc_tdhLock	SND_pc_hMutexDX = NULL;
 double			SND_pc_dAvgInQueue = 0;
 UINT			SND_pc_uiMsgLibereDriver = 0;
 DWORD			SND_pc_dwThreadId = 0;
@@ -105,7 +105,7 @@ char			*SND_pc_a_pBuffers[SND_pc_C_NbBuffers] = {0};
 SndBool			SND_pc_b8BitsOutput = FALSE;
 WAVEHDR			SND_pc_a_stWaveHdr[SND_pc_C_NbBuffers] = {0};
 SND_pc_tdstBufferClientList	SND_pc_stBufferClients = {0};
-HANDLE			SND_pc_hSampleMutex = NULL;
+SND_pc_tdhLock	SND_pc_hSampleMutex = NULL;
 UINT			SND_pc_uiMsgDesInitSnd = 0;
 UINT			SND_pc_uiMsgPrendDriver = 0;
 SndBool			SND_pc_bDebugStats = FALSE;
@@ -125,8 +125,8 @@ extern HWND		SND_pc_hMainWindow;
 extern HINSTANCE SND_pc_hProcessInstance;
 extern HINSTANCE SND_pc_hFirstProcessInstance;
 
-LARGE_INTEGER	SND_pc_stPerfFrequency_9785;
-LARGE_INTEGER	SND_pc_stPerfCounter;
+SND_pc_tdstPerfCounter	SND_pc_stPerfFrequency_9785;
+SND_pc_tdstPerfCounter	SND_pc_stPerfCounter;
 SND_pc_tdstSampleVoice		SND_pc_a64_stVoice_9095[SND_pc_C_NbVoices];
 
 SndBool	SND_pc_bStereo = TRUE;
@@ -149,8 +149,8 @@ char	SND_pc_szTargetLabel[] = "mw";
 
 char			*SND_pc_pBufferData_73344;
 
-LARGE_INTEGER	SND_pc_stMixStart;
-LARGE_INTEGER	SND_pc_stMixEnd_2638;
+SND_pc_tdstPerfCounter	SND_pc_stMixStart;
+SND_pc_tdstPerfCounter	SND_pc_stMixEnd_2638;
 double			SND_pc_dMixTime_12;
 double			SND_pc_dMixTotal_5463;
 long			SND_pc_lNbMix_5999;
@@ -172,30 +172,29 @@ short			*SND_pc_pw35D98_9554;
 
 long			SND_pc_lNbAudible_1293;
 
-/* 0x10008330 */
 typedef struct _SND_pc_tdstCallbackThread {
 	SND_td_pfn_vSoundCallback	fn_callback;
 	long						par_callback;
 } SND_pc_tdstCallbackThread;
 
 /* 0x1000D380 */
-void	FUN_1000d380(long lOffset,long lLength);
-void	FUN_1000d3ad(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long lOffset,long l6);
-void	FUN_1000d4e0(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long lOffset,long l6);
-void	FUN_1000d720(char *pBuffer,short *pwCoefs,long lLength,long lOffset);
-void	FUN_1000d9d0(char *pBuffer,long lLength,long lMode);
-void	FUN_1000db63(char *pBuffer,long lLength,long lMode);
-void	FUN_1000dc2f(char *pBuffer,long lLength);
-void	FUN_1000dca3(char *pBuffer,long lValue,long lLength);
-void	FUN_1000dce0(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000de0d(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000df84(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000e300(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000e7ac(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000ea10(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000ead6(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000ebde(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
-void	FUN_1000eca3(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long l4,long l5);
+void	SND_pc_fn_vClearReverbSend(long lOffset,long lLength);
+void	SND_pc_fn_vMixMono16NativeSend(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long lOffset,long lUnused);
+void	SND_pc_fn_vMixMono16StepSend(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long lOffset,long lUnused);
+void	SND_pc_fn_vMixReverbFir32(char *pBuffer,short *pwCoefs,long lLength,long lUnused);
+void	SND_pc_fn_vApplyEchoDelay(char *pBuffer,long lLength,long lMode);
+void	SND_pc_fn_vApplySweptComb(char *pBuffer,long lLength,long lUnused);
+void	SND_pc_fn_vApplySideEcho(char *pBuffer,long lLength);
+void	SND_pc_fn_vFillBuffer(char *pBuffer,long lValue,long lLength);
+void	SND_pc_fn_vMixMono16Native(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long lUnused,long bAdd);
+void	SND_pc_fn_vMixMono16HalfRate(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long lUnused,long bAdd);
+void	SND_pc_fn_vMixMono16DoubleRate(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long lUnused,long bAdd);
+void	SND_pc_fn_vMixMono16Step(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long bAdd);
+void	SND_pc_fn_vMixMono16Comb(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long lSlot,long lUnused);
+void	SND_pc_fn_vMixStereo16Native(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long bAdd);
+void	SND_pc_fn_vMixStereo16HalfRate(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long bAdd);
+void	SND_pc_fn_vMixStereo16DoubleRate(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long bAdd);
+void	SND_pc_fn_vMixStereo16Step(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength,long bSide,long bAdd);
 
 void FUN_10007e60(SND_pc_tdstReverbParam *pParam,long lFreq)
 {
@@ -297,20 +296,20 @@ void FUN_10008300(void)
 	SND_fn_vFreeSnd(SND_pc_pw28464_5);
 }
 
-void FUN_10008310(SND_pc_tdstCallbackThread *pThread)
+void SND_pc_fn_vRunVoiceCallback(SND_pc_tdstCallbackThread *pThread)
 {
 	pThread->fn_callback(pThread->par_callback);
-	GlobalFree(pThread);
+	SND_pc_M_vFreeCallback(pThread);
 }
 
-void __stdcall FUN_10008330(SND_pc_tdstSampleVoice *pVoice)
+void __stdcall SND_pc_fn_vStartVoiceCallbackThread(SND_pc_tdstSampleVoice *pVoice)
 {
 	SND_pc_tdstCallbackThread *pThread;
 
-	pThread = (SND_pc_tdstCallbackThread *)GlobalAlloc(GMEM_FIXED,sizeof(SND_pc_tdstCallbackThread));
+	pThread = (SND_pc_tdstCallbackThread *)SND_pc_M_pvAllocCallback(sizeof(SND_pc_tdstCallbackThread));
 	pThread->fn_callback = pVoice->fn_callback;
 	pThread->par_callback = pVoice->par_callback;
-	_beginthread((void (__cdecl *)(void *))FUN_10008310,0,pThread);
+	SND_pc_M_vStartCallbackThread((void (__cdecl *)(void *))SND_pc_fn_vRunVoiceCallback,pThread);
 }
 
 void FUN_10008360(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength)
@@ -320,21 +319,21 @@ void FUN_10008360(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength)
 		switch (pVoice->lInc)
 		{
 		case 0x80:
-			FUN_1000ead6(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixStereo16HalfRate(pVoice,pBuffer,lLength,0,1);
 			break;
 		case 0x100:
-			FUN_1000ea10(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixStereo16Native(pVoice,pBuffer,lLength,0,1);
 			break;
 		case 0x200:
-			FUN_1000ebde(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixStereo16DoubleRate(pVoice,pBuffer,lLength,0,1);
 			break;
 		default:
-			FUN_1000eca3(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixStereo16Step(pVoice,pBuffer,lLength,0,1);
 			break;
 		}
 	}
 	else
-		FUN_1000eca3(pVoice,pBuffer,lLength,0,1);
+		SND_pc_fn_vMixStereo16Step(pVoice,pBuffer,lLength,0,1);
 }
 
 void FUN_100083f0(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength)
@@ -344,21 +343,21 @@ void FUN_100083f0(SND_pc_tdstSampleVoice *pVoice,char *pBuffer,long lLength)
 		switch (pVoice->lInc)
 		{
 		case 0x80:
-			FUN_1000de0d(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixMono16HalfRate(pVoice,pBuffer,lLength,0,1);
 			break;
 		case 0x100:
-			FUN_1000dce0(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixMono16Native(pVoice,pBuffer,lLength,0,1);
 			break;
 		case 0x200:
-			FUN_1000df84(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixMono16DoubleRate(pVoice,pBuffer,lLength,0,1);
 			break;
 		default:
-			FUN_1000e300(pVoice,pBuffer,lLength,0,1);
+			SND_pc_fn_vMixMono16Step(pVoice,pBuffer,lLength,0,1);
 			break;
 		}
 	}
 	else
-		FUN_1000e300(pVoice,pBuffer,lLength,0,1);
+		SND_pc_fn_vMixMono16Step(pVoice,pBuffer,lLength,0,1);
 }
 
 void FUN_10008480(char *pBuffer,long lLength)
@@ -373,7 +372,7 @@ void FUN_10008480(char *pBuffer,long lLength)
 	bFilter = FALSE;
 	lVolume = 0;
 	SND_pc_lNbAudible_1293 = 0;
-	FUN_1000dca3(pBuffer,0,lLength);
+	SND_pc_fn_vFillBuffer(pBuffer,0,lLength);
 	if (lLength & 0xF)
 		bFilter = TRUE;
 	do
@@ -391,16 +390,16 @@ void FUN_10008480(char *pBuffer,long lLength)
 						switch (pVoice->l3C)
 						{
 						case 0:
-							FUN_1000e300(pVoice,pBuffer,lLength,0,1);
+							SND_pc_fn_vMixMono16Step(pVoice,pBuffer,lLength,0,1);
 							lNb++;
 							break;
 						case 1:
-							FUN_1000e300(pVoice,pBuffer,lLength,1,1);
+							SND_pc_fn_vMixMono16Step(pVoice,pBuffer,lLength,1,1);
 							lNb++;
 							bFilter = TRUE;
 							break;
 						case 0x100:
-							FUN_1000e7ac(pVoice,pBuffer,lLength,lNb,1);
+							SND_pc_fn_vMixMono16Comb(pVoice,pBuffer,lLength,lNb,1);
 							break;
 						}
 					}
@@ -420,14 +419,14 @@ void FUN_10008480(char *pBuffer,long lLength)
 						switch (pVoice->l3C)
 						{
 						case 0:
-							FUN_1000dce0(pVoice,pBuffer,lLength,0,1);
+							SND_pc_fn_vMixMono16Native(pVoice,pBuffer,lLength,0,1);
 							break;
 						case 1:
-							FUN_1000dce0(pVoice,pBuffer,lLength,0,1);
+							SND_pc_fn_vMixMono16Native(pVoice,pBuffer,lLength,0,1);
 							bFilter = TRUE;
 							break;
 						case 0x100:
-							FUN_1000dce0(pVoice,pBuffer,lLength,0,1);
+							SND_pc_fn_vMixMono16Native(pVoice,pBuffer,lLength,0,1);
 							break;
 						}
 					}
@@ -455,7 +454,7 @@ void FUN_10008480(char *pBuffer,long lLength)
 			if (!pVoice->bPlaying && pVoice->bCallback)
 			{
 				pVoice->bCallback = FALSE;
-				FUN_10008330(pVoice);
+				SND_pc_fn_vStartVoiceCallbackThread(pVoice);
 			}
 		}
 		pVoice++;
@@ -465,23 +464,23 @@ void FUN_10008480(char *pBuffer,long lLength)
 		switch (SND_pc_lEffect_198)
 		{
 		case 1:
-			FUN_1000d9d0(pBuffer,lLength,0);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,0);
 			break;
 		case 2:
-			FUN_1000d9d0(pBuffer,lLength,1);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,1);
 			break;
 		case 3:
-			FUN_1000d9d0(pBuffer,lLength,2);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,2);
 			break;
 		case 4:
-			FUN_1000d9d0(pBuffer,lLength,3);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,3);
 			break;
 		case 5:
-			FUN_1000db63(pBuffer,lLength,0);
+			SND_pc_fn_vApplySweptComb(pBuffer,lLength,0);
 			break;
 		case 6:
 			if (bFilter)
-				FUN_1000dc2f(pBuffer,lLength);
+				SND_pc_fn_vApplySideEcho(pBuffer,lLength);
 			break;
 		}
 	}
@@ -499,8 +498,8 @@ void FUN_100086f0(char *pBuffer,long lLength)
 	bFilter = FALSE;
 	lVolume = 0;
 	SND_pc_lNbAudible_1293 = 0;
-	FUN_1000dca3(pBuffer,0,lLength);
-	FUN_1000d380((pBuffer - SND_pc_pBufferData_73344) / 2,lLength / 2);
+	SND_pc_fn_vFillBuffer(pBuffer,0,lLength);
+	SND_pc_fn_vClearReverbSend((pBuffer - SND_pc_pBufferData_73344) / 2,lLength / 2);
 	if (lLength & 0xF)
 		bFilter = TRUE;
 	do
@@ -518,16 +517,16 @@ void FUN_100086f0(char *pBuffer,long lLength)
 						switch (pVoice->l3C)
 						{
 						case 0:
-							FUN_1000e300(pVoice,pBuffer,lLength,0,1);
+							SND_pc_fn_vMixMono16Step(pVoice,pBuffer,lLength,0,1);
 							lNb++;
 							break;
 						case 1:
-							FUN_1000e300(pVoice,pBuffer,lLength,0,1);
+							SND_pc_fn_vMixMono16Step(pVoice,pBuffer,lLength,0,1);
 							lNb++;
 							bFilter = TRUE;
 							break;
 						case 0x100:
-							FUN_1000e7ac(pVoice,pBuffer,lLength,lNb,1);
+							SND_pc_fn_vMixMono16Comb(pVoice,pBuffer,lLength,lNb,1);
 							break;
 						}
 					}
@@ -536,7 +535,7 @@ void FUN_100086f0(char *pBuffer,long lLength)
 						if (pVoice->bStereo)
 							FUN_10008360(pVoice,pBuffer,lLength);
 						else
-							FUN_1000d4e0(pVoice,pBuffer,lLength,0,(pBuffer - SND_pc_pBufferData_73344) / 2,1);
+							SND_pc_fn_vMixMono16StepSend(pVoice,pBuffer,lLength,0,(pBuffer - SND_pc_pBufferData_73344) / 2,1);
 						break;
 					}
 				}
@@ -549,7 +548,7 @@ void FUN_100086f0(char *pBuffer,long lLength)
 						case 0:
 						case 1:
 						case 0x100:
-							FUN_1000d3ad(pVoice,pBuffer,lLength,0,(pBuffer - SND_pc_pBufferData_73344) / 2,1);
+							SND_pc_fn_vMixMono16NativeSend(pVoice,pBuffer,lLength,0,(pBuffer - SND_pc_pBufferData_73344) / 2,1);
 							break;
 						}
 					}
@@ -558,7 +557,7 @@ void FUN_100086f0(char *pBuffer,long lLength)
 						if (pVoice->bStereo)
 							FUN_10008360(pVoice,pBuffer,lLength);
 						else
-							FUN_1000d3ad(pVoice,pBuffer,lLength,0,(pBuffer - SND_pc_pBufferData_73344) / 2,1);
+							SND_pc_fn_vMixMono16NativeSend(pVoice,pBuffer,lLength,0,(pBuffer - SND_pc_pBufferData_73344) / 2,1);
 						break;
 					}
 				}
@@ -575,7 +574,7 @@ void FUN_100086f0(char *pBuffer,long lLength)
 				}
 			}
 			if (!pVoice->bPlaying && pVoice->bCallback)
-				FUN_10008330(pVoice);
+				SND_pc_fn_vStartVoiceCallbackThread(pVoice);
 		}
 		pVoice++;
 	} while (pVoice < SND_pc_pLastVoice);
@@ -584,28 +583,28 @@ void FUN_100086f0(char *pBuffer,long lLength)
 		switch (SND_pc_lEffect_198)
 		{
 		case 1:
-			FUN_1000d9d0(pBuffer,lLength,0);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,0);
 			break;
 		case 2:
-			FUN_1000d9d0(pBuffer,lLength,1);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,1);
 			break;
 		case 3:
-			FUN_1000d9d0(pBuffer,lLength,2);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,2);
 			break;
 		case 4:
-			FUN_1000d9d0(pBuffer,lLength,3);
+			SND_pc_fn_vApplyEchoDelay(pBuffer,lLength,3);
 			break;
 		case 5:
-			FUN_1000db63(pBuffer,lLength,0);
+			SND_pc_fn_vApplySweptComb(pBuffer,lLength,0);
 			break;
 		case 6:
 			if (bFilter)
-				FUN_1000dc2f(pBuffer,lLength);
+				SND_pc_fn_vApplySideEcho(pBuffer,lLength);
 			break;
 		}
 	}
 	if (SND_pc_lNbAudible_1293)
-		FUN_1000d720(pBuffer,SND_pc_stReverbParam.pwCoefs,lLength,(pBuffer - SND_pc_pBufferData_73344) / 2);
+		SND_pc_fn_vMixReverbFir32(pBuffer,SND_pc_stReverbParam.pwCoefs,lLength,(pBuffer - SND_pc_pBufferData_73344) / 2);
 }
 
 void FUN_100089a0(short *pBuffer,unsigned long ulLength,long lThreshold)
@@ -665,13 +664,12 @@ void FUN_100089a0(short *pBuffer,unsigned long ulLength,long lThreshold)
 	}
 }
 
-/* 0x1000AF10 */
-long	FUN_1000af10(HWAVEOUT hWaveOut);
-unsigned long FUN_1000b0e0(void);
-void	FUN_1000b150(unsigned long ulVolume);
-long	FUN_1000b1b0(void);
+long	SND_pc_fn_lOpenMixerVolume(SND_pc_tdhDevice hWaveOut);
+unsigned long SND_pc_fn_ulGetMixerVolume(void);
+void	SND_pc_fn_vSetMixerVolume(unsigned long ulVolume);
+long	SND_pc_fn_lCloseMixerVolume(void);
 
-void	FUN_100097a0(void);
+void	SND_pc_fn_vSelectAudibleVoices(void);
 
 void FUN_10008ae0(void)
 {
@@ -706,13 +704,13 @@ void FUN_10008b90(void)
 {
 }
 
-DWORD FUN_10008ba0(HANDLE hHandle,DWORD dwMilliseconds)
+DWORD SND_pc_fn_ulWaitObjectOrBreak(HANDLE hHandle,DWORD dwMilliseconds)
 {
 	DWORD dwResult;
 
-	dwResult = WaitForSingleObject(hHandle,50000);
-	if (dwResult == WAIT_TIMEOUT)
-		DebugBreak();
+	dwResult = SND_pc_M_ulWaitLock(hHandle,50000);
+	if (dwResult == SND_pc_C_ulWaitTimedOut)
+		SND_pc_M_vBreak();
 	return dwResult;
 }
 
@@ -739,20 +737,20 @@ void FUN_10008c60(SND_pc_tdstBufferClient *pBuffer)
 	SND_pc_a64_stVoice_9095[pBuffer->voice].ulPos = 0;
 }
 
-void FUN_10008c90(long lBuffer)
+void SND_pc_fn_vMixAndWriteBuffer(long lBuffer)
 {
 	char szError[256];
-	LARGE_INTEGER stDelta;
+	SND_pc_tdstPerfCounter stDelta;
 	SND_pc_tdstBufferClient *pBuffer;
 	SND_pc_tdstBufferClient *pNext;
 	MMRESULT mmr;
 	long i;
 
-	FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+	SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 	SND_pc_lLastLockedOperation = 3;
 	SND_pc_a_stWaveHdr[lBuffer].dwUser = lBuffer;
 	SND_pc_a_stWaveHdr[lBuffer].dwFlags |= WHDR_DONE;
-	QueryPerformanceCounter(&SND_pc_stMixStart);
+	SND_pc_M_bGetPerfCounter(&SND_pc_stMixStart);
 	if (SND_pc_bDolby)
 		FUN_100086f0(SND_pc_a_pBuffers[lBuffer],SND_pc_lBufferLength);
 	else
@@ -772,7 +770,7 @@ void FUN_10008c90(long lBuffer)
 			}
 		}
 	}
-	QueryPerformanceCounter(&SND_pc_stMixEnd_2638);
+	SND_pc_M_bGetPerfCounter(&SND_pc_stMixEnd_2638);
 	stDelta.QuadPart = SND_pc_stMixEnd_2638.QuadPart - SND_pc_stMixStart.QuadPart;
 	SND_pc_dMixTime_12 = (double)stDelta.QuadPart / (double)SND_pc_stPerfFrequency_9785.QuadPart;
 	SND_pc_dMixTotal_5463 += SND_pc_dMixTime_12;
@@ -787,17 +785,17 @@ void FUN_10008c90(long lBuffer)
 		SND_pc_lNbMix_5999 = 0;
 		SND_pc_dMixTotal_5463 = 0;
 	}
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 	if (SND_pc_hMutexDX)
-		FUN_10008ba0(SND_pc_hMutexDX,INFINITE);
-	mmr = waveOutWrite(SND_pc_hWaveOut,&SND_pc_a_stWaveHdr[lBuffer],sizeof(WAVEHDR));
+		SND_pc_M_ulLockOrBreak(SND_pc_hMutexDX);
+	mmr = SND_pc_M_ulWriteBuffer(SND_pc_hWaveOut,&SND_pc_a_stWaveHdr[lBuffer]);
 	if (mmr)
 	{
-		waveOutGetErrorTextA(mmr,szError,256);
-		MessageBoxA(NULL,szError,"erreur avec waveWrite",0);
+		SND_pc_M_ulGetDeviceErrorText(mmr,szError,256);
+		SND_pc_M_vErrorBox(szError,"erreur avec waveWrite");
 	}
 	if (SND_pc_hMutexDX)
-		ReleaseMutex(SND_pc_hMutexDX);
+		SND_pc_M_bReleaseLock(SND_pc_hMutexDX);
 }
 
 void FUN_10008ed0(void)
@@ -821,14 +819,14 @@ void FUN_10008f40(void)
 	FUN_10008b30();
 }
 
-void FUN_10008f60(void)
+void SND_pc_fn_vOpenWaveOut(void)
 {
 	char szError[256];
 	MMRESULT mmr;
 	int i;
 
 	if (SND_pc_hMutexDX)
-		FUN_10008ba0(SND_pc_hMutexDX,INFINITE);
+		SND_pc_M_ulLockOrBreak(SND_pc_hMutexDX);
 	SND_pc_stWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
 	SND_pc_stWaveFormat.nChannels = 2;
 	SND_pc_stWaveFormat.nSamplesPerSec = 22050;
@@ -838,10 +836,10 @@ void FUN_10008f60(void)
 	SND_pc_stWaveFormat.cbSize = 0;
 	if (SND_pc_bRetryDriver)
 	{
-		mmr = waveOutOpen(&SND_pc_hWaveOut,WAVE_MAPPER,&SND_pc_stWaveFormat,GetCurrentThreadId(),0,CALLBACK_THREAD);
+		mmr = SND_pc_M_ulOpenDevice(&SND_pc_hWaveOut,&SND_pc_stWaveFormat);
 		if (mmr)
 		{
-			waveOutGetErrorTextA(mmr,szError,256);
+			SND_pc_M_ulGetDeviceErrorText(mmr,szError,256);
 			SND_pc_bDriverTaken = FALSE;
 		}
 		else
@@ -857,21 +855,21 @@ void FUN_10008f60(void)
 				SND_pc_a_stWaveHdr[i].dwUser = i;
 				if (SND_pc_bDriverTaken)
 				{
-					mmr = waveOutPrepareHeader(SND_pc_hWaveOut,&SND_pc_a_stWaveHdr[i],sizeof(WAVEHDR));
+					mmr = SND_pc_M_ulPrepareBuffer(SND_pc_hWaveOut,&SND_pc_a_stWaveHdr[i]);
 					if (mmr)
 					{
-						waveOutGetErrorTextA(mmr,szError,256);
-						waveOutClose(SND_pc_hWaveOut);
+						SND_pc_M_ulGetDeviceErrorText(mmr,szError,256);
+						SND_pc_M_ulCloseDevice(SND_pc_hWaveOut);
 						SND_pc_bDriverTaken = FALSE;
 					}
 					if (SND_pc_bDriverTaken)
 					{
-						mmr = waveOutWrite(SND_pc_hWaveOut,&SND_pc_a_stWaveHdr[i],sizeof(WAVEHDR));
+						mmr = SND_pc_M_ulWriteBuffer(SND_pc_hWaveOut,&SND_pc_a_stWaveHdr[i]);
 						if (mmr)
 						{
-							waveOutGetErrorTextA(mmr,szError,256);
-							MessageBoxA(NULL,szError,"erreur avec waveWrite",0);
-							waveOutClose(SND_pc_hWaveOut);
+							SND_pc_M_ulGetDeviceErrorText(mmr,szError,256);
+							SND_pc_M_vErrorBox(szError,"erreur avec waveWrite");
+							SND_pc_M_ulCloseDevice(SND_pc_hWaveOut);
 							SND_pc_bDriverTaken = FALSE;
 						}
 					}
@@ -882,34 +880,34 @@ void FUN_10008f60(void)
 		}
 	}
 	if (SND_pc_bDriverTaken)
-		FUN_1000af10(SND_pc_hWaveOut);
+		SND_pc_fn_lOpenMixerVolume(SND_pc_hWaveOut);
 	else
-		FUN_1000af10(NULL);
+		SND_pc_fn_lOpenMixerVolume(NULL);
 	if (SND_pc_hMutexDX)
-		ReleaseMutex(SND_pc_hMutexDX);
+		SND_pc_M_bReleaseLock(SND_pc_hMutexDX);
 }
 
 void FUN_10009140(void)
 {
-	FUN_10008f60();
+	SND_pc_fn_vOpenWaveOut();
 }
 
-void FUN_10009150(void)
+void SND_pc_fn_vCloseWaveOut(void)
 {
 	if (SND_pc_bInitDone && SND_pc_bDriverTaken)
 	{
 		if (SND_pc_hMutexDX)
-			FUN_10008ba0(SND_pc_hMutexDX,INFINITE);
-		FUN_1000b1b0();
+			SND_pc_M_ulLockOrBreak(SND_pc_hMutexDX);
+		SND_pc_fn_lCloseMixerVolume();
 		SND_pc_bDriverTaken = FALSE;
-		waveOutReset(SND_pc_hWaveOut);
-		waveOutClose(SND_pc_hWaveOut);
+		SND_pc_M_ulResetDevice(SND_pc_hWaveOut);
+		SND_pc_M_ulCloseDevice(SND_pc_hWaveOut);
 		if (SND_pc_hMutexDX)
-			ReleaseMutex(SND_pc_hMutexDX);
+			SND_pc_M_bReleaseLock(SND_pc_hMutexDX);
 	}
 }
 
-void FUN_100091b0(void)
+void SND_pc_fn_vDesInitWaveOut(void)
 {
 	int i;
 
@@ -918,19 +916,19 @@ void FUN_100091b0(void)
 		SND_pc_bRetryDriver = FALSE;
 		if (SND_pc_bDriverTaken)
 		{
-			FUN_1000b1b0();
+			SND_pc_fn_lCloseMixerVolume();
 			SND_pc_bDriverTaken = FALSE;
-			waveOutReset(SND_pc_hWaveOut);
-			waveOutClose(SND_pc_hWaveOut);
+			SND_pc_M_ulResetDevice(SND_pc_hWaveOut);
+			SND_pc_M_ulCloseDevice(SND_pc_hWaveOut);
 		}
 		SND_pc_bInitDone = FALSE;
-		FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+		SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 		SND_pc_lLastLockedOperation = 9;
 		for (i = 0; i < SND_pc_C_NbVoices; i++)
 			SND_fn_vStopSample(i);
 		FUN_10008f40();
-		ReleaseMutex(SND_pc_hSampleMutex);
-		CloseHandle(SND_pc_hSampleMutex);
+		SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
+		SND_pc_M_bDeleteLock(SND_pc_hSampleMutex);
 	}
 }
 
@@ -939,7 +937,7 @@ void FUN_10009250(void)
 	SND_fn_vDesInitSample();
 }
 
-int FUN_10009260(SND_pc_tdstInitMessage *pMsg)
+int SND_pc_fn_iInitWaveOut(SND_pc_tdstInitMessage *pMsg)
 {
 	char szText[80];
 
@@ -966,22 +964,22 @@ int FUN_10009260(SND_pc_tdstInitMessage *pMsg)
 	SND_pc_hMutexDX = pMsg->pInitStruct->hMutexDX;
 	SND_pc_bDriverTaken = TRUE;
 	SND_pc_bRetryDriver = TRUE;
-	SND_pc_hSampleMutex = CreateMutexA(NULL,TRUE,NULL);
+	SND_pc_hSampleMutex = SND_pc_M_hCreateLock(TRUE);
 	FUN_10008ed0();
 	FUN_10009140();
 	SND_pc_l27C74 = 0;
 	SND_pc_b8BitsOutput = (SND_pc_stWaveFormat.wBitsPerSample == 8);
 	SND_fn_vSetStereoSample(TRUE);
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 	atexit(FUN_10009250);
 	return SND_pc_bDriverTaken ? C_INIT_OK : C_INIT_FAILED;
 }
 
-DWORD WINAPI FUN_100093c0(LPVOID lpParameter)
+DWORD WINAPI SND_pc_fn_ulWaveOutThread(LPVOID lpParameter)
 {
 	MSG msg;
 	char szText[128];
-	HANDLE hEvent;
+	SND_pc_tdhEvent hEvent;
 	LPARAM lParam;
 	long lBuffer;
 	long lNbDone;
@@ -996,14 +994,14 @@ DWORD WINAPI FUN_100093c0(LPVOID lpParameter)
 #ifndef DISABLE_RECORD
 	SND_fn_bManageMsgForRecord((long)&msg);
 #endif
-	PeekMessageA(&msg,NULL,0,0,PM_NOREMOVE);
-	SetEvent((HANDLE)lpParameter);
-	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_ABOVE_NORMAL);
+	SND_pc_M_bPeekMessage(&msg);
+	SND_pc_M_bSetEvent((SND_pc_tdhEvent)lpParameter);
+	SND_pc_M_vRaiseThreadPriority();
 	while (1)
 	{
-		if (!GetMessageA(&msg,NULL,0,0))
+		if (!SND_pc_M_bGetMessage(&msg))
 			break;
-		hEvent = (HANDLE)msg.wParam;
+		hEvent = (SND_pc_tdhEvent)msg.wParam;
 		lParam = msg.lParam;
 #ifndef DISABLE_RECORD
 		if (SND_fn_bManageMsgForRecord((long)&msg))
@@ -1048,14 +1046,14 @@ DWORD WINAPI FUN_100093c0(LPVOID lpParameter)
 			if (SND_pc_bDriverTaken)
 			{
 				lNext = SND_pc_lNextBuffer % SND_pc_lNbBuffers;
-				FUN_100097a0();
+				SND_pc_fn_vSelectAudibleVoices();
 				while (lNext != lBuffer)
 				{
 					if ((lNext - lBuffer + SND_pc_lNbBuffers) % SND_pc_lNbBuffers >= SND_pc_l21E04)
 						break;
 					if (!SND_pc_a_lBufferState[(lNext + SND_pc_lNbBuffers - SND_pc_l21E04 + 1) % SND_pc_lNbBuffers])
 						break;
-					FUN_10008c90(lNext);
+					SND_pc_fn_vMixAndWriteBuffer(lNext);
 					SND_pc_a_lBufferState[lNext] = 0;
 					lNext = (lNext + 1) % SND_pc_lNbBuffers;
 				}
@@ -1064,36 +1062,36 @@ DWORD WINAPI FUN_100093c0(LPVOID lpParameter)
 		}
 		else if (msg.message == SND_pc_uiMsgInitSnd)
 		{
-			FUN_10009260((SND_pc_tdstInitMessage *)lParam);
+			SND_pc_fn_iInitWaveOut((SND_pc_tdstInitMessage *)lParam);
 			((SND_pc_tdstInitMessage *)lParam)->iResult = C_INIT_OK;
-			SetEvent(hEvent);
+			SND_pc_M_bSetEvent(hEvent);
 		}
 		else if (msg.message == SND_pc_uiMsgLibereDriver)
 		{
-			FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+			SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 			SND_pc_lLastLockedOperation = 5;
-			FUN_10009150();
-			ReleaseMutex(SND_pc_hSampleMutex);
-			SetEvent(hEvent);
+			SND_pc_fn_vCloseWaveOut();
+			SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
+			SND_pc_M_bSetEvent(hEvent);
 		}
 		else if (msg.message == SND_pc_uiMsgPrendDriver)
 		{
-			FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+			SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 			SND_pc_lLastLockedOperation = 7;
-			FUN_10008f60();
-			ReleaseMutex(SND_pc_hSampleMutex);
-			SetEvent(hEvent);
+			SND_pc_fn_vOpenWaveOut();
+			SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
+			SND_pc_M_bSetEvent(hEvent);
 		}
 		else if (msg.message == SND_pc_uiMsgDesInitSnd)
 			break;
 	}
-	FUN_100091b0();
-	SetEvent(hEvent);
-	ExitThread(0);
+	SND_pc_fn_vDesInitWaveOut();
+	SND_pc_M_bSetEvent(hEvent);
+	SND_pc_M_vExitThread();
 	return 0;
 }
 
-void FUN_100097a0(void)
+void SND_pc_fn_vSelectAudibleVoices(void)
 {
 	SND_pc_tdstSampleVoice *a10_pVoice[10];
 	SND_pc_tdstSampleVoice **ppVoice;
@@ -1308,48 +1306,48 @@ long FUN_10009c10(void)
 	return -1;
 }
 
-void FUN_10009c20(void)
+void SND_pc_fn_vTakeWaveOut(void)
 {
-	HANDLE hEvent;
+	SND_pc_tdhEvent hEvent;
 
-	if (GetCurrentThreadId() != SND_pc_dwThreadId)
+	if (SND_pc_M_ulGetCurrentThreadId() != SND_pc_dwThreadId)
 	{
-		hEvent = CreateEventA(NULL,FALSE,FALSE,NULL);
-		if (!PostThreadMessageA(SND_pc_dwThreadId,SND_pc_uiMsgPrendDriver,(WPARAM)hEvent,0))
+		hEvent = SND_pc_M_hCreateEvent();
+		if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgPrendDriver,(WPARAM)hEvent,0))
 			SND_M_DisplayError(0x1D,"Error on PostThreadMessage");
-		FUN_10008ba0(hEvent,INFINITE);
-		CloseHandle(hEvent);
+		SND_pc_M_ulWaitEventOrBreak(hEvent);
+		SND_pc_M_bDeleteEvent(hEvent);
 	}
 	else
 	{
-		FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+		SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 		SND_pc_lLastLockedOperation = 6;
-		FUN_10008f60();
-		ReleaseMutex(SND_pc_hSampleMutex);
+		SND_pc_fn_vOpenWaveOut();
+		SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 	}
 }
 
-void FUN_10009cb0(void)
+void SND_pc_fn_vReleaseWaveOut(void)
 {
-	HANDLE hEvent;
+	SND_pc_tdhEvent hEvent;
 
 	if (SND_pc_bInitDone && SND_pc_bDriverTaken)
 	{
-		if (GetCurrentThreadId() != SND_pc_dwThreadId)
+		if (SND_pc_M_ulGetCurrentThreadId() != SND_pc_dwThreadId)
 		{
-			hEvent = CreateEventA(NULL,FALSE,FALSE,NULL);
-			if (!PostThreadMessageA(SND_pc_dwThreadId,SND_pc_uiMsgLibereDriver,(WPARAM)hEvent,0))
+			hEvent = SND_pc_M_hCreateEvent();
+			if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgLibereDriver,(WPARAM)hEvent,0))
 				SND_M_DisplayError(0x1D,"Error on PostThreadMessage");
-			FUN_10008ba0(hEvent,INFINITE);
-			CloseHandle(hEvent);
+			SND_pc_M_ulWaitEventOrBreak(hEvent);
+			SND_pc_M_bDeleteEvent(hEvent);
 			SND_pc_bDriverTaken = FALSE;
 		}
 		else
 		{
-			FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+			SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 			SND_pc_lLastLockedOperation = 4;
-			FUN_10009150();
-			ReleaseMutex(SND_pc_hSampleMutex);
+			SND_pc_fn_vCloseWaveOut();
+			SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 		}
 	}
 }
@@ -1358,7 +1356,7 @@ void SND_fn_vSetReverseSample(SndBool active)
 {
 	int i;
 
-	FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+	SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 	SND_pc_lLastLockedOperation = 10;
 	if ((active && !SND_pc_bReverse) || (!active && SND_pc_bReverse))
 	{
@@ -1366,7 +1364,7 @@ void SND_fn_vSetReverseSample(SndBool active)
 			SND_pc_a64_stVoice_9095[i].lPan = 0x7F - SND_pc_a64_stVoice_9095[i].lPan;
 	}
 	SND_pc_bReverse = active;
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 }
 
 SndBool SND_fn_bGetReverseSample(void)
@@ -1413,10 +1411,10 @@ SndBool SND_fn_bTestIsPlayingSample(long voice)
 
 void SND_fn_vStopSample(long voice)
 {
-	FUN_10008ba0(SND_pc_hSampleMutex,INFINITE);
+	SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 	SND_pc_lLastLockedOperation = 1;
 	FUN_100099f0(voice);
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 }
 
 void SND_fn_vPauseSample(long voice)
@@ -1451,35 +1449,35 @@ SndBool SND_fn_bGetStereoSample(void)
 
 int SND_fn_iInitSample(SND_tdstInitStruct *pInitStruct)
 {
-	HANDLE hEvent;
+	SND_pc_tdhEvent hEvent;
 	SND_pc_tdstInitMessage *pMsg;
 	int iResult;
 
-	SND_pc_uiMsgInitSnd = RegisterWindowMessageA("MSG_InitSnd");
-	SND_pc_uiMsgDesInitSnd = RegisterWindowMessageA("MSG_DesInitSnd");
-	SND_pc_uiMsgLibereDriver = RegisterWindowMessageA("MSG_LibereDriver");
-	SND_pc_uiMsgPrendDriver = RegisterWindowMessageA("MSG_PrendDriver");
+	SND_pc_uiMsgInitSnd = SND_pc_M_uiRegisterMessage("MSG_InitSnd");
+	SND_pc_uiMsgDesInitSnd = SND_pc_M_uiRegisterMessage("MSG_DesInitSnd");
+	SND_pc_uiMsgLibereDriver = SND_pc_M_uiRegisterMessage("MSG_LibereDriver");
+	SND_pc_uiMsgPrendDriver = SND_pc_M_uiRegisterMessage("MSG_PrendDriver");
 
-	hEvent = CreateEventA(NULL,FALSE,FALSE,NULL);
-	SND_pc_hThread = CreateThread(NULL,0,FUN_100093c0,hEvent,0,&SND_pc_dwThreadId);
+	hEvent = SND_pc_M_hCreateEvent();
+	SND_pc_hThread = SND_pc_M_hCreateThread(SND_pc_fn_ulWaveOutThread,hEvent,&SND_pc_dwThreadId);
 	if (SND_pc_hThread == NULL)
 	{
 		SND_M_DisplayError(0x1E,"");
 		return C_INIT_FAILED;
 	}
-	FUN_10008ba0(hEvent,INFINITE);
-	CloseHandle(hEvent);
+	SND_pc_M_ulWaitEventOrBreak(hEvent);
+	SND_pc_M_bDeleteEvent(hEvent);
 
 	pMsg = (SND_pc_tdstInitMessage *)SND_fn_pvMallocSndEx(0,sizeof(SND_pc_tdstInitMessage));
 	pMsg->pInitStruct = pInitStruct;
 	pMsg->iResult = C_INIT_FAILED;
-	hEvent = CreateEventA(NULL,FALSE,FALSE,NULL);
-	if (!PostThreadMessageA(SND_pc_dwThreadId,SND_pc_uiMsgInitSnd,(WPARAM)hEvent,(LPARAM)pMsg))
+	hEvent = SND_pc_M_hCreateEvent();
+	if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgInitSnd,(WPARAM)hEvent,(LPARAM)pMsg))
 		SND_M_DisplayError(0x1D,"Error on PostThreadMessage");
-	FUN_10008ba0(hEvent,INFINITE);
+	SND_pc_M_ulWaitEventOrBreak(hEvent);
 
-	QueryPerformanceFrequency(&SND_pc_stPerfFrequency_9785);
-	QueryPerformanceCounter(&SND_pc_stPerfCounter);
+	SND_pc_M_bGetPerfFrequency(&SND_pc_stPerfFrequency_9785);
+	SND_pc_M_bGetPerfCounter(&SND_pc_stPerfCounter);
 
 	while (1)	/* 0x1000acb0 */
 	{
@@ -1501,10 +1499,10 @@ int SND_fn_iInitSample(SND_tdstInitStruct *pInitStruct)
 		}
 		if (SND_pc_bDriverTaken || !SND_pc_bRetryDriver)
 			break;
-		FUN_10009c20();
+		SND_pc_fn_vTakeWaveOut();
 	}
 
-	CloseHandle(hEvent);
+	SND_pc_M_bDeleteEvent(hEvent);
 	iResult = pMsg->iResult;
 	SND_fn_vFreeSndEx(0,pMsg);
 	SND_pc_bInitDone = TRUE;
@@ -1518,26 +1516,26 @@ SndBool SND_fn_bTestInitSample(void)
 
 void SND_fn_vDesInitSample(void)
 {
-	HANDLE hEvent;
+	SND_pc_tdhEvent hEvent;
 
 	if (SND_pc_bInitDone)
 	{
-		if (WaitForSingleObject(SND_pc_hThread,0) == WAIT_OBJECT_0)
+		if (SND_pc_M_bThreadEnded(SND_pc_hThread))
 		{
-			FUN_100091b0();
+			SND_pc_fn_vDesInitWaveOut();
 			return;
 		}
-		hEvent = CreateEventA(NULL,FALSE,FALSE,NULL);
-		if (!PostThreadMessageA(SND_pc_dwThreadId,SND_pc_uiMsgDesInitSnd,(WPARAM)hEvent,0))
+		hEvent = SND_pc_M_hCreateEvent();
+		if (!SND_pc_M_bPostMessage(SND_pc_dwThreadId,SND_pc_uiMsgDesInitSnd,(WPARAM)hEvent,0))
 		{
 			GetLastError();
-			FUN_100091b0();
+			SND_pc_fn_vDesInitWaveOut();
 			return;
 		}
-		FUN_10008ba0(hEvent,INFINITE);
-		CloseHandle(hEvent);
-		FUN_10008ba0(SND_pc_hThread,INFINITE);
-		CloseHandle(SND_pc_hThread);
+		SND_pc_M_ulWaitEventOrBreak(hEvent);
+		SND_pc_M_bDeleteEvent(hEvent);
+		SND_pc_M_ulJoinThreadOrBreak(SND_pc_hThread);
+		SND_pc_M_bDeleteThread(SND_pc_hThread);
 	}
 }
 
@@ -1744,11 +1742,11 @@ long FUN_1000a4f0(SND_tdstFormat* pformat,SND_tdstCallback* pCallback,SamplePara
 	pBuffer->uCallback.stAsync.callback(user_id,0,pformat->uFormat.stPCM.ulNbSamples,pBuffer->stRes.uRes.stSample.uData.stMem.pvPtrFirst);
 	pBuffer->voice = FUN_10009a50(pBuffer->pRes,par,0,NULL,0,TRUE);
 
-	WaitForSingleObject(SND_pc_hSampleMutex,INFINITE);
+	SND_pc_M_ulWaitLock(SND_pc_hSampleMutex,SND_pc_C_ulWaitForever);
 	SND_pc_lLastLockedOperation = 11;
 	SNDLST2_M_DynamicIsolate(pBuffer);
 	SNDLST2_M_DynamicAddTail(&SND_pc_stBufferClients.pList,pBuffer);
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 
 	return (long)pBuffer;
 }
@@ -1792,11 +1790,11 @@ long FUN_1000a720(SND_tdstFormat* pformat,SND_tdstCallback* pCallback,SamplePara
 	memset(pData,0,pBuffer->ulNbSamples << pBuffer->lShift);
 	pBuffer->voice = FUN_10009a50(pBuffer->pRes,par,0,NULL,0,TRUE);
 
-	WaitForSingleObject(SND_pc_hSampleMutex,INFINITE);
+	SND_pc_M_ulWaitLock(SND_pc_hSampleMutex,SND_pc_C_ulWaitForever);
 	SND_pc_lLastLockedOperation = 12;
 	SNDLST2_M_DynamicIsolate(pBuffer);
 	SNDLST2_M_DynamicAddTail(&SND_pc_stBufferClients.pList,pBuffer);
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 
 	return (long)pBuffer;
 }
@@ -1833,7 +1831,7 @@ void SND_fn_vDeleteBufferSample(long id_buffer)
 {
 	SND_pc_tdstBufferClient *pBuffer;
 
-	WaitForSingleObject(SND_pc_hSampleMutex,INFINITE);
+	SND_pc_M_ulWaitLock(SND_pc_hSampleMutex,SND_pc_C_ulWaitForever);
 	pBuffer = (SND_pc_tdstBufferClient *)id_buffer;
 	SND_pc_lLastLockedOperation = 13;
 	if (id_buffer != -1)
@@ -1844,7 +1842,7 @@ void SND_fn_vDeleteBufferSample(long id_buffer)
 		SNDLST2_M_DynamicIsolate(pBuffer);
 		SND_fn_vFreeSnd(pBuffer);
 	}
-	ReleaseMutex(SND_pc_hSampleMutex);
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
 }
 
 void SND_fn_vPauseBufferSample(long id_buffer)
@@ -1956,7 +1954,7 @@ void FUN_1000acb0(void)
 {
 	int i;
 
-	FUN_10009c20();
+	SND_pc_fn_vTakeWaveOut();
 
 	while (1)
 	{
@@ -1981,7 +1979,7 @@ void FUN_1000acb0(void)
 		}
 		if (SND_pc_bDriverTaken || !SND_pc_bRetryDriver)
 			break;
-		FUN_10009c20();
+		SND_pc_fn_vTakeWaveOut();
 	}
 	if (!SND_pc_bRetryDriver)
 	{
@@ -1995,7 +1993,7 @@ void SND_fn_vReleaseDriverSample(void)
 	if (!SND_pc_bReleased)
 	{
 		SND_pc_bReleased = TRUE;
-		FUN_10009cb0();
+		SND_pc_fn_vReleaseWaveOut();
 	}
 }
 
@@ -2004,7 +2002,7 @@ void SND_fn_vForceReleaseDriverSample(void)
 	if (!SND_pc_bForceReleased)
 	{
 		SND_pc_bForceReleased = TRUE;
-		FUN_10009cb0();
+		SND_pc_fn_vReleaseWaveOut();
 	}
 }
 
@@ -2054,12 +2052,12 @@ SndReal SND_fn_rGetLengthSample(long voice)
 
 void SND_fn_vSetSoundVolumeSample(unsigned char vol)
 {
-	FUN_1000b150(vol * 100 / 127);
+	SND_pc_fn_vSetMixerVolume(vol * 100 / 127);
 }
 
 unsigned char SND_fn_ucGetSoundVolumeSample(void)
 {
-	return FUN_1000b0e0() * 127 / 100;
+	return SND_pc_fn_ulGetMixerVolume() * 127 / 100;
 }
 
 void SND_fn_vSynchroSample()

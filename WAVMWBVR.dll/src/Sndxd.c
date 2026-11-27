@@ -683,7 +683,7 @@ int SND_CALL SND_fn_iInitSxd(SND_tdstInitStruct *pInitStruct)
 		SND_fn_iInitMPEG(pInitStruct);
 #endif
 		SND_fn_iInitSxdADPCM(pInitStruct);
-		FUN_10007030(pInitStruct);
+		SND_pc_fn_iCreateTransitionLock(pInitStruct);
 	}
 
 	stFunctions.pfn_lPlay=SND_fn_lPlaySxdADPCM;

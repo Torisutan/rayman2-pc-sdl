@@ -32,7 +32,7 @@
 #line 25 "SndAdpcm.c"
 
 
-static CRITICAL_SECTION			SND_pc_s_stCriticalSectionADPCM;						/* 0x100163D0 */
+static SND_pc_tdstCriticalSection	SND_pc_s_stCriticalSectionADPCM;						/* 0x100163D0 */
 static char						SND_pc_s_a_cStreamBuffer[SND_pc_C_lStreamBufferSize];	/* 0x100163E8 */
 static SND_pc_tdstVoiceADPCM	*SND_pc_s_a_pstHandle[SND_pc_C_lNbVoicesADPCM];		/* 0x10024E48 */
 static unsigned long			SND_pc_s_ulNbThemeVoices;								/* 0x10024EC0 */
@@ -60,22 +60,22 @@ static SndBool					SND_pc_s_bInCallbackMemory;								/* 0x100E82AC */
 /* 0x10011030 */
 long SND_pc_g_lSizeOfVoicesADPCM = sizeof(SND_pc_s_a_stVoice);
 
-void SND_pc_fn_vInitializeCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection)
+void SND_pc_fn_vInitializeCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
 	InitializeCriticalSection(p_stCriticalSection);
 }
 
-void SND_pc_fn_vDeleteCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection)
+void SND_pc_fn_vDeleteCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
 	DeleteCriticalSection(p_stCriticalSection);
 }
 
-void SND_pc_fn_vEnterCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection)
+void SND_pc_fn_vEnterCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
 	EnterCriticalSection(p_stCriticalSection);
 }
 
-void SND_pc_fn_vLeaveCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection)
+void SND_pc_fn_vLeaveCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection)
 {
 	LeaveCriticalSection(p_stCriticalSection);
 }

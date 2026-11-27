@@ -28,7 +28,7 @@ SndBool	FUN_10006fa0(long voice,tduRefRes new_res);
 void	FUN_10006fc0(long voice);
 void	FUN_10006ff0(long voice);
 void	FUN_10007010(long voice);
-int		FUN_10007030(SND_tdstInitStruct *pInitStruct);
+int		SND_pc_fn_iCreateTransitionLock(SND_tdstInitStruct *pInitStruct);
 
 /* 0x1000BEC0 */
 typedef struct _SND_pc_tdstVirtualVoiceFunctions {

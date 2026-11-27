@@ -4,14 +4,14 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_1000dce0
-	PUBLIC _FUN_1000de0d
-	PUBLIC _FUN_1000df84
-	PUBLIC _FUN_1000e083
-	PUBLIC _FUN_1000e300
-	PUBLIC _FUN_1000e478
-	PUBLIC _FUN_1000e604
-	PUBLIC _FUN_1000e7ac
+	PUBLIC _SND_pc_fn_vMixMono16Native
+	PUBLIC _SND_pc_fn_vMixMono16HalfRate
+	PUBLIC _SND_pc_fn_vMixMono16DoubleRate
+	PUBLIC _SND_pc_fn_vMixMono16StepSwapPan
+	PUBLIC _SND_pc_fn_vMixMono16Step
+	PUBLIC _SND_pc_fn_vMixMono16Echo
+	PUBLIC _SND_pc_fn_vMixMono16EchoSide
+	PUBLIC _SND_pc_fn_vMixMono16Comb
 	EXTRN _SND_pc_a27C90:DWORD
 	EXTRN _SND_pc_a31DA0_74744:DWORD
 	EXTRN _SND_pc_a35D80_779:DWORD
@@ -28,7 +28,7 @@
 	EXTRN _SND_pc_l21E38:DWORD
 
 _TEXT	SEGMENT
-_FUN_1000dce0:
+_SND_pc_fn_vMixMono16Native:
 	push ebp		; 1000dce0 55
 	mov ebp, esp		; 1000dce1 8bec
 	pushad		; 1000dce3 60
@@ -141,7 +141,7 @@ L1000de06::
 	mov esp, ebp		; 1000de09 8be5
 	pop ebp		; 1000de0b 5d
 	ret		; 1000de0c c3
-_FUN_1000de0d:
+_SND_pc_fn_vMixMono16HalfRate:
 	push ebp		; 1000de0d 55
 	mov ebp, esp		; 1000de0e 8bec
 	pushad		; 1000de10 60
@@ -274,7 +274,7 @@ L1000df7d::
 	mov esp, ebp		; 1000df80 8be5
 	pop ebp		; 1000df82 5d
 	ret		; 1000df83 c3
-_FUN_1000df84:
+_SND_pc_fn_vMixMono16DoubleRate:
 	push ebp		; 1000df84 55
 	mov ebp, esp		; 1000df85 8bec
 	pushad		; 1000df87 60
@@ -371,7 +371,7 @@ L1000e07c::
 	mov esp, ebp		; 1000e07f 8be5
 	pop ebp		; 1000e081 5d
 	ret		; 1000e082 c3
-_FUN_1000e083:
+_SND_pc_fn_vMixMono16StepSwapPan:
 	push ebp		; 1000e083 55
 	mov ebp, esp		; 1000e084 8bec
 	pushad		; 1000e086 60
@@ -596,7 +596,7 @@ L1000e2f9::
 	mov esp, ebp		; 1000e2fc 8be5
 	pop ebp		; 1000e2fe 5d
 	ret		; 1000e2ff c3
-_FUN_1000e300:
+_SND_pc_fn_vMixMono16Step:
 	push ebp		; 1000e300 55
 	mov ebp, esp		; 1000e301 8bec
 	pushad		; 1000e303 60
@@ -738,7 +738,7 @@ L1000e471::
 	mov esp, ebp		; 1000e474 8be5
 	pop ebp		; 1000e476 5d
 	ret		; 1000e477 c3
-_FUN_1000e478:
+_SND_pc_fn_vMixMono16Echo:
 	push ebp		; 1000e478 55
 	mov ebp, esp		; 1000e479 8bec
 	pushad		; 1000e47b 60
@@ -872,7 +872,7 @@ L1000e5f1::
 	mov esp, ebp		; 1000e600 8be5
 	pop ebp		; 1000e602 5d
 	ret		; 1000e603 c3
-_FUN_1000e604:
+_SND_pc_fn_vMixMono16EchoSide:
 	push ebp		; 1000e604 55
 	mov ebp, esp		; 1000e605 8bec
 	pushad		; 1000e607 60
@@ -1011,7 +1011,7 @@ L1000e799::
 	mov esp, ebp		; 1000e7a8 8be5
 	pop ebp		; 1000e7aa 5d
 	ret		; 1000e7ab c3
-_FUN_1000e7ac:
+_SND_pc_fn_vMixMono16Comb:
 	push ebp		; 1000e7ac 55
 	mov ebp, esp		; 1000e7ad 8bec
 	pushad		; 1000e7af 60

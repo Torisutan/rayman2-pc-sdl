@@ -82,10 +82,10 @@ void	FUN_10005960(long *p_lMix,long *p_lMixEnd,long *p_lDecoded,SND_pc_tdstVoice
 void	FUN_10005a70(unsigned long ulNbSamples,char **pp_cSrc,long **pp_lDest,SND_pc_tdstDecoderStateADPCM *p_stState);
 void	FUN_10005c38(unsigned long ulNbSamples,char **pp_cSrc,long **pp_lDest,SND_pc_tdstDecoderStateADPCM *p_stState);
 
-void	SND_pc_fn_vInitializeCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection);
-void	SND_pc_fn_vDeleteCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection);
-void	SND_pc_fn_vEnterCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection);
-void	SND_pc_fn_vLeaveCriticalSectionADPCM(LPCRITICAL_SECTION p_stCriticalSection);
+void	SND_pc_fn_vInitializeCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection);
+void	SND_pc_fn_vDeleteCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection);
+void	SND_pc_fn_vEnterCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection);
+void	SND_pc_fn_vLeaveCriticalSectionADPCM(SND_pc_tdstCriticalSection *p_stCriticalSection);
 long	SND_pc_fn_lOpenStreamADPCM(char *szFileName,SND_pc_tdstVoiceADPCM *p_stVoice,SND_pc_tdstHeaderADPCM **pp_stHeader);
 long	SND_pc_fn_lCloseStreamADPCM(SND_pc_tdstVoiceADPCM *p_stVoice);
 long	FUN_10001150(unsigned long ulNbSamples,SND_pc_tdstVoiceADPCM *p_stVoice);

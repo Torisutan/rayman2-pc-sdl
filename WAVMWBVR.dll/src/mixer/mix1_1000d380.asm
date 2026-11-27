@@ -4,15 +4,15 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_1000d380
-	PUBLIC _FUN_1000d3ad
-	PUBLIC _FUN_1000d4e0
+	PUBLIC _SND_pc_fn_vClearReverbSend
+	PUBLIC _SND_pc_fn_vMixMono16NativeSend
+	PUBLIC _SND_pc_fn_vMixMono16StepSend
 	EXTRN _SND_pc_a27C90:DWORD
 	EXTRN _SND_pc_a2B160_2222:DWORD
 	EXTRN _SND_pc_a560A0_9930:DWORD
 
 _TEXT	SEGMENT
-_FUN_1000d380:
+_SND_pc_fn_vClearReverbSend:
 	push ebp		; 1000d380 55
 	mov ebp, esp		; 1000d381 8bec
 	pushad		; 1000d383 60
@@ -35,7 +35,7 @@ L1000d3a6::
 	mov esp, ebp		; 1000d3a9 8be5
 	pop ebp		; 1000d3ab 5d
 	ret		; 1000d3ac c3
-_FUN_1000d3ad:
+_SND_pc_fn_vMixMono16NativeSend:
 	push ebp		; 1000d3ad 55
 	mov ebp, esp		; 1000d3ae 8bec
 	pushad		; 1000d3b0 60
@@ -146,7 +146,7 @@ L1000d4d9::
 	mov esp, ebp		; 1000d4dc 8be5
 	pop ebp		; 1000d4de 5d
 	ret		; 1000d4df c3
-_FUN_1000d4e0:
+_SND_pc_fn_vMixMono16StepSend:
 	push ebp		; 1000d4e0 55
 	mov ebp, esp		; 1000d4e1 8bec
 	pushad		; 1000d4e3 60

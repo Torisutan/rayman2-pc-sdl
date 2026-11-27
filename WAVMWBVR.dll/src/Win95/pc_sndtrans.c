@@ -53,20 +53,20 @@ typedef struct _SND_pc_tdstTransitionList {
 
 SND_pc_tdstTransitionList	SND_pc_stTransitions = {0};
 long						SND_pc_l26B2C = 0;
-HANDLE						SND_pc_hTransMutex = NULL;
+SND_pc_tdhLock				SND_pc_hTransMutex = NULL;
 long						SND_pc_l26B34 = 0;
 
-void FUN_10006860(void)
+void SND_pc_fn_vLockTransitions(void)
 {
 	if (SND_pc_hTransMutex)
-		if (WaitForSingleObject(SND_pc_hTransMutex,INFINITE) == WAIT_TIMEOUT)
-			DebugBreak();
+		if (SND_pc_M_ulWaitLock(SND_pc_hTransMutex,SND_pc_C_ulWaitForever) == SND_pc_C_ulWaitTimedOut)
+			SND_pc_M_vBreak();
 }
 
-void FUN_10006880(void)
+void SND_pc_fn_vUnlockTransitions(void)
 {
 	if (SND_pc_hTransMutex)
-		ReleaseMutex(SND_pc_hTransMutex);
+		SND_pc_M_bReleaseLock(SND_pc_hTransMutex);
 }
 
 void FUN_100068a0(SND_pc_tdstTransBlock *pBlock)
@@ -185,7 +185,7 @@ void SND_CALL FUN_10006c20(long user_id,long poped_id)
 	SND_pc_tdstTransition *pTrans;
 	SND_pc_tdstTransBlock *pBlock;
 
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	pTrans = (SND_pc_tdstTransition *)user_id;
 	for (pBlock = pTrans->stBlocks.hFirstElementDyn; pBlock; pBlock = pBlock->hNextBrotherDyn)
 	{
@@ -196,7 +196,7 @@ void SND_CALL FUN_10006c20(long user_id,long poped_id)
 		}
 	}
 	FUN_10006910(pTrans);
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 }
 
 void FUN_10006c70(SND_pc_tdstTransition *pTrans)
@@ -228,7 +228,7 @@ long FUN_10006d30(tduRefRes FirstRes,tduRefRes NextRes,SND_td_pfn_vSoundCallback
 
 	if (!FirstRes.pstPtr->uRes.stSample.bStream || !NextRes.pstPtr->uRes.stSample.bStream)
 		return C_PLAY_FAILED;
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	pTrans = (SND_pc_tdstTransition *)SND_fn_pvMallocSndEx(0,sizeof(SND_pc_tdstTransition));
 	SNDLST2_M_DynamicInitElement(pTrans);
 	SNDLST2_M_DynamicAddTail(&SND_pc_stTransitions.pList,pTrans);
@@ -259,7 +259,7 @@ long FUN_10006d30(tduRefRes FirstRes,tduRefRes NextRes,SND_td_pfn_vSoundCallback
 	SND_fn_dwSeekFileSnd(pTrans->hFile,pTrans->ulOffsetCurrent,0);
 	for (i = 0; i < 3; i++)
 		FUN_10006910(pTrans);
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 	return (long)pTrans;
 }
 
@@ -267,7 +267,7 @@ SndBool FUN_10006ec0(long voice,SoundParam *par)
 {
 	SndBool bOk;
 
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	if (voice == -1)
 		bOk = FALSE;
 	else if (((SND_pc_tdstTransition *)voice)->bFinished)
@@ -280,7 +280,7 @@ SndBool FUN_10006ec0(long voice,SoundParam *par)
 		SND_fn_vSetParamBufferSxd(((SND_pc_tdstTransition *)voice)->id_buffer,par);
 		bOk = TRUE;
 	}
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 	return bOk;
 }
 
@@ -288,9 +288,9 @@ SndBool FUN_10006f10(long voice,tduRefRes new_res)
 {
 	if (!new_res.pstPtr->uRes.stSample.bStream)
 		return FALSE;
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	((SND_pc_tdstTransition *)voice)->pNextRes = new_res.pstPtr;
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 	return TRUE;
 }
 
@@ -301,7 +301,7 @@ SndBool FUN_10006f40(long voice,tduRefRes new_res,SndReal rDuration)
 
 	if (new_res.pstPtr->uRes.stSample.bStream)
 	{
-		FUN_10006860();
+		SND_pc_fn_vLockTransitions();
 		pTrans = (SND_pc_tdstTransition *)voice;
 		pTrans->pFadeRes = new_res.pstPtr;
 		if (!pTrans->bFade)
@@ -317,7 +317,7 @@ SndBool FUN_10006f40(long voice,tduRefRes new_res,SndReal rDuration)
 			pTrans->lFadeShift = lShift;
 			pTrans->ulFade = 1 << lShift;
 		}
-		FUN_10006880();
+		SND_pc_fn_vUnlockTransitions();
 	}
 	return FALSE;
 }
@@ -329,32 +329,32 @@ SndBool FUN_10006fa0(long voice,tduRefRes new_res)
 
 void FUN_10006fc0(long voice)
 {
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	if (voice != -1)
 	{
 		((SND_pc_tdstTransition *)voice)->bFinished = TRUE;
 		FUN_10006c70((SND_pc_tdstTransition *)voice);
 	}
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 }
 
 void FUN_10006ff0(long voice)
 {
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	SND_fn_vPauseBufferSxd(((SND_pc_tdstTransition *)voice)->id_buffer);
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 }
 
 void FUN_10007010(long voice)
 {
-	FUN_10006860();
+	SND_pc_fn_vLockTransitions();
 	SND_fn_vResumeBufferSxd(((SND_pc_tdstTransition *)voice)->id_buffer);
-	FUN_10006880();
+	SND_pc_fn_vUnlockTransitions();
 }
 
-int FUN_10007030(SND_tdstInitStruct *pInitStruct)
+int SND_pc_fn_iCreateTransitionLock(SND_tdstInitStruct *pInitStruct)
 {
-	SND_pc_hTransMutex = CreateMutexA(NULL,FALSE,NULL);
+	SND_pc_hTransMutex = SND_pc_M_hCreateLock(FALSE);
 	return SND_pc_hTransMutex ? C_INIT_OK : C_INIT_FAILED;
 }
 

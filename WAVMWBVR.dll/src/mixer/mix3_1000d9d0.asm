@@ -4,10 +4,10 @@
 	.model flat
 	option casemap:none
 
-	PUBLIC _FUN_1000d9d0
-	PUBLIC _FUN_1000db63
-	PUBLIC _FUN_1000dc2f
-	PUBLIC _FUN_1000dca3
+	PUBLIC _SND_pc_fn_vApplyEchoDelay
+	PUBLIC _SND_pc_fn_vApplySweptComb
+	PUBLIC _SND_pc_fn_vApplySideEcho
+	PUBLIC _SND_pc_fn_vFillBuffer
 	EXTRN _SND_pc_a27C90:DWORD
 	EXTRN _SND_pc_a3DE00_8880:DWORD
 	EXTRN _SND_pc_a41E20_1278:DWORD
@@ -20,7 +20,7 @@
 	EXTRN _SND_pc_l27C8C:DWORD
 
 _TEXT	SEGMENT
-_FUN_1000d9d0:
+_SND_pc_fn_vApplyEchoDelay:
 	push ebp		; 1000d9d0 55
 	mov ebp, esp		; 1000d9d1 8bec
 	pushad		; 1000d9d3 60
@@ -155,7 +155,7 @@ L1000db56::
 	mov esp, ebp		; 1000db5f 8be5
 	pop ebp		; 1000db61 5d
 	ret		; 1000db62 c3
-_FUN_1000db63:
+_SND_pc_fn_vApplySweptComb:
 	push ebp		; 1000db63 55
 	mov ebp, esp		; 1000db64 8bec
 	pushad		; 1000db66 60
@@ -218,7 +218,7 @@ L1000dc1c::
 	mov esp, ebp		; 1000dc2b 8be5
 	pop ebp		; 1000dc2d 5d
 	ret		; 1000dc2e c3
-_FUN_1000dc2f:
+_SND_pc_fn_vApplySideEcho:
 	push ebp		; 1000dc2f 55
 	mov ebp, esp		; 1000dc30 8bec
 	pushad		; 1000dc32 60
@@ -259,7 +259,7 @@ L1000dc8d::
 	mov esp, ebp		; 1000dc9f 8be5
 	pop ebp		; 1000dca1 5d
 	ret		; 1000dca2 c3
-_FUN_1000dca3:
+_SND_pc_fn_vFillBuffer:
 	push ebp		; 1000dca3 55
 	mov ebp, esp		; 1000dca4 8bec
 	push ebx		; 1000dca6 53

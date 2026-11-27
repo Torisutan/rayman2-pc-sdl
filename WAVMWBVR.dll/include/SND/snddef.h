@@ -206,6 +206,60 @@ typedef struct _SND_tdstInitStruct
 #define SND_CALL
 #endif
 
+#if !defined(GAMECONSOLE) && !defined(GENERIC)
+
+#define SND_pc_tdhLock					HANDLE
+#define SND_pc_tdhEvent					HANDLE
+#define SND_pc_tdhThread				HANDLE
+#define SND_pc_tdstCriticalSection		CRITICAL_SECTION
+#define SND_pc_tdstPerfCounter			LARGE_INTEGER
+#define SND_pc_tdhDevice				HWAVEOUT
+
+#define SND_pc_C_ulWaitForever			INFINITE
+#define SND_pc_C_ulWaitTimedOut			WAIT_TIMEOUT
+
+#define SND_pc_M_hCreateLock(bOwned)			CreateMutexA(NULL,(bOwned),NULL)
+#define SND_pc_M_ulWaitLock(hLock,ulMs)			WaitForSingleObject((hLock),(ulMs))
+#define SND_pc_M_bReleaseLock(hLock)			ReleaseMutex(hLock)
+#define SND_pc_M_bDeleteLock(hLock)				CloseHandle(hLock)
+
+#define SND_pc_M_ulLockOrBreak(hLock)			SND_pc_fn_ulWaitObjectOrBreak((hLock),INFINITE)
+#define SND_pc_M_ulWaitEventOrBreak(hEvent)		SND_pc_fn_ulWaitObjectOrBreak((hEvent),INFINITE)
+#define SND_pc_M_ulJoinThreadOrBreak(hThread)	SND_pc_fn_ulWaitObjectOrBreak((hThread),INFINITE)
+
+#define SND_pc_M_hCreateEvent()					CreateEventA(NULL,FALSE,FALSE,NULL)
+#define SND_pc_M_bSetEvent(hEvent)				SetEvent(hEvent)
+#define SND_pc_M_bDeleteEvent(hEvent)			CloseHandle(hEvent)
+
+#define SND_pc_M_hCreateThread(pfnProc,pvParam,p_ulId)	CreateThread(NULL,0,(pfnProc),(pvParam),0,(p_ulId))
+#define SND_pc_M_bThreadEnded(hThread)			(WaitForSingleObject((hThread),0) == WAIT_OBJECT_0)
+#define SND_pc_M_bDeleteThread(hThread)			CloseHandle(hThread)
+#define SND_pc_M_ulGetCurrentThreadId()			GetCurrentThreadId()
+#define SND_pc_M_vRaiseThreadPriority()			SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_ABOVE_NORMAL)
+#define SND_pc_M_vExitThread()					ExitThread(0)
+#define SND_pc_M_uiRegisterMessage(szName)		RegisterWindowMessageA(szName)
+#define SND_pc_M_bPostMessage(ulThreadId,uiMsg,wParam,lParam)	PostThreadMessageA((ulThreadId),(uiMsg),(wParam),(lParam))
+#define SND_pc_M_bGetMessage(p_stMsg)			GetMessageA((p_stMsg),NULL,0,0)
+#define SND_pc_M_bPeekMessage(p_stMsg)			PeekMessageA((p_stMsg),NULL,0,0,PM_NOREMOVE)
+
+#define SND_pc_M_ulOpenDevice(p_hDevice,p_stFormat)	waveOutOpen((p_hDevice),WAVE_MAPPER,(p_stFormat),GetCurrentThreadId(),0,CALLBACK_THREAD)
+#define SND_pc_M_ulPrepareBuffer(hDevice,p_stHdr)	waveOutPrepareHeader((hDevice),(p_stHdr),sizeof(WAVEHDR))
+#define SND_pc_M_ulWriteBuffer(hDevice,p_stHdr)		waveOutWrite((hDevice),(p_stHdr),sizeof(WAVEHDR))
+#define SND_pc_M_ulResetDevice(hDevice)				waveOutReset(hDevice)
+#define SND_pc_M_ulCloseDevice(hDevice)				waveOutClose(hDevice)
+#define SND_pc_M_ulGetDeviceErrorText(ulErr,szText,ulSize)	waveOutGetErrorTextA((ulErr),(szText),(ulSize))
+
+#define SND_pc_M_bGetPerfCounter(p_stCounter)	QueryPerformanceCounter(p_stCounter)
+#define SND_pc_M_bGetPerfFrequency(p_stFreq)	QueryPerformanceFrequency(p_stFreq)
+
+#define SND_pc_M_pvAllocCallback(ulSize)		GlobalAlloc(GMEM_FIXED,(ulSize))
+#define SND_pc_M_vFreeCallback(pvBlock)			GlobalFree(pvBlock)
+#define SND_pc_M_vStartCallbackThread(pfnProc,pvParam)	_beginthread((pfnProc),0,(pvParam))
+
+#define SND_pc_M_vErrorBox(szText,szCaption)	MessageBoxA(NULL,(szText),(szCaption),0)
+#define SND_pc_M_vBreak()						DebugBreak()
+#endif
+
 typedef unsigned long tdxId;
 
 typedef void (SND_CALL *SND_td_pfn_vSoundCallback)(long par);
