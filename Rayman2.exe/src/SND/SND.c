@@ -2549,18 +2549,18 @@ SndBool __stdcall SND_fn_bTestSnd_WinMM(SND_pc_tdstWaveFormat *p_stFormat)
     SND_pc_tdstDeviceCaps stCaps;
     long          lRateIndex;
 
-    a_ulFormatBits[0]  = WAVE_FORMAT_1M08;
-    a_ulFormatBits[1]  = WAVE_FORMAT_1S08;
-    a_ulFormatBits[2]  = WAVE_FORMAT_1M16;
-    a_ulFormatBits[3]  = WAVE_FORMAT_1S16;
-    a_ulFormatBits[4]  = WAVE_FORMAT_2M08;
-    a_ulFormatBits[5]  = WAVE_FORMAT_2S08;
-    a_ulFormatBits[6]  = WAVE_FORMAT_2M16;
-    a_ulFormatBits[7]  = WAVE_FORMAT_2S16;
-    a_ulFormatBits[8]  = WAVE_FORMAT_4M08;
-    a_ulFormatBits[9]  = WAVE_FORMAT_4S08;
-    a_ulFormatBits[10] = WAVE_FORMAT_4M16;
-    a_ulFormatBits[11] = WAVE_FORMAT_4S16;
+    a_ulFormatBits[0]  = SND_pc_C_ulFormat1M08;
+    a_ulFormatBits[1]  = SND_pc_C_ulFormat1S08;
+    a_ulFormatBits[2]  = SND_pc_C_ulFormat1M16;
+    a_ulFormatBits[3]  = SND_pc_C_ulFormat1S16;
+    a_ulFormatBits[4]  = SND_pc_C_ulFormat2M08;
+    a_ulFormatBits[5]  = SND_pc_C_ulFormat2S08;
+    a_ulFormatBits[6]  = SND_pc_C_ulFormat2M16;
+    a_ulFormatBits[7]  = SND_pc_C_ulFormat2S16;
+    a_ulFormatBits[8]  = SND_pc_C_ulFormat4M08;
+    a_ulFormatBits[9]  = SND_pc_C_ulFormat4S08;
+    a_ulFormatBits[10] = SND_pc_C_ulFormat4M16;
+    a_ulFormatBits[11] = SND_pc_C_ulFormat4S16;
     if (SND_pc_M_ulGetDeviceCaps(&stCaps) == 0)
     {
         if (p_stFormat->nSamplesPerSec <= 11025)

@@ -215,6 +215,7 @@
 #define SND_pc_tdstCriticalSection		CRITICAL_SECTION
 #define SND_pc_tdstPerfCounter			LARGE_INTEGER
 #define SND_pc_tdhDevice				HWAVEOUT
+#define SND_pc_tduiDeviceResult			MMRESULT
 #define SND_pc_tdhWindow				HWND
 #define SND_pc_tdhInstance				HINSTANCE
 #define SND_pc_tdstWaveFormat			WAVEFORMATEX
@@ -293,6 +294,9 @@ typedef struct _SND_tdstInitStruct
 #else
 #define SND_pc_C_ulWaitForever			INFINITE
 #define SND_pc_C_ulWaitTimedOut			WAIT_TIMEOUT
+
+#define SND_pc_C_uwFormatPcm			WAVE_FORMAT_PCM
+#define SND_pc_C_ulBufferDone			WHDR_DONE
 
 #define SND_pc_M_hCreateLock(bOwned)			CreateMutexA(NULL,(bOwned),NULL)
 #define SND_pc_M_ulWaitLock(hLock,ulMs)			WaitForSingleObject((hLock),(ulMs))

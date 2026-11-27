@@ -712,13 +712,13 @@ void SND_pc_fn_vMixAndWriteBuffer(long lBuffer)
 	SND_pc_tdstPerfCounter stDelta;
 	SND_pc_tdstBufferClient *pBuffer;
 	SND_pc_tdstBufferClient *pNext;
-	MMRESULT mmr;
+	SND_pc_tduiDeviceResult mmr;
 	long i;
 
 	SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
 	SND_pc_lLastLockedOperation = 3;
 	SND_pc_a_stWaveHdr[lBuffer].dwUser = lBuffer;
-	SND_pc_a_stWaveHdr[lBuffer].dwFlags |= WHDR_DONE;
+	SND_pc_a_stWaveHdr[lBuffer].dwFlags |= SND_pc_C_ulBufferDone;
 	SND_pc_M_bGetPerfCounter(&SND_pc_stMixStart);
 	if (SND_pc_bDolby)
 		FUN_100086f0(SND_pc_a_pBuffers[lBuffer],SND_pc_lBufferLength);
@@ -791,12 +791,12 @@ void FUN_10008f40(void)
 void SND_pc_fn_vOpenWaveOut(void)
 {
 	char szError[256];
-	MMRESULT mmr;
+	SND_pc_tduiDeviceResult mmr;
 	int i;
 
 	if (SND_pc_hMutexDX)
 		SND_pc_M_ulLockOrBreak(SND_pc_hMutexDX);
-	SND_pc_stWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+	SND_pc_stWaveFormat.wFormatTag = SND_pc_C_uwFormatPcm;
 	SND_pc_stWaveFormat.nChannels = 2;
 	SND_pc_stWaveFormat.nSamplesPerSec = 22050;
 	SND_pc_stWaveFormat.wBitsPerSample = 16;
@@ -910,7 +910,7 @@ int SND_pc_fn_iInitWaveOut(SND_pc_tdstInitMessage *pMsg)
 {
 	char szText[80];
 
-	SND_pc_stWaveFormat.wFormatTag = WAVE_FORMAT_PCM;
+	SND_pc_stWaveFormat.wFormatTag = SND_pc_C_uwFormatPcm;
 	SND_pc_stWaveFormat.nChannels = 2;
 	SND_pc_stWaveFormat.nSamplesPerSec = 22050;
 	SND_pc_stWaveFormat.wBitsPerSample = 16;

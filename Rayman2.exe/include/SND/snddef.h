@@ -82,6 +82,19 @@ typedef void (__stdcall *SND_td_pfn_vSoundCallback)(long par);
 #define SND_pc_tdstWaveFormat			WAVEFORMATEX
 #define SND_pc_tdstDeviceCaps			WAVEOUTCAPSA
 
+#define SND_pc_C_ulFormat1M08			WAVE_FORMAT_1M08
+#define SND_pc_C_ulFormat1S08			WAVE_FORMAT_1S08
+#define SND_pc_C_ulFormat1M16			WAVE_FORMAT_1M16
+#define SND_pc_C_ulFormat1S16			WAVE_FORMAT_1S16
+#define SND_pc_C_ulFormat2M08			WAVE_FORMAT_2M08
+#define SND_pc_C_ulFormat2S08			WAVE_FORMAT_2S08
+#define SND_pc_C_ulFormat2M16			WAVE_FORMAT_2M16
+#define SND_pc_C_ulFormat2S16			WAVE_FORMAT_2S16
+#define SND_pc_C_ulFormat4M08			WAVE_FORMAT_4M08
+#define SND_pc_C_ulFormat4S08			WAVE_FORMAT_4S08
+#define SND_pc_C_ulFormat4M16			WAVE_FORMAT_4M16
+#define SND_pc_C_ulFormat4S16			WAVE_FORMAT_4S16
+
 #define SND_pc_C_ulWaitForever			INFINITE
 
 #define SND_pc_M_hCreateLock(bOwned)			CreateMutexA(NULL,(bOwned),NULL)
