@@ -13,11 +13,11 @@
 #include "SNDinc.h"
 
 #ifndef NO_ACP_SOUND
-
 #if defined(_DLL_COMPILATION_MODE)
 #include "snddll.h"
+#else
+#include "sndthrd.h"
 #endif
-
 #include "sndres.h"
 #define DLLWAV_MODULE
 #include "sndxd.h"
