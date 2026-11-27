@@ -28,38 +28,6 @@
 #include "sndmix_pc.h"
 #include <string.h>
 
-/* sndwave.c's voice; the same declaration is in sndwave.c, which keeps it to itself */
-typedef struct _SND_pc_tdstSampleVoice {
-unsigned long			ulPos;
-long					lInc;
-unsigned long			ulEnd;
-unsigned long			ulLoop;
-void					*pvData;
-long					lVol;
-tdstBlockResourceMem	*pRes;
-SND_td_pfn_vSoundCallback fn_callback;
-long					lPan;
-SndBool					b8Bits;
-SndBool					bResLoop;
-SndBool					bPlaying;
-SndBool					bLooping;
-SndBool					bCallback;
-SndBool					bPitchable;
-long					l3C;
-SndBool					bAudible;
-long					lSpace;
-long					par_callback;
-long					prio;
-long					lNbIncSteps;
-long					lIncRampLength;
-long					lIncStep;
-	SndBool					bPaused;
-	SndBool					bStereo;
-	SndBool					bBuffer;
-	long					l68;
-	long					l6C;
-} SND_pc_tdstSampleVoice;
-
 /*---- data */
 /* send ring: a 0x40-byte head, then one word per frame of the 100 output buffers. StepSend wraps its
  * cursor at 0xAC20, NativeSend does not: the last buffer's send ends at 0xAC40 (in the retail image it

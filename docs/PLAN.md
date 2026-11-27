@@ -970,8 +970,8 @@ mixer and decoders from the file formats):
    position of each mixer, the swept comb's tap past its ring, Comb and EchoSide fetching from
    `lSlot * 4`); where the asm reads memory outside its delay lines the C branch gives fixed values
    (DEVIATIONS 17). The delay lines are the C file's own arrays with their full extent; counters and
-   indices stay `sndwave.c`'s longs. The voice struct is repeated from `sndwave.c` until the decomp
-   moves it into a header (order M29).
+   indices stay `sndwave.c`'s longs. The voice struct comes from `sndwave.h` (upstream since
+   private 5a48f87).
    - **Measured:** a harness (local tooling) runs the same scripted calls into both builds of the
      mixer, the asm with its data in the retail layout and zeroed MMX registers: 6 seeds x 20,000
      calls over all 21 entry points (the four without caller too), random voices (ends, loops,
