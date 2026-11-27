@@ -520,8 +520,9 @@ the console targets (`U64`, `NITRO`) link GLI statically, with the platform file
 common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
 
 **The `GLI_DRV` interface** stays the renderer interface. What a new driver has to cope with:
-- the driver reads the engine's `GLI_tdstInternalGlobalValuesFor3dEngine` by raw offsets (63 sites
-  in the Direct3D 6 driver), so a new driver needs the typed struct first (Phase 4, typed fields);
+- the driver reads the engine's `GLI_tdstInternalGlobalValuesFor3dEngine` through the exe's own
+  declaration (`GLI/GLI_BigGlobals.h`, typed since decomp order M11/M15, private 958f919; step 2);
+  a few structures it reads are still named offsets (step 2);
 - four entry points take an `HWND` (`xInitDriver`, `bPrepareForGliWindowed`,
   `vPrepareForGliFullScreen`, `vActivateGli`). Decided 25.11.2026, as the original engine: the
   type stays `HWND` on every target, no new handle type. The original's console builds declare
@@ -546,7 +547,21 @@ common ones, and call `fn_uiEngineMainLoop` directly instead of from a thread.
    still loaded from the DLL folder, chosen by `GLI_DllFile` as before. Consoles use the same
    table without DLLs. On Windows 10 native DirectDraw lists the 16-bpp modes only under the
    `DWM8And16BitMitigation` compatibility layer, for the retail driver as for the linked-in one.
-2. Phase 4 prerequisites: typed fields for the structures the driver reads, `docs/PORTABILITY.md`.
+2. **Done, mostly: typed fields** (decomp orders M11/M15, private 958f919, merged since).
+   The Direct3D 6 driver includes `GLI/GLI_BigGlobals.h` and reads
+   `GLI_tdstInternalGlobalValuesFor3dEngine` typed (`GLI_g_GliBigGlobals`, the sprite and list
+   sends, the clip files); one declaration for exe and driver, byte-neutral in the exe (the
+   driver: one 2-byte register-order flip in `GLI_PL_CulledVertexCheck`). A header split
+   (`POS/PosPubSt.h`, `GEO/color.h`) was measured and dropped: any new file in `POS/POS_types.h`'s
+   include set changes VC5 code generation in its includers. Still named offsets, with no type in
+   the driver: camera `xNear` (`GLI_CAMERA_XNEAR_OFFSET` +0x6c; including `GLI/Camera.h` flips three
+   driver functions), GEO object vertex count (`GLI_GEOOBJ_NB_POINTS_OFFSET` +0x2c), the Z-list
+   block and node layouts (`p_TheZListe`: +0x4008, +0x10010, +0x10014, node +0x04..+0x14), texture
+   fields (+0x14, +0x20/24/28, +0x45), the bit masks `GLI_CTX_FLAGS*` / `CTX_DRAW_MASK_ZTEST_BIT`.
+   Known type conflict: `xWaterPlaneDistance` is `long` in the exe's declaration (the exe stores
+   only 0/1), the driver reads it as the float plane constant (cast at the site). A new driver
+   reads these through the same declaration and the same named offsets until they get types.
+   `docs/PORTABILITY.md` holds the layout asserts.
 3. **Done: C runtime branches** (cfe971f, d6db94b, d16feaf) beside the Win32 code, selected by
    `FILE_MODE_C_WIN95` (set in `SND/snddef.h` as in the original engine) and forced on Windows by
    `RAYMAN2_C_RUNTIME` (CMake `R2_C_RUNTIME`, off): level data files (`MMG/SNA_file.c`), ini files
