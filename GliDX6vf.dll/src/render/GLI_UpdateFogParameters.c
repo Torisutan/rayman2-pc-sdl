@@ -44,5 +44,5 @@ void __cdecl GLI_UpdateFogParameters(float *fogParams)
     GLI_g_FogAlphaNear = (long)((1.0f - fNear) * 255.0f) << 24;
     GLI_g_FogAlphaFar = (long)((1.0f - fFar) * 255.0f) << 24;
 
-    GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3, GLI_D3DRS_FOGCOLOR, ulColor);
+    GLI_DRV_M_SetRenderState(GLI_D3DRS_FOGCOLOR, ulColor);
 }

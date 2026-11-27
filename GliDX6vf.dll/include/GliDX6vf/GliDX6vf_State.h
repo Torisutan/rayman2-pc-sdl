@@ -374,6 +374,34 @@ typedef void (__cdecl *GLI_ProjCallback)(unsigned int ctxField, int mode,
                                          float *xy_in, void *xyzrhw_out);
 #define GLI_ProjNearPlaneCallback ((GLI_ProjCallback)GLI_g_SerialProjection)
 
+
+/* Device calls of the files the OpenGL driver shares with this one (clip pipeline, render
+   states, opaque texture selection): one branch per driver, as the platform glue elsewhere.
+   The Direct3D 6 branch is the call through the device's table. */
+#if defined(USE_GLI_GL)
+void __cdecl GLI_fn_vSetRenderState(DWORD ulState, DWORD ulValue);
+void __cdecl GLI_fn_vSetTextureStageState(DWORD ulStage, DWORD ulType, DWORD ulValue);
+void __cdecl GLI_fn_vSetTexture(DWORD ulStage, void *p_vTexture);
+void __cdecl GLI_fn_vDrawPrimitive(DWORD ulType, DWORD ulVertexType, void *p_vVertices, DWORD ulCount, DWORD ulFlags);
+#define GLI_DRV_M_SetRenderState(State, Value) \
+    GLI_fn_vSetRenderState((DWORD)(State), (DWORD)(Value))
+#define GLI_DRV_M_SetTextureStageState(Stage, Type, Value) \
+    GLI_fn_vSetTextureStageState((DWORD)(Stage), (DWORD)(Type), (DWORD)(Value))
+#define GLI_DRV_M_SetTexture(Stage, Texture) \
+    GLI_fn_vSetTexture((DWORD)(Stage), (void *)(Texture))
+#define GLI_DRV_M_DrawPrimitive(Type, VertexType, Vertices, Count, Flags) \
+    GLI_fn_vDrawPrimitive((DWORD)(Type), (DWORD)(VertexType), (void *)(Vertices), (DWORD)(Count), (DWORD)(Flags))
+#else
+#define GLI_DRV_M_SetRenderState(State, Value) \
+    GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3, State, Value)
+#define GLI_DRV_M_SetTextureStageState(Stage, Type, Value) \
+    GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3, Stage, Type, Value)
+#define GLI_DRV_M_SetTexture(Stage, Texture) \
+    GLI_g_pDirect3DDevice3->lpVtbl->SetTexture(GLI_g_pDirect3DDevice3, Stage, Texture)
+#define GLI_DRV_M_DrawPrimitive(Type, VertexType, Vertices, Count, Flags) \
+    GLI_g_pDirect3DDevice3->lpVtbl->DrawPrimitive(GLI_g_pDirect3DDevice3, Type, VertexType, Vertices, Count, Flags)
+#endif /* USE_GLI_GL */
+
 #ifdef __cplusplus
 }
 #endif

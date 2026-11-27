@@ -36,9 +36,9 @@ static void GLI_ApplyViewingListNodeRenderState(GLI_tdstInternalGlobalValuesFor3
 static void GLI_ApplyViewingListInitialRenderState(void)
 {
     GLI_DisableZWriteIfEnabled();
-    GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3, GLI_D3DRS_ALPHATESTENABLE, 0);
-    GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3, GLI_D3DRS_ALPHABLENDENABLE, 1);
-    GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3, GLI_D3DRS_SRCBLEND, GLI_D3DBLEND_SRCALPHA);
+    GLI_DRV_M_SetRenderState(GLI_D3DRS_ALPHATESTENABLE, 0);
+    GLI_DRV_M_SetRenderState(GLI_D3DRS_ALPHABLENDENABLE, 1);
+    GLI_DRV_M_SetRenderState(GLI_D3DRS_SRCBLEND, GLI_D3DBLEND_SRCALPHA);
 }
 
 #undef GLI_CTXP
@@ -63,12 +63,12 @@ static void GLI_ApplyViewingListNodeRenderState(GLI_tdstInternalGlobalValuesFor3
             M_Big->p_stLastComputedFog = M_Big->p_stActiveFog;
         }
         if (GLI_g_FogEnableState == 0) {
-            GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_FOGENABLE, 1);
+            GLI_DRV_M_SetRenderState(GLI_D3DRS_FOGENABLE, 1);
             GLI_g_FogEnableState = 1;
         }
     } else {
         if (GLI_g_FogEnableState != 0) {
-            GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_FOGENABLE, 0);
+            GLI_DRV_M_SetRenderState(GLI_D3DRS_FOGENABLE, 0);
             GLI_g_FogEnableState = 0;
         }
     }
@@ -77,35 +77,35 @@ static void GLI_ApplyViewingListNodeRenderState(GLI_tdstInternalGlobalValuesFor3
         if (M_Texture[GLI_TEX_CAPS_OFFSET] & GLI_C_Tex_lAddTransparencyTexture) {
 
             if (GLI_g_TextureStageColorOp != 1) {
-                GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_DESTBLEND, GLI_D3DBLEND_ONE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_COLOROP, GLI_D3DTOP_SELECTARG1);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_COLORARG1, GLI_D3DTA_TEXTURE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ALPHAOP, GLI_D3DTOP_SELECTARG1);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ALPHAARG1, GLI_D3DTA_TEXTURE);
+                GLI_DRV_M_SetRenderState(GLI_D3DRS_DESTBLEND, GLI_D3DBLEND_ONE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_COLOROP, GLI_D3DTOP_SELECTARG1);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_COLORARG1, GLI_D3DTA_TEXTURE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ALPHAOP, GLI_D3DTOP_SELECTARG1);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ALPHAARG1, GLI_D3DTA_TEXTURE);
                 GLI_g_TextureStageColorOp = 1;
             }
             if (GLI_g_FogEnableState != 0) {
-                GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_FOGENABLE, 0);
+                GLI_DRV_M_SetRenderState(GLI_D3DRS_FOGENABLE, 0);
                 GLI_g_FogEnableState = 0;
             }
         } else {
 
             if (GLI_g_TextureStageColorOp != 2) {
-                GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_DESTBLEND, GLI_D3DBLEND_INVSRCALPHA);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_COLOROP, GLI_D3DTOP_MODULATE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_COLORARG1, GLI_D3DTA_TEXTURE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_COLORARG2, GLI_D3DTA_DIFFUSE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ALPHAOP, GLI_D3DTOP_MODULATE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ALPHAARG1, GLI_D3DTA_TEXTURE);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ALPHAARG2, GLI_D3DTA_DIFFUSE);
+                GLI_DRV_M_SetRenderState(GLI_D3DRS_DESTBLEND, GLI_D3DBLEND_INVSRCALPHA);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_COLOROP, GLI_D3DTOP_MODULATE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_COLORARG1, GLI_D3DTA_TEXTURE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_COLORARG2, GLI_D3DTA_DIFFUSE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ALPHAOP, GLI_D3DTOP_MODULATE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ALPHAARG1, GLI_D3DTA_TEXTURE);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ALPHAARG2, GLI_D3DTA_DIFFUSE);
                 GLI_g_TextureStageColorOp = 2;
             }
         }
 
         if (M_Texture[GLI_TEX_CAPS_OFFSET] & GLI_C_Tex_lNZTexture) {
-            GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_COLORKEYENABLE, 1);
+            GLI_DRV_M_SetRenderState(GLI_D3DRS_COLORKEYENABLE, 1);
         } else {
-            GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_COLORKEYENABLE, 0);
+            GLI_DRV_M_SetRenderState(GLI_D3DRS_COLORKEYENABLE, 0);
         }
 
         ucCyclingMode = (unsigned char)(M_Texture[GLI_TEX_CYCLING_MODE_OFFSET] & 3);
@@ -113,31 +113,31 @@ static void GLI_ApplyViewingListNodeRenderState(GLI_tdstInternalGlobalValuesFor3
             GLI_g_TextureAddressMode = ucCyclingMode;
             switch (ucCyclingMode) {
             case 0:
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_CLAMP);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_CLAMP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_CLAMP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_CLAMP);
                 break;
             case 1:
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_CLAMP);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_WRAP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_CLAMP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_WRAP);
                 break;
             case 2:
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_WRAP);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_CLAMP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_WRAP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_CLAMP);
                 break;
             case 3:
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_WRAP);
-                GLI_g_pDirect3DDevice3->lpVtbl->SetTextureStageState(GLI_g_pDirect3DDevice3,0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_WRAP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSU, GLI_D3DTADDRESS_WRAP);
+                GLI_DRV_M_SetTextureStageState(0, GLI_D3DTSS_ADDRESSV, GLI_D3DTADDRESS_WRAP);
                 break;
             }
         }
 
-        GLI_g_pDirect3DDevice3->lpVtbl->SetTexture(GLI_g_pDirect3DDevice3,0, *(void **)(M_Texture + GLI_TEX_SPECPARAM_OFFSET));
+        GLI_DRV_M_SetTexture(0, *(void **)(M_Texture + GLI_TEX_SPECPARAM_OFFSET));
     } else {
 
         if (GLI_g_TextureStageColorOp == 1) {
-            GLI_g_pDirect3DDevice3->lpVtbl->SetRenderState(GLI_g_pDirect3DDevice3,GLI_D3DRS_DESTBLEND, GLI_D3DBLEND_INVSRCALPHA);
+            GLI_DRV_M_SetRenderState(GLI_D3DRS_DESTBLEND, GLI_D3DBLEND_INVSRCALPHA);
         }
-        GLI_g_pDirect3DDevice3->lpVtbl->SetTexture(GLI_g_pDirect3DDevice3,0, NULL);
+        GLI_DRV_M_SetTexture(0, NULL);
         GLI_g_TextureStageColorOp = 0;
     }
 }

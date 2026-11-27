@@ -128,9 +128,7 @@ void __cdecl GLI_FlushStagedPrimitives(void)
 {
     int count = (int)(GLI_g_pStagingCursor - GLI_g_StagingBuffer) >> GLI_VERTEX_STRIDE_SHIFT;
     if (count != 0) {
-        GLI_g_pDirect3DDevice3->lpVtbl->DrawPrimitive(
-            GLI_g_pDirect3DDevice3,
-            GLI_D3DPT_TRIANGLELIST,
+        GLI_DRV_M_DrawPrimitive(GLI_D3DPT_TRIANGLELIST,
             GLI_D3DFVF_TLVERTEX,
             GLI_g_StagingBuffer,
             (DWORD)count,
@@ -141,9 +139,7 @@ void __cdecl GLI_FlushStagedPrimitives(void)
 /* 0x100013f0 */
 void __cdecl GLI_DrawStagedLine(void)
 {
-    GLI_g_pDirect3DDevice3->lpVtbl->DrawPrimitive(
-        GLI_g_pDirect3DDevice3,
-        GLI_D3DPT_LINELIST,
+    GLI_DRV_M_DrawPrimitive(GLI_D3DPT_LINELIST,
         GLI_D3DFVF_TLVERTEX,
         GLI_g_pStagingCursor,
         2,
