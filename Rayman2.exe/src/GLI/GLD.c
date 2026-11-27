@@ -14,6 +14,7 @@
 #include "GLD/GLD_Pub.h"
 #include "GLD/Specif/DevVpt.h"
 #include "GAM/GAM_pc_DrawLock.h"
+#include "app/regress.h"
 
 extern unsigned long GLI_fn_lIsFullScreenMode(void);
 extern unsigned long GLI_fn_lDisplayModeWidth(void);
@@ -769,6 +770,13 @@ void __cdecl GLD_pc_vSimulateFlipSynchroWithoutVSync(long lFrameCount)
     stTimerCount  stCount;
     unsigned long ulBudget;
     unsigned long ulTarget;
+
+#ifdef RAYMAN2_REGRESS
+    /* The regression run's clock is virtual and stands still within a frame: the wait for the
+     * next flip would never end. Frame pacing has no meaning there. */
+    if (REGRESS_fn_bActive())
+        return;
+#endif /* RAYMAN2_REGRESS */
 
     TMR_fn_wReadTimer((short)GLD_pc_g_wTimerHandle, &stCount);
     ulBudget = (unsigned long)GLI_pc_g_lTickBudget;
