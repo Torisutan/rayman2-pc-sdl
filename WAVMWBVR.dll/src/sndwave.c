@@ -975,6 +975,31 @@ int SND_pc_fn_iInitWaveOut(SND_pc_tdstInitMessage *pMsg)
 	return SND_pc_bDriverTaken ? C_INIT_OK : C_INIT_FAILED;
 }
 
+#if defined(USE_SDL)
+/* SDL: no message thread. The output thread of sdl_sndwave.c calls this every few milliseconds; it
+ * keeps SND_pc_l21E04 buffers queued ahead, as the waveOut thread keeps them in waveOut's queue
+ * (one voice selection, then one mix per missing buffer). */
+static void fn_vFeedSample(void)
+{
+	long lQueued;
+
+	if (!SND_pc_bInitDone || !SND_pc_bDriverTaken)
+		return;
+	SND_pc_M_ulLockOrBreak(SND_pc_hSampleMutex);
+	lQueued = SND_fn_lGetQueuedDevice();
+	if (lQueued >= 0 && lQueued < SND_pc_l21E04 * SND_pc_lBufferLength)
+	{
+		SND_pc_fn_vSelectAudibleVoices();
+		while (SND_pc_bDriverTaken && lQueued < SND_pc_l21E04 * SND_pc_lBufferLength)
+		{
+			SND_pc_fn_vMixAndWriteBuffer(SND_pc_lNextBuffer);
+			SND_pc_lNextBuffer = (SND_pc_lNextBuffer + 1) % SND_pc_lNbBuffers;
+			lQueued += SND_pc_lBufferLength;
+		}
+	}
+	SND_pc_M_bReleaseLock(SND_pc_hSampleMutex);
+}
+#else
 DWORD WINAPI SND_pc_fn_ulWaveOutThread(LPVOID lpParameter)
 {
 	MSG msg;
@@ -1090,6 +1115,7 @@ DWORD WINAPI SND_pc_fn_ulWaveOutThread(LPVOID lpParameter)
 	SND_pc_M_vExitThread();
 	return 0;
 }
+#endif /* USE_SDL */
 
 void SND_pc_fn_vSelectAudibleVoices(void)
 {
@@ -1447,6 +1473,53 @@ SndBool SND_fn_bGetStereoSample(void)
 	return SND_pc_bStereo;
 }
 
+#if defined(USE_SDL)
+/* SDL: the thread-side init (SND_pc_fn_iInitWaveOut) runs on the calling thread; the output thread
+ * starts first, as the waveOut thread does, and feeds once the init is done. */
+int SND_fn_iInitSample(SND_tdstInitStruct *pInitStruct)
+{
+	SND_pc_tdstInitMessage stMsg;
+
+	if (!SND_fn_bStartOutputThread(fn_vFeedSample))
+	{
+		SND_M_DisplayError(0x1E,"");
+		return C_INIT_FAILED;
+	}
+	SND_pc_dwThreadId = SND_pc_M_ulGetCurrentThreadId();
+	stMsg.pInitStruct = pInitStruct;
+	SND_pc_fn_iInitWaveOut(&stMsg);
+	stMsg.iResult = C_INIT_OK;
+
+	SND_pc_M_bGetPerfFrequency(&SND_pc_stPerfFrequency_9785);
+	SND_pc_M_bGetPerfCounter(&SND_pc_stPerfCounter);
+
+	while (1)
+	{
+		if (SND_pc_bDriverTaken)
+			break;
+		switch (snd_erreur_init(0x1F))
+		{
+		case 2:
+			break;
+		default:
+			SND_M_DisplayError(0x11,"");
+		case 3:
+			SND_pc_bRetryDriver = FALSE;
+			break;
+		case 4:
+			SND_pc_bRetryDriver = FALSE;
+			exit(0);
+			break;
+		}
+		if (SND_pc_bDriverTaken || !SND_pc_bRetryDriver)
+			break;
+		SND_pc_fn_vTakeWaveOut();
+	}
+
+	SND_pc_bInitDone = TRUE;
+	return stMsg.iResult;
+}
+#else
 int SND_fn_iInitSample(SND_tdstInitStruct *pInitStruct)
 {
 	SND_pc_tdhEvent hEvent;
@@ -1508,12 +1581,24 @@ int SND_fn_iInitSample(SND_tdstInitStruct *pInitStruct)
 	SND_pc_bInitDone = TRUE;
 	return iResult;
 }
+#endif /* USE_SDL */
 
 SndBool SND_fn_bTestInitSample(void)
 {
 	return SND_pc_bInitDone != FALSE;
 }
 
+#if defined(USE_SDL)
+/* SDL: the output thread stops first, then the device closes (the waveOut thread's last steps). */
+void SND_fn_vDesInitSample(void)
+{
+	if (SND_pc_bInitDone)
+	{
+		SND_fn_vStopOutputThread();
+		SND_pc_fn_vDesInitWaveOut();
+	}
+}
+#else
 void SND_fn_vDesInitSample(void)
 {
 	SND_pc_tdhEvent hEvent;
@@ -1538,6 +1623,7 @@ void SND_fn_vDesInitSample(void)
 		SND_pc_M_bDeleteThread(SND_pc_hThread);
 	}
 }
+#endif /* USE_SDL */
 
 int SND_fn_iInitBnkSample(long num)
 {

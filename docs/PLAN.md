@@ -937,6 +937,30 @@ mixer and decoders from the file formats):
      bytes, not an envelope).
    - **Check:** regression gates; sound capture of the SDL output (capture point in the backend)
      against the waveOut one.
+13. **SDL output, done (27.11.2026)** (`R2_SND_LINKED` with `R2_USE_SDL`; upstream seam from the
+   decomp: `SND_pc_M_*` names, `SND_pc_tdh*` handle types, `sndmixvol_pc.h`,
+   `SND_pc_fn_vSelectAudibleVoices`). `WAVMWBVR.dll/src/sdl_sndwave.c` answers the waveOut macro
+   group of `SND/snddef.h` (`USE_SDL` branch, Win32 the `#else`) with an SDL audio stream in the
+   format the driver opens, and replaces `pc_mixervol.c` (volume = stream gain, 0..100, kept across
+   reopening). In `sndwave.c` three `USE_SDL` branches: the message thread's place holds the feed
+   step, `SND_fn_iInitSample` / `SND_fn_vDesInitSample` start and stop the backend's output thread
+   and run the thread-side init on the calling thread. Open, close, mix and write stay shared.
+   - **Why a thread, not an SDL stream callback:** the driver holds its sample lock while it opens,
+     primes and closes the device; a callback would hold SDL's stream lock while waiting for that
+     lock (deadlock). The output thread polls every 5 ms and keeps `SND_pc_l21E04` buffers (25 x 10
+     ms) queued, as the waveOut thread keeps them in waveOut's queue; lock order sample lock, then
+     device lock, everywhere. The 100 silent buffers primed at open stay, so sound starts after
+     about 1 s, as with waveOut.
+   - **Measured:** regression 5/5 identical to `base_modern`; capture at `SND_fn_ulWriteDevice`
+     (`wave_capture.py --sdl`), 30 s of Morb_00: 22,050 Hz stereo 16 bit, 2,927 buffers, RMS per
+     second follows the waveOut captures of item 11 (same few-percent spread). The other gates do
+     not compile the drivers (unchanged). Not yet exercised: focus loss (driver release and
+     restore through `SND_pc_fn_vReleaseWaveOut` / `vTakeWaveOut`, direct calls now).
+   - **Still Win32 in the SDL build (Windows only, for the Linux step):** in `sndwave.c` the lock,
+     event, timing, voice-end callback thread and error box macros, `WAVEHDR` / `WAVEFORMATEX`
+     in shared code, `HANDLE` in `SND_pc_fn_ulWaitObjectOrBreak`; `pc_sndtrans.c`'s lock; APM's
+     critical section; the init struct's `HINSTANCE` / `HANDLE` (and the two `HINSTANCE`
+     globals `sdl_sndwave.c` defines in `pc_mixervol.c`'s place); the exe's `SND_fn_bTestSnd_WinMM`.
 
 ## Animation: smoother playback (to evaluate)
 
