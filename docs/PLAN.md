@@ -966,9 +966,12 @@ way. Linked-in GL (`USE_GLI_GL`) only where a target has no driver modules.
   `drv.2d` included, does not depend on the renderer); the gate build with the install's driver
   and with `--dx6` unchanged; `/W4` over the driver's own files: no warning. Frames read back from
   GL (a local debug dump, not committed) show menus, fonts, the cinematic letterbox, 3D levels with
-  textures, colour keys, alpha, particles, HUD sprites. **Not done:** screenshots against Direct3D 6
-  (the session was locked: Desktop Duplication refused; `tools/run.py --shot` needs an unlocked,
-  awake desktop), windowed / fullscreen switching by hand, ASan suite.
+  textures, colour keys, alpha, particles, HUD sprites. ASan suite of exe and driver
+  (`build-asangl`, `build/asangl_suite.cmd`, `--gl3`): no report, 5/5 = base_modern. Switching:
+  the same `build-gl` exe with `--dx6` (Direct3D 6 linked in, GL3 module beside it): 5/5. **Not done:**
+  screenshots against Direct3D 6 (the session was locked: Desktop Duplication refused;
+  `tools/run.py --shot` needs an unlocked, awake desktop; `tools/shotdiff.py` compares them),
+  windowed / fullscreen switching by hand.
 - 6e. Windows x64 (with step 8's `WIN64` data work).
 - 6f. Linux, then macOS (with step 8): the driver module through `SDL_LoadObject`, the shared
   files' Win32 types (`GliDX6vf.h` includes `windows.h`) get a types header.
