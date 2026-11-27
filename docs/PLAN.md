@@ -661,7 +661,7 @@ its condition.
 | `OPTIMIZED_FOR_PC_FLOATS_WITH_ASM` | feature | MTH asm branch: 32-bit x86 MSVC / clang-cl only, not with `WIN64` |
 | `OPTIMIZED_FOR_PC_FLOATS` | feature | MTH C branch: every other target (Phase 2) |
 | `MTH_C_DEV` | MTH target | set in `MTH/MTH_def.h` beside the original's `MTH_PC_DEV`/`MTH_U64_DEV`/`MTH_NITRO_DEV` when `WIN64`, `LINUX`, `OSX`, `PSP` or `WIIU` is defined: `OPTIMIZED_FOR_PC_FLOATS` without `..._WITH_ASM` (Phase 4 "MTH target selection") |
-| `OPTIMIZED_FOR_MMX_WITH_ASM` | feature | sample driver mixer: the MMX asm objects (`WAVMWBVR.dll/src/mixer/mix*.asm`), set only on request (CMake `R2_SND_MIXER_ASM`, 32-bit x86 MSVC / clang-cl, for comparison); by default and on every other target the C branch `src/mixer/sndmix_pc.c` |
+| `OPTIMIZED_FOR_MMX_WITH_ASM` | feature | the linked sound drivers' MMX asm objects (`WAVMWBVR.dll/src/mixer/mix*.asm`, `APMmxBVR.dll/src/mmx/mmx*.asm`), set only on request (CMake `R2_SND_MMX_ASM`, 32-bit x86 MSVC / clang-cl, for comparison); by default and on every other target their C branches `src/mixer/sndmix_pc.c`, `src/mmx/sndadpcm_mmx_pc.c` |
 | `FILE_MODE_C_WIN95` | feature | Win32 API for level data files, ini files and MMG memory; set in `SND/snddef.h` unless `GAMECONSOLE`, `USE_SDL` or `RAYMAN2_C_RUNTIME`; C runtime otherwise |
 | `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
 | `_DLL_COMPILATION_MODE` | feature (original) | sound drivers as DLLs bound by name (`snddll.c`), the retail PC form; set by default. CMake `R2_SND_LINKED` leaves it unset and links `WAVMWBVR` and `APMmxBVR` in (Sound, item 11) |
@@ -966,7 +966,7 @@ mixer and decoders from the file formats):
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
    entry points of `sndmix_pc.h`). Selected by `OPTIMIZED_FOR_MMX_WITH_ASM` (Platform macros): the
    C branch by default on every target (decided 27.11.2026: x64 is a goal, and the asm needs the retail
-   DLL's .bss layout, see below); the asm only with `R2_SND_MIXER_ASM` on 32-bit x86, for comparison. It computes
+   DLL's .bss layout, see below); the asm only with `R2_SND_MMX_ASM` on 32-bit x86, for comparison. It computes
    what the asm computes, its quirks included (extra and skipped blocks at a voice's end, the wrap
    position of each mixer, the swept comb's tap past its ring, Comb and EchoSide fetching from
    `lSlot * 4`); where the asm reads memory outside its delay lines the C branch gives fixed values
@@ -989,6 +989,22 @@ mixer and decoders from the file formats):
      orders those communals differently, so in `build-sndlink` the effects' taps and the Dolby send
      read and write other arrays (the send's run-on past `SND_pc_a2B160_2222`'s 0x6C40 bytes lands
      in unrelated .bss). Resolved by the default: linked builds take the C branch; the asm option keeps this limitation (comparison only).
+
+15. **ADPCM C branch, done (27.11.2026)** (`APMmxBVR.dll/src/mmx/sndadpcm_mmx_pc.c`, the four entry
+   points of `sndadpcm_pc.h`: mono and stereo IMA ADPCM decoders, the voice mixer, the 16-bit output;
+   names and semantics from the decomp, private e8cc3a2). Same switch as the mixer
+   (`OPTIMIZED_FOR_MMX_WITH_ASM`, CMake `R2_SND_MMX_ASM`, C by default). The asm's six internal mixer
+   parts, which share the voice mixer's stack frame, are blocks of `SND_pc_fn_vMixVoiceADPCM`; the
+   decoders keep the asm's 64-bit source register as two dwords (it is shifted as a qword and per
+   dword), so the nibble lanes and the state's source dwords come out as the asm's. No deviation:
+   everything the asm reads is the call's own data.
+   - **Measured:** a harness (local tooling) runs the same calls against both: 6 seeds x 20,000 calls
+     (decoders with any phase, alignment, length and carried state; the mixer mono and stereo, native
+     and resampled, faded, gains past 16 bits, lengths below one MMX block; the output with odd and
+     empty lengths); after every call buffers, states and pointers are identical. `build-sndlink`
+     (both drivers in C, no asm left in the linked sound drivers): regression 5/5 identical to
+     `base_modern`; capture of Morb_00, 2,967 buffers, RMS per second within the spread of the asm
+     captures of item 14.
 
 ## Animation: smoother playback (to evaluate)
 

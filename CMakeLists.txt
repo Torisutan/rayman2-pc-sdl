@@ -165,13 +165,14 @@ option(R2_SND_LINKED "Link the sound drivers into the exe (no _DLL_COMPILATION_M
 if(R2_SND_LINKED)
   set(R2_SND_DISABLE DISABLE_MPEG DISABLE_MIDI DISABLE_CD DISABLE_RECORD)
   list(APPEND R2_FORK_DEFINES ${R2_SND_DISABLE})
-  # The sample driver's mixer: the C branch (src/mixer/sndmix_pc.c) by default, on every target. The MMX
-  # asm (src/mixer/mix*.asm, OPTIMIZED_FOR_MMX_WITH_ASM) only on request and only on 32-bit x86 with MSVC
-  # or clang-cl, for comparison: it relies on the retail DLL's .bss layout, which this link does not
-  # reproduce (PLAN Sound item 14).
-  option(R2_SND_MIXER_ASM "Sound mixer from the MMX asm instead of sndmix_pc.c (32-bit x86 MSVC only)" OFF)
-  if(R2_SND_MIXER_ASM AND NOT (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4))
-    message(FATAL_ERROR "R2_SND_MIXER_ASM needs a 32-bit x86 MSVC or clang-cl build")
+  # The drivers' MMX asm (WAVMWBVR src/mixer/mix*.asm, APMmxBVR src/mmx/mmx*.asm) or their C branches
+  # (src/mixer/sndmix_pc.c, src/mmx/sndadpcm_mmx_pc.c): C by default, on every target. The asm only on
+  # request and only on 32-bit x86 with MSVC or clang-cl (OPTIMIZED_FOR_MMX_WITH_ASM), for comparison;
+  # the mixer's asm relies on the retail DLL's .bss layout, which this link does not reproduce (PLAN
+  # Sound item 14).
+  option(R2_SND_MMX_ASM "Sound drivers' MMX asm instead of their C branches (32-bit x86 MSVC only)" OFF)
+  if(R2_SND_MMX_ASM AND NOT (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4))
+    message(FATAL_ERROR "R2_SND_MMX_ASM needs a 32-bit x86 MSVC or clang-cl build")
   endif()
   enable_language(ASM_MASM)
   foreach(drv WAVMWBVR APMmxBVR)
@@ -184,12 +185,14 @@ if(R2_SND_LINKED)
     foreach(i RANGE ${last})
       string(JSON src GET ${json} link_order ${i} src)
       if(NOT src MATCHES "(^|/)snddll\.c$|\.rc$" AND NOT (R2_USE_SDL AND src STREQUAL "pc_mixervol.c")
-         AND NOT (src MATCHES "^mixer/.*\.asm$" AND NOT R2_SND_MIXER_ASM))
+         AND NOT (src MATCHES "^(mixer|mmx)/.*\.asm$" AND NOT R2_SND_MMX_ASM))
         list(APPEND srcs ${dir}/src/${src})
       endif()
     endforeach()
     if(drv STREQUAL "WAVMWBVR")
       list(APPEND srcs ${dir}/src/mixer/sndmix_pc.c)
+    else()
+      list(APPEND srcs ${dir}/src/mmx/sndadpcm_mmx_pc.c)
     endif()
     if(R2_USE_SDL AND drv STREQUAL "WAVMWBVR")
       # Output and volume through SDL instead of waveOut and the system mixer (pc_mixervol.c).
@@ -199,7 +202,7 @@ if(R2_SND_LINKED)
     set_target_properties(${drv} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
     target_include_directories(${drv} PRIVATE ${dir}/include ${CMAKE_SOURCE_DIR}/WAVMWBVR.dll/include)
     target_compile_definitions(${drv} PRIVATE VISUAL ${R2_SND_DISABLE} _CRT_SECURE_NO_WARNINGS
-      $<$<BOOL:${R2_USE_SDL}>:USE_SDL> $<$<BOOL:${R2_SND_MIXER_ASM}>:OPTIMIZED_FOR_MMX_WITH_ASM>)
+      $<$<BOOL:${R2_USE_SDL}>:USE_SDL> $<$<BOOL:${R2_SND_MMX_ASM}>:OPTIMIZED_FOR_MMX_WITH_ASM>)
     target_compile_options(${drv} PRIVATE $<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:$<CONFIG:Debug>>>:/O2 /Gy>)
     if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
       target_compile_options(${drv} PRIVATE $<$<COMPILE_LANGUAGE:C>:
