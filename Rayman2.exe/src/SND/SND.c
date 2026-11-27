@@ -2476,6 +2476,13 @@ void __cdecl SND_pc_fn_vLoadCanFreeDataADPCM(HMODULE hModule)
 /* 0x0045B430 */
 void SND_pc_fn_vProbeCpu(long *p_lHasCpuid, long *p_lHasMMX)
 {
+#if defined(WIN64) || defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+    /* targets without x86 inline assembly (as MTH_C_DEV in MTH/MTH_def.h). Their sound drivers are linked
+     * in, so nothing chooses a driver DLL by this answer; it is the one of any current PC, which keeps the
+     * retail choice (WAVMW, APMMX) in a driver-DLL measurement build */
+    *p_lHasCpuid = 1;
+    *p_lHasMMX = 1;
+#else
     __asm
     {
         pushfd
@@ -2510,6 +2517,7 @@ void SND_pc_fn_vProbeCpu(long *p_lHasCpuid, long *p_lHasMMX)
         mov     dword ptr [edi], 1
     l_Done:
     }
+#endif /* WIN64 || LINUX || OSX || PSP || WIIU */
 }
 
 /* 0x0045B490 */
