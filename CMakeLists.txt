@@ -155,6 +155,43 @@ if(R2_GLI_DX6)
   list(APPEND R2_SOURCES ${R2_DIR}/src/GLI/GLI_linkdrv.c)
   list(APPEND R2_FORK_DEFINES USE_GLI_DX6)
 endif()
+# The sound drivers WAVMWBVR (samples, mixer, waveOut) and APMmxBVR (ADPCM streams) built from
+# their folders (tu.json, in link order, without the DLL glue snddll.c) and linked in, the original
+# engine's static form: without _DLL_COMPILATION_MODE the exe's SND calls them directly and loads no
+# driver DLL. The retail DLL/Snd_Cpa.ini binds only these two (DLL_Sxd, DLL_Adpcm); MPEG, Midi, CD
+# and record have no driver section, so retail runs them on the no-module defaults. The original
+# engine's DISABLE_* switches drop those modules; their call sites give the same values.
+option(R2_SND_LINKED "Link the sound drivers into the exe (no _DLL_COMPILATION_MODE)" OFF)
+if(R2_SND_LINKED)
+  set(R2_SND_DISABLE DISABLE_MPEG DISABLE_MIDI DISABLE_CD DISABLE_RECORD)
+  list(APPEND R2_FORK_DEFINES ${R2_SND_DISABLE})
+  enable_language(ASM_MASM)
+  foreach(drv WAVMWBVR APMmxBVR)
+    set(dir ${CMAKE_SOURCE_DIR}/${drv}.dll)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${dir}/tu.json)
+    file(READ ${dir}/tu.json json)
+    string(JSON n LENGTH ${json} link_order)
+    math(EXPR last "${n} - 1")
+    set(srcs)
+    foreach(i RANGE ${last})
+      string(JSON src GET ${json} link_order ${i} src)
+      if(NOT src MATCHES "(^|/)snddll\.c$|\.rc$")
+        list(APPEND srcs ${dir}/src/${src})
+      endif()
+    endforeach()
+    add_library(${drv} STATIC ${srcs})
+    set_target_properties(${drv} PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
+    target_include_directories(${drv} PRIVATE ${dir}/include ${CMAKE_SOURCE_DIR}/WAVMWBVR.dll/include)
+    target_compile_definitions(${drv} PRIVATE VISUAL ${R2_SND_DISABLE} _CRT_SECURE_NO_WARNINGS)
+    target_compile_options(${drv} PRIVATE $<$<AND:$<COMPILE_LANGUAGE:C>,$<NOT:$<CONFIG:Debug>>>:/O2 /Gy>)
+    if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+      target_compile_options(${drv} PRIVATE $<$<COMPILE_LANGUAGE:C>:
+        -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion>)
+    endif()
+  endforeach()
+else()
+  list(APPEND R2_FORK_DEFINES _DLL_COMPILATION_MODE)
+endif()
 # USE_SDL also leaves FILE_MODE_C_WIN95 unset (SND/snddef.h): the C runtime branches come with it.
 if(R2_USE_SDL)
   find_package(SDL3 CONFIG REQUIRED)
@@ -175,9 +212,9 @@ target_include_directories(Rayman2 PRIVATE ${R2_DIR}/include $<$<COMPILE_LANGUAG
 # NO_STRICT: VC5-era windows.h typed handles as void * (STRICT was opt-in); the sources declare
 # Win32 APIs that way.
 # RAYMAN2_WINDOW_ICON: the window class loads icon group 1 of Rayman2.rc (DEVIATIONS 12).
-# _DLL_COMPILATION_MODE: as tu.json, the retail exe's sound binding layer (SND loads its drivers
-# as DLLs).
-target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE _DLL_COMPILATION_MODE NO_STRICT RAYMAN2_WINDOW_ICON ${R2_FORK_DEFINES})
+# _DLL_COMPILATION_MODE (R2_FORK_DEFINES unless R2_SND_LINKED): as tu.json, the retail exe's sound
+# binding layer (SND loads its drivers as DLLs).
+target_compile_definitions(Rayman2 PRIVATE inline=__inline RAYMAN2_STANDALONE NO_STRICT RAYMAN2_WINDOW_ICON ${R2_FORK_DEFINES})
 # WIN32: the Windows target macro (docs/PLAN.md "Platform macros"). MSVC got it only from CMake's
 # default flags, clang-cl did not.
 # _CRT_SECURE_NO_WARNINGS: the sources use the standard C string and file functions (strcpy,
@@ -188,6 +225,11 @@ if(WIN32)
   if(TARGET GliDX6vf)
     target_compile_definitions(GliDX6vf PRIVATE WIN32 _CRT_SECURE_NO_WARNINGS)
   endif()
+  foreach(drv WAVMWBVR APMmxBVR)
+    if(TARGET ${drv})
+      target_compile_definitions(${drv} PRIVATE WIN32)
+    endif()
+  endforeach()
 endif()
 # Debug (--config Debug): CMake's /Od /RTC1 instead, to run the regression with run-time checks
 # (docs/BUGS.md). /O2 would conflict with /RTC1.
@@ -201,7 +243,11 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 endif()
 # /MANIFEST:NO: the linker's default manifest (UAC only) would clash with the one in Rayman2.rc,
 # which makes the exe DPI aware.
-target_link_options(Rayman2 PRIVATE /MAP /MANIFEST:NO ${R2_EXPORT_FLAGS})
+target_link_options(Rayman2 PRIVATE /MAP /MANIFEST:NO)
+if(NOT R2_SND_LINKED)
+  # Linked-in drivers call SND directly; only driver DLLs need the exports.
+  target_link_options(Rayman2 PRIVATE ${R2_EXPORT_FLAGS})
+endif()
 target_link_libraries(Rayman2 PRIVATE
   kernel32 user32 gdi32 winmm advapi32 shell32
   # The sources call some CRT functions through their import slots (_imp__fprintf, ...). The UCRT
@@ -211,6 +257,9 @@ target_link_libraries(Rayman2 PRIVATE
 if(R2_GLI_DX6)
   # ddraw: DirectDrawCreate and DirectDrawEnumerateExA, the driver's only imports beyond kernel32/user32.
   target_link_libraries(Rayman2 PRIVATE GliDX6vf ddraw)
+endif()
+if(R2_SND_LINKED)
+  target_link_libraries(Rayman2 PRIVATE WAVMWBVR APMmxBVR)
 endif()
 if(R2_USE_SDL)
   target_link_libraries(Rayman2 PRIVATE SDL3::SDL3)

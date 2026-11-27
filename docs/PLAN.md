@@ -663,6 +663,8 @@ its condition.
 | `MTH_C_DEV` | MTH target | set in `MTH/MTH_def.h` beside the original's `MTH_PC_DEV`/`MTH_U64_DEV`/`MTH_NITRO_DEV` when `WIN64`, `LINUX`, `OSX`, `PSP` or `WIIU` is defined: `OPTIMIZED_FOR_PC_FLOATS` without `..._WITH_ASM` (Phase 4 "MTH target selection") |
 | `FILE_MODE_C_WIN95` | feature | Win32 API for level data files, ini files and MMG memory; set in `SND/snddef.h` unless `GAMECONSOLE`, `USE_SDL` or `RAYMAN2_C_RUNTIME`; C runtime otherwise |
 | `RAYMAN2_C_RUNTIME` | fork | takes the C runtime branches on Windows too, to check them against the regression run (CMake `R2_C_RUNTIME`) |
+| `_DLL_COMPILATION_MODE` | feature (original) | sound drivers as DLLs bound by name (`snddll.c`), the retail PC form; set by default. CMake `R2_SND_LINKED` leaves it unset and links `WAVMWBVR` and `APMmxBVR` in (Sound, item 11) |
+| `DISABLE_MPEG`, `DISABLE_MIDI`, `DISABLE_CD`, `DISABLE_RECORD` | feature (original) | sound modules without a driver; set with `R2_SND_LINKED` (retail binds none of them either) |
 
 - New code goes beside the original branch. Fence by what the code depends on: Win32-only code
   in fork files by the target (`#ifdef WIN32 ... #endif /* WIN32 */`, never `_WIN32`; the CMake
@@ -903,6 +905,19 @@ mixer and decoders from the file formats):
    timing (to be found). Needed besides the fences: the ini reading other than driver loading
    stays (switches, distances and roll-off, supervisor), and modern ML wants `dword ptr` on 13
    MMX operands.
+11. **Form a), done (27.11.2026): CMake `R2_SND_LINKED`, off by default.** Upstream now has the
+   original's non-DLL form in place (exe and drivers byte-identical): binding layer and ini driver
+   loading under `_DLL_COMPILATION_MODE`, the Midi/CD/record/MPEG call sites under the original's
+   `DISABLE_*` with the no-module values, the Release/Restore trampolines in `SND_CALL`, the ADPCM
+   and exe-service declarations for the non-DLL branch (`sndxdadpcm.h`, `sndthrd.h`), and the 13 MMX
+   operands untyped (both ML versions accept that). With the option on, CMake builds both drivers
+   from their tu.json (without `snddll.c` and the `.rc`) as static libraries and links them in; no
+   stand-ins of our own. Measured on the SDL build (`build-sndlink`): regression 5/5 identical to
+   `base_modern`; sound captured at `waveOutWrite` over 30 s of Morb_00 against `build-sdl` with the
+   retail DLLs: same format (22,050 Hz, stereo, 16 bit), 2,966 vs 2,967 buffers, RMS per second
+   within a few percent (at most about 12 %, the start-time jitter of item 10). With the option
+   off (the default), the six gates stay identical. Next: step 3 (C mixer beside the MMX asm, SDL
+   audio output).
 
 ## Animation: smoother playback (to evaluate)
 
