@@ -1015,9 +1015,15 @@ mixer and decoders from the file formats):
        from its own types header, as the consoles do (decide with that step). Two seams follow the
        original instead (order M35): `SND_fn_b{Release,Restore}DriverSound` return `SndBool` there, and
        `SND_CALL` is `WINAPI` only off the consoles or on `WIN32`, empty otherwise, with the sound
-       prototypes written through `SND_CALL` (the exe's decomp writes `__stdcall`, about 700 sites).
-       A non-Windows desktop target is neither console nor `WIN32` in that fence: its branch needs
-       an empty `SND_CALL` too (non-Windows step). (`sndldbin.c` tested the bank open against
+       prototypes written through `SND_CALL` (the exe's decomp wrote `__stdcall`). Done upstream
+       (private d839b80, merged a9232c2): 368 sites are `SND_CALL`; `SND.h` repeats the fence
+       (`#ifndef SND_CALL`) because including `snddef.h` there changed codegen. 317 `__stdcall`
+       stay: 11 the original declares without `SND_CALL`, 306 on functions the original structure
+       does not show (CD, record, threads, the driver-table stubs and typedefs); `__cdecl` (313)
+       stays. Both decide with the non-Windows step. Measured: regression 5/5 = `base_modern` for
+       `build-cmake`, `build-sndlink`, `build-sdl`, `build-ansi` (`build/regress/m35_*`, `drv.2d`
+       only reported). A non-Windows desktop target is neither console nor `WIN32` in that fence:
+       its branch needs an empty `SND_CALL` too (non-Windows step). (`sndldbin.c` tested the bank open against
        `(HANDLE)0xffffffff`, not `INVALID_HANDLE_VALUE` on x64; upstream now tests `OPENFILESND_FAILED`,
        regression 5/5 unchanged for build-cmake, build-sndlink, build-ansi.)
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
