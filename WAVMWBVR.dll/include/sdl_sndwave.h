@@ -27,6 +27,29 @@ void			SND_fn_vStopOutputThread(void);
 #define SND_C_ulWaitTimedOut	0x102UL
 #define SND_C_ulDriverThreadId	1	/* the one thread id of the SDL output (snddef.h) */
 
+/* the PCM format the driver opens: WAVEFORMATEX's fields in its order (the exe's
+ * SND_fn_bTestSnd_WinMM reads it, the retail one included) */
+typedef struct SND_tdstWaveFormat_
+{
+	unsigned short	wFormatTag;
+	unsigned short	nChannels;
+	unsigned long	nSamplesPerSec;
+	unsigned long	nAvgBytesPerSec;
+	unsigned short	nBlockAlign;
+	unsigned short	wBitsPerSample;
+	unsigned short	cbSize;
+} SND_tdstWaveFormat;
+
+/* one output buffer: the WAVEHDR fields sndwave.c fills (SND_fn_ulWriteDevice takes data and length) */
+typedef struct SND_tdstBufferHeader_
+{
+	char *			lpData;
+	unsigned long	dwBufferLength;
+	unsigned long	dwUser;
+	unsigned long	dwFlags;
+	unsigned long	dwLoops;
+} SND_tdstBufferHeader;
+
 typedef struct SND_tdstPerfCounter_
 {
 	long long	QuadPart;	/* counter ticks, as the Win32 counter the mix-time statistics read */

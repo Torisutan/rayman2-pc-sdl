@@ -30,6 +30,19 @@ typedef struct SND_tdstOsVersionSnd_
 	char			szCSDVersion[128];
 } SND_tdstOsVersionSnd;
 
+/* WAVEFORMATEX's layout: the PCM format a sound driver (the retail DLLs included) hands
+   SND_fn_bTestSnd_WinMM */
+typedef struct SND_tdstWaveFormatSnd_
+{
+	unsigned short	wFormatTag;
+	unsigned short	nChannels;
+	unsigned long	nSamplesPerSec;
+	unsigned long	nAvgBytesPerSec;
+	unsigned short	nBlockAlign;
+	unsigned short	wBitsPerSample;
+	unsigned short	cbSize;
+} SND_tdstWaveFormatSnd;
+
 /* the field SND_fn_bTestSnd_WinMM reads: one bit per PCM format (WAVE_FORMAT_1M08..4S16) */
 typedef struct SND_tdstDeviceCapsSnd_
 {

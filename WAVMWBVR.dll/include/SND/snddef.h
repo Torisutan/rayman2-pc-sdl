@@ -190,8 +190,9 @@
 #if !defined(GAMECONSOLE) && !defined(GENERIC)
 
 #if defined(USE_SDL)
-/* SDL backend (sdl_sndwave.c): locks, events and the output device are its objects; the waveOut
- * format, buffer header and message types stay as the shared code fills them on Windows. */
+/* SDL backend (sdl_sndwave.c): locks, events and the output device are its objects; the PCM format
+ * and the buffer header are its structs with the fields the shared code fills; the instance is only
+ * passed on, and no message is posted (SND_pc_M_bPostMessage below), so a parameter is a pointer. */
 #include "sdl_sndwave.h"
 #define SND_pc_tdhLock					void *
 #define SND_pc_tdhEvent					void *
@@ -201,11 +202,11 @@
 #define SND_pc_tdstPerfCounter			SND_tdstPerfCounter
 #define SND_pc_tdhDevice				void *
 #define SND_pc_tdhWindow				HWND
-#define SND_pc_tdhInstance				HINSTANCE
-#define SND_pc_tdstWaveFormat			WAVEFORMATEX
-#define SND_pc_tdstBufferHeader			WAVEHDR
-#define SND_pc_tdulMessageParam			WPARAM
-#define SND_pc_tdlMessageParam			LPARAM
+#define SND_pc_tdhInstance				void *
+#define SND_pc_tdstWaveFormat			SND_tdstWaveFormat
+#define SND_pc_tdstBufferHeader			SND_tdstBufferHeader
+#define SND_pc_tdulMessageParam			void *
+#define SND_pc_tdlMessageParam			void *
 #else
 #define SND_pc_tdhLock					HANDLE
 #define SND_pc_tdhEvent					HANDLE

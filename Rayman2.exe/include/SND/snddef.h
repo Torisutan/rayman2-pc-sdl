@@ -22,19 +22,19 @@ typedef void (__stdcall *SND_td_pfn_vSoundCallback)(long par);
 
 #if defined(USE_SDL)
 /* SDL backend (SND/sdl_snd.c): locks, events, the critical section, threads, the assert box and
- * the driver tests. The init struct's instance and the drivers' PCM format stay the types the
- * sample driver's SDL branch shares with it (its SND/snddef.h). */
+ * the driver tests. The init struct's instance is only passed on; the PCM format a driver hands
+ * SND_fn_bTestSnd_WinMM has WAVEFORMATEX's layout (SND/sdl_snd.h). */
 #include "SND/sdl_snd.h"
 #define SND_pc_tdhLock					void *
 #define SND_pc_tdhEvent					void *
 #define SND_pc_tdhWaitable				void *
 #define SND_pc_tdstCriticalSection		void *
 #define SND_pc_tdhWindow				HWND
-#define SND_pc_tdhInstance				HINSTANCE
+#define SND_pc_tdhInstance				void *
 #define SND_pc_tdstThreadSecurity		int		/* SDL threads have no security attributes */
 #define SND_pc_tdpfnThreadProc			SND_tdpfnThreadProcSnd
 #define SND_pc_tdstOsVersion			SND_tdstOsVersionSnd
-#define SND_pc_tdstWaveFormat			WAVEFORMATEX
+#define SND_pc_tdstWaveFormat			SND_tdstWaveFormatSnd
 #define SND_pc_tdstDeviceCaps			SND_tdstDeviceCapsSnd
 
 #define SND_pc_C_ulWaitForever			SND_C_ulWaitForeverSnd

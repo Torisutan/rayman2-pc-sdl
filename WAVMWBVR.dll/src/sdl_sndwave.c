@@ -25,9 +25,9 @@
 #define C_ulErrorWrite		2
 
 /* pc_mixervol.c's other globals, read by sndwave.c */
-HWND				SND_pc_hMainWindow = NULL;
-HINSTANCE			SND_pc_hFirstProcessInstance = NULL;
-HINSTANCE			SND_pc_hProcessInstance = NULL;
+SND_pc_tdhWindow	SND_pc_hMainWindow = NULL;
+SND_pc_tdhInstance	SND_pc_hFirstProcessInstance = NULL;
+SND_pc_tdhInstance	SND_pc_hProcessInstance = NULL;
 
 static SDL_Mutex		*gs_p_stDeviceLock = NULL;
 static SDL_AudioStream	*gs_p_stStream = NULL;

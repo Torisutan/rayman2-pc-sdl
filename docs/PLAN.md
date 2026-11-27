@@ -991,9 +991,20 @@ mixer and decoders from the file formats):
        second within a few percent of the capture before (the first, partial second follows the
        level load). Focus test (minimized 12.9 -> 19.5 s): 23.1 s of output, so the output stops
        while minimized and resumes; the game closes cleanly.
-     - **Still Win32 types in the SDL branches** (they block a non-Windows compile only):
-       `HINSTANCE` (init struct), `WAVEFORMATEX`, `WAVEHDR`, `WPARAM` / `LPARAM` (driver), the
-       `WAVE_FORMAT_*` bits in `SND_fn_bTestSnd_WinMM`. (`sndldbin.c` tested the bank open against
+     - **Types of the SDL branches (27.11.2026).** Both `SND/snddef.h` `USE_SDL` branches name no
+       Win32 type but `HWND` (kept on every target): the instance and the driver's message
+       parameters are `void *` (only passed on; nothing is posted), the PCM format is the backend's
+       struct with `WAVEFORMATEX`'s fields in its order (`SND_tdstWaveFormat` in `sdl_sndwave.h`,
+       `SND_tdstWaveFormatSnd` in the exe's `SND/sdl_snd.h`: the exe's `SND_fn_bTestSnd_WinMM` reads
+       what a driver hands it, a retail DLL included), the buffer header the `WAVEHDR` fields
+       `sndwave.c` fills. Measured: regression 5/5 = `base_modern` for `build-sndlink` and
+       `build-sdl` (`build/regress/sndtypes_*`; `drv.2d` only reported: `base_modern` predates it).
+     - **Still Win32 in shared sound code** (blocks a non-Windows compile only): `MMRESULT`,
+       `WHDR_DONE`, `WAVE_FORMAT_PCM` (`sndwave.c`), the `WAVE_FORMAT_*` bits in
+       `SND_fn_bTestSnd_WinMM` (seams ordered from the decomp, M34); open question for the
+       non-Windows step: `BOOL` / `DWORD` / `LPCSTR` / `WINAPI` in sound prototypes
+       (`SND_fn_bGetOptions`, `SND_fn_bReleaseDriverSound`, `sndload.h`): a target's types header (if
+       the original's console headers declare them; not checked) or neutral names. (`sndldbin.c` tested the bank open against
        `(HANDLE)0xffffffff`, not `INVALID_HANDLE_VALUE` on x64; upstream now tests `OPENFILESND_FAILED`,
        regression 5/5 unchanged for build-cmake, build-sndlink, build-ansi.)
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
