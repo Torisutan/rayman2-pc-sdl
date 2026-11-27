@@ -373,6 +373,23 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   change of its own; not planned.
   Rerun 26.11.2026 after the decomp's fix of the centre vector (upstream b102d4d, merged e31360d):
   no report in any scenario, all five equal `base_modern`.
+- **Sound work consolidated (27.11.2026, after Sound items 11-15).**
+  - **Gates rebased for `drv.2d`.** Every baseline predated the field (f2494b2). Each gate recorded
+    again twice at a9232c2 (both runs identical), against its previous baseline identical in every
+    field but `drv.2d` (absent before), in all five scenarios: `base_modern` (four builds, SDL,
+    MSVC, ANSI and `build-sndlink`, identical to each other), `base_clang`, `base_noasm`,
+    `base_vc5` (VC5 rebuilt: `tools/build_ref.py` outside a modern developer shell; inside one,
+    VC5 failed with an internal compiler error). The old ones stay as `base_<gate>_pre2d`.
+    `--report drv.2d` is no longer needed.
+  - **Warnings, linked sound drivers.** `/W4` (MSVC) over the gate configuration plus
+    `R2_SND_LINKED`, every TU rebuilt: 549 sites, as the inventory above. The fork's sound files
+    (`SND/sdl_snd.c`, `SND/SND_file.c`, `sdl_sndwave.c`, `sndmix_pc.c`, `sndadpcm_mmx_pc.c`) give
+    only C4100 in `sndmix_pc.c` (11: parameters of the `sndmix_pc.h` signatures the C branch
+    does not read, as the asm); not changed.
+  - **AddressSanitizer, linked sound drivers.** The suite under `/fsanitize=address` (setup as
+    above) with `R2_SND_LINKED` (C mixer, C ADPCM, SDL output; the mixer's fixed values for reads
+    outside the delay lines, DEVIATIONS 17, included): no report in any scenario, all five equal
+    `base_modern`.
 - **MTH target selection (done 2026-11-26).** The original engine
   chooses the MTH path in one header, `MTH/MTH_def.h` ("Detect Targets": `_MSC_VER` -> `VISUAL`
   -> `MTH_PC_DEV`, `U64` -> `MTH_U64_DEV`, `NITRO` -> `MTH_NITRO_DEV`, else `MTH_UNKOWN_DEV`; only
