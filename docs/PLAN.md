@@ -993,8 +993,9 @@ mixer and decoders from the file formats):
        while minimized and resumes; the game closes cleanly.
      - **Still Win32 types in the SDL branches** (they block a non-Windows compile only):
        `HINSTANCE` (init struct), `WAVEFORMATEX`, `WAVEHDR`, `WPARAM` / `LPARAM` (driver), the
-       `WAVE_FORMAT_*` bits in `SND_fn_bTestSnd_WinMM`. `sndldbin.c` tests the bank open against
-       `(HANDLE)0xffffffff`, which is not `INVALID_HANDLE_VALUE` on x64 (order M33).
+       `WAVE_FORMAT_*` bits in `SND_fn_bTestSnd_WinMM`. (`sndldbin.c` tested the bank open against
+       `(HANDLE)0xffffffff`, not `INVALID_HANDLE_VALUE` on x64; upstream now tests `OPENFILESND_FAILED`,
+       regression 5/5 unchanged for build-cmake, build-sndlink, build-ansi.)
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
    entry points of `sndmix_pc.h`). Selected by `OPTIMIZED_FOR_MMX_WITH_ASM` (Platform macros): the
    C branch by default on every target (decided 27.11.2026: x64 is a goal, and the asm needs the retail
