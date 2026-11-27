@@ -955,8 +955,9 @@ mixer and decoders from the file formats):
    - **Measured:** regression 5/5 identical to `base_modern`; capture at `SND_fn_ulWriteDevice`
      (`wave_capture.py --sdl`), 30 s of Morb_00: 22,050 Hz stereo 16 bit, 2,927 buffers, RMS per
      second follows the waveOut captures of item 11 (same few-percent spread). The other gates do
-     not compile the drivers (unchanged). Not yet exercised: focus loss (driver release and
-     restore through `SND_pc_fn_vReleaseWaveOut` / `vTakeWaveOut`, direct calls now).
+     not compile the drivers (unchanged). Focus loss (27.11.2026): window minimized for 6.7 s during a capture
+     of Morb_00 (no keystrokes; `SND_fn_vReleaseDriverSound` / restore): the output stops for 6.8 s,
+     then 898 buffers in the remaining 8.7 s (real time again); the game closes cleanly.
    - **Still Win32 in the SDL build (Windows only, for the Linux step):** in `sndwave.c` the lock,
      event, timing, voice-end callback thread and error box macros, `WAVEHDR` / `WAVEFORMATEX`
      in shared code, `HANDLE` in `SND_pc_fn_ulWaitObjectOrBreak`; `pc_sndtrans.c`'s lock; APM's
