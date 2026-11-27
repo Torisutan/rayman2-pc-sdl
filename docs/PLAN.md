@@ -918,6 +918,25 @@ mixer and decoders from the file formats):
    within a few percent (at most about 12 %, the start-time jitter of item 10). With the option
    off (the default), the six gates stay identical. Next: step 3 (C mixer beside the MMX asm, SDL
    audio output).
+12. **Step 3, plan (27.11.2026).** Win32 in the linked drivers, measured per object in
+   `build-sndlink`: `sndwave.c` (output thread with a message loop, `waveOut*`, events, the sample
+   mutex, `QueryPerformance*` for mix-time statistics, `_beginthread` for voice-end callbacks,
+   `MessageBoxA`), `Win95/pc_sndtrans.c` (one mutex), `pc_mixervol.c` (the game's sound volume
+   option sets the system mixer's wave line, `mixer*`), APM `SndAdpcm.c` (one critical section).
+   Same route as the platform glue: the decomp puts `<MOD>_pc_M_*` names at the call sites, Win32
+   branch only (byte-neutral), and names the functions involved; the fork adds the `USE_SDL`
+   branch, which calls a backend in an `sdl_*.c` file.
+   - **Output:** the SDL backend opens an audio stream (22,050 Hz, stereo, 16 bit, as the PC
+     driver opens waveOut) whose callback runs the driver's own buffer fill (mix, buffer clients)
+     and queues the buffer where the PC driver calls `waveOutWrite`; no message thread. Release
+     and restore of the driver (focus) pause and resume the stream; the volume option sets the
+     stream's gain.
+   - **Mixer:** the 21 asm entry points (`src/mixer/*.asm`) get names and prototypes from the decomp,
+     then the fork writes a C branch beside the asm under the original's condition style, checked
+     against the asm buffer for buffer on the same input (the mixer is deterministic, so equal
+     bytes, not an envelope).
+   - **Check:** regression gates; sound capture of the SDL output (capture point in the backend)
+     against the waveOut one.
 
 ## Animation: smoother playback (to evaluate)
 
