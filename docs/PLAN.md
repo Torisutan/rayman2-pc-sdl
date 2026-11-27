@@ -1006,9 +1006,18 @@ mixer and decoders from the file formats):
        `unsigned int`. Only `SND_pc_fn_ulWaveOutThread` (the waveOut backend, Win32 branch) keeps
        `WHDR_*`. Measured: regression 5/5 = `base_modern` for `build-sndlink` and `build-sdl`
        (`build/regress/m34_*`, `drv.2d` only reported).
-     - **Open question for the non-Windows step:** `BOOL` / `DWORD` / `LPCSTR` / `WINAPI` in sound prototypes
-       (`SND_fn_bGetOptions`, `SND_fn_bReleaseDriverSound`, `sndload.h`): a target's types header (if
-       the original's console headers declare them; not checked) or neutral names. (`sndldbin.c` tested the bank open against
+     - **`BOOL` / `DWORD` / `LPCSTR` / `WINAPI` in sound prototypes (answered 27.11.2026 from the
+       original engine structure).** The original's console targets keep these names: a target types
+       header of the loader module declares `BOOL`, `DWORD`, `LPCSTR`, `WPARAM`, `HINSTANCE`, `MMRESULT`
+       and others per target (U64; NITRO a subset). So: `sndload.h`'s `BOOL SND_fn_b*LogEventNames`
+       (declared only, as in the original) and `SND_fn_bGetOptions`' `LPCSTR` / `DWORD` (a retail
+       function the original structure does not show) stay; the non-Windows target gets these names
+       from its own types header, as the consoles do (decide with that step). Two seams follow the
+       original instead (order M35): `SND_fn_b{Release,Restore}DriverSound` return `SndBool` there, and
+       `SND_CALL` is `WINAPI` only off the consoles or on `WIN32`, empty otherwise, with the sound
+       prototypes written through `SND_CALL` (the exe's decomp writes `__stdcall`, about 700 sites).
+       A non-Windows desktop target is neither console nor `WIN32` in that fence: its branch needs
+       an empty `SND_CALL` too (non-Windows step). (`sndldbin.c` tested the bank open against
        `(HANDLE)0xffffffff`, not `INVALID_HANDLE_VALUE` on x64; upstream now tests `OPENFILESND_FAILED`,
        regression 5/5 unchanged for build-cmake, build-sndlink, build-ansi.)
 14. **C mixer, done (27.11.2026)** (`R2_SND_LINKED`; `WAVMWBVR.dll/src/mixer/sndmix_pc.c`, the 21
