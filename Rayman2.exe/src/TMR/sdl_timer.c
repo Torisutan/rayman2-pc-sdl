@@ -5,8 +5,8 @@
 
   The SDL counterpart of the PC timer functions in GLI/cpu_timer.c and GLI/timer_sub2.c
   (fenced #ifndef USE_SDL there), as the original engine's console targets give them:
-  fn_vTimerGetCounter, fn_ulTimerTickPerSecond, fn_ulTimerEventTickPerSecond, and
-  GetTickCount where the system gives none (not on WIN32; TMR/sdl_timer.h).
+  fn_vTimerGetCounter, fn_ulTimerTickPerSecond, fn_ulTimerEventTickPerSecond,
+  TMR_fn_ulFastGetInternalCounter, and GetTickCount where the system gives none (not on WIN32; TMR/sdl_timer.h).
   TMR_fn_wInitLibrary stays common.
 
   C_wTimerFrequencyLow    milliseconds (timeGetTime on PC)
@@ -26,6 +26,7 @@
 #include "GLI/cpu_timer.h"
 #include "TMR/TMR_types.h"
 #include "TMR/sdl_timer.h"
+#include "TMR/Specif/counter.h"
 #include "app/regress.h"
 
 /*
@@ -86,6 +87,17 @@ unsigned long __cdecl fn_ulTimerTickPerSecond(short wTimerType)
         default:
             return 0ul;
     }
+}
+
+/*
+ ----------------------------------------------------------------------------------------
+  Description   : The timer library's fast counter: the low 32 bits of SDL's performance
+                  counter (PC: of the CPU's time stamp counter)
+ ----------------------------------------------------------------------------------------
+ */
+unsigned long TMR_fn_ulFastGetInternalCounter(void)
+{
+    return (unsigned long)SDL_GetPerformanceCounter();
 }
 
 #ifndef WIN32

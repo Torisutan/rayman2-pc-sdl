@@ -19,6 +19,18 @@ void __cdecl TMR_pc_fn_vReadTSC(unsigned __int64 *p_uOut)
     }
 }
 
+#if defined(WIN64) || defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+/* the timer library's fast counter (TMR/Specif/counter.h) for AI/FuncRay2.c's C branch: the low
+ * 32 bits of the time stamp counter, as that function's PC form reads them inline */
+unsigned long TMR_fn_ulFastGetInternalCounter(void)
+{
+    unsigned __int64 u64Counter;
+
+    TMR_pc_fn_vReadTSC(&u64Counter);
+    return (unsigned long)u64Counter;
+}
+#endif /* WIN64 || LINUX || OSX || PSP || WIIU */
+
 unsigned long __cdecl TMR_pc_fn_ulCalibrateTscFreq(void)
 {
     typedef DWORD (__stdcall *pfn_timeGetTime)(void);

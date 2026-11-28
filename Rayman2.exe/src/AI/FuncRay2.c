@@ -14,6 +14,7 @@
 #include "GEO/GEO_types.h"
 #include "GAM/PlayAnim.h"
 #include "HIE/HIE_types.h"
+#include "TMR/Specif/counter.h"
 
 #define HIE_fn_bIsSuperObjectValid(hSuperObject) ((hSuperObject) != (HIE_tdstSuperObject *)0)
 
@@ -2312,6 +2313,12 @@ AI_tdstNodeInterpret *__cdecl fn_p_stDotProduct(
 AI_tdstNodeInterpret *__cdecl fn_p_stGetCPUCounter(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
+#if defined(WIN64) || defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+    /* targets without x86 inline assembly (as MTH_C_DEV in MTH/MTH_def.h): the original's form,
+     * the timer library's fast counter (the PC form below reads the time stamp counter inline) */
+    M_Full_GetSetParam_Integer(p_stValue, TMR_fn_ulFastGetInternalCounter());
+    return p_stTree;
+#else
 
     __asm {
         push edx
@@ -2323,6 +2330,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetCPUCounter(
         mov eax, p_stTree
         mov dword ptr [ecx+0Ch], 6
     }
+#endif /* WIN64 || LINUX || OSX || PSP || WIIU */
 }
 
 static void *AI_fr2_p_stGetMindOfSuperObj(HIE_tdstSuperObject *p_stPerso)
