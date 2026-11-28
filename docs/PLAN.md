@@ -425,9 +425,10 @@ CMake option `R2_FAST_LOADING` (on); VC5 reference: `tools/build_ref.py --define
   Measured: SDL, MSVC, ANSI, clang-cl and VC5 + define equal their baselines; a measurement build
   defining `WIN64` on x86 (`build-noasm`, `CMAKE_C_FLAGS` `/DWIN32 /D_WINDOWS /DWIN64`) takes the C
   branch, runs the suite twice identically, and is recorded as `base_noasm` (its own baseline;
-  against `base_modern` it differs as measured above). Left: the C branches of `MTH_fopt.h` (decomp
-  order M8: the original's `U64`/`NITRO` branches), then the fork's targets join those condition
-  lists; the other asm listed above.
+  against `base_modern` it differs as measured above). `MTH_fopt.h`: done 28.11.2026 (Phase 5
+  step 8, "MTH_fopt.h C branch"): the fork's targets do not join the `U64`/`NITRO` lists (their
+  forms lack the three table functions PC code calls and give other values), the table functions
+  get a `MTH_C_DEV` branch instead. Left: the other asm listed above.
 - **Portability list (done, 2026-11-26).** `docs/PORTABILITY.md`: every pointer-size, `long`-size,
   packing and byte-order assumption with its sites. Pointer size measured (the SDL gate's
   translation units compiled again as x86-64 with clang-cl, syntax only, pointer diagnostics on,
@@ -828,6 +829,26 @@ consoles' one-file-many-branches rule. Consoles: open decision "Console renderer
      headers, 6f), and the CRT forms (`NULL` in files without a C header is gone: `cpa_std.h` brings
      the C headers, as on PC).
    Rest of the compile-only work: step 2's list plus those names.
+   **MTH_fopt.h C branch, done 28.11.2026.** The PC-only part of `MTH/MTH_fopt.h` (the original's
+   `#if !defined(U64) && !defined(NITRO)`) keeps its x87 assembly; under `MTH_C_DEV`
+   `MTH_fn_fSquareRootOpt`, `MTH_fn_fInverseOpt` and `MTH_fn_fInvSquareRootOpt` take a C branch
+   (the same bit operations and tables), and the precision setters, the `...ASM` float-to-long
+   forms and the `MTH_M_b...ZeroAsm` comparisons are left out (no caller there). The `U64`/`NITRO`
+   macro branches stay the original's: the PC branch macros are C already (DEVIATIONS row 20).
+   `MTH/MTH_fopt.c` includes `MTH/MTH_def.h` first (it included `MTH_fopt.h` before anything
+   selected the target; byte match of its four functions unchanged). Measured:
+   - `tools/mth_fopt_check.py`: all 2^32 inputs of the three functions, C branch equal to the x87
+     branch (MSVC 5.0, 0 mismatches); gcc 15 `-m32 -O2` gives the same checksums.
+   - `base_noasm` (`build-noasm`, now the C branch): suite identical (5 scenarios). The other gates
+     preprocess the same tokens (`MTH_C_DEV` undefined there).
+   - Linux pass 1: exe 205 -> 127 of 222 files fail, 1.077 -> 43 error sites (no `__cdecl`
+     cascade left); pass 2: 30 -> 28 files, 229 -> 232 sites (the measurement no longer skips
+     `MTH_fopt.h`; its users were implicit calls before). Left in pass 1: the 27 `windows.h`
+     includes, `AI/Operator.c` 9, `AI/FuncRay2.c` 6 (asm), one site each in 18 files.
+   - Open for the CMake Linux branch: `INLINE` is `__inline`, which gcc in C99+ modes takes as an
+     inline definition without an external symbol (warning in `MTH_fopt.c`: static `m` in a
+     non-static inline function); a call not inlined would not link. Needs the target's `INLINE`
+     form (or `-fgnu89-inline`), decided with the CMake branch.
 
 **Platform macros (decided 2026-11-24).** Modelled on the original engine's three kinds: target
 macros named after the platform (`U64`, `NITRO`, `WIN32`), a group macro derived from them

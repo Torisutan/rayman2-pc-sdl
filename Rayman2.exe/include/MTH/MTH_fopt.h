@@ -256,6 +256,8 @@
 
 #if !defined(U64) && !defined(NITRO)
 
+/* The x87 inline assembly is the PC branch; MTH_C_DEV targets take the C forms (docs/PLAN.md) */
+#ifndef MTH_C_DEV
 INLINE void MTH_CALL  MTH_fn_vSet24bitFPU(void)
 {
   long memvar;
@@ -328,9 +330,11 @@ INLINE void MTH_CALL MTH_fn_vSet64bitFPU(void)
 #endif
       }
 }
+#endif /* MTH_C_DEV */
 
 extern CPA_EXPORT double MTH_gs_dDecal;
 
+#ifndef MTH_C_DEV
 INLINE long  MTH_fn_fFloat2LongRoundOptASM  (float f)
 {
   long res;
@@ -343,6 +347,7 @@ INLINE long  MTH_fn_fFloat2LongRoundOptASM  (float f)
 
   return (res);
 }
+#endif /* MTH_C_DEV */
 
 INLINE long MTH_fn_fFloat2LongRoundOpt (double f)
 {
@@ -356,6 +361,7 @@ INLINE long MTH_fn_fFloat2LongRoundOpt (double f)
   return (res);
 }
 
+#ifndef MTH_C_DEV
 INLINE long  MTH_fn_fFloat2LongOptASM  (float f)
 {
   long res;
@@ -386,6 +392,7 @@ INLINE long  MTH_fn_fFloat2LongOptASM  (float f)
 
   return (res);
 }
+#endif /* MTH_C_DEV */
 
 INLINE long  MTH_fn_fFloat2LongOpt  (double f)
 {
@@ -419,6 +426,14 @@ INLINE float MTH_CALL MTH_fn_fSquareRootOpt(float f)
 
   MTH_M_vCHK(f);
 
+#ifdef MTH_C_DEV
+  {
+    unsigned long ulF = *(unsigned long *)&f;
+
+    *(unsigned long *)&res_sqrt = ((((ulF & 0x7F800000) + 0x3F800000) >> 1) & 0x7F800000)
+                                  + MTH_g_a2048_fSquareRootTable[(ulF & 0x00FFE000) >> 13];
+  }
+#else /* MTH_C_DEV */
   _asm{
 #ifdef MTH_PARANOID
         push ebx
@@ -445,6 +460,7 @@ INLINE float MTH_CALL MTH_fn_fSquareRootOpt(float f)
         pop ebx
 #endif
       }
+#endif /* MTH_C_DEV */
 
   MTH_M_vCHK(res_sqrt);
 
@@ -459,6 +475,14 @@ INLINE float MTH_CALL MTH_fn_fInverseOpt(float f)
 
   MTH_M_vCHK(f);
 
+#ifdef MTH_C_DEV
+  {
+    unsigned long ulF = *(unsigned long *)&f;
+
+    *(unsigned long *)&res_inv = (0x7E800000 - (ulF & 0xFF800000))
+                                 + MTH_g_a1024_fInverse[(ulF & 0x007FE000) >> 13];
+  }
+#else /* MTH_C_DEV */
   _asm{
 #ifdef MTH_PARANOID
       push ecx
@@ -482,6 +506,7 @@ INLINE float MTH_CALL MTH_fn_fInverseOpt(float f)
       pop ecx
 #endif
       }
+#endif /* MTH_C_DEV */
 
   MTH_M_vCHK(res_inv);
 
@@ -496,6 +521,14 @@ INLINE float MTH_CALL MTH_fn_fInvSquareRootOpt(float f)
 
   MTH_M_vCHK(f);
 
+#ifdef MTH_C_DEV
+  {
+    unsigned long ulF = *(unsigned long *)&f;
+
+    *(unsigned long *)&res_invsqrt = (((0xBD800000 - (ulF & 0x7F800000)) >> 1) & 0x7F800000)
+                                     + MTH_g_a2048_fInvSquareRootTable[(ulF & 0x00FFE000) >> 13];
+  }
+#else /* MTH_C_DEV */
   _asm{
 #ifdef MTH_PARANOID
       push ecx
@@ -524,6 +557,7 @@ INLINE float MTH_CALL MTH_fn_fInvSquareRootOpt(float f)
       pop ecx
 #endif
   }
+#endif /* MTH_C_DEV */
 
   MTH_M_vCHK(res_invsqrt);
 
@@ -532,6 +566,7 @@ INLINE float MTH_CALL MTH_fn_fInvSquareRootOpt(float f)
 
 extern CPA_EXPORT void MTH_fn_vInit( void );
 
+#ifndef MTH_C_DEV
 #pragma warning( disable : 4035 )
 static __inline unsigned char __fastcall MTH_M_bEqualZeroAsm( float A)
 	{
@@ -602,6 +637,7 @@ static __inline unsigned char __fastcall MTH_M_bGreaterEqualZeroAsm( float A)
 			adc al,0
 		}
 	}
+#endif /* MTH_C_DEV */
 
 #endif
 

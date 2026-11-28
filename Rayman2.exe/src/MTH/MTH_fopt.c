@@ -1,4 +1,5 @@
 #include <math.h>
+#include "MTH/MTH_def.h" /* target selection (MTH_C_DEV) before the fenced forms */
 #include "MTH/MTH_fopt.h"
 #include "MTH/MTH_globals.h"
 
