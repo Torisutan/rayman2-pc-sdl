@@ -83,7 +83,12 @@ unsigned char __cdecl SNA_pc_bOpenFile(const char *_szPath, char _cMode,
         ulAccess   = SNA_pc_C_ulAccessRead;
         break;
     default:
+#if defined(WIN64) || defined(LINUX) || defined(OSX) || defined(PSP) || defined(WIIU)
+        /* targets without x86 inline assembly (as MTH_C_DEV in MTH/MTH_def.h): no stop for the
+         * debugger, as the original's Erm_M_StopForDebug without the error window */
+#else
         __asm int 3
+#endif /* WIN64 || LINUX || OSX || PSP || WIIU */
         break;
     }
 
