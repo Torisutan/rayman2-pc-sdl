@@ -362,6 +362,11 @@ static void REGRESS_fn_vHookDriver(void)
 
 /* ---- state hash --------------------------------------------------------------------------- */
 
+/* FNV-1a 64 offset basis and prime, from 32-bit halves: no 64-bit literal suffix, which
+ * differs per compiler (MSVC ui64, others ULL) */
+#define REGRESS_C_ullFnvOffset  (((unsigned __int64)0xCBF29CE4UL << 32) | 0x84222325UL)
+#define REGRESS_C_ullFnvPrime   (((unsigned __int64)0x00000100UL << 32) | 0x000001B3UL)
+
 static unsigned __int64 gs_ullHash;
 static char             gs_szLine[2048];
 static int              gs_iLineLen;
@@ -389,7 +394,7 @@ static void REGRESS_fn_vAddField(const char *szName, const void *p_vData, unsign
     char szValue[16];
     unsigned long i;
     for (i = 0; i < ulSize; i++) {
-        gs_ullHash = (gs_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
+        gs_ullHash = (gs_ullHash ^ p_ucData[i]) * REGRESS_C_ullFnvPrime;
     }
     sprintf(szValue, "%08lx", ulDigest);
     REGRESS_fn_vAddText(szName, szValue);
@@ -418,7 +423,7 @@ static void REGRESS_fn_vAddWorld(void)
             const unsigned char *p_ucData = (const unsigned char *)p_stChild->hGlobalMatrix;
             for (i = 0; i < sizeof(POS_tdstCompletePosition); i++) {
                 ulDigest = (ulDigest ^ p_ucData[i]) * 0x01000193u;
-                gs_ullHash = (gs_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
+                gs_ullHash = (gs_ullHash ^ p_ucData[i]) * REGRESS_C_ullFnvPrime;
             }
         }
         lNbActors++;
@@ -436,7 +441,7 @@ static void REGRESS_fn_vAddSends(void)
     char szValue[64];
     unsigned long i;
     for (i = 0; i < sizeof(gs_a_ulNbSend); i++) {
-        gs_ullHash = (gs_ullHash ^ p_ucData[i]) * 0x00000100000001B3ui64;
+        gs_ullHash = (gs_ullHash ^ p_ucData[i]) * REGRESS_C_ullFnvPrime;
     }
     sprintf(szValue, "%lu,%lu,%lu,%lu,%lu", gs_a_ulNbSend[REGRESS_C_lSendSprite], gs_a_ulNbSend[REGRESS_C_lSendSpriteUV],
             gs_a_ulNbSend[REGRESS_C_lSendSpriteCol], gs_a_ulNbSend[REGRESS_C_lSendTriangles],
@@ -451,7 +456,7 @@ static void REGRESS_fn_vHashFrame(void)
     GAM_tdstEngineTimerStructure *p_stTimer = &p_stEng->stEngineTimer;
     char szValue[64];
 
-    gs_ullHash = 0xCBF29CE484222325ui64;
+    gs_ullHash = REGRESS_C_ullFnvOffset;
     gs_iLineLen = 0;
 
     sprintf(szValue, "%u", (unsigned)p_stEng->eEngineMode);
