@@ -1,30 +1,8 @@
 #include "GAM/STRUCTUR/State.h"
 
-signed char __cdecl fn_scGetSpeedInState(tdxHandleToState h_State)
-{
-    return (h_State->scSpeedAnim);
-}
-
 tdxHandleToState __cdecl fn_hGetStateToGoInTransition(tdxHandleToTransition h_Transition)
 {
     return (h_Transition->h_StateToGo);
-}
-
-unsigned char __cdecl fn_ucGetLinkingTypeInTransition(tdxHandleToTransition h_Transition)
-{
-    return (h_Transition->ucLinkingType);
-}
-
-void __cdecl fn_vSetLinkingTypeInTransition(tdxHandleToTransition h_Transition,
-                                            unsigned char ucLinkingType)
-{
-    h_Transition->ucLinkingType = ucLinkingType;
-}
-
-/* 0x00419970 */
-struct tdstAnim3d_ * __cdecl fn_p_stGetAnimInState(tdxHandleToState h_State)
-{
-    return (h_State->p_stAnim);
 }
 
 tdxHandleToState __cdecl fn_hGetNextStateInState(tdxHandleToState h_State)
@@ -32,10 +10,24 @@ tdxHandleToState __cdecl fn_hGetNextStateInState(tdxHandleToState h_State)
     return (h_State->h_NextState);
 }
 
-tdxHandleToState __cdecl fn_hGetTargetStateInTransition(tdxHandleToTransition h_Transition)
+signed char __cdecl fn_scGetSpeedInState(tdxHandleToState h_State)
 {
-    return (h_Transition->h_TargetState);
+    return (h_State->scSpeedAnim);
 }
+
+/* 0x00419990 */
+void *__cdecl fn_hGetStateMechanicsIdCard(tdxHandleToState h_State)
+{
+    return h_State->h_LinkedMechanicsIdCard;
+}
+
+/* 0x004199A0 */
+unsigned char __cdecl fn_ucGetStateCustomBits(tdxHandleToState h_State)
+{
+    return (h_State->ucCustomBits);
+}
+
+tdxHandleToState __cdecl fn_hGetTargetStateInTransition(tdxHandleToTransition h_Transition);
 
 /* 0x004199B0 */
 tdxHandleToTransition __cdecl fn_hIfExistTransitionalWithTargetState(
@@ -69,14 +61,24 @@ long __cdecl fn_hIfExistProhibitedState(tdxHandleToState h_State, tdxHandleToSta
     return (0);
 }
 
-/* 0x00419990 */
-void *__cdecl fn_hGetStateMechanicsIdCard(tdxHandleToState h_State)
+unsigned char __cdecl fn_ucGetLinkingTypeInTransition(tdxHandleToTransition h_Transition)
 {
-    return h_State->h_LinkedMechanicsIdCard;
+    return (h_Transition->ucLinkingType);
 }
 
-/* 0x004199A0 */
-unsigned char __cdecl fn_ucGetStateCustomBits(tdxHandleToState h_State)
+void __cdecl fn_vSetLinkingTypeInTransition(tdxHandleToTransition h_Transition,
+                                            unsigned char ucLinkingType)
 {
-    return (h_State->ucCustomBits);
+    h_Transition->ucLinkingType = ucLinkingType;
+}
+
+/* 0x00419970 */
+struct tdstAnim3d_ * __cdecl fn_p_stGetAnimInState(tdxHandleToState h_State)
+{
+    return (h_State->p_stAnim);
+}
+
+tdxHandleToState __cdecl fn_hGetTargetStateInTransition(tdxHandleToTransition h_Transition)
+{
+    return (h_Transition->h_TargetState);
 }

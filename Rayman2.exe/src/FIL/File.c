@@ -187,6 +187,23 @@ void __cdecl fn_vDestroyConcatFileHandle(void *hConcatFile)
     GLI_pc_fn_vFree(&hConcatFile);
 }
 
+/* 0x00492f60 */
+void __cdecl FIL_fn_vBuildConcatCompleteFileName(char *szCompleteFilename,
+                                                  void *hConcatFile,
+                                                  unsigned long ulIndex)
+{
+    FIL_tdstConcatFile *pConcatFile = (FIL_tdstConcatFile *)hConcatFile;
+    FIL_tdstConcatFileElement *pEntry = &pConcatFile->d_stConcatFileElement[ulIndex];
+
+    if (pEntry->lPathNumber == -1L) {
+        strcpy(szCompleteFilename, pEntry->p_szFileName);
+    } else {
+        sprintf(szCompleteFilename, "%s\\%s",
+                pConcatFile->d_szPathList[pEntry->lPathNumber],
+                pEntry->p_szFileName);
+    }
+}
+
 long __cdecl FIL_FUN_00492fc0(FILE *pFile,
                               const char *szSectionName,
                               const char *szExtension)
@@ -251,35 +268,44 @@ long __cdecl FIL_FUN_00492fc0(FILE *pFile,
     return -1;
 }
 
-/* 0x004929c0 */
-unsigned char __cdecl FIL_fn_bIsFileExist(char *_szFileName)
+/* 0x00493820 */
+void __cdecl FIL_vFillCacheFromFile(FIL_tdstFileInConcatFile *hHandleToFile)
 {
-    FILE *p_stFile;
-    unsigned char bExists;
+    size_t ulBytesToRead;
+    size_t ulBytesRead;
+    size_t ulIdx;
+    size_t ulDwords;
+    unsigned long *pul;
 
-    bExists = 0;
-    p_stFile = fopen(_szFileName, FIL_g_szModeRb);
-    if (p_stFile != NULL) {
-        fclose(p_stFile);
-        bExists = 1;
+    fseek(hHandleToFile->p_stFile, (long)hHandleToFile->ulFileActualSeek, SEEK_SET);
+
+    ulBytesToRead = hHandleToFile->ulCacheSize;
+    if (hHandleToFile->ulFileEndSeek <
+            (unsigned long)(ulBytesToRead + hHandleToFile->ulFileActualSeek)) {
+        ulBytesToRead = hHandleToFile->ulFileEndSeek - hHandleToFile->ulFileActualSeek;
     }
-    return bExists;
-}
 
-/* 0x00492f60 */
-void __cdecl FIL_fn_vBuildConcatCompleteFileName(char *szCompleteFilename,
-                                                  void *hConcatFile,
-                                                  unsigned long ulIndex)
-{
-    FIL_tdstConcatFile *pConcatFile = (FIL_tdstConcatFile *)hConcatFile;
-    FIL_tdstConcatFileElement *pEntry = &pConcatFile->d_stConcatFileElement[ulIndex];
+    ulBytesRead = fread(hHandleToFile->p_ucCache, 1, ulBytesToRead, hHandleToFile->p_stFile);
 
-    if (pEntry->lPathNumber == -1L) {
-        strcpy(szCompleteFilename, pEntry->p_szFileName);
-    } else {
-        sprintf(szCompleteFilename, "%s\\%s",
-                pConcatFile->d_szPathList[pEntry->lPathNumber],
-                pEntry->p_szFileName);
+    hHandleToFile->ulFileActualSeek += (unsigned long)ulBytesRead;
+    hHandleToFile->ulCacheSeek       = 0;
+    hHandleToFile->ulCacheSize       = (unsigned long)ulBytesRead;
+
+    if ((hHandleToFile->ulFileXorCode != 0) || (hHandleToFile->ulFileCheckSum != 0)) {
+        pul = (unsigned long *)hHandleToFile->p_ucCache;
+        ulIdx = 0;
+        ulDwords = ulBytesRead >> 2;
+        if (ulDwords != 0) {
+            do {
+                if (hHandleToFile->ulFileXorCode != 0) {
+                    pul[ulIdx] ^= hHandleToFile->ulFileXorCode;
+                }
+                if (hHandleToFile->ulFileCheckSum != 0) {
+                    hHandleToFile->ulCacheCheckSum += pul[ulIdx];
+                }
+                ulIdx++;
+            } while (ulIdx < ulDwords);
+        }
     }
 }
 
@@ -339,52 +365,20 @@ void __cdecl FIL_fn_vFreeGlobalHandleToFileInConcatFile(void)
     }
 }
 
-/* 0x004929f0 */
-unsigned char __cdecl FIL_fn_bIsValidPath(char *_szFileName)
+static void __cdecl FIL_vSearchOneDirectory(FIL_tdstFileNameListAnchor *p_stAnchor, char *szPattern, unsigned long ulAttrib);
+
+/* 0x00492900 */
+void *__cdecl FIL_fn_hSearchFile(char *_szFileName, unsigned long ulAttrib)
 {
-    struct _stat local_stat;
-    return (unsigned char)(_stat(_szFileName, &local_stat) == 0);
-}
+    FIL_tdstFileNameListAnchor *p_stAnchor;
 
-/* 0x00493820 */
-void __cdecl FIL_vFillCacheFromFile(FIL_tdstFileInConcatFile *hHandleToFile)
-{
-    size_t ulBytesToRead;
-    size_t ulBytesRead;
-    size_t ulIdx;
-    size_t ulDwords;
-    unsigned long *pul;
+    p_stAnchor = (FIL_tdstFileNameListAnchor *)GLI_pc_fn_p_vAlloc(0xc);
+    p_stAnchor->p_stHead = NULL;
+    p_stAnchor->p_stTail = NULL;
+    p_stAnchor->iCount   = 0;
 
-    fseek(hHandleToFile->p_stFile, (long)hHandleToFile->ulFileActualSeek, SEEK_SET);
-
-    ulBytesToRead = hHandleToFile->ulCacheSize;
-    if (hHandleToFile->ulFileEndSeek <
-            (unsigned long)(ulBytesToRead + hHandleToFile->ulFileActualSeek)) {
-        ulBytesToRead = hHandleToFile->ulFileEndSeek - hHandleToFile->ulFileActualSeek;
-    }
-
-    ulBytesRead = fread(hHandleToFile->p_ucCache, 1, ulBytesToRead, hHandleToFile->p_stFile);
-
-    hHandleToFile->ulFileActualSeek += (unsigned long)ulBytesRead;
-    hHandleToFile->ulCacheSeek       = 0;
-    hHandleToFile->ulCacheSize       = (unsigned long)ulBytesRead;
-
-    if ((hHandleToFile->ulFileXorCode != 0) || (hHandleToFile->ulFileCheckSum != 0)) {
-        pul = (unsigned long *)hHandleToFile->p_ucCache;
-        ulIdx = 0;
-        ulDwords = ulBytesRead >> 2;
-        if (ulDwords != 0) {
-            do {
-                if (hHandleToFile->ulFileXorCode != 0) {
-                    pul[ulIdx] ^= hHandleToFile->ulFileXorCode;
-                }
-                if (hHandleToFile->ulFileCheckSum != 0) {
-                    hHandleToFile->ulCacheCheckSum += pul[ulIdx];
-                }
-                ulIdx++;
-            } while (ulIdx < ulDwords);
-        }
-    }
+    FIL_vSearchOneDirectory(p_stAnchor, _szFileName, ulAttrib);
+    return p_stAnchor;
 }
 
 /* 0x00492930 */
@@ -416,145 +410,26 @@ void __cdecl FIL_fn_vDestroyOnElementInFileNameList(FIL_tdstFileNameListElement 
     GLI_pc_fn_vFree((void **)&hFileNameListElement);
 }
 
-#define FIL_g_szSearchPathPrefix ("")
-
-/* 0x00494040 */
-static void __cdecl FIL_vAddMatchToFileNameList(FIL_tdstFileNameListAnchor *p_stAnchor,
-                                                char *szBase,
-                                                FIL_tdstFindData32 *p_stFindData,
-                                                unsigned long ulAttribMask)
+/* 0x004929c0 */
+unsigned char __cdecl FIL_fn_bIsFileExist(char *_szFileName)
 {
-    FIL_tdstFileNameListElement *p_stElem;
+    FILE *p_stFile;
+    unsigned char bExists;
 
-    if ((p_stFindData->attrib & ulAttribMask) == 0)
-        return;
-
-    if (strcmp(p_stFindData->name, ".") == 0 ||
-        strcmp(p_stFindData->name, "..") == 0)
-        return;
-
-    p_stElem = (FIL_tdstFileNameListElement *)GLI_pc_fn_p_vAlloc(sizeof(FIL_tdstFileNameListElement));
-
-    if (*szBase == '\0') {
-        p_stElem->szFileName =
-            (char *)GLI_pc_fn_p_vAlloc(strlen(p_stFindData->name) + 1);
-        sprintf(p_stElem->szFileName, "%s", p_stFindData->name);
-    } else {
-        p_stElem->szFileName =
-            (char *)GLI_pc_fn_p_vAlloc((strlen(szBase) + 1) +
-                                     (strlen(p_stFindData->name) + 1));
-        sprintf(p_stElem->szFileName, "%s\\%s", szBase, p_stFindData->name);
+    bExists = 0;
+    p_stFile = fopen(_szFileName, FIL_g_szModeRb);
+    if (p_stFile != NULL) {
+        fclose(p_stFile);
+        bExists = 1;
     }
-
-    p_stElem->p_stAnchor = p_stAnchor;
-    p_stElem->p_stPrev   = p_stAnchor->p_stTail;
-    if (p_stAnchor->p_stHead == NULL) {
-        p_stAnchor->p_stHead = p_stElem;
-    } else {
-        p_stAnchor->p_stTail->p_stNext = p_stElem;
-    }
-    p_stAnchor->p_stTail = p_stElem;
-    p_stAnchor->iCount++;
+    return bExists;
 }
 
-/* 0x004941d0 */
-static void __cdecl FIL_vSearchOneDirectory(FIL_tdstFileNameListAnchor *p_stAnchor,
-                                            char *szPattern,
-                                            unsigned long ulAttrib)
+/* 0x004929f0 */
+unsigned char __cdecl FIL_fn_bIsValidPath(char *_szFileName)
 {
-    long               _FindHandle;
-    FIL_tdstFindData32 finddata;
-
-    _FindHandle = s_findfirst(szPattern, &finddata);
-    if (_FindHandle != -1) {
-        FIL_vAddMatchToFileNameList(p_stAnchor, FIL_g_szSearchPathPrefix,
-                                    &finddata, ulAttrib);
-        while (s_findnext(_FindHandle, &finddata) != -1) {
-            FIL_vAddMatchToFileNameList(p_stAnchor, FIL_g_szSearchPathPrefix,
-                                        &finddata, ulAttrib);
-        }
-        s_findclose(_FindHandle);
-    }
-}
-
-/* 0x00492900 */
-void *__cdecl FIL_fn_hSearchFile(char *_szFileName, unsigned long ulAttrib)
-{
-    FIL_tdstFileNameListAnchor *p_stAnchor;
-
-    p_stAnchor = (FIL_tdstFileNameListAnchor *)GLI_pc_fn_p_vAlloc(0xc);
-    p_stAnchor->p_stHead = NULL;
-    p_stAnchor->p_stTail = NULL;
-    p_stAnchor->iCount   = 0;
-
-    FIL_vSearchOneDirectory(p_stAnchor, _szFileName, ulAttrib);
-    return p_stAnchor;
-}
-
-/* 0x00493960 */
-long __cdecl FIL_fn_lReadFileInConcatFile(void *p_vBuffer, long lSize, long lNumber,
-                                          FIL_tdstFileInConcatFile *hHandleToFile)
-{
-    unsigned long ulBytesNeeded;
-    unsigned long ulAvailable;
-    long          lItemsRead;
-    unsigned long ulCacheSeek;
-    unsigned long ulCacheSize;
-    unsigned long ulBytesInCache;
-    unsigned char *pOut;
-    unsigned char *pCache;
-
-    lItemsRead = 0;
-    if (hHandleToFile == NULL) {
-        return 0;
-    }
-    ulBytesNeeded = (unsigned long)(lSize * lNumber);
-    if ((int)ulBytesNeeded <= 0) {
-        return 0;
-    }
-
-    ulAvailable = (hHandleToFile->ulFileEndSeek   - hHandleToFile->ulFileActualSeek
-                 + hHandleToFile->ulCacheSize)     - hHandleToFile->ulCacheSeek;
-
-    if (ulAvailable < ulBytesNeeded) {
-        ulBytesNeeded = ulAvailable;
-    }
-    lItemsRead = (long)ulBytesNeeded / lSize;
-
-    pOut = (unsigned char *)p_vBuffer;
-
-    while (ulBytesNeeded != 0) {
-        ulCacheSeek = hHandleToFile->ulCacheSeek;
-        ulCacheSize = hHandleToFile->ulCacheSize;
-
-        if (ulCacheSize < ulBytesNeeded + ulCacheSeek) {
-
-            if (ulCacheSeek < ulCacheSize) {
-
-                ulBytesInCache = ulCacheSize - ulCacheSeek;
-                pCache = hHandleToFile->p_ucCache + ulCacheSeek;
-
-                memcpy(pOut, pCache, ulBytesInCache);
-                pOut += ulBytesInCache;
-
-                hHandleToFile->ulCacheSeek = ulCacheSize;
-                ulBytesNeeded -= ulBytesInCache;
-            } else {
-
-                FIL_vFillCacheFromFile(hHandleToFile);
-            }
-        } else {
-
-            pCache = hHandleToFile->p_ucCache + ulCacheSeek;
-
-            memcpy(pOut, pCache, ulBytesNeeded);
-
-            hHandleToFile->ulCacheSeek += ulBytesNeeded;
-            ulBytesNeeded = 0;
-        }
-    }
-
-    return lItemsRead;
+    struct _stat local_stat;
+    return (unsigned char)(_stat(_szFileName, &local_stat) == 0);
 }
 
 /* 0x00492a10 */
@@ -638,6 +513,223 @@ unsigned char __cdecl FIL_fn_bValidatePath(char *_p_szStartPath, char *_p_szFile
     return local_20a;
 }
 
+#define FIL_g_szSearchPathPrefix ("")
+
+/* 0x00494040 */
+static void __cdecl FIL_vAddMatchToFileNameList(FIL_tdstFileNameListAnchor *p_stAnchor,
+                                                char *szBase,
+                                                FIL_tdstFindData32 *p_stFindData,
+                                                unsigned long ulAttribMask)
+{
+    FIL_tdstFileNameListElement *p_stElem;
+
+    if ((p_stFindData->attrib & ulAttribMask) == 0)
+        return;
+
+    if (strcmp(p_stFindData->name, ".") == 0 ||
+        strcmp(p_stFindData->name, "..") == 0)
+        return;
+
+    p_stElem = (FIL_tdstFileNameListElement *)GLI_pc_fn_p_vAlloc(sizeof(FIL_tdstFileNameListElement));
+
+    if (*szBase == '\0') {
+        p_stElem->szFileName =
+            (char *)GLI_pc_fn_p_vAlloc(strlen(p_stFindData->name) + 1);
+        sprintf(p_stElem->szFileName, "%s", p_stFindData->name);
+    } else {
+        p_stElem->szFileName =
+            (char *)GLI_pc_fn_p_vAlloc((strlen(szBase) + 1) +
+                                     (strlen(p_stFindData->name) + 1));
+        sprintf(p_stElem->szFileName, "%s\\%s", szBase, p_stFindData->name);
+    }
+
+    p_stElem->p_stAnchor = p_stAnchor;
+    p_stElem->p_stPrev   = p_stAnchor->p_stTail;
+    if (p_stAnchor->p_stHead == NULL) {
+        p_stAnchor->p_stHead = p_stElem;
+    } else {
+        p_stAnchor->p_stTail->p_stNext = p_stElem;
+    }
+    p_stAnchor->p_stTail = p_stElem;
+    p_stAnchor->iCount++;
+}
+
+/* 0x004941d0 */
+static void __cdecl FIL_vSearchOneDirectory(FIL_tdstFileNameListAnchor *p_stAnchor,
+                                            char *szPattern,
+                                            unsigned long ulAttrib)
+{
+    long               _FindHandle;
+    FIL_tdstFindData32 finddata;
+
+    _FindHandle = s_findfirst(szPattern, &finddata);
+    if (_FindHandle != -1) {
+        FIL_vAddMatchToFileNameList(p_stAnchor, FIL_g_szSearchPathPrefix,
+                                    &finddata, ulAttrib);
+        while (s_findnext(_FindHandle, &finddata) != -1) {
+            FIL_vAddMatchToFileNameList(p_stAnchor, FIL_g_szSearchPathPrefix,
+                                        &finddata, ulAttrib);
+        }
+        s_findclose(_FindHandle);
+    }
+}
+
+/* 0x00493960 */
+long __cdecl FIL_fn_lReadFileInConcatFile(void *p_vBuffer, long lSize, long lNumber,
+                                          FIL_tdstFileInConcatFile *hHandleToFile)
+{
+    unsigned long ulBytesNeeded;
+    unsigned long ulAvailable;
+    long          lItemsRead;
+    unsigned long ulCacheSeek;
+    unsigned long ulCacheSize;
+    unsigned long ulBytesInCache;
+    unsigned char *pOut;
+    unsigned char *pCache;
+
+    lItemsRead = 0;
+    if (hHandleToFile == NULL) {
+        return 0;
+    }
+    ulBytesNeeded = (unsigned long)(lSize * lNumber);
+    if ((int)ulBytesNeeded <= 0) {
+        return 0;
+    }
+
+    ulAvailable = (hHandleToFile->ulFileEndSeek   - hHandleToFile->ulFileActualSeek
+                 + hHandleToFile->ulCacheSize)     - hHandleToFile->ulCacheSeek;
+
+    if (ulAvailable < ulBytesNeeded) {
+        ulBytesNeeded = ulAvailable;
+    }
+    lItemsRead = (long)ulBytesNeeded / lSize;
+
+    pOut = (unsigned char *)p_vBuffer;
+
+    while (ulBytesNeeded != 0) {
+        ulCacheSeek = hHandleToFile->ulCacheSeek;
+        ulCacheSize = hHandleToFile->ulCacheSize;
+
+        if (ulCacheSize < ulBytesNeeded + ulCacheSeek) {
+
+            if (ulCacheSeek < ulCacheSize) {
+
+                ulBytesInCache = ulCacheSize - ulCacheSeek;
+                pCache = hHandleToFile->p_ucCache + ulCacheSeek;
+
+                memcpy(pOut, pCache, ulBytesInCache);
+                pOut += ulBytesInCache;
+
+                hHandleToFile->ulCacheSeek = ulCacheSize;
+                ulBytesNeeded -= ulBytesInCache;
+            } else {
+
+                FIL_vFillCacheFromFile(hHandleToFile);
+            }
+        } else {
+
+            pCache = hHandleToFile->p_ucCache + ulCacheSeek;
+
+            memcpy(pOut, pCache, ulBytesNeeded);
+
+            hHandleToFile->ulCacheSeek += ulBytesNeeded;
+            ulBytesNeeded = 0;
+        }
+    }
+
+    return lItemsRead;
+}
+
+/* 0x00493a40 */
+void __cdecl FIL_LoadGFLikeImageToRecord(void       *hConcatFile,
+                                         char       *p_szPath,
+                                         char       *p_szFilename,
+                                         FIL_tdstGF *pGF)
+{
+    struct FIL_tdstFileInConcatFile_ *hStream;
+    FIL_tdstRealGFFileHeader hdr;
+    unsigned char *pBitMap;
+    unsigned long  uPlane, uPixel, k;
+    unsigned char  ucByte, ucRepeatVal, ucRepeatCount;
+
+    /* 0x493a5a */
+    pGF->p_ucBitMap                      = (unsigned char *)0;
+    pGF->p_ucPalette                     = (unsigned char *)0;
+    pGF->stFileHeader.uwNbColorInPalette = 0;
+    pGF->stFileHeader.ulWidth            = 0;
+    pGF->stFileHeader.ulHeight           = 0;
+    pGF->stFileHeader.ucBpp              = 0;
+    pGF->stFileHeader.ucBpcInPalette     = 0;
+    pGF->stFileHeader.ulImageSize        = 0;
+    pGF->stFileHeader.ucFormat           = 0xff;
+
+    hStream = (struct FIL_tdstFileInConcatFile_ *)
+        FIL_fn_hOpenFileInConcatFile(hConcatFile, p_szPath, p_szFilename);
+    if (hStream == NULL)
+        return;
+
+    FIL_fn_lReadFileInConcatFile(&hdr, 0xe, 1, hStream);
+
+    pGF->stFileHeader.ulWidth     = hdr.ulWidth;
+    pGF->stFileHeader.ulHeight    = hdr.ulHeight;
+    pGF->stFileHeader.ulImageSize = hdr.ulWidth * hdr.ulHeight;
+    pGF->stFileHeader.ucBpp       = hdr.ucBpp;
+    pGF->stFileHeader.ucRLECode   = hdr.ucRLECode;
+    pGF->stFileHeader.ucVersion   = 1;
+
+    if (hdr.ucBpp == 1) {
+        pGF->stFileHeader.uwNbColorInPalette = 0x100;
+        pGF->stFileHeader.ucBpcInPalette     = 4;
+    }
+
+    if (pGF->stFileHeader.lChromakeyIndex == -1) {
+        pGF->stFileHeader.ucRed   = 0;
+        pGF->stFileHeader.ucGreen = 0;
+        pGF->stFileHeader.ucBlue  = 0;
+    }
+
+    pGF->p_ucBitMap = (unsigned char *)GLI_pc_fn_p_vAlloc(
+        (unsigned long)hdr.ucBpp *
+        hdr.ulWidth *
+        hdr.ulHeight);
+
+    if (pGF->stFileHeader.uwNbColorInPalette != 0 &&
+        pGF->stFileHeader.ucBpcInPalette     != 0) {
+        pGF->p_ucPalette = (unsigned char *)GLI_pc_fn_p_vAlloc(
+            (unsigned long)pGF->stFileHeader.uwNbColorInPalette *
+            (unsigned long)pGF->stFileHeader.ucBpcInPalette);
+        FIL_fn_lReadFileInConcatFile(
+            pGF->p_ucPalette,
+            (long)pGF->stFileHeader.ucBpcInPalette,
+            (long)pGF->stFileHeader.uwNbColorInPalette,
+            hStream);
+    }
+
+    pBitMap = pGF->p_ucBitMap;
+    if (pGF->stFileHeader.ucBpp != 0) {
+        for (uPlane = 0; uPlane < (unsigned long)pGF->stFileHeader.ucBpp; uPlane++) {
+            uPixel = 0;
+            while (uPixel < (unsigned long)pGF->stFileHeader.ulImageSize) {
+                FIL_fn_lReadFileInConcatFile(&ucByte, 1, 1, hStream);
+                if (ucByte == pGF->stFileHeader.ucRLECode) {
+                    FIL_fn_lReadFileInConcatFile(&ucRepeatVal,   1, 1, hStream);
+                    FIL_fn_lReadFileInConcatFile(&ucRepeatCount, 1, 1, hStream);
+                    for (k = 0; k < (unsigned long)ucRepeatCount; k++) {
+                        pBitMap[(uPixel + k) *
+                                (unsigned long)pGF->stFileHeader.ucBpp + uPlane] = ucRepeatVal;
+                    }
+                    uPixel += (unsigned long)ucRepeatCount;
+                } else {
+                    pBitMap[uPixel * (unsigned long)pGF->stFileHeader.ucBpp + uPlane] = ucByte;
+                    uPixel++;
+                }
+            }
+        }
+    }
+
+    FIL_fn_vCloseFileInConcatFile(&hStream);
+}
+
 #pragma pack(push, 1)
 typedef struct
 {
@@ -663,65 +755,162 @@ typedef struct
     unsigned long  ulClrImportant;
 } FIL_tdstPcBmpInfoHeader;
 
-void __cdecl FIL_fn_vSaveBMPInFile(char *p_szFileName,
-                                     int iPixelData,
-                                     int iWidth,
-                                     int iHeight,
-                                     unsigned char ucBytesPerPixel,
-                                     unsigned long ulPixelStride)
+/* 0x00493170 */
+static FILE * __cdecl FIL_OpenConcatFileAndLocateSection(char *param_1, long *param_2)
 {
-    FILE                    *pFile;
-    int                      iRowOffset;
-    int                      iPixelOffset;
-    int                      iCount;
-    unsigned long            ulImageSize;
-    FIL_tdstPcBmpFileHeader  stFileHeader;
-    FIL_tdstPcBmpInfoHeader  stInfoHeader;
+    char *pcAt;
+    char *pcDot;
+    FILE *pFile;
+    long  lOffset;
 
-    ulImageSize = (unsigned long)iHeight * (unsigned long)iWidth
-                * (unsigned long)ucBytesPerPixel;
+    char szSection[260];
+    char szFilePath[260];
+    char szExtension[8];
 
-    stFileHeader.usType     = 0x4d42;
-    stFileHeader.ulSize     = ulImageSize + 0x36;
-    stFileHeader.ulReserved = 0;
-    stFileHeader.ulOffBits  = 0x36;
+    *param_2 = 0;
 
-    stInfoHeader.ulSize          = 0x28;
-    stInfoHeader.lWidth          = iWidth;
-    stInfoHeader.lHeight         = iHeight;
-    stInfoHeader.usPlanes        = 1;
-    stInfoHeader.usBitCount      = (unsigned short)(ucBytesPerPixel << 3);
-    stInfoHeader.ulCompression   = 0;
-    stInfoHeader.ulSizeImage     = ulImageSize;
-    stInfoHeader.ulXPelsPerMeter = 0;
-    stInfoHeader.ulYPelsPerMeter = 0;
-    stInfoHeader.ulClrUsed       = 0;
-    stInfoHeader.ulClrImportant  = 0;
+    pcAt = strrchr(param_1, '@');
+    if (pcAt == NULL) {
 
-    FIL_fn_bValidatePath(FIL_g_szSearchPathPrefix, p_szFileName);
+        strcpy(szFilePath, param_1);
+        szSection[0] = '\0';
 
-    pFile = fopen(p_szFileName, "wb");
-    if (pFile != NULL) {
-        fwrite(&stFileHeader, 0xe, 1, pFile);
-        fwrite(&stInfoHeader, 0x28, 1, pFile);
-        if (iHeight >= 1) {
-            iRowOffset = (iHeight - 1) * iWidth;
-            do {
-                if (iWidth > 0) {
-                    iPixelOffset = iRowOffset * (int)(ulPixelStride & 0xff);
-                    iCount = iWidth;
-                    do {
-                        fwrite((void *)(iPixelData + iPixelOffset), 1,
-                               (unsigned int)ucBytesPerPixel, pFile);
-                        iPixelOffset += (int)(ulPixelStride & 0xff);
-                        iCount--;
-                    } while (iCount != 0);
-                }
-                iRowOffset -= iWidth;
-                iHeight--;
-            } while (iHeight != 0);
+        memcpy(szExtension, FIL_g_szCntExt, 5);
+    } else {
+
+        strcpy(szFilePath, pcAt + 1);
+        memcpy(szSection, param_1, (size_t)(pcAt - param_1));
+        szSection[pcAt - param_1] = '\0';
+
+        pcDot = strrchr(szSection, '.');
+        if (pcDot == NULL) {
+
+            memcpy(szExtension, FIL_g_szCntExt, 5);
+        } else {
+
+            memset(szExtension, 0, 5);
+            strncpy(szExtension, pcDot, 4);
+            *pcDot = '\0';
         }
-        fclose(pFile);
+    }
+
+    _strupr(szSection);
+    _strupr(szExtension);
+
+    pFile = s_fopen(szFilePath, FIL_g_szModeRb);
+    if (pFile != NULL) {
+        lOffset = FIL_FUN_00492fc0(pFile, szSection, szExtension);
+        *param_2 = lOffset;
+        if (lOffset == -1) {
+
+            *param_2 = 0;
+            rewind(pFile);
+        }
+    }
+    return pFile;
+}
+
+unsigned char __cdecl FIL_fn_bSetConcatPathElement(void *hConcatFile, unsigned long ulPathNumber, char *p_szPathName);
+
+unsigned char __cdecl FIL_fn_bSetConcatFileElement(void *hConcatFile, unsigned long ulFileNumber, char *p_szFileName);
+
+/* 0x00493300 */
+void *__cdecl FIL_fn_vOpenConcatFile(char *p_szFilename)
+{
+    FILE               *pFile;
+    long                lSectionBase;
+    unsigned long       ulNumberOfPath;
+    unsigned long       ulNumberOfFile;
+    void               *hConcatFile;
+    FIL_tdstConcatFile *pConcat;
+    unsigned char       ucComputedCheckSum;
+    unsigned long       i;
+    long                lNameLen;
+    char                szNameBuf[260];
+    long                lPathNumber;
+    unsigned long       ulXorCode;
+    unsigned long       ulCheckSum;
+    long                lOffset;
+    unsigned long       ulFileLength;
+
+    pFile = FIL_OpenConcatFileAndLocateSection(p_szFilename, &lSectionBase);
+    if (pFile == NULL)
+        return NULL;
+
+    s_fread(&ulNumberOfPath, 4, 1, pFile);
+    s_fread(&ulNumberOfFile, 4, 1, pFile);
+
+    hConcatFile = FIL_fn_hCreateConcatFileHandle(ulNumberOfPath, ulNumberOfFile);
+    pConcat     = (FIL_tdstConcatFile *)hConcatFile;
+
+    s_fread(&pConcat->bUseXorCode,   1, 1, pFile);
+    s_fread(&pConcat->bUseCheckSum,  1, 1, pFile);
+    s_fread(&pConcat->ucPathXorCode, 1, 1, pFile);
+
+    ucComputedCheckSum = 0;
+    for (i = 0; i < ulNumberOfPath; i++) {
+        long j;
+        s_fread(&lNameLen, 4, 1, pFile);
+        s_fread(szNameBuf, 1, (size_t)lNameLen, pFile);
+        szNameBuf[lNameLen] = '\0';
+        if (pConcat->bUseXorCode) {
+            for (j = 0; j < lNameLen; j++)
+                ((unsigned char *)szNameBuf)[j] ^= pConcat->ucPathXorCode;
+        }
+        if (pConcat->bUseCheckSum) {
+            for (j = 0; j < lNameLen; j++)
+                ucComputedCheckSum += ((unsigned char *)szNameBuf)[j];
+        }
+        FIL_fn_bSetConcatPathElement(hConcatFile, i, szNameBuf);
+    }
+
+    s_fread(&pConcat->ucPathCheckSum, 1, 1, pFile);
+
+    if (pConcat->ucPathCheckSum != ucComputedCheckSum) {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(6, FIL_g_ucFILModuleId, 0, 4,
+                                (long)-1, 0xFF, 0xFF, p_szFilename);
+    }
+
+    for (i = 0; i < ulNumberOfFile; i++) {
+        FIL_tdstConcatFileElement *pElem = &pConcat->d_stConcatFileElement[i];
+
+        s_fread(&lPathNumber, 4, 1, pFile);
+
+        s_fread(&lNameLen, 4, 1, pFile);
+        s_fread(szNameBuf, 1, (size_t)lNameLen, pFile);
+        szNameBuf[lNameLen] = '\0';
+        if (pConcat->bUseXorCode) {
+            long j;
+            for (j = 0; j < lNameLen; j++)
+                ((unsigned char *)szNameBuf)[j] ^= pConcat->ucPathXorCode;
+        }
+        FIL_fn_bSetConcatFileElement(hConcatFile, i, szNameBuf);
+
+        s_fread(&ulXorCode,    4, 1, pFile);
+        s_fread(&ulCheckSum,   4, 1, pFile);
+        s_fread(&lOffset,      4, 1, pFile);
+        s_fread(&ulFileLength, 4, 1, pFile);
+
+        pElem->lPathNumber  = lPathNumber;
+        pElem->ulXorCode    = ulXorCode;
+        pElem->ulCheckSum   = ulCheckSum;
+        pElem->lOffset      = lOffset + lSectionBase;
+        pElem->ulFileLength = ulFileLength;
+    }
+
+    pConcat->p_stFile = pFile;
+
+    return hConcatFile;
+}
+
+/* 0x00493590 */
+void __cdecl FIL_fn_vCloseConcatFile(void **hConcatFile)
+{
+    if (*hConcatFile != NULL) {
+        fclose(((FIL_tdstConcatFile *)*hConcatFile)->p_stFile);
+        fn_vDestroyConcatFileHandle(*hConcatFile);
+        *hConcatFile = NULL;
     }
 }
 
@@ -831,206 +1020,6 @@ void * __cdecl FIL_fn_hOpenFileInConcatFile(
     return pHandle;
 }
 
-/* 0x00492e80 */
-unsigned char __cdecl FIL_fn_bSetConcatPathElement(void *hConcatFile,
-                                                    unsigned long ulPathNumber,
-                                                    char *p_szPathName)
-{
-    FIL_tdstConcatFile *pConcat;
-    unsigned long ulOffset;
-    char *pDst;
-    unsigned char bResult;
-
-    pConcat = (FIL_tdstConcatFile *)hConcatFile;
-    bResult = 0;
-    if (ulPathNumber < pConcat->ulNumberOfPath) {
-        ulOffset = ulPathNumber * sizeof(char *);
-        pDst = (char *)GLI_pc_fn_p_vAlloc(strlen(p_szPathName) + 1);
-        *(char **)((char *)pConcat->d_szPathList + ulOffset) = pDst;
-        strcpy(*(char **)((char *)pConcat->d_szPathList + ulOffset), p_szPathName);
-        bResult = 1;
-    }
-    return bResult;
-}
-
-/* 0x00492ef0 */
-unsigned char __cdecl FIL_fn_bSetConcatFileElement(void *hConcatFile,
-                                                    unsigned long ulFileNumber,
-                                                    char *p_szFileName)
-{
-    FIL_tdstConcatFile *pConcat;
-    unsigned long ulOffset;
-    char *pDst;
-    unsigned char bResult;
-
-    pConcat = (FIL_tdstConcatFile *)hConcatFile;
-    bResult = 0;
-    if (ulFileNumber < pConcat->ulNumberOfFile) {
-        ulOffset = ulFileNumber * sizeof(FIL_tdstConcatFileElement);
-        pDst = (char *)GLI_pc_fn_p_vAlloc(strlen(p_szFileName) + 1);
-        ((FIL_tdstConcatFileElement *)((char *)pConcat->d_stConcatFileElement + ulOffset))->p_szFileName = pDst;
-        strcpy(((FIL_tdstConcatFileElement *)((char *)pConcat->d_stConcatFileElement + ulOffset))->p_szFileName,
-               p_szFileName);
-        bResult = 1;
-    }
-    return bResult;
-}
-
-/* 0x00493590 */
-void __cdecl FIL_fn_vCloseConcatFile(void **hConcatFile)
-{
-    if (*hConcatFile != NULL) {
-        fclose(((FIL_tdstConcatFile *)*hConcatFile)->p_stFile);
-        fn_vDestroyConcatFileHandle(*hConcatFile);
-        *hConcatFile = NULL;
-    }
-}
-
-/* 0x00493170 */
-static FILE * __cdecl FIL_OpenConcatFileAndLocateSection(char *param_1, long *param_2)
-{
-    char *pcAt;
-    char *pcDot;
-    FILE *pFile;
-    long  lOffset;
-
-    char szSection[260];
-    char szFilePath[260];
-    char szExtension[8];
-
-    *param_2 = 0;
-
-    pcAt = strrchr(param_1, '@');
-    if (pcAt == NULL) {
-
-        strcpy(szFilePath, param_1);
-        szSection[0] = '\0';
-
-        memcpy(szExtension, FIL_g_szCntExt, 5);
-    } else {
-
-        strcpy(szFilePath, pcAt + 1);
-        memcpy(szSection, param_1, (size_t)(pcAt - param_1));
-        szSection[pcAt - param_1] = '\0';
-
-        pcDot = strrchr(szSection, '.');
-        if (pcDot == NULL) {
-
-            memcpy(szExtension, FIL_g_szCntExt, 5);
-        } else {
-
-            memset(szExtension, 0, 5);
-            strncpy(szExtension, pcDot, 4);
-            *pcDot = '\0';
-        }
-    }
-
-    _strupr(szSection);
-    _strupr(szExtension);
-
-    pFile = s_fopen(szFilePath, FIL_g_szModeRb);
-    if (pFile != NULL) {
-        lOffset = FIL_FUN_00492fc0(pFile, szSection, szExtension);
-        *param_2 = lOffset;
-        if (lOffset == -1) {
-
-            *param_2 = 0;
-            rewind(pFile);
-        }
-    }
-    return pFile;
-}
-
-/* 0x00493300 */
-void *__cdecl FIL_fn_vOpenConcatFile(char *p_szFilename)
-{
-    FILE               *pFile;
-    long                lSectionBase;
-    unsigned long       ulNumberOfPath;
-    unsigned long       ulNumberOfFile;
-    void               *hConcatFile;
-    FIL_tdstConcatFile *pConcat;
-    unsigned char       ucComputedCheckSum;
-    unsigned long       i;
-    long                lNameLen;
-    char                szNameBuf[260];
-    long                lPathNumber;
-    unsigned long       ulXorCode;
-    unsigned long       ulCheckSum;
-    long                lOffset;
-    unsigned long       ulFileLength;
-
-    pFile = FIL_OpenConcatFileAndLocateSection(p_szFilename, &lSectionBase);
-    if (pFile == NULL)
-        return NULL;
-
-    s_fread(&ulNumberOfPath, 4, 1, pFile);
-    s_fread(&ulNumberOfFile, 4, 1, pFile);
-
-    hConcatFile = FIL_fn_hCreateConcatFileHandle(ulNumberOfPath, ulNumberOfFile);
-    pConcat     = (FIL_tdstConcatFile *)hConcatFile;
-
-    s_fread(&pConcat->bUseXorCode,   1, 1, pFile);
-    s_fread(&pConcat->bUseCheckSum,  1, 1, pFile);
-    s_fread(&pConcat->ucPathXorCode, 1, 1, pFile);
-
-    ucComputedCheckSum = 0;
-    for (i = 0; i < ulNumberOfPath; i++) {
-        long j;
-        s_fread(&lNameLen, 4, 1, pFile);
-        s_fread(szNameBuf, 1, (size_t)lNameLen, pFile);
-        szNameBuf[lNameLen] = '\0';
-        if (pConcat->bUseXorCode) {
-            for (j = 0; j < lNameLen; j++)
-                ((unsigned char *)szNameBuf)[j] ^= pConcat->ucPathXorCode;
-        }
-        if (pConcat->bUseCheckSum) {
-            for (j = 0; j < lNameLen; j++)
-                ucComputedCheckSum += ((unsigned char *)szNameBuf)[j];
-        }
-        FIL_fn_bSetConcatPathElement(hConcatFile, i, szNameBuf);
-    }
-
-    s_fread(&pConcat->ucPathCheckSum, 1, 1, pFile);
-
-    if (pConcat->ucPathCheckSum != ucComputedCheckSum) {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(6, FIL_g_ucFILModuleId, 0, 4,
-                                (long)-1, 0xFF, 0xFF, p_szFilename);
-    }
-
-    for (i = 0; i < ulNumberOfFile; i++) {
-        FIL_tdstConcatFileElement *pElem = &pConcat->d_stConcatFileElement[i];
-
-        s_fread(&lPathNumber, 4, 1, pFile);
-
-        s_fread(&lNameLen, 4, 1, pFile);
-        s_fread(szNameBuf, 1, (size_t)lNameLen, pFile);
-        szNameBuf[lNameLen] = '\0';
-        if (pConcat->bUseXorCode) {
-            long j;
-            for (j = 0; j < lNameLen; j++)
-                ((unsigned char *)szNameBuf)[j] ^= pConcat->ucPathXorCode;
-        }
-        FIL_fn_bSetConcatFileElement(hConcatFile, i, szNameBuf);
-
-        s_fread(&ulXorCode,    4, 1, pFile);
-        s_fread(&ulCheckSum,   4, 1, pFile);
-        s_fread(&lOffset,      4, 1, pFile);
-        s_fread(&ulFileLength, 4, 1, pFile);
-
-        pElem->lPathNumber  = lPathNumber;
-        pElem->ulXorCode    = ulXorCode;
-        pElem->ulCheckSum   = ulCheckSum;
-        pElem->lOffset      = lOffset + lSectionBase;
-        pElem->ulFileLength = ulFileLength;
-    }
-
-    pConcat->p_stFile = pFile;
-
-    return hConcatFile;
-}
-
 /* 0x00493cc0 */
 static unsigned char __cdecl FIL_fn_bDestroyFileOrDirectory_impl(char *param_1)
 {
@@ -1111,12 +1100,6 @@ static unsigned char __cdecl FIL_fn_bDestroyFileOrDirectory_impl(char *param_1)
     return bResult;
 }
 
-/* 0x004928f0 */
-unsigned char __cdecl FIL_fn_bDestroyFileOrDirectory(char *_szFileName)
-{
-    return FIL_fn_bDestroyFileOrDirectory_impl(_szFileName);
-}
-
 char FIL_g_aaszPathRegistry[FIL_PATH_BUFFER_COUNT][FIL_PATH_BUFFER_SIZE];
 
 /* 0x00492650 */
@@ -1170,3 +1153,124 @@ char *__cdecl FUN_00492850(void)          { return FIL_PATH_BUFFER(9); }
 
 /* 0x004928c0 */
 char *__cdecl FUN_004928c0(void)          { return FIL_PATH_BUFFER(10); }
+
+/* 0x004928f0 */
+unsigned char __cdecl FIL_fn_bDestroyFileOrDirectory(char *_szFileName)
+{
+    return FIL_fn_bDestroyFileOrDirectory_impl(_szFileName);
+}
+
+void __cdecl FIL_fn_vSaveBMPInFile(char *p_szFileName,
+                                     int iPixelData,
+                                     int iWidth,
+                                     int iHeight,
+                                     unsigned char ucBytesPerPixel,
+                                     unsigned long ulPixelStride)
+{
+    FILE                    *pFile;
+    int                      iRowOffset;
+    int                      iPixelOffset;
+    int                      iCount;
+    unsigned long            ulImageSize;
+    FIL_tdstPcBmpFileHeader  stFileHeader;
+    FIL_tdstPcBmpInfoHeader  stInfoHeader;
+
+    ulImageSize = (unsigned long)iHeight * (unsigned long)iWidth
+                * (unsigned long)ucBytesPerPixel;
+
+    stFileHeader.usType     = 0x4d42;
+    stFileHeader.ulSize     = ulImageSize + 0x36;
+    stFileHeader.ulReserved = 0;
+    stFileHeader.ulOffBits  = 0x36;
+
+    stInfoHeader.ulSize          = 0x28;
+    stInfoHeader.lWidth          = iWidth;
+    stInfoHeader.lHeight         = iHeight;
+    stInfoHeader.usPlanes        = 1;
+    stInfoHeader.usBitCount      = (unsigned short)(ucBytesPerPixel << 3);
+    stInfoHeader.ulCompression   = 0;
+    stInfoHeader.ulSizeImage     = ulImageSize;
+    stInfoHeader.ulXPelsPerMeter = 0;
+    stInfoHeader.ulYPelsPerMeter = 0;
+    stInfoHeader.ulClrUsed       = 0;
+    stInfoHeader.ulClrImportant  = 0;
+
+    FIL_fn_bValidatePath(FIL_g_szSearchPathPrefix, p_szFileName);
+
+    pFile = fopen(p_szFileName, "wb");
+    if (pFile != NULL) {
+        fwrite(&stFileHeader, 0xe, 1, pFile);
+        fwrite(&stInfoHeader, 0x28, 1, pFile);
+        if (iHeight >= 1) {
+            iRowOffset = (iHeight - 1) * iWidth;
+            do {
+                if (iWidth > 0) {
+                    iPixelOffset = iRowOffset * (int)(ulPixelStride & 0xff);
+                    iCount = iWidth;
+                    do {
+                        fwrite((void *)(iPixelData + iPixelOffset), 1,
+                               (unsigned int)ucBytesPerPixel, pFile);
+                        iPixelOffset += (int)(ulPixelStride & 0xff);
+                        iCount--;
+                    } while (iCount != 0);
+                }
+                iRowOffset -= iWidth;
+                iHeight--;
+            } while (iHeight != 0);
+        }
+        fclose(pFile);
+    }
+}
+
+void __cdecl GLI_pc_fn_vFreeIfNotNull(void **ppUser)
+{
+    if (*ppUser != NULL) {
+        GLI_pc_fn_vFree(ppUser);
+    }
+    *ppUser = NULL;
+}
+
+/* 0x00492e80 */
+unsigned char __cdecl FIL_fn_bSetConcatPathElement(void *hConcatFile,
+                                                    unsigned long ulPathNumber,
+                                                    char *p_szPathName)
+{
+    FIL_tdstConcatFile *pConcat;
+    unsigned long ulOffset;
+    char *pDst;
+    unsigned char bResult;
+
+    pConcat = (FIL_tdstConcatFile *)hConcatFile;
+    bResult = 0;
+    if (ulPathNumber < pConcat->ulNumberOfPath) {
+        ulOffset = ulPathNumber * sizeof(char *);
+        pDst = (char *)GLI_pc_fn_p_vAlloc(strlen(p_szPathName) + 1);
+        *(char **)((char *)pConcat->d_szPathList + ulOffset) = pDst;
+        strcpy(*(char **)((char *)pConcat->d_szPathList + ulOffset), p_szPathName);
+        bResult = 1;
+    }
+    return bResult;
+}
+
+/* 0x00492ef0 */
+unsigned char __cdecl FIL_fn_bSetConcatFileElement(void *hConcatFile,
+                                                    unsigned long ulFileNumber,
+                                                    char *p_szFileName)
+{
+    FIL_tdstConcatFile *pConcat;
+    unsigned long ulOffset;
+    char *pDst;
+    unsigned char bResult;
+
+    pConcat = (FIL_tdstConcatFile *)hConcatFile;
+    bResult = 0;
+    if (ulFileNumber < pConcat->ulNumberOfFile) {
+        ulOffset = ulFileNumber * sizeof(FIL_tdstConcatFileElement);
+        pDst = (char *)GLI_pc_fn_p_vAlloc(strlen(p_szFileName) + 1);
+        ((FIL_tdstConcatFileElement *)((char *)pConcat->d_stConcatFileElement + ulOffset))->p_szFileName = pDst;
+        strcpy(((FIL_tdstConcatFileElement *)((char *)pConcat->d_stConcatFileElement + ulOffset))->p_szFileName,
+               p_szFileName);
+        bResult = 1;
+    }
+    return bResult;
+}

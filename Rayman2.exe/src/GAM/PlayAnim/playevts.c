@@ -25,6 +25,45 @@ static __inline void fn_v3dDataSetNextEvent(MS_tdxHandleTo3dData h_3dData, unsig
     h_3dData->ucNextEvent = ucNextEvent;
 }
 
+#define C_ucNormal  0
+#define C_ucReverse 1
+#define C_ucStopEvent 2
+#define C_ucNeverPlay     		255
+
+#include "GAM/STRUCTUR/Anim_s.h"
+
+static __inline unsigned char fn_uc3dDataGetNextEvent(MS_tdxHandleTo3dData h_3dData)
+{
+	return(h_3dData->ucNextEvent);
+}
+static __inline void fn_v3dDataAddNextEvent(MS_tdxHandleTo3dData h_3dData,char _cNextEvent)
+{
+	h_3dData->ucNextEvent = (unsigned char)((long)(h_3dData->ucNextEvent)+(long)_cNextEvent);
+}
+static __inline void fn_v3dDataFreeEventActivation(MS_tdxHandleTo3dData h_3dData)
+{
+	if (h_3dData->d_ucEventActivation)
+		TMP_M_Free(h_3dData->d_ucEventActivation );
+}
+static __inline unsigned char fn_uc3dDataGetEventActivationByIndex(MS_tdxHandleTo3dData h_3dData,unsigned long ulIndex)
+{
+	return(h_3dData->d_ucEventActivation[ulIndex]);
+}
+static __inline void fn_v3dDataAddEventActivationByIndex(MS_tdxHandleTo3dData h_3dData,unsigned long ulIndex,char _cValue)
+{
+	h_3dData->d_ucEventActivation[ulIndex] = (unsigned char)((long)(h_3dData->d_ucEventActivation[ulIndex])+(long)_cValue);
+}
+
+void *GAM_fn_p_xGetEventOfEvent(tdstEvent *_p_stEvent);
+unsigned char GAM_fn_ucGetPeriodOfEvent(tdstEvent *_p_stEvent);
+void __cdecl fn_vPlayEvent(tdstEvent *p_stEvent, unsigned char ucMode, HIE_tdstSuperObject *p_stSuperObject);
+
+#include "SND/SND.h"
+
+extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
+extern void __cdecl fn_vStandardGameSetCustomBitsSO(void *hSupObj, unsigned long ulCustomBits);
+extern void __cdecl fn_v3dDataSetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char ucFlagIndex, int bSet, MTH3D_tdstVector *p_stPosition);
+
 void fn_vInitAllEvents(HIE_tdstSuperObject *p_stSuperObject, unsigned short uwFirstFrame)
 {
     MS_tdxHandleTo3dData h_3dData;
@@ -62,39 +101,6 @@ void fn_vInitAllEvents(HIE_tdstSuperObject *p_stSuperObject, unsigned short uwFi
             fn_v3dDataSetEventActivationByIndex(h_3dData, i, GAM_fn_ucGetFirstCallOfEvent(p_stEvent));
     }
 }
-
-#define C_ucNormal  0
-#define C_ucReverse 1
-#define C_ucStopEvent 2
-#define C_ucNeverPlay     		255
-
-#include "GAM/STRUCTUR/Anim_s.h"
-
-static __inline unsigned char fn_uc3dDataGetNextEvent(MS_tdxHandleTo3dData h_3dData)
-{
-	return(h_3dData->ucNextEvent);
-}
-static __inline void fn_v3dDataAddNextEvent(MS_tdxHandleTo3dData h_3dData,char _cNextEvent)
-{
-	h_3dData->ucNextEvent = (unsigned char)((long)(h_3dData->ucNextEvent)+(long)_cNextEvent);
-}
-static __inline void fn_v3dDataFreeEventActivation(MS_tdxHandleTo3dData h_3dData)
-{
-	if (h_3dData->d_ucEventActivation)
-		TMP_M_Free(h_3dData->d_ucEventActivation );
-}
-static __inline unsigned char fn_uc3dDataGetEventActivationByIndex(MS_tdxHandleTo3dData h_3dData,unsigned long ulIndex)
-{
-	return(h_3dData->d_ucEventActivation[ulIndex]);
-}
-static __inline void fn_v3dDataAddEventActivationByIndex(MS_tdxHandleTo3dData h_3dData,unsigned long ulIndex,char _cValue)
-{
-	h_3dData->d_ucEventActivation[ulIndex] = (unsigned char)((long)(h_3dData->d_ucEventActivation[ulIndex])+(long)_cValue);
-}
-
-void *GAM_fn_p_xGetEventOfEvent(tdstEvent *_p_stEvent);
-unsigned char GAM_fn_ucGetPeriodOfEvent(tdstEvent *_p_stEvent);
-void __cdecl fn_vPlayEvent(tdstEvent *p_stEvent, unsigned char ucMode, HIE_tdstSuperObject *p_stSuperObject);
 
 void fn_vDesInitAllEvents(HIE_tdstSuperObject *p_stSuperObject,tdxHandleToState hNextState,int bStopEvents)
 {
@@ -340,33 +346,8 @@ void fn_vPlayLastEventsBeforeRestart( HIE_tdstSuperObject *p_stSuperObject )
 	}
 }
 
-unsigned char GAM_fn_ucGetTypeOfEvent(tdstEvent *_p_stEvent)
-{
-    return _p_stEvent->p_stfEventInTBL->ucTypeOfEvent;
-}
-
-/* 0x0041B0E0 */
-void *GAM_fn_p_xGetEventOfEvent(tdstEvent *_p_stEvent)
-{
-    return _p_stEvent->p_stfEventInTBL->p_xEvent;
-}
-
-/* 0x0041B100 */
-unsigned char GAM_fn_ucGetPeriodOfEvent(tdstEvent *_p_stEvent)
-{
-    return _p_stEvent->p_stfEventInTBL->ucPeriod;
-}
-
-#include "SND/SND.h"
-
-extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
-extern void __cdecl fn_vStandardGameSetCustomBitsSO(void *hSupObj, unsigned long ulCustomBits);
-extern void __cdecl fn_v3dDataSetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char ucFlagIndex, int bSet, MTH3D_tdstVector *p_stPosition);
-
-static __inline HIE_tdstSuperObject *fn_hGetSuperObjectInChannel(CHN_tdxHandleToChannelArray hChannelArray, unsigned short uwChannelNumber)
-{
-	return (hChannelArray) ? hChannelArray[uwChannelNumber].hSupObject : NULL;
-}
+unsigned char GAM_fn_ucGetTypeOfEvent(tdstEvent *_p_stEvent);
+static __inline HIE_tdstSuperObject *fn_hGetSuperObjectInChannel(CHN_tdxHandleToChannelArray hChannelArray, unsigned short uwChannelNumber);
 
 void __cdecl fn_vPlayEvent( tdstEvent * p_stEvent, unsigned char ucMode ,HIE_tdstSuperObject *p_stSuperObject)
 {
@@ -422,4 +403,37 @@ void __cdecl fn_vPlayEvent( tdstEvent * p_stEvent, unsigned char ucMode ,HIE_tds
 	default :
 		break;
 	}
+}
+
+unsigned short __cdecl fn_uwGetNbEngineFrameSinceLastMechEvent(HIE_tdstSuperObject *p_stSuperObject)
+{
+    return M_GetMSHandle(p_stSuperObject, 3dData)->uwNbEngineFrameSinceLastMechEvent;
+}
+
+unsigned char GAM_fn_ucGetTypeOfEvent(tdstEvent *_p_stEvent)
+{
+    return _p_stEvent->p_stfEventInTBL->ucTypeOfEvent;
+}
+
+/* 0x0041B0E0 */
+void *GAM_fn_p_xGetEventOfEvent(tdstEvent *_p_stEvent)
+{
+    return _p_stEvent->p_stfEventInTBL->p_xEvent;
+}
+
+/* 0x0041B0F0 */
+unsigned char __cdecl GAM_fn_ucGetFirstCallOfEvent(tdstEvent *_p_stEvent)
+{
+    return _p_stEvent->p_stfEventInTBL->ucFirstCall;
+}
+
+/* 0x0041B100 */
+unsigned char GAM_fn_ucGetPeriodOfEvent(tdstEvent *_p_stEvent)
+{
+    return _p_stEvent->p_stfEventInTBL->ucPeriod;
+}
+
+static __inline HIE_tdstSuperObject *fn_hGetSuperObjectInChannel(CHN_tdxHandleToChannelArray hChannelArray, unsigned short uwChannelNumber)
+{
+	return (hChannelArray) ? hChannelArray[uwChannelNumber].hSupObject : NULL;
 }

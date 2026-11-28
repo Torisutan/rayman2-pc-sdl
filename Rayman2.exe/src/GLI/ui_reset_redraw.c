@@ -91,10 +91,44 @@ void __cdecl GLI_pc_fn_vLoadProgressUiImage(void *p_stUiObject, char *p_szName, 
     GLI_pc_fn_vFreeIfNotNull((void **)&GLI_pc_g_p_ucLoadingScreenBitmap);
 }
 
-void __cdecl FUN_0045fc70(void *p_stUiObject)
+/* 0x0045fb90 */
+char * __cdecl GLI_pc_fn_szStristr(char *szHaystack, char *szNeedle)
 {
-    ((GLI_pc_tdstProgressUi *)p_stUiObject)->ucProgressBarEnabled = 0;
-    GLI_pc_g_stProgressUi.szName[0] = 0;
+    char *p_szScan      = szHaystack;
+    char *p_szMatch     = szHaystack;
+
+    char *p_szNeedle    = szNeedle;
+
+    while (*p_szScan != '\0') {
+        if (*p_szNeedle == '\0') {
+            break;
+        }
+        {
+            if (tolower(*p_szScan) ==
+                tolower(*p_szNeedle)) {
+
+                if (p_szMatch == NULL) {
+                    p_szMatch = p_szScan;
+                }
+                p_szNeedle++;
+            } else {
+
+                p_szNeedle = szNeedle;
+                p_szMatch  = NULL;
+            }
+            p_szScan++;
+        }
+    }
+
+    return (*p_szNeedle == '\0') ? p_szMatch : NULL;
+}
+
+void __cdecl FUN_0045fc70(void *p_stUiObject);
+
+void __cdecl FUN_0045fbf0(void *p_stUiObject, char *p_szName, int iFmt)
+{
+    FUN_0045fc70(p_stUiObject);
+    GLI_pc_fn_vLoadProgressUiImage(p_stUiObject, p_szName, iFmt);
 }
 
 void __cdecl FUN_0045fc20(void *p_stUiObject, char *p_szName, long lMode)
@@ -107,8 +141,8 @@ void __cdecl FUN_0045fc20(void *p_stUiObject, char *p_szName, long lMode)
     }
 }
 
-void __cdecl FUN_0045fbf0(void *p_stUiObject, char *p_szName, int iFmt)
+void __cdecl FUN_0045fc70(void *p_stUiObject)
 {
-    FUN_0045fc70(p_stUiObject);
-    GLI_pc_fn_vLoadProgressUiImage(p_stUiObject, p_szName, iFmt);
+    ((GLI_pc_tdstProgressUi *)p_stUiObject)->ucProgressBarEnabled = 0;
+    GLI_pc_g_stProgressUi.szName[0] = 0;
 }

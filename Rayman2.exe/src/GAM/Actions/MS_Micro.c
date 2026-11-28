@@ -10,6 +10,176 @@
 
 void *__cdecl fn_hReturnHandleMicroFromIndex(long lIndex);
 
+#ifndef MTH_M_xRealToFixed16_16
+#define MTH_M_xRealToFixed16_16(_x) ((long)((_x) * 65536.0F))
+#endif
+#ifndef M_Fixed1616ToRealSnd
+#define M_Fixed1616ToRealSnd(_r) (_r)
+#endif
+#ifndef DNM_M_lDynamicsGetObjectType
+#define DNM_M_lDynamicsGetObjectType(_p) (*(long *)(_p))
+#endif
+#ifndef DNM_M_p_stReportGetLastMove
+#define DNM_M_p_stReportGetLastMove(_p) MTH_M_p_stMoveGetLinear(DNM_M_p_stReportGetAbsolutePrevSpeed(_p))
+#endif
+
+struct MS_stMicroLocal { void *hMicroMatrix; };
+#define MS_M_hMicroMatrixOf(_hSuperObj) \
+    (((struct MS_stMicroLocal *)((struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject(_hSuperObj))->h_Micro)->hMicroMatrix)
+
+long RetMicroSonoreFILTRE(long indice)
+{
+   (void)indice;
+   return 0;
+}
+
+typedef struct MS_pc_tdstMicroElem MS_pc_tdstMicroElem;
+typedef struct MS_pc_tdstMicroAnchor MS_pc_tdstMicroAnchor;
+struct MS_pc_tdstMicroElem
+{
+    MS_pc_tdstMicroElem *hNext;
+    MS_pc_tdstMicroElem *hPrev;
+    void *hAnchor;
+    long lIndex;
+    void *hMicroObj;
+};
+struct MS_pc_tdstMicroAnchor
+{
+    MS_pc_tdstMicroElem *hFirst;
+    MS_pc_tdstMicroElem *hLast;
+    long lCount;
+};
+
+#define MS_pc_M_pAnchorOf(_p) ((MS_pc_tdstMicroAnchor *)((_p)->hAnchor))
+
+void __cdecl SND_fn_vDestroyMicroSound(long lMicro);
+
+void ERM_fn_vClearLastError(unsigned long ulChannelId);
+void ERM_fn_vUpdateLastError(unsigned short uwStartOfWarningsId, unsigned char ucModuleId,
+                             unsigned long ulChannelId, unsigned short uwErrNum,
+                             long lDebugData, unsigned char ucOpenInfoWindow,
+                             unsigned char ucStopForDebug, char *szPersonalMessage);
+
+unsigned char __cdecl fn_bMicroGetActivationFlag(void *h_MS_Micro);
+
+long __cdecl SND_fn_lCreateMicroSound(void);
+
+struct MS_pc_stMicroActive
+{
+    void *hMicroMatrix;
+    unsigned char bIsActive;
+};
+
+#include "GAM/Macros.h"
+
+/* 0x004111A0 */
+typedef struct MS_stMicroLocal *MS_tdxHandleToMicro;
+
+/* 0x00411190 */
+unsigned long __cdecl GAM_pc_fn_ulGetHolderSize8(void);
+#define fn_ulMicroSizeOf GAM_pc_fn_ulGetHolderSize8
+MS_tdxHandleToMicro fn_h_MicroRealAlloc(void);
+
+void fn_vMicroAlloc(struct tdstEngineObject_ *p_stObject)
+{
+	MTH3D_tdstVector stI, stJ, stK;
+
+	if (p_stObject==NULL)
+		M_GameFatalError(E_uwGameMiniStructObjectNull);
+
+	if (p_stObject->h_Micro!=NULL)
+		M_GameFatalError(E_uwGameMiniStructAllocAlreadyAlloc);
+
+	p_stObject->h_Micro = fn_h_MicroRealAlloc();
+
+	MTH3D_M_vSetVectorElements(&stJ, MTH_C_MinusONE, MTH_C_ZERO, MTH_C_ZERO);
+	MTH3D_M_vSetBaseKVector(&stK);
+	if (p_stObject -> h_Cineinfo != NULL)
+	{
+
+		MTH3D_M_vSetVectorElements(&stI, MTH_C_ZERO, MTH_C_MinusONE, MTH_C_ZERO);
+	}
+	else
+	{
+
+		MTH3D_M_vSetVectorElements(&stI, MTH_C_ZERO, MTH_C_ONE, MTH_C_ZERO);
+	}
+	POS_fn_vSetRotationMatrix(((MS_tdxHandleToMicro)p_stObject->h_Micro)->hMicroMatrix, &stI, &stJ, &stK);
+
+}
+
+/* 0x00411280 */
+MS_tdxHandleToMicro fn_h_MicroRealAlloc()
+{
+   MS_tdxHandleToMicro h_MS_Micro;
+
+   h_MS_Micro = (MS_tdxHandleToMicro)fnp_vGameMallocInHLM(fn_ulMicroSizeOf());
+   h_MS_Micro->hMicroMatrix = GEO_fn_hCreateMatrix();
+   return(h_MS_Micro);
+}
+void __cdecl fn_vGameFreeInHLM(void *p_vObject);
+
+/* 0x004111A0 */
+void __cdecl fn_vMicroFree(void *p_pOwner)
+{
+    if (p_pOwner == (void *)0)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0xe, -1, 0xff, 0xff, (char *)0);
+    }
+    if (((struct tdstEngineObject_ *)p_pOwner)->h_Micro == (void *)0)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0xf, -1, 0xff, 0xff, (char *)0);
+    }
+    fn_vGameFreeInHLM(((struct tdstEngineObject_ *)p_pOwner)->h_Micro);
+    ((struct tdstEngineObject_ *)p_pOwner)->h_Micro = (void *)0;
+}
+
+void __cdecl fn_vAddMicro(struct tdstEngineObject_ *hEngObj);
+
+/* 0x00411320 */
+void __cdecl fn_vActivateMicroForObject(struct tdstEngineObject_ *hEngObj, long lActivate)
+{
+    if (hEngObj == NULL)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30u, g_ucGameModuleId, 0, 0x0eu, -1, 0xff, 0xff, (char *)0);
+    }
+    if (hEngObj->h_Micro == NULL)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30u, g_ucGameModuleId, 0, 0x0fu, -1, 0xff, 0xff, (char *)0);
+    }
+    switch (lActivate)
+    {
+    case 0:
+        break;
+    case 1:
+        if (fn_bMicroGetActivationFlag(hEngObj->h_Micro) != 0)
+        {
+            fn_vAddMicro(hEngObj);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+/* 0x00411450 */
+void *__cdecl fn_hReturnHandleMicroFromIndex(long lIndex)
+{
+    MS_pc_tdstMicroElem *hMicro = (MS_pc_tdstMicroElem *)GAM_g_stIndexMicrosList_hFirst;
+
+    while (hMicro != NULL)
+    {
+        if (hMicro->lIndex == lIndex)
+            return hMicro->hMicroObj;
+        hMicro = hMicro->hNext;
+    }
+    return NULL;
+}
+
 /* 0x00411470 */
 long __cdecl RetMicroSonoreX(long indice)
 {
@@ -35,23 +205,6 @@ long __cdecl RetMicroSonoreZ(long indice)
     POS_fn_vGetTranslationVector(HIE_fn_hGetSuperObjectGlobalMatrix(hSuperObj), &stVertex);
     return (long)(stVertex.xZ * 65536.0f);
 }
-
-#ifndef MTH_M_xRealToFixed16_16
-#define MTH_M_xRealToFixed16_16(_x) ((long)((_x) * 65536.0F))
-#endif
-#ifndef M_Fixed1616ToRealSnd
-#define M_Fixed1616ToRealSnd(_r) (_r)
-#endif
-#ifndef DNM_M_lDynamicsGetObjectType
-#define DNM_M_lDynamicsGetObjectType(_p) (*(long *)(_p))
-#endif
-#ifndef DNM_M_p_stReportGetLastMove
-#define DNM_M_p_stReportGetLastMove(_p) MTH_M_p_stMoveGetLinear(DNM_M_p_stReportGetAbsolutePrevSpeed(_p))
-#endif
-
-struct MS_stMicroLocal { void *hMicroMatrix; };
-#define MS_M_hMicroMatrixOf(_hSuperObj) \
-    (((struct MS_stMicroLocal *)((struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject(_hSuperObj))->h_Micro)->hMicroMatrix)
 
 /* 0x00411530 */
 long __cdecl RetMicroSonoreVX(long indice)
@@ -295,76 +448,6 @@ long __cdecl RetMicroSonoreDTZ(long indice)
 	return (long)M_Fixed1616ToRealSnd(MTH_M_xRealToFixed16_16(xN));
 }
 
-long RetMicroSonoreFILTRE(long indice)
-{
-   (void)indice;
-   return 0;
-}
-
-/* 0x00411c20 */
-void __cdecl fn_vInitMicrosFunction(void)
-{
-   tdstAllRetMicroSound st_pfnRetMicroSound;
-
-   memset(&st_pfnRetMicroSound,0,sizeof(st_pfnRetMicroSound));
-   st_pfnRetMicroSound.X=RetMicroSonoreX;
-   st_pfnRetMicroSound.Y=RetMicroSonoreY;
-   st_pfnRetMicroSound.Z=RetMicroSonoreZ;
-   st_pfnRetMicroSound.VX=RetMicroSonoreVX;
-   st_pfnRetMicroSound.VY=RetMicroSonoreVY;
-   st_pfnRetMicroSound.VZ=RetMicroSonoreVZ;
-   st_pfnRetMicroSound.DNX=RetMicroSonoreDNX;
-   st_pfnRetMicroSound.DNY=RetMicroSonoreDNY;
-   st_pfnRetMicroSound.DNZ=RetMicroSonoreDNZ;
-   st_pfnRetMicroSound.DTX=RetMicroSonoreDTX;
-   st_pfnRetMicroSound.DTY=RetMicroSonoreDTY;
-   st_pfnRetMicroSound.DTZ=RetMicroSonoreDTZ;
-   st_pfnRetMicroSound.Filtre=RetMicroSonoreFILTRE;
-
-   SND_fn_vSetRetMicroSound(&st_pfnRetMicroSound);
-
-    GAM_g_stIndexMicrosList_hFirst = 0;
-    GAM_g_stIndexMicrosList_hLast  = 0;
-    GAM_g_stIndexMicrosList_lCount = 0;
-}
-
-typedef struct MS_pc_tdstMicroElem MS_pc_tdstMicroElem;
-typedef struct MS_pc_tdstMicroAnchor MS_pc_tdstMicroAnchor;
-struct MS_pc_tdstMicroElem
-{
-    MS_pc_tdstMicroElem *hNext;
-    MS_pc_tdstMicroElem *hPrev;
-    void *hAnchor;
-    long lIndex;
-    void *hMicroObj;
-};
-struct MS_pc_tdstMicroAnchor
-{
-    MS_pc_tdstMicroElem *hFirst;
-    MS_pc_tdstMicroElem *hLast;
-    long lCount;
-};
-
-#define MS_pc_M_pAnchorOf(_p) ((MS_pc_tdstMicroAnchor *)((_p)->hAnchor))
-
-void __cdecl SND_fn_vDestroyMicroSound(long lMicro);
-
-void ERM_fn_vClearLastError(unsigned long ulChannelId);
-void ERM_fn_vUpdateLastError(unsigned short uwStartOfWarningsId, unsigned char ucModuleId,
-                             unsigned long ulChannelId, unsigned short uwErrNum,
-                             long lDebugData, unsigned char ucOpenInfoWindow,
-                             unsigned char ucStopForDebug, char *szPersonalMessage);
-
-unsigned char __cdecl fn_bMicroGetActivationFlag(void *h_MS_Micro);
-
-long __cdecl SND_fn_lCreateMicroSound(void);
-
-struct MS_pc_stMicroActive
-{
-    void *hMicroMatrix;
-    unsigned char bIsActive;
-};
-
 /* 0x00411AD0 */
 void __cdecl fn_vAddMicro(struct tdstEngineObject_ *hEngObj)
 {
@@ -420,34 +503,6 @@ void __cdecl fn_vAddMicro(struct tdstEngineObject_ *hEngObj)
     ((struct MS_pc_stMicroActive *)((struct tdstEngineObject_ *)hEngObj)->h_Micro)->bIsActive = 1;
 }
 
-/* 0x00411320 */
-void __cdecl fn_vActivateMicroForObject(struct tdstEngineObject_ *hEngObj, long lActivate)
-{
-    if (hEngObj == NULL)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30u, g_ucGameModuleId, 0, 0x0eu, -1, 0xff, 0xff, (char *)0);
-    }
-    if (hEngObj->h_Micro == NULL)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30u, g_ucGameModuleId, 0, 0x0fu, -1, 0xff, 0xff, (char *)0);
-    }
-    switch (lActivate)
-    {
-    case 0:
-        break;
-    case 1:
-        if (fn_bMicroGetActivationFlag(hEngObj->h_Micro) != 0)
-        {
-            fn_vAddMicro(hEngObj);
-        }
-        break;
-    default:
-        break;
-    }
-}
-
 /* 0x00411B80 */
 void __cdecl fn_vRemoveAllMicros(void)
 {
@@ -493,12 +548,34 @@ void __cdecl fn_vRemoveAllMicros(void)
     GAM_g_stIndexMicrosList_lCount = 0;
 }
 
-/* 0x00411CD0 */
-void __cdecl GAM_fn_vChangeCharacterForMicro(void *_hCharacter)
+/* 0x00411c20 */
+void __cdecl fn_vInitMicrosFunction(void)
 {
-    void *hEngineObject = HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hCharacter);
-    ((MS_pc_tdstMicroElem *)GAM_g_stIndexMicrosList_hFirst)->hMicroObj = hEngineObject;
+   tdstAllRetMicroSound st_pfnRetMicroSound;
+
+   memset(&st_pfnRetMicroSound,0,sizeof(st_pfnRetMicroSound));
+   st_pfnRetMicroSound.X=RetMicroSonoreX;
+   st_pfnRetMicroSound.Y=RetMicroSonoreY;
+   st_pfnRetMicroSound.Z=RetMicroSonoreZ;
+   st_pfnRetMicroSound.VX=RetMicroSonoreVX;
+   st_pfnRetMicroSound.VY=RetMicroSonoreVY;
+   st_pfnRetMicroSound.VZ=RetMicroSonoreVZ;
+   st_pfnRetMicroSound.DNX=RetMicroSonoreDNX;
+   st_pfnRetMicroSound.DNY=RetMicroSonoreDNY;
+   st_pfnRetMicroSound.DNZ=RetMicroSonoreDNZ;
+   st_pfnRetMicroSound.DTX=RetMicroSonoreDTX;
+   st_pfnRetMicroSound.DTY=RetMicroSonoreDTY;
+   st_pfnRetMicroSound.DTZ=RetMicroSonoreDTZ;
+   st_pfnRetMicroSound.Filtre=RetMicroSonoreFILTRE;
+
+   SND_fn_vSetRetMicroSound(&st_pfnRetMicroSound);
+
+    GAM_g_stIndexMicrosList_hFirst = 0;
+    GAM_g_stIndexMicrosList_hLast  = 0;
+    GAM_g_stIndexMicrosList_lCount = 0;
 }
+
+void __cdecl GAM_fn_vChangeCharacterForMicro(void *_hCharacter);
 
 /* 0x00411CC0 */
 void *__cdecl fn_p_stGetFirstEngineObjectInMicroList(void)
@@ -510,64 +587,9 @@ void *__cdecl fn_p_stGetFirstEngineObjectInMicroList(void)
     return NULL;
 }
 
-/* 0x00411450 */
-void *__cdecl fn_hReturnHandleMicroFromIndex(long lIndex)
+/* 0x00411CD0 */
+void __cdecl GAM_fn_vChangeCharacterForMicro(void *_hCharacter)
 {
-    MS_pc_tdstMicroElem *hMicro = (MS_pc_tdstMicroElem *)GAM_g_stIndexMicrosList_hFirst;
-
-    while (hMicro != NULL)
-    {
-        if (hMicro->lIndex == lIndex)
-            return hMicro->hMicroObj;
-        hMicro = hMicro->hNext;
-    }
-    return NULL;
-}
-
-#include "GAM/Macros.h"
-
-/* 0x004111A0 */
-typedef struct MS_stMicroLocal *MS_tdxHandleToMicro;
-
-/* 0x00411190 */
-unsigned long __cdecl GAM_pc_fn_ulGetHolderSize8(void);
-#define fn_ulMicroSizeOf GAM_pc_fn_ulGetHolderSize8
-MS_tdxHandleToMicro fn_h_MicroRealAlloc(void);
-
-void fn_vMicroAlloc(struct tdstEngineObject_ *p_stObject)
-{
-	MTH3D_tdstVector stI, stJ, stK;
-
-	if (p_stObject==NULL)
-		M_GameFatalError(E_uwGameMiniStructObjectNull);
-
-	if (p_stObject->h_Micro!=NULL)
-		M_GameFatalError(E_uwGameMiniStructAllocAlreadyAlloc);
-
-	p_stObject->h_Micro = fn_h_MicroRealAlloc();
-
-	MTH3D_M_vSetVectorElements(&stJ, MTH_C_MinusONE, MTH_C_ZERO, MTH_C_ZERO);
-	MTH3D_M_vSetBaseKVector(&stK);
-	if (p_stObject -> h_Cineinfo != NULL)
-	{
-
-		MTH3D_M_vSetVectorElements(&stI, MTH_C_ZERO, MTH_C_MinusONE, MTH_C_ZERO);
-	}
-	else
-	{
-
-		MTH3D_M_vSetVectorElements(&stI, MTH_C_ZERO, MTH_C_ONE, MTH_C_ZERO);
-	}
-	POS_fn_vSetRotationMatrix(((MS_tdxHandleToMicro)p_stObject->h_Micro)->hMicroMatrix, &stI, &stJ, &stK);
-
-}
-
-/* 0x00411280 */
-MS_tdxHandleToMicro fn_h_MicroRealAlloc()
-{
-   MS_tdxHandleToMicro h_MS_Micro;
-
-   h_MS_Micro = (MS_tdxHandleToMicro)fnp_vGameMallocInHLM(fn_ulMicroSizeOf());
-   h_MS_Micro->hMicroMatrix = GEO_fn_hCreateMatrix();
-   return(h_MS_Micro);
+    void *hEngineObject = HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hCharacter);
+    ((MS_pc_tdstMicroElem *)GAM_g_stIndexMicrosList_hFirst)->hMicroObj = hEngineObject;
 }

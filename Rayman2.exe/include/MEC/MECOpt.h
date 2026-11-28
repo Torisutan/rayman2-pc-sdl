@@ -8,7 +8,7 @@
 
 void __cdecl MEC_fn_vGravitySpeed (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT);                  /* 0x0043DF40 */
 void __cdecl MEC_fn_vInertia (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT, POS_tdxHandleToPosition hMatrix, POS_tdxHandleToPosition hInvMatrix); /* 0x0043DF70 */
-void __cdecl MEC_fn_vAddTiltSpeed (DNM_tdstDynamics *p_stDynamic);                                   /* 0x0043E0A0 */
+void __cdecl MEC_fn_vAddTiltSpeed (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDt);                                   /* 0x0043E0A0 */
 void __cdecl MEC_fn_vPositionLimit (DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stSafePreviousPosition); /* 0x0043E940 */
 void __cdecl MEC_fn_vSpeedLimit (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT, POS_tdxHandleToPosition hMatrix, POS_tdxHandleToPosition hInvMatrix); /* 0x0043EAC0 */
 void __cdecl MEC_fn_vImposeSpeed (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT, POS_tdxHandleToPosition hMatrix, POS_tdxHandleToPosition hInvMatrix);  /* 0x0043E350 */

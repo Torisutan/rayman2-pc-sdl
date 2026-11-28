@@ -29,18 +29,6 @@ static long GLI_RD_g_l4084;   /* 0x00504084 */
 extern unsigned long GLI_pc_g_a3_xMirrorPlaneNormal[3];
 extern unsigned long GLI_pc_g_xMirrorPlaneDistance;
 
-void __cdecl GLI_pc_fn_vUpdateCosPhase(unsigned long ulDeltaTime)
-{
-
-    MTH_tdxReal xFactor;
-    float      *a3_xSinEffectBase = (float *)GLI_M_a3_lSinEffectBase;
-
-    GLI_M_xCosPhaseCoef = xFactor = (float)ulDeltaTime * GLI_M_xCosPhaseTimeScale;
-    a3_xSinEffectBase[0] += GLI_M_a3_lSinEffectFreq[0] * xFactor;
-    a3_xSinEffectBase[1] += GLI_M_a3_lSinEffectFreq[1] * xFactor;
-    a3_xSinEffectBase[2] += GLI_M_a3_lSinEffectFreq[2] * xFactor;
-}
-
 void __cdecl FUN_00423ab0(void)
 {
 
@@ -83,4 +71,16 @@ void __cdecl FUN_00423ab0(void)
     GLI_RD_g_l401c = 0x41200000;
     GLI_pc_g_cSinusEffectState = 0;
     g_cSinusEffectFlag = 0;   /* 0x00504088 */
+}
+
+void __cdecl GLI_pc_fn_vUpdateCosPhase(unsigned long ulDeltaTime)
+{
+
+    MTH_tdxReal xFactor;
+    float      *a3_xSinEffectBase = (float *)GLI_M_a3_lSinEffectBase;
+
+    GLI_M_xCosPhaseCoef = xFactor = (float)ulDeltaTime * GLI_M_xCosPhaseTimeScale;
+    a3_xSinEffectBase[0] += GLI_M_a3_lSinEffectFreq[0] * xFactor;
+    a3_xSinEffectBase[1] += GLI_M_a3_lSinEffectFreq[1] * xFactor;
+    a3_xSinEffectBase[2] += GLI_M_a3_lSinEffectFreq[2] * xFactor;
 }

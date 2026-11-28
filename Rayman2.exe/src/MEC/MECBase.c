@@ -117,7 +117,7 @@ typedef void          (__cdecl *t_MEC_fn_vGroundGuess)(DNM_tdstDynamics *, MTH_t
 typedef void          (__cdecl *t_MEC_fn_vPositionLimit)(DNM_tdstDynamics *, MTH3D_tdstVector *);
 typedef ACP_tdxBool   (__cdecl *t_MEC_fn_vBasePlatformMgmt)(DNM_tdstDynamics *, HIE_tdstSuperObject *);
 typedef MTH_tdxReal   (__cdecl *t_MEC_fn_xGetSlide)(DNM_tdstDynamics *, DNM_tdstMecObstacle *);
-typedef void          (__cdecl *t_MEC_fn_vAddTiltSpeed)(DNM_tdstDynamics *);
+typedef void          (__cdecl *t_MEC_fn_vAddTiltSpeed)(DNM_tdstDynamics *, MTH_tdxReal);
 
 typedef void          (__cdecl *t_MEC_fn_vSlowMode)(DNM_tdstDynamics *, long);
 typedef void          (__cdecl *t_MEC_fn_vRepeatMove)(DNM_tdstDynamics *);
@@ -632,7 +632,7 @@ DNM_tdstDynamics * __cdecl MEC_p_stDynamicsBaseMechanics(
     /* 0x00436EE0 */
     MEC_fn_vAdjustSpeed(p_stDynamic, xDT);
     if (DNM_M_bDynamicsIsTilt(p_stDynamic))
-        MEC_RT_fn_vAddTiltSpeed(p_stDynamic);
+        MEC_RT_fn_vAddTiltSpeed(p_stDynamic, xDT);
 
     bNeedToCollide = (ACP_tdxBool)MEC_RT_fn_bDynamicsNeedCollide(p_stDynamic);
 
@@ -896,4 +896,46 @@ void __cdecl MEC_vTurnAroundZAxis(DNM_tdstDynamics *p_stDynamic,
     MTH3D_M_vSetVectorElements(&stVectorZ, MTH_C_ZERO, MTH_C_ZERO, MTH_C_MinusONE);
     POS_fn_vRotatePositionAroundAxis(hCurrentMatrix, &stVectorZ, xAngle);
     MTH3D_M_vCopyVector(POS_fn_p_stGetTranslationVector(hCurrentMatrix), &stMove);
+}
+
+/* 0x00433020 */
+void __cdecl MEC_vTurnAbsolute(DNM_tdstDynamics *p_stDynamic,
+                               MTH3D_tdstVector *p_stVector)
+{
+    POS_tdxHandleToPosition hCurrentMatrix;
+    MTH3D_tdstVector *p_stI, *p_stJ, *p_stK;
+
+    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
+    if (MTH3D_M_bIsNullVector(p_stVector)) return;
+
+    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
+
+    POS_fn_vGetRotationVector(hCurrentMatrix, &p_stI, &p_stJ, &p_stK);
+
+    MTH3D_M_vNormalizeVector(p_stJ, p_stVector);
+    MTH3D_M_vNegVector(p_stJ, p_stJ);
+    MTH3D_M_vCrossProductVector(p_stI, p_stJ, p_stK);
+    MTH3D_M_vCrossProductVector(p_stJ, p_stK, p_stI);
+    MEC_fn_vUpdateMatrix(p_stDynamic, hCurrentMatrix);
+
+    if (DNM_M_bDynamicsIsComplexSize(p_stDynamic))
+        MEC_fn_vCancelTilt(p_stDynamic);
+}
+
+/* 0x004331D0 */
+void __cdecl DNM_fn_vSetHangingLimit(DNM_tdstDynamics *p_stDynamic,
+                                     MTH_tdxReal xValue)
+{
+    if (MEC_fn_bIsPlatform(p_stDynamic))
+    {
+        HIE_tdstSuperObject *hPlatformSO = DNM_M_hDynamicsGetPlatformSO(p_stDynamic);
+        POS_tdxHandleToPosition hGlobal = HIE_fn_hGetSuperObjectGlobalMatrix(hPlatformSO);
+        MTH_tdxReal xPlatformZ = MTH3D_M_xGetZofVector(
+            POS_fn_p_stGetTranslationVector(hGlobal));
+        DNM_M_vDynamicsSetHangingLimit(p_stDynamic, MTH_M_xSub(xValue, xPlatformZ));
+    }
+    else
+    {
+        DNM_M_vDynamicsSetHangingLimit(p_stDynamic, xValue);
+    }
 }

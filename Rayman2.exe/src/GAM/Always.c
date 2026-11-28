@@ -1,32 +1,7 @@
 #include "GAM/Always.h"
 #include "ALW/ALW_globals.h"
 
-/* 0x0040BC60 */
-unsigned char __cdecl fn_ucIsAnAlwaysObject(struct tdstEngineObject_ *p_stEngineObject)
-{
-
-	return (unsigned char)(p_stEngineObject->h_StandardGame->ucMiscFlags & GAM_C_Always ? TRUE : FALSE);
-}
-
 #define M_ObjectGetPersonalType(p_stObject) ((p_stObject)->h_StandardGame->otObjectPersonalType)
-
-unsigned char __cdecl fn_ucIsAnAlwaysModel(struct tdstEngineObject_ *p_stEngineObject)
-{
-
-	unsigned long				i;
-	ALW_tdxHandleToModelList	h_AlwaysModelChild;
-
-	if (M_ObjectGetPersonalType(p_stEngineObject) >= C_AlwaysObjectType)
-		return TRUE;
-
-	LST2_M_DynamicForEachElementOf(&(g_stAlways.ALW_h_LstAlwaysModel),h_AlwaysModelChild,i)
-	{
-		if (M_ObjectGetPersonalType(p_stEngineObject)==M_ObjectGetPersonalType(h_AlwaysModelChild->p_stAlwaysObject))
-			return TRUE;
-	}
-
-	return( FALSE );
-}
 
 #include "ALW/ALW.h"
 #include "MMG/MMG_globals.h"
@@ -75,6 +50,64 @@ static unsigned int alw_lcg_step(unsigned int seed)
     return next;
 }
 #endif /* RAYMAN2_NO_PROTECTION */
+
+#include "SND/SND.h"
+#include "MGT/MGT.h"
+#include "GAM/PlayAnim.h"
+#include "GAM/ChanList.h"
+#include "ERM/CpaError.h"
+#include "GAM/GAM_globals.h"
+extern void __cdecl fn_v_DynamicFree(void *param_1);   /* 0x412df0 */
+
+#include "GAM/GAM_types.h"
+#include "HIE/HieSpObj.h"
+
+typedef void *MS_tdxHandleToSectInfo;
+
+extern void *__cdecl fn_h_SectInfoGetCurrentSector(void *h_SectInfo);              /* 0x419b90 */
+extern void  __cdecl fn_vSectInfoSetCurrentSector(void *h_SectInfo, void *hSec);   /* 0x42db20 */
+extern void  __cdecl fn_vInsertObjectInSectorList(HIE_tdstSuperObject *hSector,
+                                                  HIE_tdstSuperObject *hCharacter);/* 0x412740 */
+
+void fn_vKillAllAlways(void);
+
+/* 0x0040BB50 */
+void fn_vLastDesinitAlwaysStructure(void)
+{
+    fn_vKillAllAlways();
+
+    if (g_stAlways.ulMaxNumberOfAlways)
+    {
+        g_stAlways.d_stAlwaysEngineObjectInit = NULL;
+        g_stAlways.d_stAlwaysSuperObject      = NULL;
+        g_stAlways.d_hAlwaysGenerator         = NULL;
+    }
+}
+
+/* 0x0040BC60 */
+unsigned char __cdecl fn_ucIsAnAlwaysObject(struct tdstEngineObject_ *p_stEngineObject)
+{
+
+	return (unsigned char)(p_stEngineObject->h_StandardGame->ucMiscFlags & GAM_C_Always ? TRUE : FALSE);
+}
+
+unsigned char __cdecl fn_ucIsAnAlwaysModel(struct tdstEngineObject_ *p_stEngineObject)
+{
+
+	unsigned long				i;
+	ALW_tdxHandleToModelList	h_AlwaysModelChild;
+
+	if (M_ObjectGetPersonalType(p_stEngineObject) >= C_AlwaysObjectType)
+		return TRUE;
+
+	LST2_M_DynamicForEachElementOf(&(g_stAlways.ALW_h_LstAlwaysModel),h_AlwaysModelChild,i)
+	{
+		if (M_ObjectGetPersonalType(p_stEngineObject)==M_ObjectGetPersonalType(h_AlwaysModelChild->p_stAlwaysObject))
+			return TRUE;
+	}
+
+	return( FALSE );
+}
 
 HIE_tdxHandleToSuperObject __cdecl fn_p_stAllocateAlways(
     tdObjectType                otObjectModelType,
@@ -216,14 +249,6 @@ HIE_tdxHandleToSuperObject __cdecl fn_p_stAllocateAlways(
     return NULL;
 }
 
-#include "SND/SND.h"
-#include "MGT/MGT.h"
-#include "GAM/PlayAnim.h"
-#include "GAM/ChanList.h"
-#include "ERM/CpaError.h"
-#include "GAM/GAM_globals.h"
-extern void __cdecl fn_v_DynamicFree(void *param_1);   /* 0x412df0 */
-
 void __cdecl fn_vKillAlwaysByPersonalType(tdObjectType otPersonalType)
 {
     HIE_tdstSuperObject        *h_SuperObject;
@@ -290,40 +315,6 @@ void __cdecl fn_vKillAlwaysByPersonalType(tdObjectType otPersonalType)
     memset(p_stEngineObject, 0, sizeof(struct tdstEngineObject_));
 }
 
-/* 0x0040C2A0 */
-unsigned long __cdecl fn_ulGetNumberOfAlwaysBelongingToMe(HIE_tdstSuperObject *_hGenerator)
-{
-
-	unsigned long i;
-	unsigned long ulReturn = 0;
-	tdstEngineObject *hAlwaysObject;
-
-	for (i = 0 ; i < g_stAlways.ulMaxNumberOfAlways ; i ++)
-	{
-		hAlwaysObject = HIE_fn_hGetSuperObjectObject(HIE_fn_hGetElementFromSuperObjectTab(g_stAlways.d_stAlwaysSuperObject,i));
-		if
-			(
-			(hAlwaysObject != NULL)
-			&& (hAlwaysObject->h_3dData != NULL)
-			&& (g_stAlways.d_hAlwaysGenerator[i] == _hGenerator)
-			)
-		{
-			ulReturn ++;
-		}
-	}
-	return ulReturn;
-}
-
-#include "GAM/GAM_types.h"
-#include "HIE/HieSpObj.h"
-
-typedef void *MS_tdxHandleToSectInfo;
-
-extern void *__cdecl fn_h_SectInfoGetCurrentSector(void *h_SectInfo);              /* 0x419b90 */
-extern void  __cdecl fn_vSectInfoSetCurrentSector(void *h_SectInfo, void *hSec);   /* 0x42db20 */
-extern void  __cdecl fn_vInsertObjectInSectorList(HIE_tdstSuperObject *hSector,
-                                                  HIE_tdstSuperObject *hCharacter);/* 0x412740 */
-
 #define GAM_M_pc_hMainCharacterSO   GAM_pc_g_hMainCharacterSO
 
 void fn_vKillAllAlways(void)
@@ -354,6 +345,30 @@ void fn_vKillAllAlways(void)
 	}
 }
 
+/* 0x0040C2A0 */
+unsigned long __cdecl fn_ulGetNumberOfAlwaysBelongingToMe(HIE_tdstSuperObject *_hGenerator)
+{
+
+	unsigned long i;
+	unsigned long ulReturn = 0;
+	tdstEngineObject *hAlwaysObject;
+
+	for (i = 0 ; i < g_stAlways.ulMaxNumberOfAlways ; i ++)
+	{
+		hAlwaysObject = HIE_fn_hGetSuperObjectObject(HIE_fn_hGetElementFromSuperObjectTab(g_stAlways.d_stAlwaysSuperObject,i));
+		if
+			(
+			(hAlwaysObject != NULL)
+			&& (hAlwaysObject->h_3dData != NULL)
+			&& (g_stAlways.d_hAlwaysGenerator[i] == _hGenerator)
+			)
+		{
+			ulReturn ++;
+		}
+	}
+	return ulReturn;
+}
+
 /* 0x0040C370 */
 unsigned char fn_ucIsAlwaysGeneratedByMe(HIE_tdstSuperObject *_hAlways, HIE_tdstSuperObject *_hGenerator)
 {
@@ -372,17 +387,4 @@ unsigned char fn_ucIsAlwaysGeneratedByMe(HIE_tdstSuperObject *_hAlways, HIE_tdst
     ulRank = p_stEngineObject->h_StandardGame->otObjectPersonalType - C_AlwaysObjectType;
 
     return (unsigned char)(g_stAlways.d_hAlwaysGenerator[ulRank] == (void *)_hGenerator);
-}
-
-/* 0x0040BB50 */
-void fn_vLastDesinitAlwaysStructure(void)
-{
-    fn_vKillAllAlways();
-
-    if (g_stAlways.ulMaxNumberOfAlways)
-    {
-        g_stAlways.d_stAlwaysEngineObjectInit = NULL;
-        g_stAlways.d_stAlwaysSuperObject      = NULL;
-        g_stAlways.d_hAlwaysGenerator         = NULL;
-    }
 }

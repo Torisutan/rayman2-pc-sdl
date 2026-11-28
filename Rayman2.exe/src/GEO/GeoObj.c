@@ -8,295 +8,77 @@
 #include <string.h>
 #pragma intrinsic(memcpy)
 
-/* 0x0041faa0 */
-void GEO_fn_vUpdateMinMaxBoxWithPoint(
-    MTH3D_tdstVector *p_stMinPoint,
-    MTH3D_tdstVector *p_stMaxPoint,
-    MTH3D_tdstVector *p_stPoint)
-{
-    MTH3D_tdstVector *p_stPointToTest = p_stPoint;
+#include "GEO/Fmd.h"
 
-    if( p_stPointToTest->xX < p_stMinPoint->xX )
-    {
-        p_stMinPoint->xX = p_stPointToTest->xX;
-    }
-    else if( p_stPointToTest->xX > p_stMaxPoint->xX )
-    {
-        p_stMaxPoint->xX = p_stPointToTest->xX;
-    }
-    if( MTH3D_M_xGetYofVector( p_stPointToTest ) < MTH3D_M_xGetYofVector( p_stMinPoint ) )
-    {
-        MTH3D_M_vSetYofVector( p_stMinPoint,  MTH3D_M_xGetYofVector( p_stPointToTest ) );
-    }
-    else if( MTH3D_M_xGetYofVector( p_stPointToTest ) > MTH3D_M_xGetYofVector( p_stMaxPoint ) )
-    {
-        MTH3D_M_vSetYofVector( p_stMaxPoint,  MTH3D_M_xGetYofVector( p_stPointToTest ) );
-    }
-    if( MTH3D_M_xGetZofVector( p_stPointToTest ) < MTH3D_M_xGetZofVector( p_stMinPoint ) )
-    {
-        MTH3D_M_vSetZofVector( p_stMinPoint,  MTH3D_M_xGetZofVector( p_stPointToTest ) );
-    }
-    else if( MTH3D_M_xGetZofVector( p_stPointToTest ) > MTH3D_M_xGetZofVector( p_stMaxPoint ) )
-    {
-        MTH3D_M_vSetZofVector( p_stMaxPoint,  MTH3D_M_xGetZofVector( p_stPointToTest ) );
-    }
-}
-
-/* 0x0045dc60 */
-GEO_tdxHandleToParallelBox GEO_hGetParallelBox(
-    ACP_tdxHandleOfObject hObject,
-    ACP_tdxIndex          xParallelBox)
-{
-    if (xParallelBox < hObject->xNbParallelBoxes)
-        return hObject->d_stListOfParallelBoxes + xParallelBox;
-    return NULL;
-}
-
-ACP_tdxIndex GEO_xGetParallelBoxIndexOfElement(
-    ACP_tdxHandleOfObject hObject,
-    ACP_tdxIndex          xIndexOfElement)
-{
-    switch (hObject->d_xListOfElementsTypes[xIndexOfElement]) {
-    case GEO_C_xElementIndexedTriangles:
-        return ((GEO_tdstElementIndexedTriangles *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
-    case GEO_C_xElementFaceMapDescriptors:
-        return ((GEO_tdstElementFaceMapDescriptors *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
-    case GEO_C_xElementTMeshes:
-        return ((GEO_tdstElementTMeshes *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
-    case GEO_C_xElementPoints:
-        return ((GEO_tdstElementPoints *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
-    case GEO_C_xElementLines:
-        return ((GEO_tdstElementLines *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
-    case GEO_C_xElementSprites:
-    case GEO_C_xElementSpheres:
-    case GEO_C_xElementAlignedBoxes:
-    case GEO_C_xElementCones:
-
-        return ((GEO_tdstElementSpheres *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
-    case 10:
-        return GEO_C_xNoParallelBox;
-    case 11:
-        return GEO_C_xNoParallelBox;
-    default:
-        return GEO_C_xNoParallelBox;
-    }
-}
-
-void GEO_vComputeObjectParallelBox(
-    ACP_tdxHandleOfObject hObject,
-    ACP_tdxIndex          xParallelBox)
-{
-    GEO_tdstElementIndexedTriangles     *p_stETIT;
-    GEO_tdstElementPoints               *p_stEIP;
-    GEO_tdstElementLines                *p_stEL;
-    GEO_tdstElementSpheres              *p_stES;
-    GEO_tdstElementAlignedBoxes         *p_stEAB;
-    GEO_tdstElementCones                *p_stEC;
-    GEO_tdstElementSprite               *p_stESt;
-    GEO_tdstElementFaceMapDescriptors   *p_stEFMD;
-    ACP_tdxIndex                        xIndexElement , xIndexInElement;
-    MTH3D_tdstVector                    *p_stMinPoint , *p_stMaxPoint;
-    GEO_tdxHandleToParallelBox          hParallelBox;
-    BOOL                                bInit;
-
-    bInit = FALSE;
-    hParallelBox = GEO_hGetParallelBox( hObject, xParallelBox );
-
-    if( hParallelBox == NULL )  return;
-
-    p_stMinPoint = & hParallelBox -> stMinPoint;
-    p_stMaxPoint = & hParallelBox -> stMaxPoint;
-
-    for ( xIndexElement = 0 ; xIndexElement < hObject -> xNbElements ; xIndexElement++ )
-    {
-        if( GEO_xGetParallelBoxIndexOfElement( hObject, xIndexElement ) == xParallelBox )
-        {
-            switch ( hObject -> d_xListOfElementsTypes[ xIndexElement ] )
-            {
-            case GEO_C_xElementIndexedTriangles:
-                p_stETIT = (GEO_tdstElementIndexedTriangles*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stETIT -> xNbFaces )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ 0 ] . a3_xIndex[0] );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ 0 ] . a3_xIndex[0] );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stETIT -> xNbFaces ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ xIndexInElement ] . a3_xIndex[0] );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ xIndexInElement ] . a3_xIndex[1] );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ xIndexInElement ] . a3_xIndex[2] );
-                }
-                break;
-
-            case GEO_C_xElementFaceMapDescriptors:
-                p_stEFMD = (GEO_tdstElementFaceMapDescriptors*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stEFMD -> xNbFaces )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ 0 ] . stFaceTripled . a3_xIndex[0] );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ 0 ] . stFaceTripled . a3_xIndex[0] );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stEFMD -> xNbFaces ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ xIndexInElement ] . stFaceTripled . a3_xIndex[0] );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ xIndexInElement ] . stFaceTripled . a3_xIndex[1] );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ xIndexInElement ] . stFaceTripled . a3_xIndex[2] );
-                }
-                break;
-            case GEO_C_xElementSprites:
-                p_stESt = (GEO_tdstElementSprite*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-
-                if( !bInit && p_stESt -> xNbSprites )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stESt -> d_stListOfSprites [ 0 ] . xCenterPoint );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stESt -> d_stListOfSprites [ 0 ] . xCenterPoint );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stESt -> xNbSprites ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stESt -> d_stListOfSprites [ xIndexInElement ] . xCenterPoint );
-                }
-                break;
-            case GEO_C_xElementPoints:
-                p_stEIP = (GEO_tdstElementPoints*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stEIP -> xNbPoints )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEIP -> d_xListOfPointIndex [ 0 ] );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEIP -> d_xListOfPointIndex [ 0 ] );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stEIP -> xNbPoints ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEIP -> d_xListOfPointIndex [ xIndexInElement ] );
-                }
-                break;
-            case GEO_C_xElementLines:
-                p_stEL = (GEO_tdstElementLines*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stEL -> xNbLines )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ 0 ] . a2_xIndex[ 0 ] );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ 0 ] . a2_xIndex[ 0 ] );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stEL -> xNbLines ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ xIndexInElement ] . a2_xIndex[ 0 ] );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ xIndexInElement ] . a2_xIndex[ 1 ] );
-                }
-                break;
-            case GEO_C_xElementSpheres:
-                p_stES = (GEO_tdstElementSpheres*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stES -> xNbSpheres )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stES -> d_stListOfSpheres [ 0 ] . xCenterPoint );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stES -> d_stListOfSpheres [ 0 ] . xCenterPoint );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stES -> xNbSpheres ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stES -> d_stListOfSpheres [ xIndexInElement ] . xCenterPoint );
-                }
-                break;
-            case GEO_C_xElementAlignedBoxes:
-                p_stEAB = (GEO_tdstElementAlignedBoxes*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stEAB -> xNbAlignedBoxes )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ 0 ] . xMinPoint );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ 0 ] . xMinPoint );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stEAB -> xNbAlignedBoxes ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ xIndexInElement ] . xMinPoint );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ xIndexInElement ] . xMaxPoint );
-                }
-                break;
-            case GEO_C_xElementCones:
-                p_stEC = (GEO_tdstElementCones*) ( hObject -> d_stListOfElements[ xIndexElement ] );
-                if( !bInit && p_stEC -> xNbCones )
-                {
-                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ 0 ] . xTopPoint );
-                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ 0 ] . xTopPoint );
-                    bInit = TRUE;
-                }
-                for ( xIndexInElement = 0 ; xIndexInElement < p_stEC -> xNbCones ; xIndexInElement++ )
-                {
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ xIndexInElement ] . xTopPoint );
-                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ xIndexInElement ] . xBasePoint );
-                }
-                break;
+#undef MTH2D_M_vDivScalarVector
+#define MTH2D_M_vDivScalarVector( VectDest, VectA, a)                   \
+        {       (VectDest)->xX = MTH_M_xDiv((VectA)->xX, (a));          \
+                (VectDest)->xY = MTH_M_xDiv((VectA)->xY, (a)); }
+#undef MTH2D_M_vDivScalarMatrix
+#define MTH2D_M_vDivScalarMatrix(MatDest, MatA, a)                              \
+                {       MTH2D_M_vDivScalarVector( &((MatDest)->stCol_0),        \
+                                        &((MatA)->stCol_0), (a));               \
+                        MTH2D_M_vDivScalarVector( &((MatDest)->stCol_1),        \
+                                                  &((MatA)->stCol_1), (a)); }
+#undef MTH2D_M_xDetMatrix
+#define MTH2D_M_xDetMatrix(MatA)                                        \
+                MTH_M_xSub(                                             \
+                MTH_M_xMul( (MatA)->stCol_0.xX, (MatA)->stCol_1.xY ),   \
+                MTH_M_xMul( (MatA)->stCol_0.xY, (MatA)->stCol_1.xX ))
+#undef MTH2D_M_vInverMatrix
+#define MTH2D_M_vInverMatrix(MatDest, MatA)                                             \
+        {                                                                               \
+            MTH2D_tdstMatrix MatTmp;                                                    \
+            MTH_tdxReal det;                                                            \
+            MatTmp.stCol_0.xX = (MatA)->stCol_1.xY;                                     \
+            MatTmp.stCol_0.xY = MTH_M_xNeg( (MatA)->stCol_0.xY );                       \
+            MatTmp.stCol_1.xX = MTH_M_xNeg( (MatA)->stCol_1.xX );                       \
+            MatTmp.stCol_1.xY = (MatA)->stCol_0.xX;                                     \
+            det=MTH2D_M_xDetMatrix( MatA );                                             \
+            MTH2D_M_vDivScalarMatrix(MatDest, &(MatTmp), det );                         \
             }
-        }
-    }
-}
+#undef MTH2D_M_vSetVectorElements
+#define MTH2D_M_vSetVectorElements( VectDest, Vx, Vy)                   \
+        {               (VectDest)->xX = (Vx);                          \
+                        (VectDest)->xY = (Vy); }
+#undef MTH2D_M_xGetXofVector
+#define MTH2D_M_xGetXofVector( VectA )                                                  \
+                        (VectA)->xX
+#undef MTH2D_M_xGetYofVector
+#define MTH2D_M_xGetYofVector( VectA )                                                  \
+                        (VectA)->xY
+#undef MTH2D_M_vSetVectorsInMatrix
+#define MTH2D_M_vSetVectorsInMatrix( MatDest, VectA, VectB)             \
+        {    (MatDest)->stCol_0.xX=(VectA)->xX;                         \
+             (MatDest)->stCol_0.xY=(VectA)->xY;                         \
+             (MatDest)->stCol_1.xX=(VectB)->xX;                         \
+             (MatDest)->stCol_1.xY=(VectB)->xY; }
+#undef MTH2D_M_vMulMatrixVectorWithoutBuffer
+#define MTH2D_M_vMulMatrixVectorWithoutBuffer( VectDest, MatA, VectA)           \
+        {     (VectDest)->xX = MTH_M_xAdd(                                      \
+                                MTH_M_xMul( (MatA)->stCol_0.xX, (VectA)->xX),   \
+                        MTH_M_xMul( (MatA)->stCol_1.xX, (VectA)->xY));          \
+             (VectDest)->xY = MTH_M_xAdd(                                       \
+                                MTH_M_xMul( (MatA)->stCol_0.xY, (VectA)->xX),   \
+                        MTH_M_xMul( (MatA)->stCol_1.xY, (VectA)->xY)); }
 
-/* 0x0041cc80 */
-static ACP_tdxHandleOfObject GEO_hAllocTMPGeometricObject(
-    ACP_tdxIndex xNbPoints, ACP_tdxIndex xNbElements)
+/* 0x0041D5E0 */
+extern void __cdecl GLI_xGetMaterialTextureScrollingCoef(ACP_tdxHandleOfMaterial hMaterial, long lNumberOfTexture,
+                                                         long *p_bSwitch, MTH_tdxReal *p_fUSpeed,
+                                                         MTH_tdxReal *p_fVSpeed);
+
+void GEO_xComputeNormalWeightedBySurf(
+    MTH3D_tdstVector *p_stPResult,
+    MTH3D_tdstVector *p_stPA,
+    MTH3D_tdstVector *p_stPB,
+    MTH3D_tdstVector *p_stPC)
 {
-    GEO_tdstGeometricObject *p_stObjectToCreate;
+    MTH3D_tdstVector stEdgeAB, stEdgeAC;
 
-    p_stObjectToCreate =
-        (GEO_tdstGeometricObject *)TMP_M_p_Malloc(sizeof(GEO_tdstGeometricObject));
+    MTH3D_M_vSubVector(&stEdgeAB, p_stPB, p_stPA);
+    MTH3D_M_vSubVector(&stEdgeAC, p_stPC, p_stPA);
 
-    p_stObjectToCreate->xNbElements = xNbElements;
-    p_stObjectToCreate->xNbPoints   = xNbPoints;
-
-    p_stObjectToCreate->d_xListOfElementsTypes =
-        (ACP_tdxIndex *)TMP_M_p_Malloc(sizeof(ACP_tdxIndex) * xNbElements);
-
-    p_stObjectToCreate->d_stListOfElements =
-        (void **)TMP_M_p_Malloc(sizeof(void *) * xNbElements);
-
-    p_stObjectToCreate->d_stListOfPoints =
-        (MTH3D_tdstVector *)TMP_M_p_Malloc(sizeof(MTH3D_tdstVector) * xNbPoints);
-
-    p_stObjectToCreate->d_stListOfPointsNormals =
-        (MTH3D_tdstVector *)TMP_M_p_Malloc(sizeof(MTH3D_tdstVector) * xNbPoints);
-
-    return (ACP_tdxHandleOfObject)p_stObjectToCreate;
-}
-
-/* 0x0041ccf0 */
-static void GEO_vInitGeometricObject(
-    GEO_tdstGeometricObject *p_stObjectToCreate,
-    ACP_tdxIndex xNbPoints, ACP_tdxIndex xNbElements)
-{
-    ACP_tdxIndex xInitCount;
-
-    (void)xNbPoints;
-
-    for (xInitCount = 0; xInitCount < xNbElements; xInitCount++)
-        p_stObjectToCreate->d_xListOfElementsTypes[xInitCount] = GEO_C_xElementNULL;
-
-    p_stObjectToCreate->p_stOctree = NULL;
-
-    p_stObjectToCreate->xNbParallelBoxes        = 0;
-    p_stObjectToCreate->d_stListOfParallelBoxes = NULL;
-
-    p_stObjectToCreate->ulType = GEO_C_NotALookAt;
-}
-
-/* 0x0041cd60 */
-void GEO_vCreateTMPGeometricObject(
-    ACP_tdxHandleOfObject *p_hObject,
-    ACP_tdxIndex xNbPoints, ACP_tdxIndex xNbElements)
-{
-    *p_hObject = GEO_hAllocTMPGeometricObject(xNbPoints, xNbElements);
-    GEO_vInitGeometricObject((GEO_tdstGeometricObject *)*p_hObject, xNbPoints, xNbElements);
-}
-
-/* 0x0041d1f0 */
-void GEO_vEndModifyObject2(ACP_tdxHandleOfObject hObject)
-{
-    GEO_xComputeObjectNormals2(hObject);           /* 0x0041c3f0 */
-    GEO_vComputeObjectListOfParallelBox(hObject);  /* 0x0041d9d0 */
-
-    hObject->xBoudingSphereCenter = hObject->d_stListOfPoints[0];
-    hObject->xBoudingSphereRadius = 0.0f;
-    GEO_xComputeObjectSphereBox(                   /* 0x0041ba30 */
-        hObject, &hObject->xBoudingSphereCenter, &hObject->xBoudingSphereRadius);
+    MTH3D_M_vCrossProductVectorWithoutBuffer(p_stPResult, &stEdgeAB, &stEdgeAC);
 }
 
 void GEO_xComputeObjectNormals(GEO_tdstGeometricObject *p_stObj)
@@ -383,6 +165,14 @@ void GEO_xComputeObjectNormals(GEO_tdstGeometricObject *p_stObj)
     }
 }
 
+void GEO_xComputeObjectNormals2(GEO_tdstGeometricObject *p_stObj)
+{
+    if (p_stObj->d_stListOfPointsNormals == NULL)
+        return;
+
+    GEO_xComputeObjectNormals(p_stObj);
+}
+
 /* 0x41c410 */
 static void GEO_xComputeIndexUsedByElements(GEO_tdstGeometricObject *p_stObj)
 {
@@ -466,6 +256,53 @@ static ACP_tdxHandleOfObject GEO_hAllocGeometricObject(
     return (ACP_tdxHandleOfObject)p_stObjectToCreate;
 }
 
+/* 0x0041cc80 */
+static ACP_tdxHandleOfObject GEO_hAllocTMPGeometricObject(
+    ACP_tdxIndex xNbPoints, ACP_tdxIndex xNbElements)
+{
+    GEO_tdstGeometricObject *p_stObjectToCreate;
+
+    p_stObjectToCreate =
+        (GEO_tdstGeometricObject *)TMP_M_p_Malloc(sizeof(GEO_tdstGeometricObject));
+
+    p_stObjectToCreate->xNbElements = xNbElements;
+    p_stObjectToCreate->xNbPoints   = xNbPoints;
+
+    p_stObjectToCreate->d_xListOfElementsTypes =
+        (ACP_tdxIndex *)TMP_M_p_Malloc(sizeof(ACP_tdxIndex) * xNbElements);
+
+    p_stObjectToCreate->d_stListOfElements =
+        (void **)TMP_M_p_Malloc(sizeof(void *) * xNbElements);
+
+    p_stObjectToCreate->d_stListOfPoints =
+        (MTH3D_tdstVector *)TMP_M_p_Malloc(sizeof(MTH3D_tdstVector) * xNbPoints);
+
+    p_stObjectToCreate->d_stListOfPointsNormals =
+        (MTH3D_tdstVector *)TMP_M_p_Malloc(sizeof(MTH3D_tdstVector) * xNbPoints);
+
+    return (ACP_tdxHandleOfObject)p_stObjectToCreate;
+}
+
+/* 0x0041ccf0 */
+static void GEO_vInitGeometricObject(
+    GEO_tdstGeometricObject *p_stObjectToCreate,
+    ACP_tdxIndex xNbPoints, ACP_tdxIndex xNbElements)
+{
+    ACP_tdxIndex xInitCount;
+
+    (void)xNbPoints;
+
+    for (xInitCount = 0; xInitCount < xNbElements; xInitCount++)
+        p_stObjectToCreate->d_xListOfElementsTypes[xInitCount] = GEO_C_xElementNULL;
+
+    p_stObjectToCreate->p_stOctree = NULL;
+
+    p_stObjectToCreate->xNbParallelBoxes        = 0;
+    p_stObjectToCreate->d_stListOfParallelBoxes = NULL;
+
+    p_stObjectToCreate->ulType = GEO_C_NotALookAt;
+}
+
 /* 0x41cd30 */
 void GEO_vCreateGeometricObject(
     ACP_tdxHandleOfObject *p_hObject,
@@ -475,17 +312,47 @@ void GEO_vCreateGeometricObject(
     GEO_vInitGeometricObject((GEO_tdstGeometricObject *)*p_hObject, xNbPoints, xNbElements);
 }
 
-/* 0x41d1a0 */
-void GEO_vEndModifyObject(ACP_tdxHandleOfObject hObject)
+/* 0x0041cd60 */
+void GEO_vCreateTMPGeometricObject(
+    ACP_tdxHandleOfObject *p_hObject,
+    ACP_tdxIndex xNbPoints, ACP_tdxIndex xNbElements)
 {
-    GEO_xComputeObjectNormals(hObject);           /* 0x0041bdd0 */
-    GEO_xComputeIndexUsedByElements(hObject);     /* 0x0041c410 */
-    GEO_vComputeObjectListOfParallelBox(hObject); /* 0x0041d9d0 */
+    *p_hObject = GEO_hAllocTMPGeometricObject(xNbPoints, xNbElements);
+    GEO_vInitGeometricObject((GEO_tdstGeometricObject *)*p_hObject, xNbPoints, xNbElements);
+}
 
-    hObject->xBoudingSphereCenter = hObject->d_stListOfPoints[0];
-    hObject->xBoudingSphereRadius = 0.0f;
-    GEO_xComputeObjectSphereBox(                   /* 0x0041ba30 */
-        hObject, &hObject->xBoudingSphereCenter, &hObject->xBoudingSphereRadius);
+ACP_tdxIndex GEO_xGetGeometricObjectNumberOfPoints(ACP_tdxHandleOfObject hObject)
+{
+    return hObject->xNbPoints;
+}
+
+/* 0x41cda0 */
+void GEO_vSetPointOfObject(
+    ACP_tdxHandleOfObject hObject,
+    MTH3D_tdstVector *p_stPoint,
+    ACP_tdxIndex xIndexOfPoint)
+{
+    *(hObject->d_stListOfPoints + xIndexOfPoint) = *p_stPoint;
+}
+
+/* 0x41cdd0 */
+void GEO_vGetPointOfObject(
+    ACP_tdxHandleOfObject hObject,
+    MTH3D_tdstVector *p_stPoint,
+    ACP_tdxIndex xIndexOfPoint)
+{
+    *p_stPoint = *(hObject->d_stListOfPoints + xIndexOfPoint);
+}
+
+/* 0x0041ce00 */
+ACP_tdxIndex GEO_xGetElementType(ACP_tdxHandleOfObject hObject, ACP_tdxIndex xElement)
+{
+    return (hObject->d_xListOfElementsTypes[xElement]);
+}
+
+ACP_tdxIndex GEO_xGetGeometricObjectNumberOfElementsMax(ACP_tdxHandleOfObject hObject)
+{
+    return(hObject->xNbElements);
 }
 
 void GEO_vCreateObjectListOfPointsMaterial(ACP_tdxHandleOfObject hObject)
@@ -499,8 +366,6 @@ void GEO_vCreateObjectListOfPointsMaterial(ACP_tdxHandleOfObject hObject)
         (hObject->xNbPoints) * sizeof(GMT_tdxHandleToGameMaterial),
         E_uwGEONotEnoughtMemory);
 }
-
-#include "GEO/Fmd.h"
 
 void GEO_vComputeObjectListOfPointsMaterial(ACP_tdxHandleOfObject hObject)
 {
@@ -627,38 +492,60 @@ void GEO_vComputeObjectListOfPointsMaterial(ACP_tdxHandleOfObject hObject)
     }
 }
 
-/* 0x41cda0 */
-void GEO_vSetPointOfObject(
-    ACP_tdxHandleOfObject hObject,
-    MTH3D_tdstVector *p_stPoint,
-    ACP_tdxIndex xIndexOfPoint)
+/* 0x41d1a0 */
+void GEO_vEndModifyObject(ACP_tdxHandleOfObject hObject)
 {
-    *(hObject->d_stListOfPoints + xIndexOfPoint) = *p_stPoint;
+    GEO_xComputeObjectNormals(hObject);           /* 0x0041bdd0 */
+    GEO_xComputeIndexUsedByElements(hObject);     /* 0x0041c410 */
+    GEO_vComputeObjectListOfParallelBox(hObject); /* 0x0041d9d0 */
+
+    hObject->xBoudingSphereCenter = hObject->d_stListOfPoints[0];
+    hObject->xBoudingSphereRadius = 0.0f;
+    GEO_xComputeObjectSphereBox(                   /* 0x0041ba30 */
+        hObject, &hObject->xBoudingSphereCenter, &hObject->xBoudingSphereRadius);
 }
 
-/* 0x41cdd0 */
-void GEO_vGetPointOfObject(
-    ACP_tdxHandleOfObject hObject,
-    MTH3D_tdstVector *p_stPoint,
-    ACP_tdxIndex xIndexOfPoint)
+/* 0x0041d1f0 */
+void GEO_vEndModifyObject2(ACP_tdxHandleOfObject hObject)
 {
-    *p_stPoint = *(hObject->d_stListOfPoints + xIndexOfPoint);
+    GEO_xComputeObjectNormals2(hObject);           /* 0x0041c3f0 */
+    GEO_vComputeObjectListOfParallelBox(hObject);  /* 0x0041d9d0 */
+
+    hObject->xBoudingSphereCenter = hObject->d_stListOfPoints[0];
+    hObject->xBoudingSphereRadius = 0.0f;
+    GEO_xComputeObjectSphereBox(                   /* 0x0041ba30 */
+        hObject, &hObject->xBoudingSphereCenter, &hObject->xBoudingSphereRadius);
 }
 
-ACP_tdxIndex GEO_xGetGeometricObjectNumberOfPoints(ACP_tdxHandleOfObject hObject)
+/* 0x0041D240 */
+void
+GEO_vGetNormalOfGeometricObjectElement
+(
+        GEO_tdstGeometricObject *hObject,
+        ACP_tdxIndex xElementIndex,
+        ACP_tdxIndex xDataElementIndex,
+        MTH3D_tdstVector *p_stNormal
+)
 {
-    return hObject->xNbPoints;
-}
+  GEO_tdstElementIndexedTriangles *p_stElementIndexedTriangles;
+  GEO_tdstElementFaceMapDescriptors *p_stElementFaceMapDescriptors;
 
-/* 0x0041ce00 */
-ACP_tdxIndex GEO_xGetElementType(ACP_tdxHandleOfObject hObject, ACP_tdxIndex xElement)
-{
-    return (hObject->d_xListOfElementsTypes[xElement]);
-}
+  MTH3D_M_vNullVector ( p_stNormal );
 
-ACP_tdxIndex GEO_xGetGeometricObjectNumberOfElementsMax(ACP_tdxHandleOfObject hObject)
-{
-    return(hObject->xNbElements);
+  switch ( hObject->d_xListOfElementsTypes[xElementIndex] )
+  {
+    case GEO_C_xElementIndexedTriangles :
+      p_stElementIndexedTriangles = (GEO_tdstElementIndexedTriangles *)(hObject->d_stListOfElements[xElementIndex]);
+
+      MTH3D_M_vCopyVector ( p_stNormal, (p_stElementIndexedTriangles->d_stListOfFacesNormals + xDataElementIndex) );
+    break;
+
+    case GEO_C_xElementFaceMapDescriptors :
+      p_stElementFaceMapDescriptors = (GEO_tdstElementFaceMapDescriptors *)(hObject->d_stListOfElements[xElementIndex]);
+
+      MTH3D_M_vCopyVector ( p_stNormal, (p_stElementFaceMapDescriptors->d_stListOfFacesNormals + xDataElementIndex) );
+    break;
+  }
 }
 
 ACP_tdxHandleOfObject GEO_fn_hTransformTableOfObjectInOneObjectForGAM(
@@ -812,99 +699,6 @@ ACP_tdxHandleOfObject GEO_fn_hTransformTableOfObjectInOneObjectForGAM(
    return _hGeoObj;
 }
 
-void GEO_xGetFaceMapDescriptorGameMaterial(ACP_tdxHandleOfFMD hFmd, GMT_tdxHandleToGameMaterial *p_hMaterial)
-{
-    *p_hMaterial = hFmd->hMaterial;
-}
-
-/* 0x0041D240 */
-void
-GEO_vGetNormalOfGeometricObjectElement
-(
-        GEO_tdstGeometricObject *hObject,
-        ACP_tdxIndex xElementIndex,
-        ACP_tdxIndex xDataElementIndex,
-        MTH3D_tdstVector *p_stNormal
-)
-{
-  GEO_tdstElementIndexedTriangles *p_stElementIndexedTriangles;
-  GEO_tdstElementFaceMapDescriptors *p_stElementFaceMapDescriptors;
-
-  MTH3D_M_vNullVector ( p_stNormal );
-
-  switch ( hObject->d_xListOfElementsTypes[xElementIndex] )
-  {
-    case GEO_C_xElementIndexedTriangles :
-      p_stElementIndexedTriangles = (GEO_tdstElementIndexedTriangles *)(hObject->d_stListOfElements[xElementIndex]);
-
-      MTH3D_M_vCopyVector ( p_stNormal, (p_stElementIndexedTriangles->d_stListOfFacesNormals + xDataElementIndex) );
-    break;
-
-    case GEO_C_xElementFaceMapDescriptors :
-      p_stElementFaceMapDescriptors = (GEO_tdstElementFaceMapDescriptors *)(hObject->d_stListOfElements[xElementIndex]);
-
-      MTH3D_M_vCopyVector ( p_stNormal, (p_stElementFaceMapDescriptors->d_stListOfFacesNormals + xDataElementIndex) );
-    break;
-  }
-}
-
-#undef MTH2D_M_vDivScalarVector
-#define MTH2D_M_vDivScalarVector( VectDest, VectA, a)                   \
-        {       (VectDest)->xX = MTH_M_xDiv((VectA)->xX, (a));          \
-                (VectDest)->xY = MTH_M_xDiv((VectA)->xY, (a)); }
-#undef MTH2D_M_vDivScalarMatrix
-#define MTH2D_M_vDivScalarMatrix(MatDest, MatA, a)                              \
-                {       MTH2D_M_vDivScalarVector( &((MatDest)->stCol_0),        \
-                                        &((MatA)->stCol_0), (a));               \
-                        MTH2D_M_vDivScalarVector( &((MatDest)->stCol_1),        \
-                                                  &((MatA)->stCol_1), (a)); }
-#undef MTH2D_M_xDetMatrix
-#define MTH2D_M_xDetMatrix(MatA)                                        \
-                MTH_M_xSub(                                             \
-                MTH_M_xMul( (MatA)->stCol_0.xX, (MatA)->stCol_1.xY ),   \
-                MTH_M_xMul( (MatA)->stCol_0.xY, (MatA)->stCol_1.xX ))
-#undef MTH2D_M_vInverMatrix
-#define MTH2D_M_vInverMatrix(MatDest, MatA)                                             \
-        {                                                                               \
-            MTH2D_tdstMatrix MatTmp;                                                    \
-            MTH_tdxReal det;                                                            \
-            MatTmp.stCol_0.xX = (MatA)->stCol_1.xY;                                     \
-            MatTmp.stCol_0.xY = MTH_M_xNeg( (MatA)->stCol_0.xY );                       \
-            MatTmp.stCol_1.xX = MTH_M_xNeg( (MatA)->stCol_1.xX );                       \
-            MatTmp.stCol_1.xY = (MatA)->stCol_0.xX;                                     \
-            det=MTH2D_M_xDetMatrix( MatA );                                             \
-            MTH2D_M_vDivScalarMatrix(MatDest, &(MatTmp), det );                         \
-            }
-#undef MTH2D_M_vSetVectorElements
-#define MTH2D_M_vSetVectorElements( VectDest, Vx, Vy)                   \
-        {               (VectDest)->xX = (Vx);                          \
-                        (VectDest)->xY = (Vy); }
-#undef MTH2D_M_xGetXofVector
-#define MTH2D_M_xGetXofVector( VectA )                                                  \
-                        (VectA)->xX
-#undef MTH2D_M_xGetYofVector
-#define MTH2D_M_xGetYofVector( VectA )                                                  \
-                        (VectA)->xY
-#undef MTH2D_M_vSetVectorsInMatrix
-#define MTH2D_M_vSetVectorsInMatrix( MatDest, VectA, VectB)             \
-        {    (MatDest)->stCol_0.xX=(VectA)->xX;                         \
-             (MatDest)->stCol_0.xY=(VectA)->xY;                         \
-             (MatDest)->stCol_1.xX=(VectB)->xX;                         \
-             (MatDest)->stCol_1.xY=(VectB)->xY; }
-#undef MTH2D_M_vMulMatrixVectorWithoutBuffer
-#define MTH2D_M_vMulMatrixVectorWithoutBuffer( VectDest, MatA, VectA)           \
-        {     (VectDest)->xX = MTH_M_xAdd(                                      \
-                                MTH_M_xMul( (MatA)->stCol_0.xX, (VectA)->xX),   \
-                        MTH_M_xMul( (MatA)->stCol_1.xX, (VectA)->xY));          \
-             (VectDest)->xY = MTH_M_xAdd(                                       \
-                                MTH_M_xMul( (MatA)->stCol_0.xY, (VectA)->xX),   \
-                        MTH_M_xMul( (MatA)->stCol_1.xY, (VectA)->xY)); }
-
-/* 0x0041D5E0 */
-extern void __cdecl GLI_xGetMaterialTextureScrollingCoef(ACP_tdxHandleOfMaterial hMaterial, long lNumberOfTexture,
-                                                         long *p_bSwitch, MTH_tdxReal *p_fUSpeed,
-                                                         MTH_tdxReal *p_fVSpeed);
-
 void GEO_vGetFaceSurfaceSpeed(ACP_tdxHandleOfObject hObject,
                               ACP_tdxIndex xElement,
                               ACP_tdxIndex xFace,
@@ -973,5 +767,264 @@ void GEO_vGetFaceSurfaceSpeed(ACP_tdxHandleOfObject hObject,
         MTH3D_M_vSetVectorsInMatrix(&mABCToXYZ, &vAB, &vAC, &vN);
 
         MTH3D_M_vMulMatrixVectorWithoutBuffer(p_vSpeed, &mABCToXYZ, &vABCSpeed3D);
+    }
+}
+
+void GEO_vCreateObjectListOfParallelBox(
+    ACP_tdxHandleOfObject hObject,
+    ACP_tdxIndex          xNumberOfParallelBoxes)
+{
+    ACP_tdxIndex xIndex;
+    hObject->xNbParallelBoxes = xNumberOfParallelBoxes;
+    if (hObject->xNbParallelBoxes == 0) return;
+    if (hObject->d_stListOfParallelBoxes != NULL) return;
+    GEO_M_CPAMalloc(hObject->d_stListOfParallelBoxes, GEO_tdstParallelBox *,
+        sizeof(GEO_tdstParallelBox) * hObject->xNbParallelBoxes, E_uwGEONotEnoughtMemory);
+    for (xIndex = 0; xIndex < hObject->xNbParallelBoxes; xIndex++) {
+
+        hObject->d_stListOfParallelBoxes[xIndex].stMinPoint.xZ =
+            hObject->d_stListOfParallelBoxes[xIndex].stMinPoint.xY =
+            hObject->d_stListOfParallelBoxes[xIndex].stMinPoint.xX = MTH_C_InfinitPlus;
+        hObject->d_stListOfParallelBoxes[xIndex].stMaxPoint.xZ =
+            hObject->d_stListOfParallelBoxes[xIndex].stMaxPoint.xY =
+            hObject->d_stListOfParallelBoxes[xIndex].stMaxPoint.xX = MTH_C_InfinitMinus;
+    }
+}
+
+void GEO_vComputeObjectListOfParallelBox(ACP_tdxHandleOfObject hObject)
+{
+    ACP_tdxIndex xIndex;
+    if (hObject->xNbParallelBoxes == 0) return;
+    if (hObject->d_stListOfParallelBoxes == NULL)
+        GEO_vCreateObjectListOfParallelBox(hObject, hObject->xNbParallelBoxes);
+    for (xIndex = 0; xIndex < hObject->xNbParallelBoxes; xIndex++)
+        GEO_vComputeObjectParallelBox(hObject, xIndex);
+}
+
+/* 0x0045dc60 */
+GEO_tdxHandleToParallelBox GEO_hGetParallelBox(
+    ACP_tdxHandleOfObject hObject,
+    ACP_tdxIndex          xParallelBox)
+{
+    if (xParallelBox < hObject->xNbParallelBoxes)
+        return hObject->d_stListOfParallelBoxes + xParallelBox;
+    return NULL;
+}
+
+ACP_tdxIndex GEO_xGetParallelBoxIndexOfElement(
+    ACP_tdxHandleOfObject hObject,
+    ACP_tdxIndex          xIndexOfElement)
+{
+    switch (hObject->d_xListOfElementsTypes[xIndexOfElement]) {
+    case GEO_C_xElementIndexedTriangles:
+        return ((GEO_tdstElementIndexedTriangles *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
+    case GEO_C_xElementFaceMapDescriptors:
+        return ((GEO_tdstElementFaceMapDescriptors *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
+    case GEO_C_xElementTMeshes:
+        return ((GEO_tdstElementTMeshes *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
+    case GEO_C_xElementPoints:
+        return ((GEO_tdstElementPoints *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
+    case GEO_C_xElementLines:
+        return ((GEO_tdstElementLines *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
+    case GEO_C_xElementSprites:
+    case GEO_C_xElementSpheres:
+    case GEO_C_xElementAlignedBoxes:
+    case GEO_C_xElementCones:
+
+        return ((GEO_tdstElementSpheres *)(hObject->d_stListOfElements[xIndexOfElement]))->xIndexOfParallelBox;
+    case 10:
+        return GEO_C_xNoParallelBox;
+    case 11:
+        return GEO_C_xNoParallelBox;
+    default:
+        return GEO_C_xNoParallelBox;
+    }
+}
+
+void GEO_xGetFaceMapDescriptorGameMaterial(ACP_tdxHandleOfFMD hFmd, GMT_tdxHandleToGameMaterial *p_hMaterial)
+{
+    *p_hMaterial = hFmd->hMaterial;
+}
+
+/* 0x0041faa0 */
+void GEO_fn_vUpdateMinMaxBoxWithPoint(
+    MTH3D_tdstVector *p_stMinPoint,
+    MTH3D_tdstVector *p_stMaxPoint,
+    MTH3D_tdstVector *p_stPoint)
+{
+    MTH3D_tdstVector *p_stPointToTest = p_stPoint;
+
+    if( p_stPointToTest->xX < p_stMinPoint->xX )
+    {
+        p_stMinPoint->xX = p_stPointToTest->xX;
+    }
+    else if( p_stPointToTest->xX > p_stMaxPoint->xX )
+    {
+        p_stMaxPoint->xX = p_stPointToTest->xX;
+    }
+    if( MTH3D_M_xGetYofVector( p_stPointToTest ) < MTH3D_M_xGetYofVector( p_stMinPoint ) )
+    {
+        MTH3D_M_vSetYofVector( p_stMinPoint,  MTH3D_M_xGetYofVector( p_stPointToTest ) );
+    }
+    else if( MTH3D_M_xGetYofVector( p_stPointToTest ) > MTH3D_M_xGetYofVector( p_stMaxPoint ) )
+    {
+        MTH3D_M_vSetYofVector( p_stMaxPoint,  MTH3D_M_xGetYofVector( p_stPointToTest ) );
+    }
+    if( MTH3D_M_xGetZofVector( p_stPointToTest ) < MTH3D_M_xGetZofVector( p_stMinPoint ) )
+    {
+        MTH3D_M_vSetZofVector( p_stMinPoint,  MTH3D_M_xGetZofVector( p_stPointToTest ) );
+    }
+    else if( MTH3D_M_xGetZofVector( p_stPointToTest ) > MTH3D_M_xGetZofVector( p_stMaxPoint ) )
+    {
+        MTH3D_M_vSetZofVector( p_stMaxPoint,  MTH3D_M_xGetZofVector( p_stPointToTest ) );
+    }
+}
+
+void GEO_vComputeObjectParallelBox(
+    ACP_tdxHandleOfObject hObject,
+    ACP_tdxIndex          xParallelBox)
+{
+    GEO_tdstElementIndexedTriangles     *p_stETIT;
+    GEO_tdstElementPoints               *p_stEIP;
+    GEO_tdstElementLines                *p_stEL;
+    GEO_tdstElementSpheres              *p_stES;
+    GEO_tdstElementAlignedBoxes         *p_stEAB;
+    GEO_tdstElementCones                *p_stEC;
+    GEO_tdstElementSprite               *p_stESt;
+    GEO_tdstElementFaceMapDescriptors   *p_stEFMD;
+    ACP_tdxIndex                        xIndexElement , xIndexInElement;
+    MTH3D_tdstVector                    *p_stMinPoint , *p_stMaxPoint;
+    GEO_tdxHandleToParallelBox          hParallelBox;
+    BOOL                                bInit;
+
+    bInit = FALSE;
+    hParallelBox = GEO_hGetParallelBox( hObject, xParallelBox );
+
+    if( hParallelBox == NULL )  return;
+
+    p_stMinPoint = & hParallelBox -> stMinPoint;
+    p_stMaxPoint = & hParallelBox -> stMaxPoint;
+
+    for ( xIndexElement = 0 ; xIndexElement < hObject -> xNbElements ; xIndexElement++ )
+    {
+        if( GEO_xGetParallelBoxIndexOfElement( hObject, xIndexElement ) == xParallelBox )
+        {
+            switch ( hObject -> d_xListOfElementsTypes[ xIndexElement ] )
+            {
+            case GEO_C_xElementIndexedTriangles:
+                p_stETIT = (GEO_tdstElementIndexedTriangles*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stETIT -> xNbFaces )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ 0 ] . a3_xIndex[0] );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ 0 ] . a3_xIndex[0] );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stETIT -> xNbFaces ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ xIndexInElement ] . a3_xIndex[0] );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ xIndexInElement ] . a3_xIndex[1] );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stETIT -> d_stListOfFacesTripled [ xIndexInElement ] . a3_xIndex[2] );
+                }
+                break;
+
+            case GEO_C_xElementFaceMapDescriptors:
+                p_stEFMD = (GEO_tdstElementFaceMapDescriptors*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stEFMD -> xNbFaces )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ 0 ] . stFaceTripled . a3_xIndex[0] );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ 0 ] . stFaceTripled . a3_xIndex[0] );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stEFMD -> xNbFaces ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ xIndexInElement ] . stFaceTripled . a3_xIndex[0] );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ xIndexInElement ] . stFaceTripled . a3_xIndex[1] );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEFMD -> d_stListOfFacesQuadrupled [ xIndexInElement ] . stFaceTripled . a3_xIndex[2] );
+                }
+                break;
+            case GEO_C_xElementSprites:
+                p_stESt = (GEO_tdstElementSprite*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+
+                if( !bInit && p_stESt -> xNbSprites )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stESt -> d_stListOfSprites [ 0 ] . xCenterPoint );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stESt -> d_stListOfSprites [ 0 ] . xCenterPoint );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stESt -> xNbSprites ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stESt -> d_stListOfSprites [ xIndexInElement ] . xCenterPoint );
+                }
+                break;
+            case GEO_C_xElementPoints:
+                p_stEIP = (GEO_tdstElementPoints*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stEIP -> xNbPoints )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEIP -> d_xListOfPointIndex [ 0 ] );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEIP -> d_xListOfPointIndex [ 0 ] );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stEIP -> xNbPoints ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEIP -> d_xListOfPointIndex [ xIndexInElement ] );
+                }
+                break;
+            case GEO_C_xElementLines:
+                p_stEL = (GEO_tdstElementLines*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stEL -> xNbLines )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ 0 ] . a2_xIndex[ 0 ] );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ 0 ] . a2_xIndex[ 0 ] );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stEL -> xNbLines ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ xIndexInElement ] . a2_xIndex[ 0 ] );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEL -> d_stListOfLineIndex [ xIndexInElement ] . a2_xIndex[ 1 ] );
+                }
+                break;
+            case GEO_C_xElementSpheres:
+                p_stES = (GEO_tdstElementSpheres*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stES -> xNbSpheres )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stES -> d_stListOfSpheres [ 0 ] . xCenterPoint );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stES -> d_stListOfSpheres [ 0 ] . xCenterPoint );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stES -> xNbSpheres ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stES -> d_stListOfSpheres [ xIndexInElement ] . xCenterPoint );
+                }
+                break;
+            case GEO_C_xElementAlignedBoxes:
+                p_stEAB = (GEO_tdstElementAlignedBoxes*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stEAB -> xNbAlignedBoxes )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ 0 ] . xMinPoint );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ 0 ] . xMinPoint );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stEAB -> xNbAlignedBoxes ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ xIndexInElement ] . xMinPoint );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEAB -> d_stListOfAlignedBoxes [ xIndexInElement ] . xMaxPoint );
+                }
+                break;
+            case GEO_C_xElementCones:
+                p_stEC = (GEO_tdstElementCones*) ( hObject -> d_stListOfElements[ xIndexElement ] );
+                if( !bInit && p_stEC -> xNbCones )
+                {
+                    MTH3D_M_vCopyVector( p_stMinPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ 0 ] . xTopPoint );
+                    MTH3D_M_vCopyVector( p_stMaxPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ 0 ] . xTopPoint );
+                    bInit = TRUE;
+                }
+                for ( xIndexInElement = 0 ; xIndexInElement < p_stEC -> xNbCones ; xIndexInElement++ )
+                {
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ xIndexInElement ] . xTopPoint );
+                    GEO_fn_vUpdateMinMaxBoxWithPoint( p_stMinPoint, p_stMaxPoint, hObject -> d_stListOfPoints + p_stEC -> d_stListOfCones [ xIndexInElement ] . xBasePoint );
+                }
+                break;
+            }
+        }
     }
 }

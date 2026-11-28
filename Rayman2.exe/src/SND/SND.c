@@ -728,123 +728,11 @@ typedef struct {
 
 static tdstTypeObjectInfos *g_d_pstTypeObjectSoundInfos;   /* 0x004B749C */
 
-long __cdecl fn_lGetVolumeForType(long type)
-{
-    return g_d_pstTypeObjectSoundInfos[type].lVolume;
-}
-
-long fn_lGetVolumeForObject(long indice,long type)
-{
-    ptdstVolumeChanged pVol;
-    int i;
-	SndBool	bFound=FALSE;
-
-	SNDLST2_M_DynamicForEachElementOf(&g_d_pstTypeObjectSoundInfos[type].pListVolumeChanged,pVol,i)
-	{
-			if (pVol->lIndice==indice)
-			{
-				bFound=TRUE;
-				break;
-			}
-	}
-	if (bFound)
-		return pVol->lVolume;
-	else
-		return C_SOUNDVOL_MAXI;
-}
-
-void __cdecl set_SwitchParam(long indice,long type,SoundParam* pstSoundParam)
-{
-        SwitchParam* pstSwitch;
-
-        pstSwitch=&(SND_M_GetExtraParamFromSoundParam(pstSoundParam))->stSwitch;
-
-        pstSoundParam->iFlags|=C_SOUNDPARAM_SWITCH;
-        pstSwitch->lObjectType=type;
-        pstSwitch->lObjectId=indice;
-}
-
-/* 0x00451FB0 */
-long __cdecl SND_pc_fn_lCallTypeSubTableSlot6(long objectid, long lTypeSwitch, long objecttype)
-{
-    return g_d_pstTypeObjectSoundInfos[objecttype].pc_stRetObjectSoundKey.Switch(objectid, lTypeSwitch);
-}
-
-/* 0x004537E0 */
-long __cdecl SND_fn_lGetSwitchIndice(long objecttype,long objectid,tduRefRes uRes)
-{
-        return g_d_pstTypeObjectSoundInfos[objecttype].pfnRetObjectSound.Switch(objectid,uRes.pstPtr->uRes.stSwitch.lTypeSwitch);
-}
-
-/* 0x00451FE0 */
-SndVector __cdecl SND_pc_fn_stAddAxisCombinationToBase(SndVector stBase, SndVector stCoef,
-                                                   SndVector stAxisX, SndVector stAxisY, SndVector stAxisZ)
-{
-    SndReal rX, rY, rZ;
-
-    rX = SND_fn_rMulRealRealSnd(stCoef.z, stAxisZ.x);
-    rX += SND_fn_rMulRealRealSnd(stCoef.y, stAxisY.x);
-    rX += SND_fn_rMulRealRealSnd(stCoef.x, stAxisX.x);
-    rY = SND_fn_rMulRealRealSnd(stCoef.z, stAxisZ.y);
-    rY += SND_fn_rMulRealRealSnd(stCoef.y, stAxisY.y);
-    rY += SND_fn_rMulRealRealSnd(stCoef.x, stAxisX.y);
-    rZ = SND_fn_rMulRealRealSnd(stCoef.z, stAxisZ.z);
-    rZ += SND_fn_rMulRealRealSnd(stCoef.y, stAxisY.z);
-    rZ += SND_fn_rMulRealRealSnd(stCoef.x, stAxisX.z);
-
-    stBase.x += rX;
-    stBase.y += rY;
-    stBase.z += rZ;
-    return stBase;
-}
-
-void __cdecl get_RollOff(long indice,long type,SoundParam* pstSoundParam)
-{
-    RollOffParam* pstRollOff;
-
-    pstRollOff=&(SND_M_GetExtraParamFromSoundParam(pstSoundParam))->stRollOff;
-    pstSoundParam->iFlags&=~C_SOUNDPARAM_ROLLOFF;
-
-    if (g_d_pstTypeObjectSoundInfos[type].pfnRollOff)
-    {
-            if ((*g_d_pstTypeObjectSoundInfos[type].pfnRollOff)(indice,pstRollOff))
-            {
-                    pstSoundParam->iFlags|=C_SOUNDPARAM_ROLLOFF;
-            }
-    }
-}
-
 static tdstAllRetMicroSound g_st_pfnRetMicroSound;   /* 0x004B74B8 */
 
 static long HandleCallback=1;   /* 0x004A24D8 */
 
 static SndBool g_bDopplerActive=TRUE;   /* 0x004A24DC */
-
-/* 0x004519D0 */
-void GetMicroParam(long id,MicroParam *par)
-{
-                par->pos.x=g_st_pfnRetMicroSound.X(id);
-                par->pos.y=g_st_pfnRetMicroSound.Y(id);
-                par->pos.z=g_st_pfnRetMicroSound.Z(id);
-                par->vit.x=g_st_pfnRetMicroSound.VX(id);
-                par->vit.y=g_st_pfnRetMicroSound.VY(id);
-                par->vit.z=g_st_pfnRetMicroSound.VZ(id);
-                par->dirnor.x=g_st_pfnRetMicroSound.DNX(id);
-                par->dirnor.y=g_st_pfnRetMicroSound.DNY(id);
-                par->dirnor.z=g_st_pfnRetMicroSound.DNZ(id);
-                par->dirtan.x=g_st_pfnRetMicroSound.DTX(id);
-                par->dirtan.y=g_st_pfnRetMicroSound.DTY(id);
-                par->dirtan.z=g_st_pfnRetMicroSound.DTZ(id);
-
-                                if ((par->dirnor.x==0)&&(par->dirnor.y==0)&&(par->dirnor.z==0))
-                                {
-                                        par->dirnor.x=C_SNDREAL_1;
-                                }
-                if ((par->dirtan.x==0)&&(par->dirtan.y==0)&&(par->dirtan.z==0))
-                                {
-                                        par->dirtan.y=C_SNDREAL_1;
-                                }
-}
 
 #ifndef snd_assert
 #define snd_assert(expr) ((void)0)
@@ -886,36 +774,6 @@ void __cdecl associe_sound(pASSOCIATION_DESCRIPTION asso, long lPcExtra,
                            long indice, long type, long prio, long voice,
                            SND_tduRefEvt evt, tduRefRes res_hi, SndReal rDeTune, long lHandle);
 
-pASSOCIATION_DESCRIPTION __cdecl get_association(long indice,long type,void* evt)
-{
-	pASSOCIATION_DESCRIPTION pAsso;
-	int i=0;
-
-	if (evt == NULL)
-	{
-		SNDLST2_M_DynamicForEachElementOf(&association.pList, pAsso, i)
-		{
-			if (pAsso->bValid
-				&& (pAsso->indice == indice)
-				&& (pAsso->type == type))
-			break;
-		}
-	}
-	else
-	{
-		SNDLST2_M_DynamicForEachElementOf(&association.pList, pAsso, i)
-		{
-			if (pAsso->bValid
-				&& (pAsso->indice == indice)
-				&& (pAsso->evt.pstPtr == evt)
-				&& (pAsso->type == type))
-			break;
-        }
-    }
-
-    return pAsso;
-}
-
 void __cdecl fnSetLastEventForSoundObjectType(long type,SND_tdstBlockEvent* evt)
 {
         if (type<nb_object_type && type>=0)
@@ -929,11 +787,6 @@ SND_tdstBlockEvent* __cdecl SND_fn_pstGetLastEventForObjectTypeSound(long type)
                 return g_d_pstTypeObjectSoundInfos[type].pstLastEvent;
         else
                 return NULL;
-}
-
-void __cdecl fn_vChangeVolumeForType(long type,long lNewVolume)
-{
-        g_d_pstTypeObjectSoundInfos[type].lVolume=lNewVolume;
 }
 
 SndBool SND_fn_bInitDataLoadSnd(const char *_szFileTitle)
@@ -965,6 +818,11 @@ void fn_vResetVolumeForObject(long indice,long type)
 			SNDLST2_M_DynamicIsolate(pVol);
 			SND_RT_fn_vFreeSndEx(E_ucSndBlockMain,pVol);
 		}
+}
+
+void __cdecl fn_vChangeVolumeForType(long type,long lNewVolume)
+{
+        g_d_pstTypeObjectSoundInfos[type].lVolume=lNewVolume;
 }
 
 void fn_vChangeVolumeForObject(long indice,long type,long lNewVolume)
@@ -1001,32 +859,55 @@ void fn_vChangeVolumeForObject(long indice,long type,long lNewVolume)
         }
 }
 
-void __cdecl SND_fn_vSetRollOffFunctionForTypeSound(long type,td_pfn_bRetRollOffFactor fct)
+long __cdecl fn_lGetVolumeForType(long type)
 {
-	if ((type>=0) && (type<nb_object_type))
-		g_d_pstTypeObjectSoundInfos[type].pfnRollOff=fct;
+    return g_d_pstTypeObjectSoundInfos[type].lVolume;
 }
 
-void __cdecl SND_fn_vSetInfoForTypeSound(long type,td_pfn_vCopyString fct)
+long fn_lGetVolumeForObject(long indice,long type)
 {
-	if ((type>=0) && (type<nb_object_type))
-		g_d_pstTypeObjectSoundInfos[type].pfnInfoObject=fct;
+    ptdstVolumeChanged pVol;
+    int i;
+	SndBool	bFound=FALSE;
+
+	SNDLST2_M_DynamicForEachElementOf(&g_d_pstTypeObjectSoundInfos[type].pListVolumeChanged,pVol,i)
+	{
+			if (pVol->lIndice==indice)
+			{
+				bFound=TRUE;
+				break;
+			}
+	}
+	if (bFound)
+		return pVol->lVolume;
+	else
+		return C_SOUNDVOL_MAXI;
 }
 
-void __cdecl SND_fn_vGetInfoForObjectSound(long id, long type, char *str, long size_ptr)
+/* 0x004519D0 */
+void GetMicroParam(long id,MicroParam *par)
 {
-    td_pfn_vCopyString pfnInfoObject = g_d_pstTypeObjectSoundInfos[type].pfnInfoObject;
+                par->pos.x=g_st_pfnRetMicroSound.X(id);
+                par->pos.y=g_st_pfnRetMicroSound.Y(id);
+                par->pos.z=g_st_pfnRetMicroSound.Z(id);
+                par->vit.x=g_st_pfnRetMicroSound.VX(id);
+                par->vit.y=g_st_pfnRetMicroSound.VY(id);
+                par->vit.z=g_st_pfnRetMicroSound.VZ(id);
+                par->dirnor.x=g_st_pfnRetMicroSound.DNX(id);
+                par->dirnor.y=g_st_pfnRetMicroSound.DNY(id);
+                par->dirnor.z=g_st_pfnRetMicroSound.DNZ(id);
+                par->dirtan.x=g_st_pfnRetMicroSound.DTX(id);
+                par->dirtan.y=g_st_pfnRetMicroSound.DTY(id);
+                par->dirtan.z=g_st_pfnRetMicroSound.DTZ(id);
 
-    if (pfnInfoObject != NULL)
-    {
-        pfnInfoObject(id, str, size_ptr);
-        return;
-    }
-    {
-        /* 0x0049C17C */
-        static const char SND_szNoInfo[] = "no info";
-        strncpy(str, SND_szNoInfo, (size_t)size_ptr);
-    }
+                                if ((par->dirnor.x==0)&&(par->dirnor.y==0)&&(par->dirnor.z==0))
+                                {
+                                        par->dirnor.x=C_SNDREAL_1;
+                                }
+                if ((par->dirtan.x==0)&&(par->dirtan.y==0)&&(par->dirtan.z==0))
+                                {
+                                        par->dirtan.y=C_SNDREAL_1;
+                                }
 }
 
 /* 0x00403290 */
@@ -1037,37 +918,9 @@ void __cdecl SND_PrintUsedStaticMemory(void)
 static tdstAllRetObjectSound g_astTypeObjectSoundInfosDefault;
 #define SND_M_g_astTypeObjectSoundInfosDefault (&g_astTypeObjectSoundInfosDefault)
 
-void __cdecl fn_vUpdateTypeObjectSoundInfos(tdstAllRetObjectSound *ptrfct,
-                                            tdstAllRetObjectSound *new_ptrfct)
-{
-    memcpy(ptrfct, SND_M_g_astTypeObjectSoundInfosDefault,
-           sizeof(tdstAllRetObjectSound));
-
-    if (new_ptrfct->X         != NULL) ptrfct->X         = new_ptrfct->X;
-    if (new_ptrfct->Y         != NULL) ptrfct->Y         = new_ptrfct->Y;
-    if (new_ptrfct->Z         != NULL) ptrfct->Z         = new_ptrfct->Z;
-    if (new_ptrfct->VX        != NULL) ptrfct->VX        = new_ptrfct->VX;
-    if (new_ptrfct->VY        != NULL) ptrfct->VY        = new_ptrfct->VY;
-    if (new_ptrfct->VZ        != NULL) ptrfct->VZ        = new_ptrfct->VZ;
-    if (new_ptrfct->REVERB    != NULL) ptrfct->REVERB    = new_ptrfct->REVERB;
-    if (new_ptrfct->ExtraCoef != NULL) ptrfct->ExtraCoef = new_ptrfct->ExtraCoef;
-    if (new_ptrfct->Switch    != NULL) ptrfct->Switch    = new_ptrfct->Switch;
-    if (new_ptrfct->MicroLink != NULL) ptrfct->MicroLink = new_ptrfct->MicroLink;
-}
-
 /* 0x00403290 */
 void __cdecl check_micro_fct(void)
 {
-}
-
-void __cdecl SND_fn_vSetRetMicroSound(tdstAllRetMicroSound *ptrfct)
-{
-    SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd("..\\..\\..\\src\\sound3d.c", 0x9c1);
-    check_micro_fct();
-
-    memcpy(&g_st_pfnRetMicroSound,ptrfct,sizeof(tdstAllRetMicroSound));
-    SND_RT_fn_vQuitCriticalSectionThreadSnd();
 }
 
 typedef void (__stdcall *t_SND_fn_vSetDopplerFactorSxd)(long);
@@ -1088,12 +941,6 @@ typedef void (__cdecl *t_SND_fn_vSetDopplerFactorSnd)(long);
 
 #define SND_RT_fn_vSetDopplerFactorSnd SND_fn_vSetDopplerFactorSnd
 
-void __cdecl SND_fn_vSetDopplerFactorSound(long factor)
-{
-    g_bDopplerActive = (factor != SND_C_NO_DOPPLER);
-    SND_RT_fn_vSetDopplerFactorSnd(factor);
-}
-
 /* 0x00455B50 */
 typedef void (__stdcall *t_SND_fn_vKillEventToObject)(long indice, void *asso);
 
@@ -1108,114 +955,11 @@ void __stdcall SND_fn_vKillEventToObject(long indice, void *asso)
 }
 #endif
 
-void __cdecl erase_association(pASSOCIATION_DESCRIPTION asso)
-{
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vKillEventToObject(asso->indice,asso);
-#endif
+void __cdecl stop_son_all(void);
 
-        SNDLST2_M_DynamicIsolate(asso);
-        SND_RT_fn_vFreeSndEx(E_ucSndBlockMain,asso);
-}
+void __cdecl stop_son_type_all(long type);
 
-void __cdecl stop_un_son_objet(long indice,long type,SND_tduRefEvt evt)
-{
-    pASSOCIATION_DESCRIPTION pAsso;
-
-    while ((pAsso = get_association(indice, type, evt.pstPtr)) != NULL)
-    {
-        if (pAsso->evt.pstPtr->bStopable)
-            SND_fn_vStopSnd(pAsso->voice);
-        else
-            invalidate_ptrvalid_snd(pAsso->voice);
-        erase_association(pAsso);
-    }
-}
-
-void __cdecl stop_all_son_objet(long indice, long type)
-{
-    pASSOCIATION_DESCRIPTION pAsso;
-
-    while ((pAsso = get_association(indice, type, NULL)) != NULL)
-    {
-        if (pAsso->evt.pstPtr->bStopable)
-            SND_fn_vStopSnd(pAsso->voice);
-        else
-            invalidate_ptrvalid_snd(pAsso->voice);
-        erase_association(pAsso);
-    }
-}
-
-/* 0x00451EE0 */
-void __cdecl stop_son_all(void)
-{
-	pASSOCIATION_DESCRIPTION pAsso,pAssoNext;
-    int i=0;
-
-    SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
-    {
-		if (pAsso->bValid)
-			SND_fn_vStopSnd(pAsso->voice);
-        erase_association(pAsso);
-    }
-}
-
-/* 0x004530C0 */
-void __cdecl SND_fn_vKillAllObjectSound(void)
-{
-    long type;
-
-    SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x940);
-    stop_son_all();
-    for (type = 0; type < nb_object_type; type++)
-        fn_vChangeVolumeForType(type, C_SOUNDVOL_MAXI);
-    SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
-
-/* 0x00451E90 */
-void __cdecl stop_son_type_all(long type)
-{
-	pASSOCIATION_DESCRIPTION pAsso,pAssoNext;
-    int i=0;
-
-    SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
-    {
-		if ((pAsso->bValid) && (pAsso->type==type))
-        {
-			SND_fn_vStopSnd(pAsso->voice);
-            erase_association(pAsso);
-        }
-    }
-}
-
-/* 0x00453080 */
-void __cdecl SND_fn_vKillAllObjectTypeSound(long type)
-{
-    SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x92C);
-    stop_son_type_all(type);
-    fn_vChangeVolumeForType(type, C_SOUNDVOL_MAXI);
-    SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
-
-void __cdecl SND_fn_vKillObjectSound2(long indice, long type)
-{
-    SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x8FE);
-    stop_all_son_objet(indice, type);
-    fn_vResetVolumeForObject(indice, type);
-    SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
-
-void __cdecl SND_fn_vChangeVolumeSound(long indice, long type, long lNewVolume)
-{
-    SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0xCE8);
-    fn_vChangeVolumeForObject(indice, type, lNewVolume);
-    SND_fn_vSynchroSound();
-    SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
+void __cdecl stop_all_son_objet(long indice, long type);
 
 static int g_iNbActiveMicros;   /* 0x004B74A8 */
 
@@ -1246,6 +990,700 @@ void __stdcall SND_fn_vAddHistoric(SND_tduRefEvt evt, long indice, long type, vo
 #endif
 
 #define EVT_FANTOME_PTR NULL
+
+void __cdecl stop_un_son_objet(long indice,long type,SND_tduRefEvt evt);
+
+/* 0x00451AB0 */
+ASSOCIATION_DESCRIPTION* __cdecl pre_associe_sound(void)
+{
+        pASSOCIATION_DESCRIPTION pAsso;
+        int i;
+
+        i=SNDLST2_M_DynamicGetNumberOfElements(&association.pList);
+        if (i>=NB_ASSOCIATION_MAX)
+        {
+                SND_fn_vDisplayErrorEx(E_uwSndTooManyEvents,(char *)SND_C_szEmpty,SNDERR_DISPLAY_IF_WANTED);
+                return NULL;
+        }
+
+        pAsso=(pASSOCIATION_DESCRIPTION)SND_RT_fn_pvMallocSndEx(E_ucSndBlockMain,sizeof(ASSOCIATION_DESCRIPTION));
+        SNDLST2_M_DynamicInitElement(pAsso);
+        return pAsso;
+}
+
+void __cdecl erase_association(pASSOCIATION_DESCRIPTION asso)
+{
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vKillEventToObject(asso->indice,asso);
+#endif
+
+        SNDLST2_M_DynamicIsolate(asso);
+        SND_RT_fn_vFreeSndEx(E_ucSndBlockMain,asso);
+}
+
+/* 0x00458830 */
+long __cdecl SND_fn_rGetRandomSnd(long max);
+#define SND_RT_fn_rGetRandomSnd SND_fn_rGetRandomSnd
+
+#define SND_C_NO_DETUNING  0
+#define C_SNDREAL_1    0x10000
+
+/* 0x00455B10 */
+typedef void (__stdcall *t_SND_fn_vAddEventToObject)(long, long, void *, SND_tduRefEvt);
+
+#if defined(_DLL_COMPILATION_MODE)
+t_SND_fn_vAddEventToObject g_pfn_SND_AddEventToObject;
+#define SND_M_g_pfnAddEventToObject  (g_pfn_SND_AddEventToObject)
+/* 0x00455B10 */
+void __stdcall SND_fn_vAddEventToObject(long indice, long type, void *asso, SND_tduRefEvt evt)
+{
+    if (SND_M_g_pfnAddEventToObject == NULL) DebugBreak();
+    SND_M_g_pfnAddEventToObject(indice, type, asso, evt);
+}
+#endif
+
+void __cdecl associe_sound(pASSOCIATION_DESCRIPTION asso, long lPcExtra,
+                           long indice, long type, long prio, long voice,
+                           SND_tduRefEvt evt, tduRefRes res_hi, SndReal rDeTune, long lHandle)
+{
+        int i;
+        pASSOCIATION_DESCRIPTION pAsso,pAssoNext;
+
+        SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
+        {
+                if (!(pAsso->bValid) || (pAsso->voice==voice))
+                {
+                        erase_association(pAsso);
+                }
+        }
+
+		SNDLST2_M_DynamicForEachElementOf(&association.pList,pAsso,i)
+		{
+			if ((pAsso->indice==indice) && (pAsso->type==type))
+				break;
+		}
+		if (pAsso)
+		{
+			pAssoNext=SNDLST2_M_DynamicGetNextElement(pAsso);
+			SNDLST2_M_DynamicInsertBetween(asso,pAsso,pAssoNext);
+		}
+		else
+		{
+			SNDLST2_M_DynamicAddTail(&association.pList,asso);
+		}
+
+        asso->pc_lKeyActive=TRUE;
+        asso->pc_lKey=lPcExtra;
+        asso->indice=indice;
+        asso->type=type;
+        asso->prio=prio;
+        asso->voice=voice;
+        asso->evt=evt;
+        asso->res_hi=res_hi;
+        asso->bValid=TRUE;
+        asso->rDeTune=rDeTune;
+        asso->lHandle=lHandle;
+
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vAddEventToObject(indice,type,asso,evt);
+#endif
+}
+
+pASSOCIATION_DESCRIPTION __cdecl get_association(long indice,long type,void* evt)
+{
+	pASSOCIATION_DESCRIPTION pAsso;
+	int i=0;
+
+	if (evt == NULL)
+	{
+		SNDLST2_M_DynamicForEachElementOf(&association.pList, pAsso, i)
+		{
+			if (pAsso->bValid
+				&& (pAsso->indice == indice)
+				&& (pAsso->type == type))
+			break;
+		}
+	}
+	else
+	{
+		SNDLST2_M_DynamicForEachElementOf(&association.pList, pAsso, i)
+		{
+			if (pAsso->bValid
+				&& (pAsso->indice == indice)
+				&& (pAsso->evt.pstPtr == evt)
+				&& (pAsso->type == type))
+			break;
+        }
+    }
+
+    return pAsso;
+}
+
+void __cdecl stop_all_son_objet(long indice, long type)
+{
+    pASSOCIATION_DESCRIPTION pAsso;
+
+    while ((pAsso = get_association(indice, type, NULL)) != NULL)
+    {
+        if (pAsso->evt.pstPtr->bStopable)
+            SND_fn_vStopSnd(pAsso->voice);
+        else
+            invalidate_ptrvalid_snd(pAsso->voice);
+        erase_association(pAsso);
+    }
+}
+
+void __cdecl stop_un_son_objet(long indice,long type,SND_tduRefEvt evt)
+{
+    pASSOCIATION_DESCRIPTION pAsso;
+
+    while ((pAsso = get_association(indice, type, evt.pstPtr)) != NULL)
+    {
+        if (pAsso->evt.pstPtr->bStopable)
+            SND_fn_vStopSnd(pAsso->voice);
+        else
+            invalidate_ptrvalid_snd(pAsso->voice);
+        erase_association(pAsso);
+    }
+}
+
+/* 0x00451E90 */
+void __cdecl stop_son_type_all(long type)
+{
+	pASSOCIATION_DESCRIPTION pAsso,pAssoNext;
+    int i=0;
+
+    SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
+    {
+		if ((pAsso->bValid) && (pAsso->type==type))
+        {
+			SND_fn_vStopSnd(pAsso->voice);
+            erase_association(pAsso);
+        }
+    }
+}
+
+/* 0x00451EE0 */
+void __cdecl stop_son_all(void)
+{
+	pASSOCIATION_DESCRIPTION pAsso,pAssoNext;
+    int i=0;
+
+    SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
+    {
+		if (pAsso->bValid)
+			SND_fn_vStopSnd(pAsso->voice);
+        erase_association(pAsso);
+    }
+}
+
+void __cdecl get_RollOff(long indice,long type,SoundParam* pstSoundParam)
+{
+    RollOffParam* pstRollOff;
+
+    pstRollOff=&(SND_M_GetExtraParamFromSoundParam(pstSoundParam))->stRollOff;
+    pstSoundParam->iFlags&=~C_SOUNDPARAM_ROLLOFF;
+
+    if (g_d_pstTypeObjectSoundInfos[type].pfnRollOff)
+    {
+            if ((*g_d_pstTypeObjectSoundInfos[type].pfnRollOff)(indice,pstRollOff))
+            {
+                    pstSoundParam->iFlags|=C_SOUNDPARAM_ROLLOFF;
+            }
+    }
+}
+
+void __cdecl set_SwitchParam(long indice,long type,SoundParam* pstSoundParam)
+{
+        SwitchParam* pstSwitch;
+
+        pstSwitch=&(SND_M_GetExtraParamFromSoundParam(pstSoundParam))->stSwitch;
+
+        pstSoundParam->iFlags|=C_SOUNDPARAM_SWITCH;
+        pstSwitch->lObjectType=type;
+        pstSwitch->lObjectId=indice;
+}
+
+/* 0x00451FB0 */
+long __cdecl SND_pc_fn_lCallTypeSubTableSlot6(long objectid, long lTypeSwitch, long objecttype)
+{
+    return g_d_pstTypeObjectSoundInfos[objecttype].pc_stRetObjectSoundKey.Switch(objectid, lTypeSwitch);
+}
+
+/* 0x00451FE0 */
+SndVector __cdecl SND_pc_fn_stAddAxisCombinationToBase(SndVector stBase, SndVector stCoef,
+                                                   SndVector stAxisX, SndVector stAxisY, SndVector stAxisZ)
+{
+    SndReal rX, rY, rZ;
+
+    rX = SND_fn_rMulRealRealSnd(stCoef.z, stAxisZ.x);
+    rX += SND_fn_rMulRealRealSnd(stCoef.y, stAxisY.x);
+    rX += SND_fn_rMulRealRealSnd(stCoef.x, stAxisX.x);
+    rY = SND_fn_rMulRealRealSnd(stCoef.z, stAxisZ.y);
+    rY += SND_fn_rMulRealRealSnd(stCoef.y, stAxisY.y);
+    rY += SND_fn_rMulRealRealSnd(stCoef.x, stAxisX.y);
+    rZ = SND_fn_rMulRealRealSnd(stCoef.z, stAxisZ.z);
+    rZ += SND_fn_rMulRealRealSnd(stCoef.y, stAxisY.z);
+    rZ += SND_fn_rMulRealRealSnd(stCoef.x, stAxisX.z);
+
+    stBase.x += rX;
+    stBase.y += rY;
+    stBase.z += rZ;
+    return stBase;
+}
+
+/* 0x00455150 */
+typedef void (__stdcall *t_SND_fn_vSetMicroParamSxd)(long sndId, MicroParam *par);
+#if defined(_DLL_COMPILATION_MODE)
+t_SND_fn_vSetMicroParamSxd g_pfn_SND_SetMicroParamSxd;
+#define SND_M_g_pfnSetMicroParamSxd  (g_pfn_SND_SetMicroParamSxd)
+void SND_CALL SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par)
+{
+    if (SND_M_g_pfnSetMicroParamSxd == NULL) DebugBreak();
+    SND_M_g_pfnSetMicroParamSxd(sndId, par);
+}
+#endif
+
+/* 0x00455BF0 */
+typedef void (__stdcall *t_SND_fn_vSetPosMicro)(void *pMicro, MicroParam *par);
+#if defined(_DLL_COMPILATION_MODE)
+t_SND_fn_vSetPosMicro g_pfn_SND_SetPosMicro;
+#define SND_M_g_pfnSetPosMicro  (g_pfn_SND_SetPosMicro)
+void __stdcall SND_fn_vSetPosMicro(void *pMicro, MicroParam *par)
+{
+    if (SND_M_g_pfnSetPosMicro == NULL) DebugBreak();
+    SND_M_g_pfnSetPosMicro(pMicro, par);
+}
+#endif
+/* 0x00452510 */
+typedef void (__cdecl   *t_SND_fn_get_param_objet2)(long indice, long type,
+                                                    void *evt, void *par,
+                                                    long rDeTune, void *prefill);
+#define SND_RT_fn_get_param_objet2 get_param_objet2
+
+typedef void (__stdcall *t_SND_SynchroFn)(void);
+#if defined(_DLL_COMPILATION_MODE)
+static t_SND_SynchroFn g_pfn_SND_SynchroSxd_s;
+#define g_pfn_SND_SynchroSxd  g_pfn_SND_SynchroSxd_s
+
+void SND_CALL SND_fn_vSynchroSxd(void)
+{
+    if (g_pfn_SND_SynchroSxd == NULL) DebugBreak();
+    g_pfn_SND_SynchroSxd();
+}
+
+static t_SND_SynchroFn g_pfn_SND_SynchroMidi_s;
+#define g_pfn_SND_SynchroMidi  g_pfn_SND_SynchroMidi_s
+
+void SND_CALL SND_fn_vSynchroMidi(void)
+{
+    if (g_pfn_SND_SynchroMidi == NULL) DebugBreak();
+    g_pfn_SND_SynchroMidi();
+}
+
+/* 0x00455A60 */
+static t_SND_SynchroFn g_pfn_SND_SynchroCD_s;
+#define g_pfn_SND_SynchroCD  g_pfn_SND_SynchroCD_s
+
+void __stdcall SND_fn_vSynchroCD(void)
+{
+    if (g_pfn_SND_SynchroCD == NULL) DebugBreak();
+    g_pfn_SND_SynchroCD();
+}
+#endif
+
+#define SND_RT_fn_vSynchroSnd SND_fn_vSynchroSnd
+
+typedef void (__stdcall *t_SND_cbMicroPost)(long indice, void *param);  /* 0x455B80 */
+
+typedef struct MICRO_DESCRIPTION_ *pMICRO_DESCRIPTION;
+
+SNDLST2_M_DynamicUseListOf(pMICRO_DESCRIPTION);
+
+typedef struct MICRO_DESCRIPTION_{
+        long    sndId;
+        SNDLST2_M_DynamicElementDeclaration(pMICRO_DESCRIPTION)
+}MICRO_DESCRIPTION;
+
+typedef struct LISTE_MICRO_{
+        SNDLST2_M_DynamicAnchorDeclaration(pMICRO_DESCRIPTION) pList;
+}LISTE_MICRO;
+
+static LISTE_MICRO micros_sound;   /* 0x004B7490 */
+
+#if defined(_DLL_COMPILATION_MODE)
+t_SND_cbMicroPost g_pfn_SND_SetPosObject;
+#define SND_M_g_pfnSetPosObject  (g_pfn_SND_SetPosObject)
+void __stdcall SND_fn_vSetPosObject(long indice, void *param)
+{
+    if (SND_M_g_pfnSetPosObject == NULL) DebugBreak();
+    SND_M_g_pfnSetPosObject(indice, param);
+}
+#endif
+
+void __cdecl fill_pre_filled_param(long key,long indice,long type,SoundParam* pstPreFilledParam)
+{
+        int                     i;
+        pMICRO_DESCRIPTION      pMicro;
+        SndVector               stPosCoef, stObjPos, stAxisX, stAxisY, stAxisZ, stVit, stPos, stVitCoef;
+
+		pstPreFilledParam->iFlags=0;
+
+        if (key==-1)
+        {
+
+            if (indice!=SND_C_OBJET_FANTOME)
+            {
+                pstPreFilledParam->Pos.x=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.X)(indice);
+                pstPreFilledParam->Pos.y=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Y)(indice);
+                pstPreFilledParam->Pos.z=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Z)(indice);
+                pstPreFilledParam->Vit.x=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.VX)(indice);
+                pstPreFilledParam->Vit.y=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.VY)(indice);
+                pstPreFilledParam->Vit.z=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.VZ)(indice);
+                pstPreFilledParam->ucReverb=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.REVERB)(indice);
+                pstPreFilledParam->ucPan=C_SOUNDPAN_MEDIAN;
+                pstPreFilledParam->ucSpace=C_SOUNDSPACE_FRONT;
+
+				if (!g_bDopplerActive)
+                    pstPreFilledParam->iFlags|=C_SOUNDPARAM_NO_DOPPLER;
+            }
+            else
+            {
+                pstPreFilledParam->ucPan=C_SOUNDPAN_MEDIAN;
+                pstPreFilledParam->ucReverb=NO_REVERB;
+                pstPreFilledParam->ucSpace=C_SOUNDSPACE_FRONT;
+                pstPreFilledParam->iFlags|=(C_SOUNDPARAM_NO_POSITION | C_SOUNDPARAM_NO_DOPPLER);
+            }
+        }
+        else
+        {
+            if (g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.bAbsolute)
+            {
+                pstPreFilledParam->Pos.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.X)(key,indice);
+                pstPreFilledParam->Pos.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Y)(key,indice);
+                pstPreFilledParam->Pos.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Z)(key,indice);
+                pstPreFilledParam->Vit.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VX)(key,indice);
+                pstPreFilledParam->Vit.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VY)(key,indice);
+                pstPreFilledParam->Vit.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VZ)(key,indice);
+                pstPreFilledParam->ucReverb=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.REVERB)(indice);
+            }
+            else
+            {
+                (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.pc_AxisX)(indice,&stAxisX);
+                (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.pc_AxisY)(indice,&stAxisY);
+                (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.pc_AxisZ)(indice,&stAxisZ);
+                stPosCoef.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.X)(key,indice);
+                stPosCoef.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Y)(key,indice);
+                stPosCoef.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Z)(key,indice);
+                stObjPos.x=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.X)(indice);
+                stObjPos.y=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Y)(indice);
+                stObjPos.z=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Z)(indice);
+                stPos=SND_pc_fn_stAddAxisCombinationToBase(stObjPos,stPosCoef,stAxisX,stAxisY,stAxisZ);
+
+                stVitCoef.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VX)(key,indice);
+                stVitCoef.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VY)(key,indice);
+                stVitCoef.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VZ)(key,indice);
+                stVit.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VX)(key,indice);
+                stVit.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VY)(key,indice);
+                stVit.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VZ)(key,indice);
+                stVit=SND_pc_fn_stAddAxisCombinationToBase(stVit,stVitCoef,stAxisX,stAxisY,stAxisZ);
+
+                pstPreFilledParam->Pos.x=stPos.x;
+                pstPreFilledParam->Pos.y=stPos.y;
+                pstPreFilledParam->Pos.z=stPos.z;
+                pstPreFilledParam->Vit.x=stVit.x;
+                pstPreFilledParam->Vit.y=stVit.y;
+                pstPreFilledParam->Vit.z=stVit.z;
+                pstPreFilledParam->ucReverb=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.REVERB)(indice);
+            }
+            pstPreFilledParam->ucPan=C_SOUNDPAN_MEDIAN;
+            pstPreFilledParam->ucSpace=C_SOUNDSPACE_FRONT;
+        }
+
+        SNDLST2_M_DynamicForEachElementOf(&micros_sound.pList,pMicro,i)
+        {
+                if (indice!=SND_C_OBJET_FANTOME)
+                        pstPreFilledParam->astMicro[i].bLinked=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.MicroLink)(indice,(long)pMicro);
+                else
+                        pstPreFilledParam->astMicro[i].bLinked=TRUE;
+                pstPreFilledParam->astMicro[i].lId=pMicro->sndId;
+        }
+
+        get_RollOff(indice,type,pstPreFilledParam);
+
+        set_SwitchParam(indice,type,pstPreFilledParam);
+
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vSetPosObject(indice,pstPreFilledParam);
+#endif
+}
+
+/* 0x4B74A8 */
+void get_param_objet2(long indice,long type,SND_tduRefEvt evt,SoundParam* param,SndReal deTune,SoundParam* pstPreFilledParam)
+{
+        SndReal                 extra_par;
+        long                    extra_res;
+		SndReal                 rCoefA,rCoefB;
+		long					lVolumeType,lVolumeObject;
+
+		SND_fn_vCopySoundParam(param,pstPreFilledParam);
+
+        if (g_d_pstTypeObjectSoundInfos[type].pstVolumeLine!=NULL)
+        {
+                param->ucVol=(unsigned char)g_d_pstTypeObjectSoundInfos[type].pstVolumeLine->lVol;
+                param->iFlags|=C_SOUNDPARAM_COEF_VOL;
+        }
+		else
+			param->ucVol=C_SOUNDVOL_MAXI;
+
+		lVolumeType=fn_lGetVolumeForType(type);
+		lVolumeObject=fn_lGetVolumeForObject(indice,type);
+		if ((lVolumeType!=C_SOUNDVOL_MAXI) || (lVolumeObject!=C_SOUNDVOL_MAXI))
+        {
+			param->ucVol=(unsigned char)((param->ucVol*lVolumeType*lVolumeObject)>>14);
+			param->iFlags|=C_SOUNDPARAM_COEF_VOL;
+        }
+
+		param->Freq=deTune;
+
+        if ((evt.pstPtr->eType==EVT_SON_PITCH)
+                || ((evt.pstPtr->eType==EVT_SON_EXTRA) && (evt.pstPtr->uParams.stExtraAll.rtCoefPitch)))
+        {
+            if (evt.pstPtr->eType==EVT_SON_PITCH)
+            {
+                    rCoefA=evt.pstPtr->uParams.stExtraParam.CoefA;
+                    rCoefB=evt.pstPtr->uParams.stExtraParam.CoefB;
+            }
+            else
+                    SND_fn_vSndRealTwinToSndReal(evt.pstPtr->uParams.stExtraAll.rtCoefPitch,&rCoefA,&rCoefB);
+
+            (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.ExtraCoef)(indice,evt,&extra_par,NULL,NULL);
+			extra_par=SND_fn_rMulRealRealSnd(extra_par,rCoefA)+rCoefB;
+			param->Freq=SND_fn_rMulRealRealSnd(extra_par,param->Freq);
+        }
+
+        if ((evt.pstPtr->eType==EVT_SON_VOLUME)
+                || ((evt.pstPtr->eType==EVT_SON_EXTRA) && (evt.pstPtr->uParams.stExtraAll.rtCoefVol)))
+        {
+            if (evt.pstPtr->eType==EVT_SON_VOLUME)
+            {
+                    rCoefA=evt.pstPtr->uParams.stExtraParam.CoefA;
+                    rCoefB=evt.pstPtr->uParams.stExtraParam.CoefB;
+            }
+            else
+                    SND_fn_vSndRealTwinToSndReal(evt.pstPtr->uParams.stExtraAll.rtCoefVol,&rCoefA,&rCoefB);
+
+            (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.ExtraCoef)(indice,evt,NULL,NULL,&extra_par);
+            extra_res=M_RealToIntSnd(SND_fn_rMulRealRealSnd(extra_par,rCoefA)+rCoefB);
+            if (extra_res<0)
+				param->ucVol=0;
+            else
+            {
+                if (extra_res<=127)
+                {
+                    if (param->iFlags & C_SOUNDPARAM_COEF_VOL)
+                        param->ucVol=(unsigned char)((extra_res*param->ucVol)>>7);
+                    else
+                        param->ucVol=(unsigned char)extra_res;
+                }
+                else
+                {
+                    if (!(param->iFlags & C_SOUNDPARAM_COEF_VOL))
+                        param->ucVol=C_SOUNDVOL_MAXI;
+                }
+            }
+            param->iFlags|=C_SOUNDPARAM_COEF_VOL;
+        }
+
+        if ((evt.pstPtr->eType==EVT_SON_PAN)
+                || ((evt.pstPtr->eType==EVT_SON_EXTRA) && (evt.pstPtr->uParams.stExtraAll.rtCoefPan)))
+        {
+            if (evt.pstPtr->eType==EVT_SON_PAN)
+            {
+                    rCoefA=evt.pstPtr->uParams.stExtraParam.CoefA;
+                    rCoefB=evt.pstPtr->uParams.stExtraParam.CoefB;
+            }
+            else
+                    SND_fn_vSndRealTwinToSndReal(evt.pstPtr->uParams.stExtraAll.rtCoefPan,&rCoefA,&rCoefB);
+
+            (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.ExtraCoef)(indice,evt,NULL,&extra_par,NULL);
+            extra_res=M_RealToIntSnd(SND_fn_rMulRealRealSnd(extra_par,rCoefA)+rCoefB);
+            if (extra_res<0)
+				param->ucPan=0;
+            else
+            {
+                    if (extra_res>127) param->ucPan=127;
+                    else param->ucPan=(unsigned char)extra_res;
+            }
+            param->iFlags|=C_SOUNDPARAM_NO_POSITION;
+        }
+}
+
+void __cdecl get_param_objet(long key,long indice,long type,SND_tduRefEvt evt,SoundParam* param,SndReal deTune)
+{
+    SoundParam *pstPreFilledParam;
+    SoundParam stSoundParam;
+
+    pstPreFilledParam=&stSoundParam;
+    stSoundParam.iNbLinks=g_iNbActiveMicros;
+
+    fill_pre_filled_param(key,indice,type,pstPreFilledParam);
+
+    get_param_objet2(indice,type,evt,param,deTune,pstPreFilledParam);
+}
+
+/* 0x004527D0 */
+SndReal __cdecl fn_rGetDeTune(SND_tduRefEvt evt)
+{
+        SndReal delta;
+
+        switch (evt.pstPtr->eType)
+        {
+                case EVT_SON_PLAY:
+                        delta=evt.pstPtr->uParams.stPlay.stDeTune.rDelta;
+                        break;
+                case EVT_SON_PITCH:
+                case EVT_SON_VOLUME:
+                case EVT_SON_PAN:
+                        delta=evt.pstPtr->uParams.stExtraParam.stDeTune.rDelta;
+                        break;
+                default:
+                        delta=NO_DETUNING;
+                        break;
+        }
+
+        if (delta!=NO_DETUNING)
+                return (C_SNDREAL_1+SND_RT_fn_rGetRandomSnd(delta*2)-delta);
+        else
+                return C_SNDREAL_1;
+}
+
+void __cdecl SND_fn_vSetDopplerFactorSound(long factor)
+{
+    g_bDopplerActive = (factor != SND_C_NO_DOPPLER);
+    SND_RT_fn_vSetDopplerFactorSnd(factor);
+}
+
+void __cdecl fn_vRajAllVolumeForLine(ptdstVolumeLine pVolumeLine)
+{
+    SoundParam stSoundParam;
+    pASSOCIATION_DESCRIPTION pAsso, pAssoNext;
+
+    SND_RT_fn_vEnterCriticalSectionThreadSnd();
+    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x6A1);
+
+    stSoundParam.iNbLinks = g_iNbActiveMicros;
+
+    pAsso = SNDLST2_M_DynamicGetFirstElement(&association.pList);
+    pAssoNext = (pAsso != NULL) ? SNDLST2_M_DynamicGetNextElement(pAsso) : NULL;
+    while (pAsso != NULL)
+    {
+        if (pAsso->bValid == 0)
+        {
+            erase_association(pAsso);
+        }
+        else if (g_d_pstTypeObjectSoundInfos[pAsso->type].pstVolumeLine == pVolumeLine)
+        {
+
+            get_param_objet(pAsso->pc_lKey, pAsso->indice,
+                            pAsso->type, pAsso->evt,
+                            &stSoundParam, pAsso->rDeTune);
+            if (!SND_fn_bSetParamSnd(pAsso->voice, &stSoundParam))
+            {
+                erase_association(pAsso);
+            }
+        }
+
+        pAsso = pAssoNext;
+        pAssoNext = (pAssoNext != NULL) ? SNDLST2_M_DynamicGetNextElement(pAssoNext) : NULL;
+    }
+
+    SND_RT_fn_vQuitCriticalSectionThreadSnd();
+}
+
+void __cdecl SND_fn_vSynchroSound(void)
+{
+        int i;
+        MicroParam micpar;
+        SoundParam *pstSoundParam,*pstPreFilledParam=NULL;
+        pASSOCIATION_DESCRIPTION                pAsso,pAssoNext;
+        pMICRO_DESCRIPTION               pMicro;
+		long	prev_key=-1,prev_indice=-1,prev_type=-1;
+		SoundParam stSoundParam,stPreFilledParam;
+
+        SND_RT_fn_vEnterCriticalSectionThreadSnd();
+        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x714);
+
+        SNDLST2_M_DynamicForEachElementOf(&micros_sound.pList,pMicro,i)
+        {
+                GetMicroParam((long)pMicro,&micpar);
+
+                SND_fn_vSetMicroParamSnd(pMicro->sndId,&micpar);
+
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+                SND_fn_vSetPosMicro(pMicro,&micpar);
+#endif
+        }
+
+		pstSoundParam=&stSoundParam;
+		stSoundParam.iNbLinks=g_iNbActiveMicros;
+
+        SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
+        {
+            if (pAsso->bValid)
+            {
+
+                if (pAsso->evt.pstPtr->bDynamic && pAsso->pc_lKeyActive)
+                    pAsso->pc_lKeyActive=SND_pc_fn_lCallTypeSubTableSlot6(pAsso->pc_lKey,pAsso->indice,pAsso->type);
+                if (pAsso->pc_lKeyActive)
+                {
+					if (!pstPreFilledParam)
+					{
+						pstPreFilledParam=&stPreFilledParam;
+						stPreFilledParam.iNbLinks=g_iNbActiveMicros;
+						prev_key=pAsso->pc_lKey;prev_indice=pAsso->indice;prev_type=pAsso->type;
+						fill_pre_filled_param(prev_key,prev_indice,prev_type,pstPreFilledParam);
+					}
+					else
+					{
+						if (pAsso->pc_lKey!=prev_key || pAsso->indice!=prev_indice || pAsso->type!=prev_type)
+						{
+							prev_key=pAsso->pc_lKey;prev_indice=pAsso->indice;prev_type=pAsso->type;
+							fill_pre_filled_param(prev_key,prev_indice,prev_type,pstPreFilledParam);
+						}
+
+					}
+
+                    get_param_objet2(pAsso->indice,pAsso->type,pAsso->evt,pstSoundParam,pAsso->rDeTune,pstPreFilledParam);
+
+					if (!SND_fn_bSetParamSnd(pAsso->voice,pstSoundParam))
+                    {
+						erase_association(pAsso);
+                    }
+                }
+                else
+                        if (!SND_fn_bTestIsPlayingSnd(pAsso->voice))
+                                erase_association(pAsso);
+            }
+            else
+            {
+                    erase_association(pAsso);
+            }
+        }
+
+		SND_RT_fn_vSynchroSnd();
+        SND_RT_fn_vQuitCriticalSectionThreadSnd();
+}
+
+long __cdecl SND_fn_lSendRequestSoundIndexed( long lPcExtra, long indice, long type, SND_tduRefEvt evt, long prio, void *proc);
+
+/* 0x00452D20 */
+long __cdecl SND_fn_lSendRequestSound(long indice, long type, void *evt,
+                                      long prio, void *proc)
+{
+
+    return SND_fn_lSendRequestSoundIndexed(-1, indice, type, *(SND_tduRefEvt *)&evt, prio, proc);
+}
 
 /* 0x00452D50 */
 long __cdecl SND_fn_lSendRequestSoundIndexed(
@@ -1379,534 +1817,45 @@ long __cdecl SND_fn_lSendRequestSoundIndexed(
 		return lHandle;
 }
 
-/* 0x00452D20 */
-long __cdecl SND_fn_lSendRequestSound(long indice, long type, void *evt,
-                                      long prio, void *proc)
+void __cdecl SND_fn_vKillObjectSound2(long indice, long type)
 {
-
-    return SND_fn_lSendRequestSoundIndexed(-1, indice, type, *(SND_tduRefEvt *)&evt, prio, proc);
+    SND_RT_fn_vEnterCriticalSectionThreadSnd();
+    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x8FE);
+    stop_all_son_objet(indice, type);
+    fn_vResetVolumeForObject(indice, type);
+    SND_RT_fn_vQuitCriticalSectionThreadSnd();
 }
 
-/* 0x00451AB0 */
-ASSOCIATION_DESCRIPTION* __cdecl pre_associe_sound(void)
+/* 0x00453080 */
+void __cdecl SND_fn_vKillAllObjectTypeSound(long type)
 {
-        pASSOCIATION_DESCRIPTION pAsso;
-        int i;
-
-        i=SNDLST2_M_DynamicGetNumberOfElements(&association.pList);
-        if (i>=NB_ASSOCIATION_MAX)
-        {
-                SND_fn_vDisplayErrorEx(E_uwSndTooManyEvents,(char *)SND_C_szEmpty,SNDERR_DISPLAY_IF_WANTED);
-                return NULL;
-        }
-
-        pAsso=(pASSOCIATION_DESCRIPTION)SND_RT_fn_pvMallocSndEx(E_ucSndBlockMain,sizeof(ASSOCIATION_DESCRIPTION));
-        SNDLST2_M_DynamicInitElement(pAsso);
-        return pAsso;
+    SND_RT_fn_vEnterCriticalSectionThreadSnd();
+    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x92C);
+    stop_son_type_all(type);
+    fn_vChangeVolumeForType(type, C_SOUNDVOL_MAXI);
+    SND_RT_fn_vQuitCriticalSectionThreadSnd();
 }
 
-/* 0x00458830 */
-long __cdecl SND_fn_rGetRandomSnd(long max);
-#define SND_RT_fn_rGetRandomSnd SND_fn_rGetRandomSnd
-
-#define SND_C_NO_DETUNING  0
-#define C_SNDREAL_1    0x10000
-
-/* 0x004527D0 */
-SndReal __cdecl fn_rGetDeTune(SND_tduRefEvt evt)
+/* 0x004530C0 */
+void __cdecl SND_fn_vKillAllObjectSound(void)
 {
-        SndReal delta;
-
-        switch (evt.pstPtr->eType)
-        {
-                case EVT_SON_PLAY:
-                        delta=evt.pstPtr->uParams.stPlay.stDeTune.rDelta;
-                        break;
-                case EVT_SON_PITCH:
-                case EVT_SON_VOLUME:
-                case EVT_SON_PAN:
-                        delta=evt.pstPtr->uParams.stExtraParam.stDeTune.rDelta;
-                        break;
-                default:
-                        delta=NO_DETUNING;
-                        break;
-        }
-
-        if (delta!=NO_DETUNING)
-                return (C_SNDREAL_1+SND_RT_fn_rGetRandomSnd(delta*2)-delta);
-        else
-                return C_SNDREAL_1;
-}
-
-/* 0x00455B10 */
-typedef void (__stdcall *t_SND_fn_vAddEventToObject)(long, long, void *, SND_tduRefEvt);
-
-#if defined(_DLL_COMPILATION_MODE)
-t_SND_fn_vAddEventToObject g_pfn_SND_AddEventToObject;
-#define SND_M_g_pfnAddEventToObject  (g_pfn_SND_AddEventToObject)
-/* 0x00455B10 */
-void __stdcall SND_fn_vAddEventToObject(long indice, long type, void *asso, SND_tduRefEvt evt)
-{
-    if (SND_M_g_pfnAddEventToObject == NULL) DebugBreak();
-    SND_M_g_pfnAddEventToObject(indice, type, asso, evt);
-}
-#endif
-
-void __cdecl associe_sound(pASSOCIATION_DESCRIPTION asso, long lPcExtra,
-                           long indice, long type, long prio, long voice,
-                           SND_tduRefEvt evt, tduRefRes res_hi, SndReal rDeTune, long lHandle)
-{
-        int i;
-        pASSOCIATION_DESCRIPTION pAsso,pAssoNext;
-
-        SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
-        {
-                if (!(pAsso->bValid) || (pAsso->voice==voice))
-                {
-                        erase_association(pAsso);
-                }
-        }
-
-		SNDLST2_M_DynamicForEachElementOf(&association.pList,pAsso,i)
-		{
-			if ((pAsso->indice==indice) && (pAsso->type==type))
-				break;
-		}
-		if (pAsso)
-		{
-			pAssoNext=SNDLST2_M_DynamicGetNextElement(pAsso);
-			SNDLST2_M_DynamicInsertBetween(asso,pAsso,pAssoNext);
-		}
-		else
-		{
-			SNDLST2_M_DynamicAddTail(&association.pList,asso);
-		}
-
-        asso->pc_lKeyActive=TRUE;
-        asso->pc_lKey=lPcExtra;
-        asso->indice=indice;
-        asso->type=type;
-        asso->prio=prio;
-        asso->voice=voice;
-        asso->evt=evt;
-        asso->res_hi=res_hi;
-        asso->bValid=TRUE;
-        asso->rDeTune=rDeTune;
-        asso->lHandle=lHandle;
-
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vAddEventToObject(indice,type,asso,evt);
-#endif
-}
-
-/* 0x00455150 */
-typedef void (__stdcall *t_SND_fn_vSetMicroParamSxd)(long sndId, MicroParam *par);
-#if defined(_DLL_COMPILATION_MODE)
-t_SND_fn_vSetMicroParamSxd g_pfn_SND_SetMicroParamSxd;
-#define SND_M_g_pfnSetMicroParamSxd  (g_pfn_SND_SetMicroParamSxd)
-void SND_CALL SND_fn_vSetMicroParamSxd(long sndId, MicroParam *par)
-{
-    if (SND_M_g_pfnSetMicroParamSxd == NULL) DebugBreak();
-    SND_M_g_pfnSetMicroParamSxd(sndId, par);
-}
-#endif
-
-/* 0x00455BF0 */
-typedef void (__stdcall *t_SND_fn_vSetPosMicro)(void *pMicro, MicroParam *par);
-#if defined(_DLL_COMPILATION_MODE)
-t_SND_fn_vSetPosMicro g_pfn_SND_SetPosMicro;
-#define SND_M_g_pfnSetPosMicro  (g_pfn_SND_SetPosMicro)
-void __stdcall SND_fn_vSetPosMicro(void *pMicro, MicroParam *par)
-{
-    if (SND_M_g_pfnSetPosMicro == NULL) DebugBreak();
-    SND_M_g_pfnSetPosMicro(pMicro, par);
-}
-#endif
-/* 0x00452510 */
-typedef void (__cdecl   *t_SND_fn_get_param_objet2)(long indice, long type,
-                                                    void *evt, void *par,
-                                                    long rDeTune, void *prefill);
-#define SND_RT_fn_get_param_objet2 get_param_objet2
-
-typedef void (__stdcall *t_SND_SynchroFn)(void);
-#if defined(_DLL_COMPILATION_MODE)
-static t_SND_SynchroFn g_pfn_SND_SynchroSxd_s;
-#define g_pfn_SND_SynchroSxd  g_pfn_SND_SynchroSxd_s
-
-void SND_CALL SND_fn_vSynchroSxd(void)
-{
-    if (g_pfn_SND_SynchroSxd == NULL) DebugBreak();
-    g_pfn_SND_SynchroSxd();
-}
-
-static t_SND_SynchroFn g_pfn_SND_SynchroMidi_s;
-#define g_pfn_SND_SynchroMidi  g_pfn_SND_SynchroMidi_s
-
-void SND_CALL SND_fn_vSynchroMidi(void)
-{
-    if (g_pfn_SND_SynchroMidi == NULL) DebugBreak();
-    g_pfn_SND_SynchroMidi();
-}
-
-/* 0x00455A60 */
-static t_SND_SynchroFn g_pfn_SND_SynchroCD_s;
-#define g_pfn_SND_SynchroCD  g_pfn_SND_SynchroCD_s
-
-void __stdcall SND_fn_vSynchroCD(void)
-{
-    if (g_pfn_SND_SynchroCD == NULL) DebugBreak();
-    g_pfn_SND_SynchroCD();
-}
-#endif
-
-#define SND_RT_fn_vSynchroSnd SND_fn_vSynchroSnd
-
-/* 0x4B74A8 */
-void get_param_objet2(long indice,long type,SND_tduRefEvt evt,SoundParam* param,SndReal deTune,SoundParam* pstPreFilledParam)
-{
-        SndReal                 extra_par;
-        long                    extra_res;
-		SndReal                 rCoefA,rCoefB;
-		long					lVolumeType,lVolumeObject;
-
-		SND_fn_vCopySoundParam(param,pstPreFilledParam);
-
-        if (g_d_pstTypeObjectSoundInfos[type].pstVolumeLine!=NULL)
-        {
-                param->ucVol=(unsigned char)g_d_pstTypeObjectSoundInfos[type].pstVolumeLine->lVol;
-                param->iFlags|=C_SOUNDPARAM_COEF_VOL;
-        }
-		else
-			param->ucVol=C_SOUNDVOL_MAXI;
-
-		lVolumeType=fn_lGetVolumeForType(type);
-		lVolumeObject=fn_lGetVolumeForObject(indice,type);
-		if ((lVolumeType!=C_SOUNDVOL_MAXI) || (lVolumeObject!=C_SOUNDVOL_MAXI))
-        {
-			param->ucVol=(unsigned char)((param->ucVol*lVolumeType*lVolumeObject)>>14);
-			param->iFlags|=C_SOUNDPARAM_COEF_VOL;
-        }
-
-		param->Freq=deTune;
-
-        if ((evt.pstPtr->eType==EVT_SON_PITCH)
-                || ((evt.pstPtr->eType==EVT_SON_EXTRA) && (evt.pstPtr->uParams.stExtraAll.rtCoefPitch)))
-        {
-            if (evt.pstPtr->eType==EVT_SON_PITCH)
-            {
-                    rCoefA=evt.pstPtr->uParams.stExtraParam.CoefA;
-                    rCoefB=evt.pstPtr->uParams.stExtraParam.CoefB;
-            }
-            else
-                    SND_fn_vSndRealTwinToSndReal(evt.pstPtr->uParams.stExtraAll.rtCoefPitch,&rCoefA,&rCoefB);
-
-            (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.ExtraCoef)(indice,evt,&extra_par,NULL,NULL);
-			extra_par=SND_fn_rMulRealRealSnd(extra_par,rCoefA)+rCoefB;
-			param->Freq=SND_fn_rMulRealRealSnd(extra_par,param->Freq);
-        }
-
-        if ((evt.pstPtr->eType==EVT_SON_VOLUME)
-                || ((evt.pstPtr->eType==EVT_SON_EXTRA) && (evt.pstPtr->uParams.stExtraAll.rtCoefVol)))
-        {
-            if (evt.pstPtr->eType==EVT_SON_VOLUME)
-            {
-                    rCoefA=evt.pstPtr->uParams.stExtraParam.CoefA;
-                    rCoefB=evt.pstPtr->uParams.stExtraParam.CoefB;
-            }
-            else
-                    SND_fn_vSndRealTwinToSndReal(evt.pstPtr->uParams.stExtraAll.rtCoefVol,&rCoefA,&rCoefB);
-
-            (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.ExtraCoef)(indice,evt,NULL,NULL,&extra_par);
-            extra_res=M_RealToIntSnd(SND_fn_rMulRealRealSnd(extra_par,rCoefA)+rCoefB);
-            if (extra_res<0)
-				param->ucVol=0;
-            else
-            {
-                if (extra_res<=127)
-                {
-                    if (param->iFlags & C_SOUNDPARAM_COEF_VOL)
-                        param->ucVol=(unsigned char)((extra_res*param->ucVol)>>7);
-                    else
-                        param->ucVol=(unsigned char)extra_res;
-                }
-                else
-                {
-                    if (!(param->iFlags & C_SOUNDPARAM_COEF_VOL))
-                        param->ucVol=C_SOUNDVOL_MAXI;
-                }
-            }
-            param->iFlags|=C_SOUNDPARAM_COEF_VOL;
-        }
-
-        if ((evt.pstPtr->eType==EVT_SON_PAN)
-                || ((evt.pstPtr->eType==EVT_SON_EXTRA) && (evt.pstPtr->uParams.stExtraAll.rtCoefPan)))
-        {
-            if (evt.pstPtr->eType==EVT_SON_PAN)
-            {
-                    rCoefA=evt.pstPtr->uParams.stExtraParam.CoefA;
-                    rCoefB=evt.pstPtr->uParams.stExtraParam.CoefB;
-            }
-            else
-                    SND_fn_vSndRealTwinToSndReal(evt.pstPtr->uParams.stExtraAll.rtCoefPan,&rCoefA,&rCoefB);
-
-            (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.ExtraCoef)(indice,evt,NULL,&extra_par,NULL);
-            extra_res=M_RealToIntSnd(SND_fn_rMulRealRealSnd(extra_par,rCoefA)+rCoefB);
-            if (extra_res<0)
-				param->ucPan=0;
-            else
-            {
-                    if (extra_res>127) param->ucPan=127;
-                    else param->ucPan=(unsigned char)extra_res;
-            }
-            param->iFlags|=C_SOUNDPARAM_NO_POSITION;
-        }
-}
-
-typedef void (__stdcall *t_SND_cbMicroPost)(long indice, void *param);  /* 0x455B80 */
-
-typedef struct MICRO_DESCRIPTION_ *pMICRO_DESCRIPTION;
-
-SNDLST2_M_DynamicUseListOf(pMICRO_DESCRIPTION);
-
-typedef struct MICRO_DESCRIPTION_{
-        long    sndId;
-        SNDLST2_M_DynamicElementDeclaration(pMICRO_DESCRIPTION)
-}MICRO_DESCRIPTION;
-
-typedef struct LISTE_MICRO_{
-        SNDLST2_M_DynamicAnchorDeclaration(pMICRO_DESCRIPTION) pList;
-}LISTE_MICRO;
-
-static LISTE_MICRO micros_sound;   /* 0x004B7490 */
-
-#if defined(_DLL_COMPILATION_MODE)
-t_SND_cbMicroPost g_pfn_SND_SetPosObject;
-#define SND_M_g_pfnSetPosObject  (g_pfn_SND_SetPosObject)
-void __stdcall SND_fn_vSetPosObject(long indice, void *param)
-{
-    if (SND_M_g_pfnSetPosObject == NULL) DebugBreak();
-    SND_M_g_pfnSetPosObject(indice, param);
-}
-#endif
-
-void __cdecl fill_pre_filled_param(long key,long indice,long type,SoundParam* pstPreFilledParam)
-{
-        int                     i;
-        pMICRO_DESCRIPTION      pMicro;
-        SndVector               stPosCoef, stObjPos, stAxisX, stAxisY, stAxisZ, stVit, stPos, stVitCoef;
-
-		pstPreFilledParam->iFlags=0;
-
-        if (key==-1)
-        {
-
-            if (indice!=SND_C_OBJET_FANTOME)
-            {
-                pstPreFilledParam->Pos.x=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.X)(indice);
-                pstPreFilledParam->Pos.y=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Y)(indice);
-                pstPreFilledParam->Pos.z=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Z)(indice);
-                pstPreFilledParam->Vit.x=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.VX)(indice);
-                pstPreFilledParam->Vit.y=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.VY)(indice);
-                pstPreFilledParam->Vit.z=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.VZ)(indice);
-                pstPreFilledParam->ucReverb=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.REVERB)(indice);
-                pstPreFilledParam->ucPan=C_SOUNDPAN_MEDIAN;
-                pstPreFilledParam->ucSpace=C_SOUNDSPACE_FRONT;
-
-				if (!g_bDopplerActive)
-                    pstPreFilledParam->iFlags|=C_SOUNDPARAM_NO_DOPPLER;
-            }
-            else
-            {
-                pstPreFilledParam->ucPan=C_SOUNDPAN_MEDIAN;
-                pstPreFilledParam->ucReverb=NO_REVERB;
-                pstPreFilledParam->ucSpace=C_SOUNDSPACE_FRONT;
-                pstPreFilledParam->iFlags|=(C_SOUNDPARAM_NO_POSITION | C_SOUNDPARAM_NO_DOPPLER);
-            }
-        }
-        else
-        {
-            if (g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.bAbsolute)
-            {
-                pstPreFilledParam->Pos.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.X)(key,indice);
-                pstPreFilledParam->Pos.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Y)(key,indice);
-                pstPreFilledParam->Pos.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Z)(key,indice);
-                pstPreFilledParam->Vit.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VX)(key,indice);
-                pstPreFilledParam->Vit.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VY)(key,indice);
-                pstPreFilledParam->Vit.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VZ)(key,indice);
-                pstPreFilledParam->ucReverb=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.REVERB)(indice);
-            }
-            else
-            {
-                (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.pc_AxisX)(indice,&stAxisX);
-                (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.pc_AxisY)(indice,&stAxisY);
-                (g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.pc_AxisZ)(indice,&stAxisZ);
-                stPosCoef.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.X)(key,indice);
-                stPosCoef.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Y)(key,indice);
-                stPosCoef.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.Z)(key,indice);
-                stObjPos.x=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.X)(indice);
-                stObjPos.y=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Y)(indice);
-                stObjPos.z=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.Z)(indice);
-                stPos=SND_pc_fn_stAddAxisCombinationToBase(stObjPos,stPosCoef,stAxisX,stAxisY,stAxisZ);
-
-                stVitCoef.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VX)(key,indice);
-                stVitCoef.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VY)(key,indice);
-                stVitCoef.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VZ)(key,indice);
-                stVit.x=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VX)(key,indice);
-                stVit.y=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VY)(key,indice);
-                stVit.z=(g_d_pstTypeObjectSoundInfos[type].pc_stRetObjectSoundKey.VZ)(key,indice);
-                stVit=SND_pc_fn_stAddAxisCombinationToBase(stVit,stVitCoef,stAxisX,stAxisY,stAxisZ);
-
-                pstPreFilledParam->Pos.x=stPos.x;
-                pstPreFilledParam->Pos.y=stPos.y;
-                pstPreFilledParam->Pos.z=stPos.z;
-                pstPreFilledParam->Vit.x=stVit.x;
-                pstPreFilledParam->Vit.y=stVit.y;
-                pstPreFilledParam->Vit.z=stVit.z;
-                pstPreFilledParam->ucReverb=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.REVERB)(indice);
-            }
-            pstPreFilledParam->ucPan=C_SOUNDPAN_MEDIAN;
-            pstPreFilledParam->ucSpace=C_SOUNDSPACE_FRONT;
-        }
-
-        SNDLST2_M_DynamicForEachElementOf(&micros_sound.pList,pMicro,i)
-        {
-                if (indice!=SND_C_OBJET_FANTOME)
-                        pstPreFilledParam->astMicro[i].bLinked=(g_d_pstTypeObjectSoundInfos[type].pfnRetObjectSound.MicroLink)(indice,(long)pMicro);
-                else
-                        pstPreFilledParam->astMicro[i].bLinked=TRUE;
-                pstPreFilledParam->astMicro[i].lId=pMicro->sndId;
-        }
-
-        get_RollOff(indice,type,pstPreFilledParam);
-
-        set_SwitchParam(indice,type,pstPreFilledParam);
-
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vSetPosObject(indice,pstPreFilledParam);
-#endif
-}
-
-void __cdecl get_param_objet(long key,long indice,long type,SND_tduRefEvt evt,SoundParam* param,SndReal deTune)
-{
-    SoundParam *pstPreFilledParam;
-    SoundParam stSoundParam;
-
-    pstPreFilledParam=&stSoundParam;
-    stSoundParam.iNbLinks=g_iNbActiveMicros;
-
-    fill_pre_filled_param(key,indice,type,pstPreFilledParam);
-
-    get_param_objet2(indice,type,evt,param,deTune,pstPreFilledParam);
-}
-
-void __cdecl SND_fn_vSynchroSound(void)
-{
-        int i;
-        MicroParam micpar;
-        SoundParam *pstSoundParam,*pstPreFilledParam=NULL;
-        pASSOCIATION_DESCRIPTION                pAsso,pAssoNext;
-        pMICRO_DESCRIPTION               pMicro;
-		long	prev_key=-1,prev_indice=-1,prev_type=-1;
-		SoundParam stSoundParam,stPreFilledParam;
-
-        SND_RT_fn_vEnterCriticalSectionThreadSnd();
-        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x714);
-
-        SNDLST2_M_DynamicForEachElementOf(&micros_sound.pList,pMicro,i)
-        {
-                GetMicroParam((long)pMicro,&micpar);
-
-                SND_fn_vSetMicroParamSnd(pMicro->sndId,&micpar);
-
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-                SND_fn_vSetPosMicro(pMicro,&micpar);
-#endif
-        }
-
-		pstSoundParam=&stSoundParam;
-		stSoundParam.iNbLinks=g_iNbActiveMicros;
-
-        SNDLST2_M_DynamicForEachMovingElementOf(&association.pList,pAsso,pAssoNext,i)
-        {
-            if (pAsso->bValid)
-            {
-
-                if (pAsso->evt.pstPtr->bDynamic && pAsso->pc_lKeyActive)
-                    pAsso->pc_lKeyActive=SND_pc_fn_lCallTypeSubTableSlot6(pAsso->pc_lKey,pAsso->indice,pAsso->type);
-                if (pAsso->pc_lKeyActive)
-                {
-					if (!pstPreFilledParam)
-					{
-						pstPreFilledParam=&stPreFilledParam;
-						stPreFilledParam.iNbLinks=g_iNbActiveMicros;
-						prev_key=pAsso->pc_lKey;prev_indice=pAsso->indice;prev_type=pAsso->type;
-						fill_pre_filled_param(prev_key,prev_indice,prev_type,pstPreFilledParam);
-					}
-					else
-					{
-						if (pAsso->pc_lKey!=prev_key || pAsso->indice!=prev_indice || pAsso->type!=prev_type)
-						{
-							prev_key=pAsso->pc_lKey;prev_indice=pAsso->indice;prev_type=pAsso->type;
-							fill_pre_filled_param(prev_key,prev_indice,prev_type,pstPreFilledParam);
-						}
-
-					}
-
-                    get_param_objet2(pAsso->indice,pAsso->type,pAsso->evt,pstSoundParam,pAsso->rDeTune,pstPreFilledParam);
-
-					if (!SND_fn_bSetParamSnd(pAsso->voice,pstSoundParam))
-                    {
-						erase_association(pAsso);
-                    }
-                }
-                else
-                        if (!SND_fn_bTestIsPlayingSnd(pAsso->voice))
-                                erase_association(pAsso);
-            }
-            else
-            {
-                    erase_association(pAsso);
-            }
-        }
-
-		SND_RT_fn_vSynchroSnd();
-        SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
-
-void __cdecl fn_vRajAllVolumeForLine(ptdstVolumeLine pVolumeLine)
-{
-    SoundParam stSoundParam;
-    pASSOCIATION_DESCRIPTION pAsso, pAssoNext;
+    long type;
 
     SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x6A1);
+    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x940);
+    stop_son_all();
+    for (type = 0; type < nb_object_type; type++)
+        fn_vChangeVolumeForType(type, C_SOUNDVOL_MAXI);
+    SND_RT_fn_vQuitCriticalSectionThreadSnd();
+}
 
-    stSoundParam.iNbLinks = g_iNbActiveMicros;
+void __cdecl SND_fn_vSetRetMicroSound(tdstAllRetMicroSound *ptrfct)
+{
+    SND_RT_fn_vEnterCriticalSectionThreadSnd();
+    SND_RT_fn_vMouchardThreadsnd("..\\..\\..\\src\\sound3d.c", 0x9c1);
+    check_micro_fct();
 
-    pAsso = SNDLST2_M_DynamicGetFirstElement(&association.pList);
-    pAssoNext = (pAsso != NULL) ? SNDLST2_M_DynamicGetNextElement(pAsso) : NULL;
-    while (pAsso != NULL)
-    {
-        if (pAsso->bValid == 0)
-        {
-            erase_association(pAsso);
-        }
-        else if (g_d_pstTypeObjectSoundInfos[pAsso->type].pstVolumeLine == pVolumeLine)
-        {
-
-            get_param_objet(pAsso->pc_lKey, pAsso->indice,
-                            pAsso->type, pAsso->evt,
-                            &stSoundParam, pAsso->rDeTune);
-            if (!SND_fn_bSetParamSnd(pAsso->voice, &stSoundParam))
-            {
-                erase_association(pAsso);
-            }
-        }
-
-        pAsso = pAssoNext;
-        pAssoNext = (pAssoNext != NULL) ? SNDLST2_M_DynamicGetNextElement(pAssoNext) : NULL;
-    }
-
+    memcpy(&g_st_pfnRetMicroSound,ptrfct,sizeof(tdstAllRetMicroSound));
     SND_RT_fn_vQuitCriticalSectionThreadSnd();
 }
 
@@ -1922,25 +1871,6 @@ void __stdcall SND_fn_vSetVolumeLine(void *pLine, long lNewVolume)
     SND_M_g_pfnSetVolumeLine(pLine, lNewVolume);
 }
 #endif
-
-void __cdecl SND_fn_vSetVolumeLineSound(void *lLine, long lNewVolume)
-{
-	ptdstVolumeLine pLine;
-
-	if (lLine != NULL)
-	{
-		pLine = (ptdstVolumeLine)lLine;
-
-		{
-			pLine->lVol = lNewVolume;
-			fn_vRajAllVolumeForLine(pLine);
-
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-			SND_fn_vSetVolumeLine(pLine, lNewVolume);
-#endif
-		}
-	}
-}
 
 /* 0x00455C90 */
 typedef void (__stdcall *t_SND_fn_vAddVolumeLine)(void *pLine);
@@ -1983,17 +1913,22 @@ void *__cdecl SND_fn_lAddVolumeLineSound(void)
         return pLine;
 }
 
-long __cdecl SND_fn_lGetVolumeLineSound(void *lLine)
+void __cdecl fn_vUpdateTypeObjectSoundInfos(tdstAllRetObjectSound *ptrfct,
+                                            tdstAllRetObjectSound *new_ptrfct)
 {
-	ptdstVolumeLine pLine;
+    memcpy(ptrfct, SND_M_g_astTypeObjectSoundInfosDefault,
+           sizeof(tdstAllRetObjectSound));
 
-	if (lLine!=NULL)
-	{
-		pLine=(ptdstVolumeLine)lLine;
-		return pLine->lVol;
-	}
-	else
-		return C_SOUNDVOL_MAXI;
+    if (new_ptrfct->X         != NULL) ptrfct->X         = new_ptrfct->X;
+    if (new_ptrfct->Y         != NULL) ptrfct->Y         = new_ptrfct->Y;
+    if (new_ptrfct->Z         != NULL) ptrfct->Z         = new_ptrfct->Z;
+    if (new_ptrfct->VX        != NULL) ptrfct->VX        = new_ptrfct->VX;
+    if (new_ptrfct->VY        != NULL) ptrfct->VY        = new_ptrfct->VY;
+    if (new_ptrfct->VZ        != NULL) ptrfct->VZ        = new_ptrfct->VZ;
+    if (new_ptrfct->REVERB    != NULL) ptrfct->REVERB    = new_ptrfct->REVERB;
+    if (new_ptrfct->ExtraCoef != NULL) ptrfct->ExtraCoef = new_ptrfct->ExtraCoef;
+    if (new_ptrfct->Switch    != NULL) ptrfct->Switch    = new_ptrfct->Switch;
+    if (new_ptrfct->MicroLink != NULL) ptrfct->MicroLink = new_ptrfct->MicroLink;
 }
 
 /* 0x004977A0 */
@@ -2046,6 +1981,81 @@ long __cdecl SND_fn_lAddObjectTypeSound2(void *ptrfct, void *lLine)
         return id_type;
 }
 
+void __cdecl SND_fn_vSetInfoForTypeSound(long type,td_pfn_vCopyString fct)
+{
+	if ((type>=0) && (type<nb_object_type))
+		g_d_pstTypeObjectSoundInfos[type].pfnInfoObject=fct;
+}
+
+void __cdecl SND_fn_vGetInfoForObjectSound(long id, long type, char *str, long size_ptr)
+{
+    td_pfn_vCopyString pfnInfoObject = g_d_pstTypeObjectSoundInfos[type].pfnInfoObject;
+
+    if (pfnInfoObject != NULL)
+    {
+        pfnInfoObject(id, str, size_ptr);
+        return;
+    }
+    {
+        /* 0x0049C17C */
+        static const char SND_szNoInfo[] = "no info";
+        strncpy(str, SND_szNoInfo, (size_t)size_ptr);
+    }
+}
+
+void __cdecl SND_fn_vSetRollOffFunctionForTypeSound(long type,td_pfn_bRetRollOffFactor fct)
+{
+	if ((type>=0) && (type<nb_object_type))
+		g_d_pstTypeObjectSoundInfos[type].pfnRollOff=fct;
+}
+
+long __cdecl SND_fn_lGetVolumeLineSound(void *lLine)
+{
+	ptdstVolumeLine pLine;
+
+	if (lLine!=NULL)
+	{
+		pLine=(ptdstVolumeLine)lLine;
+		return pLine->lVol;
+	}
+	else
+		return C_SOUNDVOL_MAXI;
+}
+
+void __cdecl SND_fn_vSetVolumeLineSound(void *lLine, long lNewVolume)
+{
+	ptdstVolumeLine pLine;
+
+	if (lLine != NULL)
+	{
+		pLine = (ptdstVolumeLine)lLine;
+
+		{
+			pLine->lVol = lNewVolume;
+			fn_vRajAllVolumeForLine(pLine);
+
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+			SND_fn_vSetVolumeLine(pLine, lNewVolume);
+#endif
+		}
+	}
+}
+
+/* 0x004537E0 */
+long __cdecl SND_fn_lGetSwitchIndice(long objecttype,long objectid,tduRefRes uRes)
+{
+        return g_d_pstTypeObjectSoundInfos[objecttype].pfnRetObjectSound.Switch(objectid,uRes.pstPtr->uRes.stSwitch.lTypeSwitch);
+}
+
+void __cdecl SND_fn_vChangeVolumeSound(long indice, long type, long lNewVolume)
+{
+    SND_RT_fn_vEnterCriticalSectionThreadSnd();
+    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0xCE8);
+    fn_vChangeVolumeForObject(indice, type, lNewVolume);
+    SND_fn_vSynchroSound();
+    SND_RT_fn_vQuitCriticalSectionThreadSnd();
+}
+
 #include <windows.h>
 #include "FIL/FIL_pc.h"
 #include "SND/sndfile.h"
@@ -2061,22 +2071,6 @@ long __cdecl SND_fn_lAddObjectTypeSound2(void *ptrfct, void *lLine)
     SND_fn_vUpdateLastError(ulChannelId, uwErrNum, lDebugData, ucOpenInfoWindow, ucStopForDebug, message)
 #define SND_M_ClearLastError(ulChannelId) Erm_M_ClearLastError(ulChannelId)
 #define SND_M_CheckError(ulChannelId)     Erm_fn_uwCheckError(g_ucSndModuleId, ulChannelId)
-
-/* 0x00451540 */
-void SND_fn_vUpdateLastError(unsigned long ulChannelId, unsigned short uwErrNum,
-                             long lDebugData, unsigned char ucOpenInfoWindow,
-                             unsigned char ucStopForDebug, char *message)
-{
-    if (uwErrNum > SNDERR_MAX_DISPLAYED_ERROR)
-    {
-        Erm_M_UpdateLastError(Snd, ulChannelId, uwErrNum, lDebugData, 0, 0, message);
-    }
-    else
-    {
-        Erm_M_UpdateLastError(Snd, ulChannelId, uwErrNum, lDebugData,
-                              ucOpenInfoWindow, ucStopForDebug, message);
-    }
-}
 
 /* 0x00451450 */
 void SND_CALL SND_fn_vDisplayError(unsigned short uwErrNum, char *message)
@@ -2098,6 +2092,22 @@ void SND_CALL SND_fn_vDisplayErrorEx(unsigned short uwErrNum, char *message,
     SND_fn_vDisplayError(uwErrNum, message);
 }
 
+/* 0x00451540 */
+void SND_fn_vUpdateLastError(unsigned long ulChannelId, unsigned short uwErrNum,
+                             long lDebugData, unsigned char ucOpenInfoWindow,
+                             unsigned char ucStopForDebug, char *message)
+{
+    if (uwErrNum > SNDERR_MAX_DISPLAYED_ERROR)
+    {
+        Erm_M_UpdateLastError(Snd, ulChannelId, uwErrNum, lDebugData, 0, 0, message);
+    }
+    else
+    {
+        Erm_M_UpdateLastError(Snd, ulChannelId, uwErrNum, lDebugData,
+                              ucOpenInfoWindow, ucStopForDebug, message);
+    }
+}
+
 void __cdecl SND_fn_vCheckMemory(void)
 {
 }
@@ -2106,184 +2116,6 @@ void __cdecl SND_fn_vCheckMemory(void)
     (((void *(__cdecl *)(unsigned long, unsigned char))fn_p_vGenAlloc)((ulSize), (ucChannel)))
 #define SND_M_fn_vGenFree(p_vBlock, ucChannel) \
     (((void (__cdecl *)(void *, unsigned char))fn_vGenFree)((p_vBlock), (ucChannel)))
-
-void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr)
-{
-    unsigned char ucChannel;
-
-    SND_pc_M_ulGetCurrentThreadId();
-    SND_fn_vCheckMemory();              /* 0x403290 */
-    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
-    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
-    Mmg_fn_vTestMallocIntegrityAt(pvPtr);   /* 0x403290 */
-    SND_M_fn_vGenFree(pvPtr, ucChannel);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-
-    Mmg_fn_vReleaseChannelId(ucChannel);
-    SND_fn_vCheckMemory();              /* 0x403290 */
-}
-
-void SND_CALL SND_fn_vInitMallocSnd(void)
-{
-    Mmg_fn_v_InitMmg(g_ucSndModuleId, 2, 0x186A0);
-    Mmg_fn_vInitSpecificBlock(0, g_ucSndModuleId,
-                              g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
-                              0x19000, 0x186A0, 1, 0);
-    Mmg_fn_vInitSpecificBlock(1, g_ucSndModuleId,
-                              g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
-                              0x2800, 0x186A0, 1, 0);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(g_ucSndModuleId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        ERM_fn_vUpdateLastError(7, g_ucSndModuleId,
-                                (unsigned long)SND_pc_M_ulGetCurrentThreadId(),
-                                1, -1, 0xFF, 0xFF, SND_C_szEmpty);
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-}
-
-void SND_CALL SND_fn_vDesInitMallocSnd(void)
-{
-    Mmg_fn_vFreeBlock(0, g_ucSndModuleId,
-                      g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
-    Mmg_fn_vFreeBlock(1, g_ucSndModuleId,
-                      g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
-    Mmg_fn_vDeleteBlock(0, g_ucSndModuleId,
-                        g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
-    Mmg_fn_vDeleteBlock(1, g_ucSndModuleId,
-                        g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
-}
-
-void *SND_CALL SND_fn_pvMallocSnd(unsigned long nb_octets)
-{
-    void          *ptr_temp;
-    unsigned char  ucChannel;
-
-    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
-    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
-    ptr_temp = SND_M_fn_p_vGenAlloc(nb_octets, ucChannel);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        SND_PrintUsedStaticMemory();
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
-        ptr_temp = NULL;
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-
-    Mmg_fn_vReleaseChannelId(ucChannel);
-    return ptr_temp;
-}
-
-void *SND_CALL SND_fn_pvReAllocSnd(void *pvPtr, unsigned long ulNbBytes)
-{
-    unsigned char  ucChannel;
-    void          *pvNew;
-
-    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
-    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
-    pvNew = fn_p_vGenRealloc(pvPtr, ulNbBytes, ucChannel);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        SND_PrintUsedStaticMemory();
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-
-    Mmg_fn_vReleaseChannelId(ucChannel);
-    return pvNew;
-}
-
-void SND_CALL SND_fn_vFreeSnd(void *pvPtr)
-{
-    unsigned char ucChannel;
-
-    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
-    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
-    Mmg_fn_vTestMallocIntegrityAt(pvPtr);  /* 0x403290 */
-    SND_M_fn_vGenFree(pvPtr, ucChannel);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-
-    Mmg_fn_vReleaseChannelId(ucChannel);
-}
-
-void SND_CALL SND_fn_vResizeMemoryBlockSnd(unsigned char id_block, unsigned long ulSize)
-{
-    Mmg_fn_vInitSpecificBlock(id_block, g_ucSndModuleId,
-                              g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
-                              ulSize, 0x186A0, 1, 0);
-}
-
-void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes)
-{
-    unsigned char  ucChannel;
-    void          *ptr_temp;
-
-    SND_fn_vCheckMemory();             /* 0x403290 */
-    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
-    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
-    ptr_temp = SND_M_fn_p_vGenAlloc(ulNbBytes, ucChannel);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        SND_fn_vCheckMemory();
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
-        ptr_temp = NULL;
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-
-    Mmg_fn_vReleaseChannelId(ucChannel);
-    SND_fn_vCheckMemory();             /* 0x403290 */
-    return ptr_temp;
-}
-
-void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
-                                      unsigned int ulNbBytes)
-{
-    unsigned char  ucChannel;
-    void          *p_vPtr;
-
-    SND_fn_vCheckMemory();             /* 0x403290 */
-    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
-    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
-    p_vPtr = fn_p_vGenRealloc(pvPtr, ulNbBytes, ucChannel);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
-                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
-        SND_fn_vCheckMemory();
-        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
-        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-
-    Mmg_fn_vReleaseChannelId(ucChannel);
-    SND_fn_vCheckMemory();             /* 0x403290 */
-    return p_vPtr;
-}
 
 #if defined(_DLL_COMPILATION_MODE)
 typedef long (__stdcall *t_SND_PlayDriverFn)(long, void *, long, void *, long);
@@ -2343,11 +2175,11 @@ static t_SND_VoidFn    g_pfn_SND_RefreshSupervisater_s; /* 0x004B88D0 */
 static t_SND_VoidPtrFn g_pfn_SND_SetProjectTitle_s;     /* 0x004B8874 */
 static t_SND_GetBoolFn g_pfn_SND_IsSupervisaterActive_s;/* 0x004B8870 */
 #endif
+/* 0x00454F30 */
+SndBool __stdcall SND_pc_fn_bNop0(void)                                   { return 0; }
 
 /* 0x00455CE0 */
 void __stdcall SND_pc_fn_vNopStd4(long a)                                 { (void)a; }
-/* 0x00454F30 */
-SndBool __stdcall SND_pc_fn_bNop0(void)                                   { return 0; }
 
 #if defined(_DLL_COMPILATION_MODE)
 
@@ -2610,6 +2442,184 @@ SndBool __stdcall SND_fn_bTestSnd_WinNT(void)
     return stVersion.dwPlatformId == 2;
 }
 
+void SND_CALL SND_fn_vInitMallocSnd(void)
+{
+    Mmg_fn_v_InitMmg(g_ucSndModuleId, 2, 0x186A0);
+    Mmg_fn_vInitSpecificBlock(0, g_ucSndModuleId,
+                              g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
+                              0x19000, 0x186A0, 1, 0);
+    Mmg_fn_vInitSpecificBlock(1, g_ucSndModuleId,
+                              g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
+                              0x2800, 0x186A0, 1, 0);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(g_ucSndModuleId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        ERM_fn_vUpdateLastError(7, g_ucSndModuleId,
+                                (unsigned long)SND_pc_M_ulGetCurrentThreadId(),
+                                1, -1, 0xFF, 0xFF, SND_C_szEmpty);
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+}
+
+void SND_CALL SND_fn_vDesInitMallocSnd(void)
+{
+    Mmg_fn_vFreeBlock(0, g_ucSndModuleId,
+                      g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
+    Mmg_fn_vFreeBlock(1, g_ucSndModuleId,
+                      g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
+    Mmg_fn_vDeleteBlock(0, g_ucSndModuleId,
+                        g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
+    Mmg_fn_vDeleteBlock(1, g_ucSndModuleId,
+                        g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId]);
+}
+
+void *SND_CALL SND_fn_pvMallocSnd(unsigned long nb_octets)
+{
+    void          *ptr_temp;
+    unsigned char  ucChannel;
+
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
+    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
+    ptr_temp = SND_M_fn_p_vGenAlloc(nb_octets, ucChannel);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        SND_PrintUsedStaticMemory();
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
+        ptr_temp = NULL;
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+
+    Mmg_fn_vReleaseChannelId(ucChannel);
+    return ptr_temp;
+}
+
+void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbBytes)
+{
+    unsigned char  ucChannel;
+    void          *ptr_temp;
+
+    SND_fn_vCheckMemory();             /* 0x403290 */
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
+    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
+    ptr_temp = SND_M_fn_p_vGenAlloc(ulNbBytes, ucChannel);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        SND_fn_vCheckMemory();
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
+        ptr_temp = NULL;
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+
+    Mmg_fn_vReleaseChannelId(ucChannel);
+    SND_fn_vCheckMemory();             /* 0x403290 */
+    return ptr_temp;
+}
+
+void *SND_CALL SND_fn_pvReAllocSnd(void *pvPtr, unsigned long ulNbBytes)
+{
+    unsigned char  ucChannel;
+    void          *pvNew;
+
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
+    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
+    pvNew = fn_p_vGenRealloc(pvPtr, ulNbBytes, ucChannel);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        SND_PrintUsedStaticMemory();
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+
+    Mmg_fn_vReleaseChannelId(ucChannel);
+    return pvNew;
+}
+
+void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr,
+                                      unsigned int ulNbBytes)
+{
+    unsigned char  ucChannel;
+    void          *p_vPtr;
+
+    SND_fn_vCheckMemory();             /* 0x403290 */
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
+    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
+    p_vPtr = fn_p_vGenRealloc(pvPtr, ulNbBytes, ucChannel);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        SND_fn_vCheckMemory();
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+
+    Mmg_fn_vReleaseChannelId(ucChannel);
+    SND_fn_vCheckMemory();             /* 0x403290 */
+    return p_vPtr;
+}
+
+void SND_CALL SND_fn_vFreeSnd(void *pvPtr)
+{
+    unsigned char ucChannel;
+
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
+    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, 0xFF, ucChannel);
+    Mmg_fn_vTestMallocIntegrityAt(pvPtr);  /* 0x403290 */
+    SND_M_fn_vGenFree(pvPtr, ucChannel);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+
+    Mmg_fn_vReleaseChannelId(ucChannel);
+}
+
+void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr)
+{
+    unsigned char ucChannel;
+
+    SND_pc_M_ulGetCurrentThreadId();
+    SND_fn_vCheckMemory();              /* 0x403290 */
+    ucChannel = Mmg_fn_ucGiveChannelId(SND_pc_M_ulGetCurrentThreadId(), 0);
+    Mmg_fn_v_SetModeAlloc(g_ucSndModuleId, id_block, ucChannel);
+    Mmg_fn_vTestMallocIntegrityAt(pvPtr);   /* 0x403290 */
+    SND_M_fn_vGenFree(pvPtr, ucChannel);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    if (Erm_fn_uwCheckError(MMG_g_ucErmChannelId,
+                            (unsigned long)SND_pc_M_ulGetCurrentThreadId()) != 0) {
+        ERM_fn_vClearLastError((unsigned long)SND_pc_M_ulGetCurrentThreadId());
+        SND_fn_vDisplayError(8, (char *)SND_C_szEmpty);
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+
+    Mmg_fn_vReleaseChannelId(ucChannel);
+    SND_fn_vCheckMemory();              /* 0x403290 */
+}
+
+void SND_CALL SND_fn_vResizeMemoryBlockSnd(unsigned char id_block, unsigned long ulSize)
+{
+    Mmg_fn_vInitSpecificBlock(id_block, g_ucSndModuleId,
+                              g_a_p_stMmgModuleBlocksInfo[g_ucSndModuleId],
+                              ulSize, 0x186A0, 1, 0);
+}
+
 static char SND_pc_szDllDir[0x100];       /* 0x004A3E18 */
 static char SND_pc_szCpaIniPath[0x100];   /* 0x004B94B8 */
 
@@ -2727,33 +2737,6 @@ SndBool __cdecl SND_fn_bLoadResBinaryRandom(tdstBlockResourceDisk *_pBRDisk,tdst
 SndBool __cdecl SND_fn_bLoadResBinarySnd(tdstBlockResourceDisk* disk,tdstBlockResourceMem* mem,char *pDataBloc);
 
 #pragma intrinsic(strcmp)
-void __cdecl SND_pc_fn_vLoadSxdDistances(long *plDist)
-{
-    char szValue[0x100];
-    float fBack;
-    float fSatur;
-
-    FIL_pc_M_ulGetProfileString("Options", "SXD_DIST_SATUR", "None", szValue, 0xff, SND_pc_szCpaIniPath);
-    if (strcmp(szValue, "None") == 0)
-    {
-        plDist[0] = 0x7ffffffeL;
-    }
-    else
-    {
-        sscanf(szValue, "%f", &fSatur);
-        plDist[0] = (long)(fSatur * 65536.0f);
-    }
-    FIL_pc_M_ulGetProfileString("Options", "SXD_DIST_BACK", "None", szValue, 0xff, SND_pc_szCpaIniPath);
-    if (strcmp(szValue, "None") == 0)
-    {
-        plDist[1] = 0x7ffffffeL;
-    }
-    else
-    {
-        sscanf(szValue, "%f", &fBack);
-        plDist[1] = (long)(fBack * 65536.0f);
-    }
-}
 
 #if defined(_DLL_COMPILATION_MODE)
 
@@ -3122,6 +3105,507 @@ static long SND_pc_lRecordOn;                   /* 0x004B94B0 */
 static long SND_pc_lSupervisaterOn;             /* 0x004B94B4 */
 static long SND_pc_lSoundOnOff;                 /* 0x004A3F18 */
 
+void __cdecl SND_pc_fn_vLoadSxdDistances(long *plDist);
+
+void __cdecl SND_fn_vDestroyMicroSnd(long sndId);
+
+SndReal fn_rRetMicroSoundSndReal0Default(long indice)
+{
+    (void)indice;
+    return 0;
+}
+
+long fn_lRetMicroSoundFILTREDefault(long indice)
+{
+    (void)indice;
+    return 0;
+}
+
+static long fn_rRetMicroSoundSndReal1Default(long indice);
+
+/* 0x0045ABD0 */
+int SND_fn_iInitSeq(void);
+
+void SND_fn_vInitTheme(void);
+
+/* 0x00457DE0 */
+typedef struct SND_pc_tdstSndErrorOccurElement
+{
+    SndBool bOccured;
+    SndBool bDontDisplay;
+    SndBool bDONTAskToBeDisplayed;
+} SND_pc_tdstSndErrorOccurElement;
+
+static SND_pc_tdstSndErrorOccurElement SND_g_astErrorOccurArray[69];
+
+/* 0x004B746C */
+static SND_pc_tdhWindow SND_pc_hMainWindow;
+
+/* 0x0049F14C */
+extern unsigned char g_ucErmModuleId;
+#define SND_pc_ucErmUnregisteredId g_ucErmModuleId
+
+void SND_CALL SND_fn_vInitErrorSnd(void *pInitStruct)
+{
+
+    typedef struct _SND_tdstInitStruct
+    {
+        SND_pc_tdhInstance hProcessInstance;
+        SND_pc_tdhWindow hMainWindow;
+        SND_pc_tdhLock hMutexDX;
+    } SND_tdstInitStruct;
+
+    SND_pc_hMainWindow = ((SND_tdstInitStruct *)pInitStruct)->hMainWindow;
+
+    if (g_ucSndModuleId == C_ucModuleNotInitialized)
+    {
+        g_ucSndModuleId = Erm_fn_ucInitErrMsg();
+    }
+    else
+    {
+        ERM_fn_vUpdateLastError((unsigned short)3, SND_pc_ucErmUnregisteredId,
+                                0, 4, -1, 0xff, 0, NULL);
+    }
+    memset(SND_g_astErrorOccurArray, 0, sizeof(SND_g_astErrorOccurArray));
+}
+
+void SND_CALL SND_fn_vDesInitErrorSnd(void)
+{
+}
+
+void SND_CALL _snd_assert(char *test, char *file, int line)
+{
+    char titre[256];
+    char texte[256];
+
+    SND_pc_M_vBreak();
+    strcpy(titre, "Sound-Assertion failed in ");
+    strcat(titre, file);
+    sprintf(texte, " (Line n\xb0 %d)", line);
+    strcat(titre, texte);
+
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    SND_pc_M_vAssertBox(SND_pc_hMainWindow, test, titre);
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+    SND_pc_M_vBreak();
+}
+
+int SND_CALL snd_erreur_init(int num_err)
+{
+    int iRet;
+
+    (void)num_err;
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    iRet = Erm_fn_iMessageBox(
+        "To continue with sound, close the application that is using the sound driver, and select Retry.\n"
+        "To continue without sound, select Cancel.",
+        "Sound-Driver is busy", 0x40005);
+    switch (iRet)
+    {
+    case 2:
+        iRet = 3;
+        break;
+    case 3:
+        iRet = 4;
+        break;
+    case 4:
+        iRet = 2;
+        break;
+    case 5:
+        iRet = 3;
+        break;
+    default:
+        iRet = 3;
+        break;
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+    return iRet;
+}
+
+int SND_CALL SND_fn_iErreurInit(int idErr)
+{
+    int iRet;
+
+    (void)idErr;
+    SND_fn_vEnterCriticalSectionForErrorDisplay();
+    iRet = Erm_fn_iMessageBox(
+        "Insert a CD or\n"
+        "Close the application using your CD and try again ...\n"
+        "else you'll not be able to hear any music",
+        "CD-Driver Problem", 0x40005);
+    switch (iRet)
+    {
+    case 2:
+        iRet = 3;
+        break;
+    case 3:
+        iRet = 4;
+        break;
+    case 4:
+        iRet = 2;
+        break;
+    case 5:
+        iRet = 3;
+        break;
+    default:
+        iRet = 3;
+        break;
+    }
+    SND_fn_vQuitCriticalSectionForErrorDisplay();
+    return iRet;
+}
+
+static void init_micro_fct(void);
+
+static void init_object_type(void);
+
+static void init_association(void);
+
+#if defined(_DLL_COMPILATION_MODE)
+void __stdcall SND_fn_vKillVolumeLine(long indice)
+{
+    if (g_pfn_SND_KillVolumeLine_s == NULL) DebugBreak();
+    g_pfn_SND_KillVolumeLine_s(indice);
+}
+#endif
+
+/* 0x0045AB10 */
+void SND_fn_vDesInitSeq(void);
+
+void __cdecl SND_fn_vDesInitTheme(void)
+{
+}
+
+#if defined(_DLL_COMPILATION_MODE)
+void __cdecl SND_pc_fn_vFreeDriverDlls(void)
+{
+    if (SND_pc_hModuleSxd != NULL)
+    {
+        FreeLibrary(SND_pc_hModuleSxd);
+    }
+    if (SND_pc_hModuleCd != NULL)
+    {
+        FreeLibrary(SND_pc_hModuleCd);
+    }
+    if (SND_pc_hModuleMpeg != NULL)
+    {
+        FreeLibrary(SND_pc_hModuleMpeg);
+    }
+    if (SND_pc_hModuleDbg != NULL)
+    {
+        FreeLibrary(SND_pc_hModuleDbg);
+    }
+    if (SND_pc_hModuleAdpcm != NULL)
+    {
+        FreeLibrary(SND_pc_hModuleAdpcm);
+    }
+    if (SND_pc_hModuleRecord != NULL)
+    {
+        FreeLibrary(SND_pc_hModuleRecord);
+    }
+}
+#endif
+
+void SND_pc_fn_vFreeObjectTypeTable(void);
+
+void SND_pc_fn_vFreeVolumeLines(void);
+
+#if defined(_DLL_COMPILATION_MODE)
+void __stdcall SND_fn_vAddMicro(long indice)
+{
+    if (g_pfn_SND_AddMicro_s == NULL) DebugBreak();
+    g_pfn_SND_AddMicro_s(indice);
+}
+#endif
+
+int __cdecl SND_pc_fn_iSetSplitNodeByte(tdstBlockResourceMem *pRes, unsigned char ucVolume)
+{
+    pRes->ucVolume = ucVolume;
+    return TRUE;
+}
+
+int __cdecl SND_pc_fn_iSetSwitchNodeByte(tdstBlockResourceMem *pRes, unsigned char ucVolume)
+{
+    pRes->ucVolume = ucVolume;
+    return TRUE;
+}
+
+int __cdecl SND_pc_fn_iSetThemeNodeByte(tdstBlockResourceMem *pRes, unsigned char ucVolume)
+{
+    pRes->ucVolume = ucVolume;
+    return TRUE;
+}
+
+void __cdecl SND_pc_fn_vSetThreeRealsToOne(long lUnused0, long lUnused1,
+                                           long *pA, long *pB, long *pC)
+{
+    if (pA != NULL)
+    {
+        *pA = 0x10000;
+    }
+    if (pB != NULL)
+    {
+        *pB = 0x10000;
+    }
+    if (pC != NULL)
+    {
+        *pC = 0x10000;
+    }
+}
+
+/* 0x004582C0 */
+void __cdecl SND_pc_fn_vSetUnitVecX(long lUnused, long *pVec)
+{
+    if (pVec != NULL)
+    {
+        pVec[0] = 0x10000;
+        pVec[1] = 0;
+        pVec[2] = 0;
+    }
+}
+
+void __cdecl SND_pc_fn_vSetUnitVecY(long lUnused, long *pVec)
+{
+    if (pVec != NULL)
+    {
+        pVec[0] = 0;
+        pVec[1] = 0x10000;
+        pVec[2] = 0;
+    }
+}
+
+void __cdecl SND_pc_fn_vSetUnitVecZ(long lUnused, long *pVec)
+{
+    if (pVec != NULL)
+    {
+        pVec[0] = 0;
+        pVec[1] = 0;
+        pVec[2] = 0x10000;
+    }
+}
+
+static long fn_rRetMicroSoundSndReal1Default(long indice)
+{
+    (void)indice;
+    return 0x10000;
+}
+
+static void init_micro_fct(void)
+{
+        SNDLST2_M_DynamicInitAnchor(&micros_sound.pList);
+        g_iNbActiveMicros=0;
+
+        g_st_pfnRetMicroSound.X=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.Y=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.Z=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.VX=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.VY=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.VZ=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.DTX=fn_rRetMicroSoundSndReal1Default;
+        g_st_pfnRetMicroSound.DTY=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.DTZ=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.DNX=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.DNY=fn_rRetMicroSoundSndReal0Default;
+        g_st_pfnRetMicroSound.DNZ=fn_rRetMicroSoundSndReal1Default;
+        g_st_pfnRetMicroSound.Filtre=fn_lRetMicroSoundFILTREDefault;
+}
+
+static void init_object_type(void)
+{
+    nb_object_type = 0;
+    SND_fn_lAddObjectTypeSound2((void *)SND_M_g_astTypeObjectSoundInfosDefault, (void *)0);
+}
+
+void SND_pc_fn_vFreeObjectTypeTable(void)
+{
+    SND_RT_fn_vFreeSndEx(E_ucSndBlockMain, g_d_pstTypeObjectSoundInfos);
+}
+
+void SND_pc_fn_vFreeVolumeLines(void)
+{
+    ptdstVolumeLine pLine, pLineNext;
+    int i;
+
+    SNDLST2_M_DynamicForEachMovingElementOf(&(g_VolumeLines.pList), pLine, pLineNext, i)
+    {
+        SND_RT_fn_vFreeSndEx(E_ucSndBlockMain, pLine);
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vKillVolumeLine((long)pLine);
+#endif
+    }
+    nb_volume_lines = 0;
+}
+
+static void init_association(void)
+{
+        SNDLST2_M_DynamicInitAnchor(&association.pList);
+}
+
+void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo);
+
+int SND_fn_iInitSound(void *pInitStruct)
+{
+    int iRet;
+
+    SND_fn_vInitThreadSnd();
+    SND_fn_vInitErrorSnd(pInitStruct);
+    SND_fn_vInitMallocSnd();
+    SND_pc_fn_vLoadDriversFromIni((long *)pInitStruct);
+    init_object_type();
+    init_micro_fct();
+    init_association();
+
+    iRet = SND_fn_iInitSnd(pInitStruct);
+
+    SND_fn_vInitBankSnd(NULL);
+    SND_fn_vQuitCriticalSectionThreadSnd();
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+    SND_fn_vLaunchSupervisater(pInitStruct);
+#endif
+
+    g_bInitDoneSound = 1;
+
+    return iRet;
+}
+
+void __cdecl SND_fn_vDestroyAllMicroSound(void);
+
+void __cdecl SND_fn_vDesInitSound(void)
+{
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+    SND_fn_vKillSupervisater();
+#endif
+    if (g_bInitDoneSound != 0)
+    {
+        g_bInitDoneSound = 0;
+        SND_fn_vDestroyAllMicroSound();
+        SND_RT_fn_vEnterCriticalSectionThreadSnd();
+        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x639);
+        stop_son_all();
+        SND_pc_fn_vFreeObjectTypeTable();
+        SND_pc_fn_vFreeVolumeLines();
+        SND_fn_vDesInitBankSnd();
+        SND_fn_vDesInitSnd();
+        SND_fn_vDesInitThreadSnd();
+        SND_fn_vDesInitMallocSnd();
+        SND_PrintUsedStaticMemory();
+#if defined(_DLL_COMPILATION_MODE)
+        SND_pc_fn_vFreeDriverDlls();
+#endif
+    }
+}
+
+long __cdecl SND_fn_lCreateMicroSound(void)
+{
+        long lRet=C_CREATEMICRO_FAILED;
+        pMICRO_DESCRIPTION pMicro;
+
+        SND_RT_fn_vEnterCriticalSectionThreadSnd();
+        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x967);
+
+		if (g_iNbActiveMicros==NB_MICRO_MAX)
+		{
+			SND_fn_vDisplayError(E_uwSndSystemError,"Too many microphone");
+			SND_RT_fn_vQuitCriticalSectionThreadSnd();
+			return C_CREATEMICRO_FAILED;
+		}
+
+        g_iNbActiveMicros++;
+
+        pMicro=SND_fn_pvMallocSndEx(E_ucSndBlockMain,sizeof(MICRO_DESCRIPTION));
+        SNDLST2_M_DynamicInitElement(pMicro);
+        SNDLST2_M_DynamicAddTail(&micros_sound.pList,pMicro);
+
+        pMicro->sndId=SND_fn_lCreateMicroSnd(NULL);
+        lRet=(long)pMicro;
+
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vAddMicro(lRet);
+#endif
+        SND_RT_fn_vQuitCriticalSectionThreadSnd();
+        return lRet;
+}
+
+void __cdecl SND_fn_vDestroyMicroSound(long Id)
+{
+        SND_RT_fn_vEnterCriticalSectionThreadSnd();
+        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x98d);
+
+        g_iNbActiveMicros--;
+
+        SNDLST2_M_DynamicIsolate((pMICRO_DESCRIPTION)Id);
+        SND_fn_vDestroyMicroSnd(((pMICRO_DESCRIPTION)Id)->sndId);
+        SND_fn_vFreeSndEx(E_ucSndBlockMain,(pMICRO_DESCRIPTION)Id);
+
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vKillMicro(Id);
+#endif
+        SND_RT_fn_vQuitCriticalSectionThreadSnd();
+}
+
+void __cdecl SND_fn_vDestroyAllMicroSound(void)
+{
+    int i;
+    pMICRO_DESCRIPTION pMicro;
+    pMICRO_DESCRIPTION pNextMicro;
+
+    SND_RT_fn_vEnterCriticalSectionThreadSnd();
+    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x9a8);
+
+    g_iNbActiveMicros=0;
+    SNDLST2_M_DynamicForEachMovingElementOf(&micros_sound.pList,pMicro,pNextMicro,i)
+    {
+#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
+        SND_fn_vKillMicro((long)pMicro);
+#endif
+        SND_fn_vDestroyMicroSnd(pMicro->sndId);
+        SNDLST2_M_DynamicIsolate(pMicro);
+        SND_fn_vFreeSndEx(E_ucSndBlockMain,pMicro);
+    }
+
+    SND_RT_fn_vQuitCriticalSectionThreadSnd();
+}
+
+static long SND_pc_g_lUnnamedA207C = 3;   /* 0x004A207C */
+
+long __cdecl SND_pc_fn_lGetTwicePlus25(void)
+{
+    return SND_pc_g_lUnnamedA207C * 2 + 0x19;
+}
+
+void __cdecl SND_pc_fn_vCopyTypeSubTableDefault(long lTypeId)
+{
+    memcpy(&g_d_pstTypeObjectSoundInfos[lTypeId].pc_stRetObjectSoundKey,
+           &SND_pc_g_stRetObjectSoundKeyDefault, sizeof(SND_pc_tdstAllRetObjectSoundKey));
+}
+void __cdecl SND_pc_fn_vLoadSxdDistances(long *plDist)
+{
+    char szValue[0x100];
+    float fBack;
+    float fSatur;
+
+    FIL_pc_M_ulGetProfileString("Options", "SXD_DIST_SATUR", "None", szValue, 0xff, SND_pc_szCpaIniPath);
+    if (strcmp(szValue, "None") == 0)
+    {
+        plDist[0] = 0x7ffffffeL;
+    }
+    else
+    {
+        sscanf(szValue, "%f", &fSatur);
+        plDist[0] = (long)(fSatur * 65536.0f);
+    }
+    FIL_pc_M_ulGetProfileString("Options", "SXD_DIST_BACK", "None", szValue, 0xff, SND_pc_szCpaIniPath);
+    if (strcmp(szValue, "None") == 0)
+    {
+        plDist[1] = 0x7ffffffeL;
+    }
+    else
+    {
+        sscanf(szValue, "%f", &fBack);
+        plDist[1] = (long)(fBack * 65536.0f);
+    }
+}
+
 void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
 {
     char szValue[0x100];
@@ -3276,383 +3760,6 @@ void __cdecl SND_pc_fn_vLoadDriversFromIni(long *plAppInfo)
 #endif
 }
 
-void __cdecl SND_fn_vDestroyMicroSnd(long sndId);
-
-void __cdecl SND_fn_vDestroyMicroSound(long Id)
-{
-        SND_RT_fn_vEnterCriticalSectionThreadSnd();
-        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x98d);
-
-        g_iNbActiveMicros--;
-
-        SNDLST2_M_DynamicIsolate((pMICRO_DESCRIPTION)Id);
-        SND_fn_vDestroyMicroSnd(((pMICRO_DESCRIPTION)Id)->sndId);
-        SND_fn_vFreeSndEx(E_ucSndBlockMain,(pMICRO_DESCRIPTION)Id);
-
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vKillMicro(Id);
-#endif
-        SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
-
-static void init_association(void)
-{
-        SNDLST2_M_DynamicInitAnchor(&association.pList);
-}
-
-static void init_object_type(void)
-{
-    nb_object_type = 0;
-    SND_fn_lAddObjectTypeSound2((void *)SND_M_g_astTypeObjectSoundInfosDefault, (void *)0);
-}
-
-SndReal fn_rRetMicroSoundSndReal0Default(long indice)
-{
-    (void)indice;
-    return 0;
-}
-
-static long fn_rRetMicroSoundSndReal1Default(long indice)
-{
-    (void)indice;
-    return 0x10000;
-}
-
-long fn_lRetMicroSoundFILTREDefault(long indice)
-{
-    (void)indice;
-    return 0;
-}
-
-static void init_micro_fct(void)
-{
-        SNDLST2_M_DynamicInitAnchor(&micros_sound.pList);
-        g_iNbActiveMicros=0;
-
-        g_st_pfnRetMicroSound.X=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.Y=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.Z=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.VX=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.VY=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.VZ=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.DTX=fn_rRetMicroSoundSndReal1Default;
-        g_st_pfnRetMicroSound.DTY=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.DTZ=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.DNX=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.DNY=fn_rRetMicroSoundSndReal0Default;
-        g_st_pfnRetMicroSound.DNZ=fn_rRetMicroSoundSndReal1Default;
-        g_st_pfnRetMicroSound.Filtre=fn_lRetMicroSoundFILTREDefault;
-}
-
-/* 0x0045ABD0 */
-int SND_fn_iInitSeq(void);
-
-void SND_fn_vInitTheme(void);
-
-/* 0x00457DE0 */
-typedef struct SND_pc_tdstSndErrorOccurElement
-{
-    SndBool bOccured;
-    SndBool bDontDisplay;
-    SndBool bDONTAskToBeDisplayed;
-} SND_pc_tdstSndErrorOccurElement;
-
-static SND_pc_tdstSndErrorOccurElement SND_g_astErrorOccurArray[69];
-
-/* 0x004B746C */
-static SND_pc_tdhWindow SND_pc_hMainWindow;
-
-/* 0x0049F14C */
-extern unsigned char g_ucErmModuleId;
-#define SND_pc_ucErmUnregisteredId g_ucErmModuleId
-
-void SND_CALL SND_fn_vInitErrorSnd(void *pInitStruct)
-{
-
-    typedef struct _SND_tdstInitStruct
-    {
-        SND_pc_tdhInstance hProcessInstance;
-        SND_pc_tdhWindow hMainWindow;
-        SND_pc_tdhLock hMutexDX;
-    } SND_tdstInitStruct;
-
-    SND_pc_hMainWindow = ((SND_tdstInitStruct *)pInitStruct)->hMainWindow;
-
-    if (g_ucSndModuleId == C_ucModuleNotInitialized)
-    {
-        g_ucSndModuleId = Erm_fn_ucInitErrMsg();
-    }
-    else
-    {
-        ERM_fn_vUpdateLastError((unsigned short)3, SND_pc_ucErmUnregisteredId,
-                                0, 4, -1, 0xff, 0, NULL);
-    }
-    memset(SND_g_astErrorOccurArray, 0, sizeof(SND_g_astErrorOccurArray));
-}
-
-void SND_CALL SND_fn_vDesInitErrorSnd(void)
-{
-}
-
-void SND_CALL _snd_assert(char *test, char *file, int line)
-{
-    char titre[256];
-    char texte[256];
-
-    SND_pc_M_vBreak();
-    strcpy(titre, "Sound-Assertion failed in ");
-    strcat(titre, file);
-    sprintf(texte, " (Line n\xb0 %d)", line);
-    strcat(titre, texte);
-
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    SND_pc_M_vAssertBox(SND_pc_hMainWindow, test, titre);
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-    SND_pc_M_vBreak();
-}
-
-int SND_CALL snd_erreur_init(int num_err)
-{
-    int iRet;
-
-    (void)num_err;
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    iRet = Erm_fn_iMessageBox(
-        "To continue with sound, close the application that is using the sound driver, and select Retry.\n"
-        "To continue without sound, select Cancel.",
-        "Sound-Driver is busy", 0x40005);
-    switch (iRet)
-    {
-    case 2:
-        iRet = 3;
-        break;
-    case 3:
-        iRet = 4;
-        break;
-    case 4:
-        iRet = 2;
-        break;
-    case 5:
-        iRet = 3;
-        break;
-    default:
-        iRet = 3;
-        break;
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-    return iRet;
-}
-
-int SND_CALL SND_fn_iErreurInit(int idErr)
-{
-    int iRet;
-
-    (void)idErr;
-    SND_fn_vEnterCriticalSectionForErrorDisplay();
-    iRet = Erm_fn_iMessageBox(
-        "Insert a CD or\n"
-        "Close the application using your CD and try again ...\n"
-        "else you'll not be able to hear any music",
-        "CD-Driver Problem", 0x40005);
-    switch (iRet)
-    {
-    case 2:
-        iRet = 3;
-        break;
-    case 3:
-        iRet = 4;
-        break;
-    case 4:
-        iRet = 2;
-        break;
-    case 5:
-        iRet = 3;
-        break;
-    default:
-        iRet = 3;
-        break;
-    }
-    SND_fn_vQuitCriticalSectionForErrorDisplay();
-    return iRet;
-}
-
-int SND_fn_iInitSound(void *pInitStruct)
-{
-    int iRet;
-
-    SND_fn_vInitThreadSnd();
-    SND_fn_vInitErrorSnd(pInitStruct);
-    SND_fn_vInitMallocSnd();
-    SND_pc_fn_vLoadDriversFromIni((long *)pInitStruct);
-    init_object_type();
-    init_micro_fct();
-    init_association();
-
-    iRet = SND_fn_iInitSnd(pInitStruct);
-
-    SND_fn_vInitBankSnd(NULL);
-    SND_fn_vQuitCriticalSectionThreadSnd();
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-    SND_fn_vLaunchSupervisater(pInitStruct);
-#endif
-
-    g_bInitDoneSound = 1;
-
-    return iRet;
-}
-
-#if defined(_DLL_COMPILATION_MODE)
-void __stdcall SND_fn_vKillVolumeLine(long indice)
-{
-    if (g_pfn_SND_KillVolumeLine_s == NULL) DebugBreak();
-    g_pfn_SND_KillVolumeLine_s(indice);
-}
-#endif
-
-void SND_pc_fn_vFreeObjectTypeTable(void)
-{
-    SND_RT_fn_vFreeSndEx(E_ucSndBlockMain, g_d_pstTypeObjectSoundInfos);
-}
-
-void SND_pc_fn_vFreeVolumeLines(void)
-{
-    ptdstVolumeLine pLine, pLineNext;
-    int i;
-
-    SNDLST2_M_DynamicForEachMovingElementOf(&(g_VolumeLines.pList), pLine, pLineNext, i)
-    {
-        SND_RT_fn_vFreeSndEx(E_ucSndBlockMain, pLine);
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vKillVolumeLine((long)pLine);
-#endif
-    }
-    nb_volume_lines = 0;
-}
-
-/* 0x0045AB10 */
-void SND_fn_vDesInitSeq(void);
-
-void __cdecl SND_fn_vDestroyAllMicroSound(void)
-{
-    int i;
-    pMICRO_DESCRIPTION pMicro;
-    pMICRO_DESCRIPTION pNextMicro;
-
-    SND_RT_fn_vEnterCriticalSectionThreadSnd();
-    SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x9a8);
-
-    g_iNbActiveMicros=0;
-    SNDLST2_M_DynamicForEachMovingElementOf(&micros_sound.pList,pMicro,pNextMicro,i)
-    {
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vKillMicro((long)pMicro);
-#endif
-        SND_fn_vDestroyMicroSnd(pMicro->sndId);
-        SNDLST2_M_DynamicIsolate(pMicro);
-        SND_fn_vFreeSndEx(E_ucSndBlockMain,pMicro);
-    }
-
-    SND_RT_fn_vQuitCriticalSectionThreadSnd();
-}
-
-void __cdecl SND_fn_vDesInitTheme(void)
-{
-}
-
-#if defined(_DLL_COMPILATION_MODE)
-void __cdecl SND_pc_fn_vFreeDriverDlls(void)
-{
-    if (SND_pc_hModuleSxd != NULL)
-    {
-        FreeLibrary(SND_pc_hModuleSxd);
-    }
-    if (SND_pc_hModuleCd != NULL)
-    {
-        FreeLibrary(SND_pc_hModuleCd);
-    }
-    if (SND_pc_hModuleMpeg != NULL)
-    {
-        FreeLibrary(SND_pc_hModuleMpeg);
-    }
-    if (SND_pc_hModuleDbg != NULL)
-    {
-        FreeLibrary(SND_pc_hModuleDbg);
-    }
-    if (SND_pc_hModuleAdpcm != NULL)
-    {
-        FreeLibrary(SND_pc_hModuleAdpcm);
-    }
-    if (SND_pc_hModuleRecord != NULL)
-    {
-        FreeLibrary(SND_pc_hModuleRecord);
-    }
-}
-#endif
-
-void __cdecl SND_fn_vDesInitSound(void)
-{
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-    SND_fn_vKillSupervisater();
-#endif
-    if (g_bInitDoneSound != 0)
-    {
-        g_bInitDoneSound = 0;
-        SND_fn_vDestroyAllMicroSound();
-        SND_RT_fn_vEnterCriticalSectionThreadSnd();
-        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x639);
-        stop_son_all();
-        SND_pc_fn_vFreeObjectTypeTable();
-        SND_pc_fn_vFreeVolumeLines();
-        SND_fn_vDesInitBankSnd();
-        SND_fn_vDesInitSnd();
-        SND_fn_vDesInitThreadSnd();
-        SND_fn_vDesInitMallocSnd();
-        SND_PrintUsedStaticMemory();
-#if defined(_DLL_COMPILATION_MODE)
-        SND_pc_fn_vFreeDriverDlls();
-#endif
-    }
-}
-
-#if defined(_DLL_COMPILATION_MODE)
-void __stdcall SND_fn_vAddMicro(long indice)
-{
-    if (g_pfn_SND_AddMicro_s == NULL) DebugBreak();
-    g_pfn_SND_AddMicro_s(indice);
-}
-#endif
-
-long __cdecl SND_fn_lCreateMicroSound(void)
-{
-        long lRet=C_CREATEMICRO_FAILED;
-        pMICRO_DESCRIPTION pMicro;
-
-        SND_RT_fn_vEnterCriticalSectionThreadSnd();
-        SND_RT_fn_vMouchardThreadsnd(SND_C_szSound3DSrcFile, 0x967);
-
-		if (g_iNbActiveMicros==NB_MICRO_MAX)
-		{
-			SND_fn_vDisplayError(E_uwSndSystemError,"Too many microphone");
-			SND_RT_fn_vQuitCriticalSectionThreadSnd();
-			return C_CREATEMICRO_FAILED;
-		}
-
-        g_iNbActiveMicros++;
-
-        pMicro=SND_fn_pvMallocSndEx(E_ucSndBlockMain,sizeof(MICRO_DESCRIPTION));
-        SNDLST2_M_DynamicInitElement(pMicro);
-        SNDLST2_M_DynamicAddTail(&micros_sound.pList,pMicro);
-
-        pMicro->sndId=SND_fn_lCreateMicroSnd(NULL);
-        lRet=(long)pMicro;
-
-#if defined(_DLL_COMPILATION_MODE) || defined(SUPERVISATER)
-        SND_fn_vAddMicro(lRet);
-#endif
-        SND_RT_fn_vQuitCriticalSectionThreadSnd();
-        return lRet;
-}
-
 /* 0x00457C80 */
 int __stdcall SND_pc_fn_iSetNodeByteStd(tdstBlockResourceMem *pRes, unsigned char ucVolume)
 {
@@ -3664,85 +3771,6 @@ int __cdecl SND_pc_fn_iSetSequenceNodeByte(tdstBlockResourceMem *pRes, unsigned 
 {
     pRes->ucVolume = ucVolume;
     return TRUE;
-}
-
-int __cdecl SND_pc_fn_iSetSplitNodeByte(tdstBlockResourceMem *pRes, unsigned char ucVolume)
-{
-    pRes->ucVolume = ucVolume;
-    return TRUE;
-}
-
-int __cdecl SND_pc_fn_iSetSwitchNodeByte(tdstBlockResourceMem *pRes, unsigned char ucVolume)
-{
-    pRes->ucVolume = ucVolume;
-    return TRUE;
-}
-
-int __cdecl SND_pc_fn_iSetThemeNodeByte(tdstBlockResourceMem *pRes, unsigned char ucVolume)
-{
-    pRes->ucVolume = ucVolume;
-    return TRUE;
-}
-
-/* 0x004582C0 */
-void __cdecl SND_pc_fn_vSetUnitVecX(long lUnused, long *pVec)
-{
-    if (pVec != NULL)
-    {
-        pVec[0] = 0x10000;
-        pVec[1] = 0;
-        pVec[2] = 0;
-    }
-}
-
-void __cdecl SND_pc_fn_vSetUnitVecY(long lUnused, long *pVec)
-{
-    if (pVec != NULL)
-    {
-        pVec[0] = 0;
-        pVec[1] = 0x10000;
-        pVec[2] = 0;
-    }
-}
-
-void __cdecl SND_pc_fn_vSetUnitVecZ(long lUnused, long *pVec)
-{
-    if (pVec != NULL)
-    {
-        pVec[0] = 0;
-        pVec[1] = 0;
-        pVec[2] = 0x10000;
-    }
-}
-
-void __cdecl SND_pc_fn_vSetThreeRealsToOne(long lUnused0, long lUnused1,
-                                           long *pA, long *pB, long *pC)
-{
-    if (pA != NULL)
-    {
-        *pA = 0x10000;
-    }
-    if (pB != NULL)
-    {
-        *pB = 0x10000;
-    }
-    if (pC != NULL)
-    {
-        *pC = 0x10000;
-    }
-}
-
-static long SND_pc_g_lUnnamedA207C = 3;   /* 0x004A207C */
-
-long __cdecl SND_pc_fn_lGetTwicePlus25(void)
-{
-    return SND_pc_g_lUnnamedA207C * 2 + 0x19;
-}
-
-void __cdecl SND_pc_fn_vCopyTypeSubTableDefault(long lTypeId)
-{
-    memcpy(&g_d_pstTypeObjectSoundInfos[lTypeId].pc_stRetObjectSoundKey,
-           &SND_pc_g_stRetObjectSoundKeyDefault, sizeof(SND_pc_tdstAllRetObjectSoundKey));
 }
 
 /* 0x004A3BA8 */

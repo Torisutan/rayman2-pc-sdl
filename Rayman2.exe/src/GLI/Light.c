@@ -102,46 +102,6 @@ void __cdecl GLI_xSetViewportLightsOnOff(unsigned char bOnOff)
     }
 }
 
-void __cdecl GLI_vCopyLight(struct GLI_tdstLight_ *p_stLightDst, struct GLI_tdstLight_ *p_stLightSrc)
-{
-    typedef struct { unsigned long aul[64]; } GLI_tdstLightBlock;
-    *(GLI_tdstLightBlock *)p_stLightDst = *(GLI_tdstLightBlock *)p_stLightSrc;
-}
-
-void __cdecl GLI_vStoreLightForInit(struct GLI_tdstLight_ *p_stLight, SAI_tdeFlags eUserFlags)
-{
-    SAI_fn_bInsertLongInTable((char *)&p_stLight->b_lOnOff, eUserFlags);
-    SAI_fn_bInsertLongInTable((char *)&p_stLight->lTypeOfLight, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xFar, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xNear, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xLittleAlpha, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xBigAlpha, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xLittleTangent, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xBigTangent, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xR, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xG, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xB, eUserFlags);
-    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xA, eUserFlags);
-    SAI_fn_bInsertCharInTable((char *)&p_stLight->ucObjectLighted, eUserFlags);
-}
-
-void __cdecl GLI_vRemoveLightForInit(struct GLI_tdstLight_ *p_stLight, SAI_tdeFlags eUserFlags)
-{
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->b_lOnOff, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->lTypeOfLight, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xFar, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xNear, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xLittleAlpha, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xBigAlpha, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xLittleTangent, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xBigTangent, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xR, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xG, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xB, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xA, eUserFlags);
-    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->ucObjectLighted, eUserFlags);
-}
-
 void __cdecl GLI_xCreateLight(void **p_hLight, long lTypeOfLight)
 {
     long *p_stLight;
@@ -194,6 +154,46 @@ fill_block:
         *(long *)((char *)*p_hLight + 0xF8) = 0;
         *(long *)((char *)*p_hLight + 0xFC) = 0;
     }
+}
+
+void __cdecl GLI_vCopyLight(struct GLI_tdstLight_ *p_stLightDst, struct GLI_tdstLight_ *p_stLightSrc)
+{
+    typedef struct { unsigned long aul[64]; } GLI_tdstLightBlock;
+    *(GLI_tdstLightBlock *)p_stLightDst = *(GLI_tdstLightBlock *)p_stLightSrc;
+}
+
+void __cdecl GLI_vStoreLightForInit(struct GLI_tdstLight_ *p_stLight, SAI_tdeFlags eUserFlags)
+{
+    SAI_fn_bInsertLongInTable((char *)&p_stLight->b_lOnOff, eUserFlags);
+    SAI_fn_bInsertLongInTable((char *)&p_stLight->lTypeOfLight, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xFar, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xNear, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xLittleAlpha, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xBigAlpha, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xLittleTangent, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->xBigTangent, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xR, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xG, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xB, eUserFlags);
+    SAI_fn_bInsertFloatInTable((char *)&p_stLight->stColor.xA, eUserFlags);
+    SAI_fn_bInsertCharInTable((char *)&p_stLight->ucObjectLighted, eUserFlags);
+}
+
+void __cdecl GLI_vRemoveLightForInit(struct GLI_tdstLight_ *p_stLight, SAI_tdeFlags eUserFlags)
+{
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->b_lOnOff, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->lTypeOfLight, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xFar, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xNear, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xLittleAlpha, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xBigAlpha, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xLittleTangent, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->xBigTangent, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xR, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xG, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xB, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->stColor.xA, eUserFlags);
+    SAI_fn_bRemoveValueFromTable((char *)&p_stLight->ucObjectLighted, eUserFlags);
 }
 
 void __cdecl GLI_xSetLightState(void *p_stLight, long b_lOnOff)   /* 0x00426F40 */

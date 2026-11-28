@@ -67,6 +67,29 @@ void __cdecl MEC_fn_vCorrectMatrix (DNM_tdstDynamics *p_stDynamic, POS_tdxHandle
 	return;
 }
 
+ACP_tdxBool __cdecl MEC_fn_bIsEqualTransformMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2);
+
+ACP_tdxBool __cdecl MEC_fn_bIsEqualMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2)
+{
+	MTH3D_tdstVector *p_stTranslation1, *p_stTranslation2;
+
+	p_stTranslation1 = POS_fn_p_stGetTranslationVector ( hMatrix1 );
+	p_stTranslation2 = POS_fn_p_stGetTranslationVector ( hMatrix2 );
+
+	return MTH3D_M_bEqualVector (p_stTranslation1,p_stTranslation2) && MEC_fn_bIsEqualTransformMatrix (hMatrix1,hMatrix2);
+}
+
+ACP_tdxBool __cdecl MEC_fn_bIsEqualTransformMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2)
+{
+	MTH3D_tdstVector stI1, stJ1, stK1;
+	MTH3D_tdstVector stI2, stJ2, stK2;
+
+	POS_fn_vGetTransformMatrix ( hMatrix1, &stI1, &stJ1, &stK1 );
+	POS_fn_vGetTransformMatrix ( hMatrix2, &stI2, &stJ2, &stK2 );
+
+	return MTH3D_M_bEqualVector (&stI1,&stI2) && MTH3D_M_bEqualVector (&stJ1,&stJ2) && MTH3D_M_bEqualVector (&stK1,&stK2);
+}
+
 void __cdecl MEC_fn_vTranslateMatrixOn (DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stMatrixTranslation)
 {
 	POS_tdxHandleToPosition hCurrentMatrix, hPreviousMatrix;
@@ -112,30 +135,52 @@ void __cdecl MEC_fn_vTranslateMatrixOff (DNM_tdstDynamics *p_stDynamic, MTH3D_td
 	MTH3D_M_vAddVector ( p_stCurrentVector, p_stCurrentVector, p_stMatrixTranslation );
 }
 
-void __cdecl MEC_fn_vAdjustSpeed (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT)
+void __cdecl MEC_fn_vComputeStream ( MTH3D_tdstVector *p_stStream, DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT, ACP_tdxBool bSlide)
 {
-	POS_tdxHandleToPosition hPreviousMatrix, hCurrentMatrix;
-	MTH3D_tdstVector *p_stPreviousPosition, *p_stCurrentPosition;
-	MTH3D_tdstVector stTranslation;
-	MTH_tdxReal xDotProd;
+	MTH_tdxReal xMultFactor;
 
-	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
-	hPreviousMatrix = DNM_M_p_stDynamicsGetPreviousMatrix (p_stDynamic);
+	xMultFactor = MTH_M_xMul (xDT,DNM_M_xDynamicsGetStreamFactor(p_stDynamic));
+	MTH3D_M_vMulScalarVector ( p_stStream, xMultFactor, DNM_M_pDynamicsGetStreamSpeed ( p_stDynamic ) );
+	if (bSlide)
+		MTH3D_M_vMulScalarVector ( p_stStream, DNM_M_xDynamicsGetPreviousSlide(p_stDynamic), p_stStream );
+}
 
-	p_stPreviousPosition = POS_fn_p_stGetTranslationVector ( hPreviousMatrix );
-	p_stCurrentPosition = POS_fn_p_stGetTranslationVector ( hCurrentMatrix );
+void __cdecl MEC_fn_vComputeInertiaTranslation ( DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT )
+{
+	MTH3D_tdstVector stVector;
+	ACP_tdxBool bSlide;
 
-	MTH3D_M_vSubVector ( &stTranslation, p_stCurrentPosition, p_stPreviousPosition);
+	bSlide = (DNM_M_xDynamicsGetStreamPriority(p_stDynamic) != MTH_C_ONE);
+	MEC_fn_vComputeStream ( &stVector, p_stDynamic, xDT, bSlide);
 
-	if (!MEC_fn_bIsNullVector(&stTranslation))
-	{	MTH3D_M_vNormalizeVector (&stTranslation, &stTranslation);	}
-	else
-		MTH3D_M_vNullVector (&stTranslation);
+	MTH3D_M_vAddVector ( &stVector, &stVector, DNM_M_pDynamicsGetAddTranslation (p_stDynamic) );
 
-	xDotProd = MTH3D_M_xDotProductVector (&stTranslation, DNM_M_pDynamicsGetPreviousSpeed(p_stDynamic));
-	MTH3D_M_vMulScalarVector (&stTranslation, MTH_M_xMul(xDotProd, xDT), &stTranslation);
+	DNM_M_vDynamicsSetInertiaTranslation ( p_stDynamic, &stVector );
+}
 
-	MTH3D_M_vAddVector (p_stCurrentPosition, p_stPreviousPosition, &stTranslation);
+ACP_tdxBool __cdecl MEC_fn_bNoMove (DNM_tdstDynamics *p_stDynamic)
+{
+	if ( !MTH3D_M_bIsNullVector(DNM_M_pDynamicsGetPreviousSpeed(p_stDynamic)) ) return FALSE;
+	if ( DNM_M_bDynamicsIsGravity(p_stDynamic) ) return FALSE;
+	if ( DNM_M_bDynamicsIsAnimation(p_stDynamic) ) return FALSE;
+	if ( DNM_M_bDynamicsIsImposeSpeed(p_stDynamic) ) return FALSE;
+	if ( DNM_M_bDynamicsIsImposeRotation(p_stDynamic) ) return FALSE;
+	if ( DNM_M_bDynamicsIsProposeSpeed(p_stDynamic) ) return FALSE;
+
+	if (DNM_M_bDynamicsIsAdvancedSize(p_stDynamic))
+	{
+		if ( DNM_M_bDynamicsIsInertia(p_stDynamic) ) return FALSE;
+		if ( DNM_M_bDynamicsIsImposeRotation(p_stDynamic) ) return FALSE;
+		if ( DNM_M_bDynamicsIsStream(p_stDynamic) ) return FALSE;
+		if ( DNM_M_bDynamicsIsAddSpeed(p_stDynamic) ) return FALSE;
+	}
+
+	if (DNM_M_bDynamicsIsComplexSize(p_stDynamic))
+	{
+		if ( MEC_fn_bIsPlatform(p_stDynamic) ) return FALSE;
+	}
+
+	return TRUE;
 }
 
 void __cdecl MEC_fn_vSlowMode (DNM_tdstDynamics *p_stDynamic, long lMode)
@@ -196,48 +241,45 @@ void __cdecl MEC_fn_vRepeatMove (DNM_tdstDynamics *p_stDynamic)
 	MTH3D_M_vAddVector ( p_stCurrentPosition, p_stCurrentPosition, &stVector );
 }
 
-ACP_tdxBool __cdecl MEC_fn_bIsEqualTransformMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2)
+DNM_tdstMecMatCharacteristics * __cdecl DNM_fn_p_stMecMatCharacteristicsGiveBackSemantic (DNM_tdxHandleToMecMatCharacteristics _hMatCharacteristics)
 {
-	MTH3D_tdstVector stI1, stJ1, stK1;
-	MTH3D_tdstVector stI2, stJ2, stK2;
-
-	POS_fn_vGetTransformMatrix ( hMatrix1, &stI1, &stJ1, &stK1 );
-	POS_fn_vGetTransformMatrix ( hMatrix2, &stI2, &stJ2, &stK2 );
-
-	return MTH3D_M_bEqualVector (&stI1,&stI2) && MTH3D_M_bEqualVector (&stJ1,&stJ2) && MTH3D_M_bEqualVector (&stK1,&stK2);
+	return (DNM_tdstMecMatCharacteristics *)_hMatCharacteristics;
 }
 
-ACP_tdxBool __cdecl MEC_fn_bIsEqualMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2)
+void __cdecl MEC_fn_vAdjustSpeed (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT)
 {
-	MTH3D_tdstVector *p_stTranslation1, *p_stTranslation2;
+	POS_tdxHandleToPosition hPreviousMatrix, hCurrentMatrix;
+	MTH3D_tdstVector *p_stPreviousPosition, *p_stCurrentPosition;
+	MTH3D_tdstVector stTranslation;
+	MTH_tdxReal xDotProd;
 
-	p_stTranslation1 = POS_fn_p_stGetTranslationVector ( hMatrix1 );
-	p_stTranslation2 = POS_fn_p_stGetTranslationVector ( hMatrix2 );
+	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
+	hPreviousMatrix = DNM_M_p_stDynamicsGetPreviousMatrix (p_stDynamic);
 
-	return MTH3D_M_bEqualVector (p_stTranslation1,p_stTranslation2) && MEC_fn_bIsEqualTransformMatrix (hMatrix1,hMatrix2);
+	p_stPreviousPosition = POS_fn_p_stGetTranslationVector ( hPreviousMatrix );
+	p_stCurrentPosition = POS_fn_p_stGetTranslationVector ( hCurrentMatrix );
+
+	MTH3D_M_vSubVector ( &stTranslation, p_stCurrentPosition, p_stPreviousPosition);
+
+	if (!MEC_fn_bIsNullVector(&stTranslation))
+	{	MTH3D_M_vNormalizeVector (&stTranslation, &stTranslation);	}
+	else
+		MTH3D_M_vNullVector (&stTranslation);
+
+	xDotProd = MTH3D_M_xDotProductVector (&stTranslation, DNM_M_pDynamicsGetPreviousSpeed(p_stDynamic));
+	MTH3D_M_vMulScalarVector (&stTranslation, MTH_M_xMul(xDotProd, xDT), &stTranslation);
+
+	MTH3D_M_vAddVector (p_stCurrentPosition, p_stPreviousPosition, &stTranslation);
 }
 
-void __cdecl MEC_fn_vComputeStream ( MTH3D_tdstVector *p_stStream, DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT, ACP_tdxBool bSlide)
+void __cdecl DNM_fn_vInvalidateMatCharacteristics (DNM_tdxHandleToMecMatCharacteristics *_p_hMatCharacteristics)
 {
-	MTH_tdxReal xMultFactor;
-
-	xMultFactor = MTH_M_xMul (xDT,DNM_M_xDynamicsGetStreamFactor(p_stDynamic));
-	MTH3D_M_vMulScalarVector ( p_stStream, xMultFactor, DNM_M_pDynamicsGetStreamSpeed ( p_stDynamic ) );
-	if (bSlide)
-		MTH3D_M_vMulScalarVector ( p_stStream, DNM_M_xDynamicsGetPreviousSlide(p_stDynamic), p_stStream );
+	*_p_hMatCharacteristics = NULL;
 }
 
-void __cdecl MEC_fn_vComputeInertiaTranslation ( DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT )
+ACP_tdxBool __cdecl DNM_fn_bIsMatCharacteristicsValid (DNM_tdxHandleToMecMatCharacteristics _hMatCharacteristics)
 {
-	MTH3D_tdstVector stVector;
-	ACP_tdxBool bSlide;
-
-	bSlide = (DNM_M_xDynamicsGetStreamPriority(p_stDynamic) != MTH_C_ONE);
-	MEC_fn_vComputeStream ( &stVector, p_stDynamic, xDT, bSlide);
-
-	MTH3D_M_vAddVector ( &stVector, &stVector, DNM_M_pDynamicsGetAddTranslation (p_stDynamic) );
-
-	DNM_M_vDynamicsSetInertiaTranslation ( p_stDynamic, &stVector );
+	return (ACP_tdxBool)(_hMatCharacteristics != NULL);
 }
 
 ACP_tdxBool __cdecl MEC_fn_bWallNormal (DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stNormal)
@@ -281,75 +323,6 @@ ACP_tdxBool __cdecl MEC_fn_bCeilObstacle (DNM_tdstDynamics *p_stDynamic, DNM_tds
 		return (ACP_tdxBool)1;
 	else
 		return (ACP_tdxBool)0;
-}
-
-void __cdecl DNM_fn_vInvalidateMatCharacteristics (DNM_tdxHandleToMecMatCharacteristics *_p_hMatCharacteristics)
-{
-	*_p_hMatCharacteristics = NULL;
-}
-
-ACP_tdxBool __cdecl DNM_fn_bIsMatCharacteristicsValid (DNM_tdxHandleToMecMatCharacteristics _hMatCharacteristics)
-{
-	return (ACP_tdxBool)(_hMatCharacteristics != NULL);
-}
-
-DNM_tdstMecMatCharacteristics * __cdecl DNM_fn_p_stMecMatCharacteristicsGiveBackSemantic (DNM_tdxHandleToMecMatCharacteristics _hMatCharacteristics)
-{
-	return (DNM_tdstMecMatCharacteristics *)_hMatCharacteristics;
-}
-
-HIE_tdstSuperObject *__cdecl MEC_fn_hGetFatherActor (HIE_tdstSuperObject *hSupObj)
-{
-	HIE_tdstSuperObject *hActor = hSupObj;
-
-	while (hActor->ulTypeOfLinkedObject != HIE_C_ulActor)
-	{
-		hActor = HIE_fn_hGetSuperObjectFather (hActor);
-		if (hActor == NULL)
-			return hActor;
-	}
-	return hActor;
-}
-
-void __cdecl MEC_fn_vDeleteBaseBackFace ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstDynamics *p_stDynamic )
-{
-	MTH3D_tdstVector  stVector;
-	long lCounter;
-	MTH_tdxReal xDotProd1, xDotProd2;
-
-	for (lCounter = 0; lCounter < lObstacle; lCounter++)
-	{
-		DNM_tdstMecObstacle *p_stCurrentObstacle = p_stObstacle + lCounter;
-
-		if ( MEC_fn_bIsObstacleValid(p_stCurrentObstacle) && !MEC_fn_bIsWater(p_stCurrentObstacle) )
-		{
-			if (!MEC_fn_bIsNullVector(DNM_M_pObstacleGetZoneMove(p_stCurrentObstacle)))
-			{	MTH3D_M_vNormalizeVector (&stVector, DNM_M_pObstacleGetZoneMove(p_stCurrentObstacle));	}
-			else
-				MTH3D_M_vNullVector (&stVector);
-
-			xDotProd2 = MTH3D_M_xDotProductVector ( DNM_M_p_stObstacleGetNorm(p_stCurrentObstacle), &stVector );
-
-			/* 0x49C768 */
-			if ( MTH_M_bGreater(xDotProd2, MTH_M_xConstFloatToReal(0.707f)) )
-				MEC_fn_vInvalidateObstacle (p_stCurrentObstacle);
-			else if (!DNM_M_bDynamicsIsHanging(p_stDynamic))
-			{
-				if (MTH_M_bEqualZero(DNM_M_xObstacleGetZoneRadius(p_stCurrentObstacle)))
-					MEC_fn_vInvalidateObstacle(p_stCurrentObstacle);
-				else
-				{
-					MTH3D_M_vSubVector ( &stVector, DNM_M_p_stObstacleGetContact(p_stCurrentObstacle), DNM_M_pObstacleGetZonePosition(p_stCurrentObstacle) );
-					MTH3D_M_vAddVector ( &stVector, &stVector, DNM_M_pObstacleGetZoneMove(p_stCurrentObstacle) );
-					xDotProd1 = MTH3D_M_xDotProductVector ( DNM_M_p_stObstacleGetNorm(p_stCurrentObstacle),&stVector );
-
-					/* 0x49C738 */
-					if (MTH_M_bGreater(xDotProd1, MTH_C_ZERO))
-						MEC_fn_vInvalidateObstacle(p_stCurrentObstacle);
-				}
-			}
-		}
-	}
 }
 
 ACP_tdxBool __cdecl MEC_fn_bDynamicsNeedCollide (DNM_tdstDynamics *p_stDynamic)
@@ -436,80 +409,6 @@ MTH_tdxReal __cdecl MEC_fn_xGetRebound (DNM_tdstDynamics *p_stDynamic, DNM_tdstM
 	return xRebound;
 }
 
-void __cdecl MEC_fn_vAdjustScaleVector (DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stVector)
-{
-	MTH3D_M_vSetXofVector ( p_stVector, MTH_M_xMul(MTH3D_M_xGetXofVector (p_stVector),DNM_M_p_stDynamicsGetScaleX(p_stDynamic)) );
-	MTH3D_M_vSetYofVector ( p_stVector, MTH_M_xMul(MTH3D_M_xGetYofVector (p_stVector),DNM_M_p_stDynamicsGetScaleY(p_stDynamic)) );
-	MTH3D_M_vSetZofVector ( p_stVector, MTH_M_xMul(MTH3D_M_xGetZofVector (p_stVector),DNM_M_p_stDynamicsGetScaleZ(p_stDynamic)) );
-}
-
-MTH_tdxReal __cdecl MEC_fn_vRoundReal (MTH_tdxReal xReal, MTH_tdxReal xEpsilon)
-{
-	long lValue;
-	MTH_tdxReal xValue;
-
-	xValue = MTH_M_xDiv (xReal, xEpsilon);
-	lValue = MTH_M_xRealToLong (xValue);
-	xReal = MTH_M_xLongToReal (lValue);
-	return MTH_M_xMul (xReal, xEpsilon);
-}
-
-void __cdecl MEC_fn_vRoundVector (MTH3D_tdstVector *p_stVector, MTH_tdxReal xEpsilon)
-{
-	MTH3D_M_vSetXofVector ( p_stVector, MEC_fn_vRoundReal ( MTH3D_M_xGetXofVector(p_stVector), xEpsilon ) );
-	MTH3D_M_vSetYofVector ( p_stVector, MEC_fn_vRoundReal ( MTH3D_M_xGetYofVector(p_stVector), xEpsilon ) );
-	MTH3D_M_vSetZofVector ( p_stVector, MEC_fn_vRoundReal ( MTH3D_M_xGetZofVector(p_stVector), xEpsilon ) );
-}
-
-ACP_tdxBool __cdecl MEC_fn_bNoMove (DNM_tdstDynamics *p_stDynamic)
-{
-	if ( !MTH3D_M_bIsNullVector(DNM_M_pDynamicsGetPreviousSpeed(p_stDynamic)) ) return FALSE;
-	if ( DNM_M_bDynamicsIsGravity(p_stDynamic) ) return FALSE;
-	if ( DNM_M_bDynamicsIsAnimation(p_stDynamic) ) return FALSE;
-	if ( DNM_M_bDynamicsIsImposeSpeed(p_stDynamic) ) return FALSE;
-	if ( DNM_M_bDynamicsIsImposeRotation(p_stDynamic) ) return FALSE;
-	if ( DNM_M_bDynamicsIsProposeSpeed(p_stDynamic) ) return FALSE;
-
-	if (DNM_M_bDynamicsIsAdvancedSize(p_stDynamic))
-	{
-		if ( DNM_M_bDynamicsIsInertia(p_stDynamic) ) return FALSE;
-		if ( DNM_M_bDynamicsIsImposeRotation(p_stDynamic) ) return FALSE;
-		if ( DNM_M_bDynamicsIsStream(p_stDynamic) ) return FALSE;
-		if ( DNM_M_bDynamicsIsAddSpeed(p_stDynamic) ) return FALSE;
-	}
-
-	if (DNM_M_bDynamicsIsComplexSize(p_stDynamic))
-	{
-		if ( MEC_fn_bIsPlatform(p_stDynamic) ) return FALSE;
-	}
-
-	return TRUE;
-}
-
-#ifndef C_xDNM_NO_COLLISION_WITH_GROUND
-#define C_xDNM_NO_COLLISION_WITH_GROUND  (1 << 4)
-#endif
-
-void __cdecl MEC_fn_vDeleteNoCollidedGroundFace ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstDynamics *p_stDynamic )
-{
-	long lCounter;
-	DNM_tdstMecObstacle *p_stCurrentObstacle;
-
-	for (lCounter = 0; lCounter < lObstacle; lCounter++)
-	{
-		p_stCurrentObstacle = p_stObstacle + lCounter;
-
-		if (MEC_fn_bIsObstacleValid(p_stCurrentObstacle))
-		{
-			if (MEC_fn_bGroundObstacle(p_stDynamic, p_stCurrentObstacle))
-			{
-				if (MEC_fn_bTypeOfGameMaterial((GMT_tdxHandleToGameMaterial)DNM_M_hObstacleGetMyMaterial(p_stCurrentObstacle), C_xDNM_NO_COLLISION_WITH_GROUND))
-					MEC_fn_vInvalidateObstacle(p_stCurrentObstacle);
-			}
-		}
-	}
-}
-
 void __cdecl MEC_fn_vComputeCollisionTranslation ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, MTH3D_tdstVector *p_stMove )
 {
 	long lCounter;
@@ -541,6 +440,109 @@ void __cdecl MEC_fn_vComputeCollisionTranslation ( long lObstacle, DNM_tdstMecOb
 				}
 		}
 	}
+}
+
+void __cdecl MEC_fn_vAdjustScaleVector (DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stVector)
+{
+	MTH3D_M_vSetXofVector ( p_stVector, MTH_M_xMul(MTH3D_M_xGetXofVector (p_stVector),DNM_M_p_stDynamicsGetScaleX(p_stDynamic)) );
+	MTH3D_M_vSetYofVector ( p_stVector, MTH_M_xMul(MTH3D_M_xGetYofVector (p_stVector),DNM_M_p_stDynamicsGetScaleY(p_stDynamic)) );
+	MTH3D_M_vSetZofVector ( p_stVector, MTH_M_xMul(MTH3D_M_xGetZofVector (p_stVector),DNM_M_p_stDynamicsGetScaleZ(p_stDynamic)) );
+}
+
+MTH_tdxReal __cdecl MEC_fn_vRoundReal (MTH_tdxReal xReal, MTH_tdxReal xEpsilon)
+{
+	long lValue;
+	MTH_tdxReal xValue;
+
+	xValue = MTH_M_xDiv (xReal, xEpsilon);
+	lValue = MTH_M_xRealToLong (xValue);
+	xReal = MTH_M_xLongToReal (lValue);
+	return MTH_M_xMul (xReal, xEpsilon);
+}
+
+void __cdecl MEC_fn_vRoundVector (MTH3D_tdstVector *p_stVector, MTH_tdxReal xEpsilon)
+{
+	MTH3D_M_vSetXofVector ( p_stVector, MEC_fn_vRoundReal ( MTH3D_M_xGetXofVector(p_stVector), xEpsilon ) );
+	MTH3D_M_vSetYofVector ( p_stVector, MEC_fn_vRoundReal ( MTH3D_M_xGetYofVector(p_stVector), xEpsilon ) );
+	MTH3D_M_vSetZofVector ( p_stVector, MEC_fn_vRoundReal ( MTH3D_M_xGetZofVector(p_stVector), xEpsilon ) );
+}
+
+void __cdecl MEC_fn_vDeleteBaseBackFace ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstDynamics *p_stDynamic )
+{
+	MTH3D_tdstVector  stVector;
+	long lCounter;
+	MTH_tdxReal xDotProd1, xDotProd2;
+
+	for (lCounter = 0; lCounter < lObstacle; lCounter++)
+	{
+		DNM_tdstMecObstacle *p_stCurrentObstacle = p_stObstacle + lCounter;
+
+		if ( MEC_fn_bIsObstacleValid(p_stCurrentObstacle) && !MEC_fn_bIsWater(p_stCurrentObstacle) )
+		{
+			if (!MEC_fn_bIsNullVector(DNM_M_pObstacleGetZoneMove(p_stCurrentObstacle)))
+			{	MTH3D_M_vNormalizeVector (&stVector, DNM_M_pObstacleGetZoneMove(p_stCurrentObstacle));	}
+			else
+				MTH3D_M_vNullVector (&stVector);
+
+			xDotProd2 = MTH3D_M_xDotProductVector ( DNM_M_p_stObstacleGetNorm(p_stCurrentObstacle), &stVector );
+
+			/* 0x49C768 */
+			if ( MTH_M_bGreater(xDotProd2, MTH_M_xConstFloatToReal(0.707f)) )
+				MEC_fn_vInvalidateObstacle (p_stCurrentObstacle);
+			else if (!DNM_M_bDynamicsIsHanging(p_stDynamic))
+			{
+				if (MTH_M_bEqualZero(DNM_M_xObstacleGetZoneRadius(p_stCurrentObstacle)))
+					MEC_fn_vInvalidateObstacle(p_stCurrentObstacle);
+				else
+				{
+					MTH3D_M_vSubVector ( &stVector, DNM_M_p_stObstacleGetContact(p_stCurrentObstacle), DNM_M_pObstacleGetZonePosition(p_stCurrentObstacle) );
+					MTH3D_M_vAddVector ( &stVector, &stVector, DNM_M_pObstacleGetZoneMove(p_stCurrentObstacle) );
+					xDotProd1 = MTH3D_M_xDotProductVector ( DNM_M_p_stObstacleGetNorm(p_stCurrentObstacle),&stVector );
+
+					/* 0x49C738 */
+					if (MTH_M_bGreater(xDotProd1, MTH_C_ZERO))
+						MEC_fn_vInvalidateObstacle(p_stCurrentObstacle);
+				}
+			}
+		}
+	}
+}
+
+#ifndef C_xDNM_NO_COLLISION_WITH_GROUND
+#define C_xDNM_NO_COLLISION_WITH_GROUND  (1 << 4)
+#endif
+
+void __cdecl MEC_fn_vDeleteNoCollidedGroundFace ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstDynamics *p_stDynamic )
+{
+	long lCounter;
+	DNM_tdstMecObstacle *p_stCurrentObstacle;
+
+	for (lCounter = 0; lCounter < lObstacle; lCounter++)
+	{
+		p_stCurrentObstacle = p_stObstacle + lCounter;
+
+		if (MEC_fn_bIsObstacleValid(p_stCurrentObstacle))
+		{
+			if (MEC_fn_bGroundObstacle(p_stDynamic, p_stCurrentObstacle))
+			{
+				if (MEC_fn_bTypeOfGameMaterial((GMT_tdxHandleToGameMaterial)DNM_M_hObstacleGetMyMaterial(p_stCurrentObstacle), C_xDNM_NO_COLLISION_WITH_GROUND))
+					MEC_fn_vInvalidateObstacle(p_stCurrentObstacle);
+			}
+		}
+	}
+}
+
+HIE_tdstSuperObject *__cdecl MEC_fn_hGetFatherActor (HIE_tdstSuperObject *hSupObj)
+{
+	HIE_tdstSuperObject *hActor = hSupObj;
+
+	while (hActor->ulTypeOfLinkedObject != HIE_C_ulActor)
+	{
+		hActor = HIE_fn_hGetSuperObjectFather (hActor);
+		if (hActor == NULL)
+			return hActor;
+	}
+	return hActor;
 }
 
 #pragma optimize("y", off)
@@ -756,12 +758,6 @@ extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO (void *hSupObj);
 #define C_ulDNM_RAYMAN_CUSTOM_BIT  0x80000000UL
 #endif
 
-ACP_tdxBool __cdecl MEC_fn_bMainActor (HIE_tdstSuperObject *hSupObj)
-{
-
-	return (ACP_tdxBool)((fn_ulStandardGameGetCustomBitsSO(hSupObj) & C_ulDNM_RAYMAN_CUSTOM_BIT) == C_ulDNM_RAYMAN_CUSTOM_BIT);
-}
-
 #ifndef C_ulDNM_NO_CRASH_CUSTOM_BIT
 #define C_ulDNM_NO_CRASH_CUSTOM_BIT  0x40UL
 #endif
@@ -778,6 +774,51 @@ ACP_tdxBool __cdecl MEC_fn_bCanCrashActor (DNM_tdstMecObstacle *p_stCollideObsta
 		return FALSE;
 	hSupObj = MEC_fn_hGetFatherActor (hSupObj);
 	return (ACP_tdxBool)((fn_ulStandardGameGetCustomBitsSO(hSupObj) & C_ulDNM_NO_CRASH_CUSTOM_BIT) != C_ulDNM_NO_CRASH_CUSTOM_BIT);
+}
+
+void __cdecl MEC_fn_vDeleteWallEdge ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstDynamics *p_stDynamic )
+{
+	long lCounter;
+	long lCounter1;
+	DNM_tdstMecObstacle *p_stTmpObstacle;
+	DNM_tdstMecObstacle *p_stTmpObstacle1;
+	MTH3D_tdstVector stVector;
+	ACP_tdxBool bRemoveEdge = TRUE;
+
+	for (lCounter=0; lCounter<lObstacle; lCounter++)
+	{
+		p_stTmpObstacle = p_stObstacle + lCounter;
+		if (MEC_fn_bIsObstacleValid(p_stTmpObstacle))
+		{
+			if (MEC_fn_bWallObstacle(p_stDynamic,p_stTmpObstacle))
+			{
+				if ( (DNM_M_xObstacleGetCollidedEntity(p_stTmpObstacle)==COL_C_xLowEdgeEntity) )
+				{
+					if (!MEC_fn_bIsDoubleEdge(p_stTmpObstacle))
+					{
+						for (lCounter1=0; lCounter1<lObstacle; lCounter1++)
+						{
+							if (lCounter1!=lCounter)
+							{
+								p_stTmpObstacle1 = p_stObstacle + lCounter1;
+								if (MEC_fn_bIsObstacleValid(p_stTmpObstacle1))
+								{
+									if (MEC_fn_bIsEdge(p_stTmpObstacle1) && MEC_fn_bWallObstacle(p_stDynamic,p_stTmpObstacle1))
+									{
+										MTH3D_M_vSubVector (&stVector,DNM_M_p_stObstacleGetContact(p_stTmpObstacle),DNM_M_p_stObstacleGetContact(p_stTmpObstacle1));
+										if (MEC_fn_bIsNullVector(&stVector))
+											bRemoveEdge = FALSE;
+									}
+								}
+							}
+						}
+						if (bRemoveEdge)
+							MEC_fn_vInvalidateObstacle (p_stTmpObstacle);
+					}
+				}
+			}
+		}
+	}
 }
 
 #ifndef C_ulDNM_RAYMAN_ZDM_RADIUS
@@ -825,6 +866,12 @@ void __cdecl MEC_fn_vDeleteOnGroundBackFace ( long lObstacle, DNM_tdstMecObstacl
 			}
 		}
 	}
+}
+
+ACP_tdxBool __cdecl MEC_fn_bMainActor (HIE_tdstSuperObject *hSupObj)
+{
+
+	return (ACP_tdxBool)((fn_ulStandardGameGetCustomBitsSO(hSupObj) & C_ulDNM_RAYMAN_CUSTOM_BIT) == C_ulDNM_RAYMAN_CUSTOM_BIT);
 }
 
 #ifndef C_xDNM_ON_GROUND_STEP
@@ -893,20 +940,6 @@ DNM_tdstMecObstacle * __cdecl MEC_fn_pSelectGround (
 	return p_stGroundObstacle;
 }
 
-ACP_tdxBool __cdecl MEC_fn_bIsEqualRotationMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2)
-{
-	MTH3D_tdstVector *p_stI1, *p_stJ1, *p_stK1;
-	MTH3D_tdstVector *p_stI2, *p_stJ2, *p_stK2;
-
-	POS_fn_vGetRotationVector ( hMatrix1, &p_stI1, &p_stJ1, &p_stK1 );
-	POS_fn_vGetRotationVector ( hMatrix2, &p_stI2, &p_stJ2, &p_stK2 );
-
-	return (ACP_tdxBool)(
-		(MTH_M_bEqual((p_stI1)->xX, (p_stI2)->xX)) && (MTH_M_bEqual((p_stI1)->xY, (p_stI2)->xY)) && (MTH_M_bEqual((p_stI1)->xZ, (p_stI2)->xZ)) &&
-		(MTH_M_bEqual((p_stJ1)->xX, (p_stJ2)->xX)) && (MTH_M_bEqual((p_stJ1)->xY, (p_stJ2)->xY)) && (MTH_M_bEqual((p_stJ1)->xZ, (p_stJ2)->xZ)) &&
-		(MTH_M_bEqual((p_stK1)->xX, (p_stK2)->xX)) && (MTH_M_bEqual((p_stK1)->xY, (p_stK2)->xY)) && (MTH_M_bEqual((p_stK1)->xZ, (p_stK2)->xZ)));
-}
-
 ACP_tdxBool __cdecl MEC_fn_bDetectStep ( DNM_tdstDynamics *p_stDynamic, long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstMecObstacle *p_stGroundObstacle, MTH3D_tdstVector *p_stMoveDirection )
 {
 	long lCounter;
@@ -956,49 +989,18 @@ ACP_tdxBool __cdecl MEC_fn_bDetectStep ( DNM_tdstDynamics *p_stDynamic, long lOb
 	return bStep;
 }
 
-void __cdecl MEC_fn_vDeleteWallEdge ( long lObstacle, DNM_tdstMecObstacle *p_stObstacle, DNM_tdstDynamics *p_stDynamic )
+ACP_tdxBool __cdecl MEC_fn_bIsEqualRotationMatrix (POS_tdxHandleToPosition hMatrix1, POS_tdxHandleToPosition hMatrix2)
 {
-	long lCounter;
-	long lCounter1;
-	DNM_tdstMecObstacle *p_stTmpObstacle;
-	DNM_tdstMecObstacle *p_stTmpObstacle1;
-	MTH3D_tdstVector stVector;
-	ACP_tdxBool bRemoveEdge = TRUE;
+	MTH3D_tdstVector *p_stI1, *p_stJ1, *p_stK1;
+	MTH3D_tdstVector *p_stI2, *p_stJ2, *p_stK2;
 
-	for (lCounter=0; lCounter<lObstacle; lCounter++)
-	{
-		p_stTmpObstacle = p_stObstacle + lCounter;
-		if (MEC_fn_bIsObstacleValid(p_stTmpObstacle))
-		{
-			if (MEC_fn_bWallObstacle(p_stDynamic,p_stTmpObstacle))
-			{
-				if ( (DNM_M_xObstacleGetCollidedEntity(p_stTmpObstacle)==COL_C_xLowEdgeEntity) )
-				{
-					if (!MEC_fn_bIsDoubleEdge(p_stTmpObstacle))
-					{
-						for (lCounter1=0; lCounter1<lObstacle; lCounter1++)
-						{
-							if (lCounter1!=lCounter)
-							{
-								p_stTmpObstacle1 = p_stObstacle + lCounter1;
-								if (MEC_fn_bIsObstacleValid(p_stTmpObstacle1))
-								{
-									if (MEC_fn_bIsEdge(p_stTmpObstacle1) && MEC_fn_bWallObstacle(p_stDynamic,p_stTmpObstacle1))
-									{
-										MTH3D_M_vSubVector (&stVector,DNM_M_p_stObstacleGetContact(p_stTmpObstacle),DNM_M_p_stObstacleGetContact(p_stTmpObstacle1));
-										if (MEC_fn_bIsNullVector(&stVector))
-											bRemoveEdge = FALSE;
-									}
-								}
-							}
-						}
-						if (bRemoveEdge)
-							MEC_fn_vInvalidateObstacle (p_stTmpObstacle);
-					}
-				}
-			}
-		}
-	}
+	POS_fn_vGetRotationVector ( hMatrix1, &p_stI1, &p_stJ1, &p_stK1 );
+	POS_fn_vGetRotationVector ( hMatrix2, &p_stI2, &p_stJ2, &p_stK2 );
+
+	return (ACP_tdxBool)(
+		(MTH_M_bEqual((p_stI1)->xX, (p_stI2)->xX)) && (MTH_M_bEqual((p_stI1)->xY, (p_stI2)->xY)) && (MTH_M_bEqual((p_stI1)->xZ, (p_stI2)->xZ)) &&
+		(MTH_M_bEqual((p_stJ1)->xX, (p_stJ2)->xX)) && (MTH_M_bEqual((p_stJ1)->xY, (p_stJ2)->xY)) && (MTH_M_bEqual((p_stJ1)->xZ, (p_stJ2)->xZ)) &&
+		(MTH_M_bEqual((p_stK1)->xX, (p_stK2)->xX)) && (MTH_M_bEqual((p_stK1)->xY, (p_stK2)->xY)) && (MTH_M_bEqual((p_stK1)->xZ, (p_stK2)->xZ)));
 }
 
 /* 0x00440690 */

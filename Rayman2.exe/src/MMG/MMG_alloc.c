@@ -15,41 +15,6 @@
 void *fn_p_vDynAlloc(uint32_t ulSize, unsigned char ucChannel);
 void  fn_vDynFree(void *pUser, unsigned char ucChannel);
 
-/* 0x00443490 */
-void __cdecl Mmg_fn_v_InitMmg(unsigned char ucModuleId,
-                              unsigned char ucMaxBlocksNb,
-                              unsigned long ulMaxNbDynamicMalloc)
-{
-    unsigned char  ucI;
-    unsigned long *pulFill;
-
-    (void)ulMaxNbDynamicMalloc;
-
-    if (ucMaxBlocksNb > 0) {
-        pulFill = (unsigned long *)CPA_MALLOC((unsigned long)ucMaxBlocksNb << 4);
-        g_a_p_stMmgModuleBlocksInfo[ucModuleId] =
-            (struct tdstBlockInfoPriv *)pulFill;
-
-        for (ucI = 0; ucI < ucMaxBlocksNb; ucI++) {
-            *pulFill = 0xffffffffu;
-            pulFill += 4;
-        }
-
-        g_a_ucBlocksNbInModule[ucModuleId] = ucMaxBlocksNb;
-    }
-}
-
-/* 0x004431a0 */
-void *__cdecl fn_p_vGenRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned char ucChannel)
-{
-    unsigned char ucDispatch = g_d_stCurrentModeInfo[1 + ucChannel * 8u];
-
-    if ((char)ucDispatch != -1) {
-        return fn_p_vStaRealloc(p_vMemBlock, ulSize, ucChannel);
-    }
-    return fn_p_vDynRealloc(p_vMemBlock, ulSize, ucChannel);
-}
-
 /* 0x00442770 */
 void *__cdecl fn_p_vDynRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned char ucChannel)
 {
@@ -491,4 +456,39 @@ void * fn_p_vStaRealloc (void *p_vMemBlock, unsigned long ulSize, unsigned char 
             Mmg_MLeaveCriticalSection();
             return (p_vMemBlock);
         }
+}
+
+/* 0x004431a0 */
+void *__cdecl fn_p_vGenRealloc(void *p_vMemBlock, unsigned long ulSize, unsigned char ucChannel)
+{
+    unsigned char ucDispatch = g_d_stCurrentModeInfo[1 + ucChannel * 8u];
+
+    if ((char)ucDispatch != -1) {
+        return fn_p_vStaRealloc(p_vMemBlock, ulSize, ucChannel);
+    }
+    return fn_p_vDynRealloc(p_vMemBlock, ulSize, ucChannel);
+}
+
+/* 0x00443490 */
+void __cdecl Mmg_fn_v_InitMmg(unsigned char ucModuleId,
+                              unsigned char ucMaxBlocksNb,
+                              unsigned long ulMaxNbDynamicMalloc)
+{
+    unsigned char  ucI;
+    unsigned long *pulFill;
+
+    (void)ulMaxNbDynamicMalloc;
+
+    if (ucMaxBlocksNb > 0) {
+        pulFill = (unsigned long *)CPA_MALLOC((unsigned long)ucMaxBlocksNb << 4);
+        g_a_p_stMmgModuleBlocksInfo[ucModuleId] =
+            (struct tdstBlockInfoPriv *)pulFill;
+
+        for (ucI = 0; ucI < ucMaxBlocksNb; ucI++) {
+            *pulFill = 0xffffffffu;
+            pulFill += 4;
+        }
+
+        g_a_ucBlocksNbInModule[ucModuleId] = ucMaxBlocksNb;
+    }
 }

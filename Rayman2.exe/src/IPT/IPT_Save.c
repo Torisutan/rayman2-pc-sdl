@@ -8,6 +8,24 @@ __declspec(dllimport) int __cdecl _stricmp(const char *szA, const char *szB);
 /* 0x0042EA10 */
 extern unsigned int (__cdecl *_imp__fread)(void *pBuffer, unsigned int uSize, unsigned int uCount, FILE *p_stFile);
 
+/* 0x0042E0C0 */
+IPT_tdstEntryElement *__cdecl IPT_pc_fn_p_stFindEntryByName(char *szName)
+{
+    IPT_tdstEntryElement *hFound;
+    unsigned long         ulI;
+
+    hFound = NULL;
+    for (ulI = 0; ulI < IPT_g_hInputStructure.ulNumberOfEntryElement; ulI++)
+    {
+        if (IPT_g_hInputStructure.d_stEntryElementArray[ulI].p_szEntryName != NULL
+            && _stricmp(IPT_g_hInputStructure.d_stEntryElementArray[ulI].p_szEntryName, szName) == 0)
+        {
+            hFound = &IPT_g_hInputStructure.d_stEntryElementArray[ulI];
+        }
+    }
+    return hFound;
+}
+
 #define IPT_C_swKeyWordKeyPressed   ((short)0xf006)
 
 #define IPT_C_swKeyWordPadKey       ((short)0xf01a)
@@ -45,24 +63,6 @@ unsigned char __cdecl IPT_fn_bSaveOptionsInFile(FILE *p_stFile)
     ucLength = 0xff;
     fwrite(&ucLength, 1, 1, p_stFile);
     return IPT_C_TRUE;
-}
-
-/* 0x0042E0C0 */
-IPT_tdstEntryElement *__cdecl IPT_pc_fn_p_stFindEntryByName(char *szName)
-{
-    IPT_tdstEntryElement *hFound;
-    unsigned long         ulI;
-
-    hFound = NULL;
-    for (ulI = 0; ulI < IPT_g_hInputStructure.ulNumberOfEntryElement; ulI++)
-    {
-        if (IPT_g_hInputStructure.d_stEntryElementArray[ulI].p_szEntryName != NULL
-            && _stricmp(IPT_g_hInputStructure.d_stEntryElementArray[ulI].p_szEntryName, szName) == 0)
-        {
-            hFound = &IPT_g_hInputStructure.d_stEntryElementArray[ulI];
-        }
-    }
-    return hFound;
 }
 
 unsigned char __cdecl IPT_fn_bLoadOptionsFromFile(FILE *p_stFile)

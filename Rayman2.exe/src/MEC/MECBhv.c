@@ -1399,6 +1399,70 @@ void __cdecl MEC_fn_vOrient ( DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p
 }
 #pragma optimize("", on)
 
+void __cdecl MEC_fn_vWallObstacleManagement
+(
+	MTH3D_tdstVector* pstResultMove,
+	DNM_tdstDynamics *p_stDynamic,
+	MTH3D_tdstVector* pstMove,
+	MTH3D_tdstVector* pstGroundNormal,
+	MTH3D_tdstVector* pstWallNormal,
+	MTH_tdxReal xDT,
+	ACP_tdxBool bAngleLimit
+)
+{
+	MTH3D_tdstVector stDirection;
+	MTH3D_tdstVector stWallNormalAdjust;
+	MTH3D_tdstVector stVector;
+	POS_tdxHandleToPosition hCurrentMatrix;
+	MTH3D_tdstVector *p_stCurrentTranslation;
+	MTH_tdxReal xDotProd1, xDotProd2, xFactor;
+
+	(void)xDT;
+
+	if ( MEC_fn_bIsNullVector(pstMove) )
+	{
+		MTH3D_M_vNullVector (pstResultMove);
+		return;
+	}
+
+	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
+	p_stCurrentTranslation = POS_fn_p_stGetTranslationVector ( hCurrentMatrix );
+	MTH3D_M_vCrossProductVectorWithoutBuffer ( &stDirection, pstGroundNormal, pstWallNormal );
+
+	if (MEC_fn_bIsNullVector(&stDirection))
+	{
+		MTH3D_M_vNullVector (pstResultMove);
+		return;
+	}
+
+	MTH3D_M_vNormalizeVector (&stDirection,&stDirection);
+	xDotProd1 = MTH3D_M_xDotProductVector (&stDirection, pstMove);
+
+	if (bAngleLimit && (g_lCallCounter==1))
+	{
+		if (!MEC_fn_bIsNullVector(pstMove))
+		{	MTH3D_M_vNormalizeVector (&stVector,pstMove);	}
+		else
+			MTH3D_M_vNullVector(&stVector);
+
+		xDotProd2 = MTH_M_xNeg(MTH3D_M_xDotProductVector (&stVector,pstWallNormal));
+
+		xFactor = MTH_M_xMul(MTH3D_M_xNormVector(pstMove),MTH_M_xSign(xDotProd1));
+		if (MTH_M_bGreater(xDotProd2,C_xDNM_CLIMB_COS_ANGLE_LIMIT))
+			/* 0x0049C794 */
+			xFactor = MTH_M_xMul ( xFactor, MTH_M_xMul(MTH_M_xSub(MTH_C_ONE,xDotProd2),MTH_M_xConstFloatToReal(13.7324905f)) );
+	}
+	else
+		xFactor = xDotProd1;
+
+	MTH3D_M_vMulScalarVector ( pstResultMove, xFactor, &stDirection);
+
+	MTH3D_M_vMulScalarVector ( &stWallNormalAdjust, MTH_M_xMul(MTH3D_M_xNormVector(pstResultMove),MTH_M_xConstFloatToReal(0.01f)), pstWallNormal );
+	MTH3D_M_vAddVector ( pstResultMove, pstResultMove, &stWallNormalAdjust );
+
+	MTH3D_M_vAddVector ( p_stCurrentTranslation, p_stCurrentTranslation, pstResultMove);
+}
+
 void __cdecl MEC_fn_vClimbObstacleManagement ( DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, MTH_tdxReal xDT )
 {
 	long lObstacle;
@@ -1756,70 +1820,6 @@ void __cdecl MEC_fn_vClimbObstacleManagement ( DNM_tdstDynamics *p_stDynamic, HI
 		DNM_M_ulReportSetSurfaceState(DNM_M_p_stDynamicsGetReport(p_stDynamic),DNM_M_ulReportGetPrevSurfaceState (DNM_M_p_stDynamicsGetReport(p_stDynamic)) );
 
 	return;
-}
-
-void __cdecl MEC_fn_vWallObstacleManagement
-(
-	MTH3D_tdstVector* pstResultMove,
-	DNM_tdstDynamics *p_stDynamic,
-	MTH3D_tdstVector* pstMove,
-	MTH3D_tdstVector* pstGroundNormal,
-	MTH3D_tdstVector* pstWallNormal,
-	MTH_tdxReal xDT,
-	ACP_tdxBool bAngleLimit
-)
-{
-	MTH3D_tdstVector stDirection;
-	MTH3D_tdstVector stWallNormalAdjust;
-	MTH3D_tdstVector stVector;
-	POS_tdxHandleToPosition hCurrentMatrix;
-	MTH3D_tdstVector *p_stCurrentTranslation;
-	MTH_tdxReal xDotProd1, xDotProd2, xFactor;
-
-	(void)xDT;
-
-	if ( MEC_fn_bIsNullVector(pstMove) )
-	{
-		MTH3D_M_vNullVector (pstResultMove);
-		return;
-	}
-
-	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
-	p_stCurrentTranslation = POS_fn_p_stGetTranslationVector ( hCurrentMatrix );
-	MTH3D_M_vCrossProductVectorWithoutBuffer ( &stDirection, pstGroundNormal, pstWallNormal );
-
-	if (MEC_fn_bIsNullVector(&stDirection))
-	{
-		MTH3D_M_vNullVector (pstResultMove);
-		return;
-	}
-
-	MTH3D_M_vNormalizeVector (&stDirection,&stDirection);
-	xDotProd1 = MTH3D_M_xDotProductVector (&stDirection, pstMove);
-
-	if (bAngleLimit && (g_lCallCounter==1))
-	{
-		if (!MEC_fn_bIsNullVector(pstMove))
-		{	MTH3D_M_vNormalizeVector (&stVector,pstMove);	}
-		else
-			MTH3D_M_vNullVector(&stVector);
-
-		xDotProd2 = MTH_M_xNeg(MTH3D_M_xDotProductVector (&stVector,pstWallNormal));
-
-		xFactor = MTH_M_xMul(MTH3D_M_xNormVector(pstMove),MTH_M_xSign(xDotProd1));
-		if (MTH_M_bGreater(xDotProd2,C_xDNM_CLIMB_COS_ANGLE_LIMIT))
-			/* 0x0049C794 */
-			xFactor = MTH_M_xMul ( xFactor, MTH_M_xMul(MTH_M_xSub(MTH_C_ONE,xDotProd2),MTH_M_xConstFloatToReal(13.7324905f)) );
-	}
-	else
-		xFactor = xDotProd1;
-
-	MTH3D_M_vMulScalarVector ( pstResultMove, xFactor, &stDirection);
-
-	MTH3D_M_vMulScalarVector ( &stWallNormalAdjust, MTH_M_xMul(MTH3D_M_xNormVector(pstResultMove),MTH_M_xConstFloatToReal(0.01f)), pstWallNormal );
-	MTH3D_M_vAddVector ( pstResultMove, pstResultMove, &stWallNormalAdjust );
-
-	MTH3D_M_vAddVector ( p_stCurrentTranslation, p_stCurrentTranslation, pstResultMove);
 }
 
 void __cdecl MEC_fn_vGroundGuess (DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT)

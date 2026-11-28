@@ -113,6 +113,71 @@ IPT_tdfn_bIsKeyWordValid *IPT_p_fn_bIsKeyWordValid[38] =
     IPT_fn_bIsKeyWordValid_SequencePadEnd             /* 0x004303D0 */
 };
 
+#define IPT_E_KeyWord_ActionValidated  ((short)0xf00a)
+
+#define IPT_E_KeyWord_KeyPressed       ((short)0xf006)
+
+#define IPT_pc_E_KeyWord_JoystickOrPadPressed ((short)0xf01a)
+
+#define IPT_C_Duplicate   0
+#define IPT_C_Exchange    1
+#define IPT_C_NoDuplicate 2
+
+#define IPT_pc_M_pKbState()           ((INO_tdstKeyboardState *)((INO_tdstDevice *)IPT_g_hInputStructure.a_hINODevice[IPT_E_KeyboardDeviceEvent])->p_stState)
+#define IPT_pc_M_bKeyJustPressed(swKey)                                                     \
+    (IPT_pc_M_pKbState()->a_ucTabKey[IPT_pc_M_pKbState()->wCurrentTab][swKey]                \
+     && !IPT_pc_M_pKbState()->a_ucTabKey[1 - IPT_pc_M_pKbState()->wCurrentTab][swKey])
+
+#define IPT_pc_M_bJoystickButtonJustPressed(hDevice, ulFlag)                                       \
+    ((((INO_pc_tdstJoyState *)(hDevice)->p_stState)->ulButtons & (ulFlag)) == (ulFlag)             \
+     && (INO_pc_ulGetHistoricRecordFirstDword((hDevice), 1) & (ulFlag)) != (ulFlag))
+
+#define IPT_pc_ulMemSizeStash (IPT_g_hInputStructure.hEntryElement_lNumberOfElementsDyn)
+
+/* 0x004B9B68 */
+typedef struct IPT_pc_tdstVector_
+{
+    float xX;
+    float xY;
+    float xZ;
+} IPT_pc_tdstVector;
+
+IPT_pc_tdstVector IPT_g_FieldPadGlobalVector;
+short IPT_g_FieldPadHorizontalAxis;
+short IPT_g_FieldPadVerticalAxis;
+float IPT_g_FieldPadAnalogForce;
+float IPT_g_FieldPadTrueAnalogForce;
+float IPT_g_FieldPadRotationAngle;
+int   IPT_g_FieldPadSector;
+
+typedef union IPT_pc_tduGetSetParam_
+{
+    long           lValue;
+    short          wValue;
+    float          xValue;
+    IPT_pc_tdstVector stVectorValue;
+    long              alVectorValue[3];
+} IPT_pc_tduGetSetParam;
+
+/* 0x0042DE50 */
+void __cdecl IPT_fn_vFirstInitInput(void)
+{
+    if (g_ucIPTModuleId == 0xff)
+        g_ucIPTModuleId = Erm_fn_ucInitErrMsg();
+    Mmg_fn_v_InitMmg(g_ucIPTModuleId, 1, 0x186a0);
+    Mmg_fn_cCheckAlignmentValidity();
+}
+
+/* 0x0042DE80 */
+void __cdecl IPT_fn_vInitMemory(unsigned long _ulMemSize)
+{
+    IPT_pc_ulMemSizeStash = _ulMemSize;
+
+    Mmg_fn_vInitSpecificBlock(0, (unsigned char)*(unsigned long *)&g_ucIPTModuleId,
+                              g_a_p_stMmgModuleBlocksInfo[(unsigned char)*(unsigned long *)&g_ucIPTModuleId],
+                              _ulMemSize, 0x186a0, 4, 0xd);
+}
+
 void __cdecl IPT_fn_vResetInputEntry(void)
 {
     unsigned long i;
@@ -131,18 +196,6 @@ char *__cdecl IPT_fn_szGetEntryActionName(IPT_tdstEntryElement *_hEntryElement)
     return (char *)0;
 }
 
-#define IPT_E_KeyWord_ActionValidated  ((short)0xf00a)
-
-/* 0x0042E180 */
-void __cdecl IPT_fn_vActivateEntryElement(IPT_tdstEntryElement *_hEntryElement)
-{
-    if (_hEntryElement != (IPT_tdstEntryElement *)0)
-    {
-        _hEntryElement->bIsActivate = IPT_C_TRUE;
-        _hEntryElement->lState      = -2;
-    }
-}
-
 /* 0x0042E120 */
 void __cdecl IPT_fn_vActivateAllEntryElements(void)
 {
@@ -154,16 +207,6 @@ void __cdecl IPT_fn_vActivateAllEntryElements(void)
          ulI++, hEntryElement++)
     {
         IPT_fn_vActivateEntryElement(hEntryElement);
-    }
-}
-
-/* 0x0042E1A0 */
-void __cdecl IPT_fn_vDesactivateEntryElement(IPT_tdstEntryElement *_hEntryElement)
-{
-    if (_hEntryElement != (IPT_tdstEntryElement *)0)
-    {
-        _hEntryElement->bIsActivate = IPT_C_FALSE;
-        _hEntryElement->lState      = -2;
     }
 }
 
@@ -181,18 +224,46 @@ void __cdecl FUN_0042e150(void)
     }
 }
 
-/* 0x0042E220 */
-void IPT_fn_vActiveJoystickControl(void)
+/* 0x0042E180 */
+void __cdecl IPT_fn_vActivateEntryElement(IPT_tdstEntryElement *_hEntryElement)
 {
-	unsigned long i;
-	for (i=IPT_E_Pad00DeviceEvent;i<=IPT_E_Pad15DeviceEvent;i++)
-	{
-		if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[i]==IPT_C_ValideDevice)
-		{
-			IPT_g_hInputStructure.p_ucValideAndActiveDevice[i]=IPT_C_ActivateJoystickDevice;
-			INO_fn_wActivateDevice((INO_tdhDevice)IPT_g_hInputStructure.a_hINODevice[i]);
-		}
-	}
+    if (_hEntryElement != (IPT_tdstEntryElement *)0)
+    {
+        _hEntryElement->bIsActivate = IPT_C_TRUE;
+        _hEntryElement->lState      = -2;
+    }
+}
+
+/* 0x0042E1A0 */
+void __cdecl IPT_fn_vDesactivateEntryElement(IPT_tdstEntryElement *_hEntryElement)
+{
+    if (_hEntryElement != (IPT_tdstEntryElement *)0)
+    {
+        _hEntryElement->bIsActivate = IPT_C_FALSE;
+        _hEntryElement->lState      = -2;
+    }
+}
+
+typedef struct IPT_pc_tdstGetSetParam_
+{
+    IPT_pc_tduGetSetParam uParam;
+    int                   eType;
+} IPT_pc_tdstGetSetParam;
+
+/* 0x0042E1C0 */
+unsigned char __cdecl IPT_fn_bAJoypadConnected(void)
+{
+    const unsigned char *a_ucValideAndActiveDevice = IPT_g_hInputStructure.p_ucValideAndActiveDevice;
+    unsigned char        ucConnected = 0;
+    unsigned int         uId         = 2;
+
+    do {
+        if (a_ucValideAndActiveDevice[uId] == IPT_C_JoyKeywordDeviceActive)
+            ucConnected = 1;
+        uId++;
+    } while (uId <= 0x11);
+
+    return ucConnected;
 }
 
 /* 0x0042E1E0 */
@@ -210,9 +281,19 @@ void IPT_fn_vDesactiveJoystickAndPadControl(void)
 	}
 }
 
-#define IPT_E_KeyWord_KeyPressed       ((short)0xf006)
-
-#define IPT_pc_E_KeyWord_JoystickOrPadPressed ((short)0xf01a)
+/* 0x0042E220 */
+void IPT_fn_vActiveJoystickControl(void)
+{
+	unsigned long i;
+	for (i=IPT_E_Pad00DeviceEvent;i<=IPT_E_Pad15DeviceEvent;i++)
+	{
+		if (IPT_g_hInputStructure.p_ucValideAndActiveDevice[i]==IPT_C_ValideDevice)
+		{
+			IPT_g_hInputStructure.p_ucValideAndActiveDevice[i]=IPT_C_ActivateJoystickDevice;
+			INO_fn_wActivateDevice((INO_tdhDevice)IPT_g_hInputStructure.a_hINODevice[i]);
+		}
+	}
+}
 
 /* 0x0042E260 */
 IPT_tdstEntryElement * __cdecl IPT_fn_hSearchElementInOptionWithKeyWord(signed short _swEntryType, signed short swPadNumber, signed short _swKeyValue)
@@ -270,19 +351,6 @@ unsigned char __cdecl IPT_fn_bModifyIPTAction(IPT_tdstEntryElement *_hElementToC
         }
     return IPT_C_FALSE;
 }
-
-#define IPT_C_Duplicate   0
-#define IPT_C_Exchange    1
-#define IPT_C_NoDuplicate 2
-
-#define IPT_pc_M_pKbState()           ((INO_tdstKeyboardState *)((INO_tdstDevice *)IPT_g_hInputStructure.a_hINODevice[IPT_E_KeyboardDeviceEvent])->p_stState)
-#define IPT_pc_M_bKeyJustPressed(swKey)                                                     \
-    (IPT_pc_M_pKbState()->a_ucTabKey[IPT_pc_M_pKbState()->wCurrentTab][swKey]                \
-     && !IPT_pc_M_pKbState()->a_ucTabKey[1 - IPT_pc_M_pKbState()->wCurrentTab][swKey])
-
-#define IPT_pc_M_bJoystickButtonJustPressed(hDevice, ulFlag)                                       \
-    ((((INO_pc_tdstJoyState *)(hDevice)->p_stState)->ulButtons & (ulFlag)) == (ulFlag)             \
-     && (INO_pc_ulGetHistoricRecordFirstDword((hDevice), 1) & (ulFlag)) != (ulFlag))
 
 /* 0x0042E310 */
 unsigned char __cdecl IPT_fn_bChangeIPTValue(IPT_tdstEntryElement *_hElement, unsigned char ucWhichTest)
@@ -365,20 +433,51 @@ unsigned char __cdecl IPT_fn_bChangeIPTValue(IPT_tdstEntryElement *_hElement, un
     return (ucReturn);
 }
 
-/* 0x0042E1C0 */
-unsigned char __cdecl IPT_fn_bAJoypadConnected(void)
+/* 0x0042E540 */
+char *__cdecl FUN_0042E540(long lHandle)
 {
-    const unsigned char *a_ucValideAndActiveDevice = IPT_g_hInputStructure.p_ucValideAndActiveDevice;
-    unsigned char        ucConnected = 0;
-    unsigned int         uId         = 2;
+    IPT_tdstKeyWordElement *p_stKeyWord;
+    unsigned short          uwType;
+    unsigned char           ucSelector;
 
-    do {
-        if (a_ucValideAndActiveDevice[uId] == IPT_C_JoyKeywordDeviceActive)
-            ucConnected = 1;
-        uId++;
-    } while (uId <= 0x11);
+    p_stKeyWord = ((IPT_tdstEntryElement *)lHandle)->d_stKeyWordElementArray;
+    uwType = (unsigned short)p_stKeyWord->u_ElementUnion.swValue;
+    if (uwType == 0xf006)
+    {
+        ucSelector = IPT_g_hInputStructure.ucKeyboardType;
+        p_stKeyWord++;
+        if (ucSelector == 1)
+            return IPT_fn_p_szGetNameOfKeyName((unsigned short)p_stKeyWord->u_ElementUnion.swValue, 0);
+        return IPT_fn_p_szGetNameOfKeyName((unsigned short)p_stKeyWord->u_ElementUnion.swValue, 1);
+    }
+    if (uwType == 0xf01a)
+        return IPT_fn_p_szGetNameOfKeyName((unsigned short)(p_stKeyWord[2].u_ElementUnion.swValue | 0x8000), 0);
+    return (char *)p_stKeyWord;
+}
 
-    return ucConnected;
+/* 0x0042E5A0 */
+char *__cdecl IPT_fn_p_szGetNameOfKeyName(unsigned short uwKeyCode, unsigned char ucFrenchOrAmerican)
+{
+    IPT_tdstKeyAndPadDefine *hDefine;
+    unsigned long            ulI;
+
+    hDefine = IPT_gd_hKeyAndPadDefine;
+    ulI = 0;
+    if (hDefine[0].uwBasedKey != 0xffff)
+    {
+        do {
+            if (hDefine[ulI].uwBasedKey == uwKeyCode)
+                break;
+            ulI++;
+        } while (hDefine[ulI].uwBasedKey != 0xffff);
+    }
+    if (hDefine[ulI].uwBasedKey == 0xffff)
+        return (char *)0;
+    if (ucFrenchOrAmerican == 0)
+        return hDefine[ulI].p_szFrenchKey;
+    if (ucFrenchOrAmerican == 1)
+        return hDefine[ulI].p_szAmericanKey;
+    return (char *)0;
 }
 
 /* 0x0042E600 */
@@ -445,105 +544,6 @@ unsigned char __cdecl IPT_fn_bAButtonPadJustPressed(void)
     } while ((long)ppDevice < (long)&IPT_g_hInputStructure.a_hINODevice[IPT_E_NumberOfDeviceEvent]);
     return IPT_C_FALSE;
 }
-
-/* 0x0042E5A0 */
-char *__cdecl IPT_fn_p_szGetNameOfKeyName(unsigned short uwKeyCode, unsigned char ucFrenchOrAmerican)
-{
-    IPT_tdstKeyAndPadDefine *hDefine;
-    unsigned long            ulI;
-
-    hDefine = IPT_gd_hKeyAndPadDefine;
-    ulI = 0;
-    if (hDefine[0].uwBasedKey != 0xffff)
-    {
-        do {
-            if (hDefine[ulI].uwBasedKey == uwKeyCode)
-                break;
-            ulI++;
-        } while (hDefine[ulI].uwBasedKey != 0xffff);
-    }
-    if (hDefine[ulI].uwBasedKey == 0xffff)
-        return (char *)0;
-    if (ucFrenchOrAmerican == 0)
-        return hDefine[ulI].p_szFrenchKey;
-    if (ucFrenchOrAmerican == 1)
-        return hDefine[ulI].p_szAmericanKey;
-    return (char *)0;
-}
-
-/* 0x0042E540 */
-char *__cdecl FUN_0042E540(long lHandle)
-{
-    IPT_tdstKeyWordElement *p_stKeyWord;
-    unsigned short          uwType;
-    unsigned char           ucSelector;
-
-    p_stKeyWord = ((IPT_tdstEntryElement *)lHandle)->d_stKeyWordElementArray;
-    uwType = (unsigned short)p_stKeyWord->u_ElementUnion.swValue;
-    if (uwType == 0xf006)
-    {
-        ucSelector = IPT_g_hInputStructure.ucKeyboardType;
-        p_stKeyWord++;
-        if (ucSelector == 1)
-            return IPT_fn_p_szGetNameOfKeyName((unsigned short)p_stKeyWord->u_ElementUnion.swValue, 0);
-        return IPT_fn_p_szGetNameOfKeyName((unsigned short)p_stKeyWord->u_ElementUnion.swValue, 1);
-    }
-    if (uwType == 0xf01a)
-        return IPT_fn_p_szGetNameOfKeyName((unsigned short)(p_stKeyWord[2].u_ElementUnion.swValue | 0x8000), 0);
-    return (char *)p_stKeyWord;
-}
-
-/* 0x0042DE50 */
-void __cdecl IPT_fn_vFirstInitInput(void)
-{
-    if (g_ucIPTModuleId == 0xff)
-        g_ucIPTModuleId = Erm_fn_ucInitErrMsg();
-    Mmg_fn_v_InitMmg(g_ucIPTModuleId, 1, 0x186a0);
-    Mmg_fn_cCheckAlignmentValidity();
-}
-
-#define IPT_pc_ulMemSizeStash (IPT_g_hInputStructure.hEntryElement_lNumberOfElementsDyn)
-
-/* 0x0042DE80 */
-void __cdecl IPT_fn_vInitMemory(unsigned long _ulMemSize)
-{
-    IPT_pc_ulMemSizeStash = _ulMemSize;
-
-    Mmg_fn_vInitSpecificBlock(0, (unsigned char)*(unsigned long *)&g_ucIPTModuleId,
-                              g_a_p_stMmgModuleBlocksInfo[(unsigned char)*(unsigned long *)&g_ucIPTModuleId],
-                              _ulMemSize, 0x186a0, 4, 0xd);
-}
-
-/* 0x004B9B68 */
-typedef struct IPT_pc_tdstVector_
-{
-    float xX;
-    float xY;
-    float xZ;
-} IPT_pc_tdstVector;
-
-IPT_pc_tdstVector IPT_g_FieldPadGlobalVector;
-short IPT_g_FieldPadHorizontalAxis;
-short IPT_g_FieldPadVerticalAxis;
-float IPT_g_FieldPadAnalogForce;
-float IPT_g_FieldPadTrueAnalogForce;
-float IPT_g_FieldPadRotationAngle;
-int   IPT_g_FieldPadSector;
-
-typedef union IPT_pc_tduGetSetParam_
-{
-    long           lValue;
-    short          wValue;
-    float          xValue;
-    IPT_pc_tdstVector stVectorValue;
-    long              alVectorValue[3];
-} IPT_pc_tduGetSetParam;
-
-typedef struct IPT_pc_tdstGetSetParam_
-{
-    IPT_pc_tduGetSetParam uParam;
-    int                   eType;
-} IPT_pc_tdstGetSetParam;
 
 /* 0x0048D110 */
 unsigned char IPT_pc_fn_ucGetFieldPadGlobalVector(void *hSuperObject, IPT_pc_tdstGetSetParam *p_stValue)

@@ -19,6 +19,8 @@ extern void __cdecl GLI_pc_fn_vWrite16bBitmapToBackBuffer(void *p_vBuffer, long 
 #define GLI_pc_g_lOverlayBufferDimC  (GLI_pc_g_stProgressUi.lBufferDimC)
 #define GLI_pc_g_lOverlayBufferDim8  (GLI_pc_g_stProgressUi.lBufferDim8)
 
+void __cdecl GLI_pc_fn_vShowProgressUiImage(char *p_stUiObject);
+
 void __cdecl FUN_0045ec20(void)
 {
     GLI_pc_g_ucRandomPickEnabled = 0;
@@ -28,14 +30,35 @@ void __cdecl FUN_0045ec20(void)
     }
 }
 
+void __cdecl FUN_0045ec40(void)
+{
+
+    unsigned long a_ulRect[28];
+    unsigned long ulSize;
+
+    GAM_pc_M_ulWaitDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
+
+    FIL_fn_vInitGlobalHandleToFileInConcatFile();
+
+    GLD_bGetViewportAttributes(GLI_pc_g_uwOverlayDevice,
+                               GLI_pc_g_uwOverlayViewport,
+                               a_ulRect);
+
+    ulSize = a_ulRect[3] * a_ulRect[2] * 2;
+    GLI_pc_g_lOverlayBufferSize = (long)ulSize;
+    GLI_pc_g_p_vOverlayBuffer   = TMP_fnp_vMalloc(ulSize);
+    GLI_pc_g_lOverlayBufferDimC = (long)a_ulRect[3];
+    GLI_pc_g_lOverlayBufferDim8 = (long)a_ulRect[2];
+
+    GAM_pc_M_bReleaseDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
+}
+
 void __cdecl FUN_0045edc0(unsigned short p_uArg1, unsigned short p_uArg2, void *h_pGdiHandle)
 {
     GLI_pc_g_uwOverlayDevice   = p_uArg1;
     GLI_pc_g_uwOverlayViewport = p_uArg2;
     GLI_pc_g_hOverlaySemaphore = h_pGdiHandle;
 }
-
-void __cdecl GLI_pc_fn_vShowProgressUiImage(char *p_stUiObject);
 
 void __cdecl FUN_0045edf0(void)
 {
@@ -60,28 +83,5 @@ void __cdecl GLI_pc_fn_vShowProgressUiImage(char *p_stUiObject)
                                           a_ulAttrib[10], a_ulAttrib[8],
                                           a_ulAttrib[11], a_ulAttrib[9]);
     GLD_bFlipDeviceWithSynchro(GLI_pc_g_uwOverlayDevice, 0xff);
-    GAM_pc_M_bReleaseDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
-}
-
-void __cdecl FUN_0045ec40(void)
-{
-
-    unsigned long a_ulRect[28];
-    unsigned long ulSize;
-
-    GAM_pc_M_ulWaitDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
-
-    FIL_fn_vInitGlobalHandleToFileInConcatFile();
-
-    GLD_bGetViewportAttributes(GLI_pc_g_uwOverlayDevice,
-                               GLI_pc_g_uwOverlayViewport,
-                               a_ulRect);
-
-    ulSize = a_ulRect[3] * a_ulRect[2] * 2;
-    GLI_pc_g_lOverlayBufferSize = (long)ulSize;
-    GLI_pc_g_p_vOverlayBuffer   = TMP_fnp_vMalloc(ulSize);
-    GLI_pc_g_lOverlayBufferDimC = (long)a_ulRect[3];
-    GLI_pc_g_lOverlayBufferDim8 = (long)a_ulRect[2];
-
     GAM_pc_M_bReleaseDrawSemaphore((HANDLE)GLI_pc_g_hOverlaySemaphore);
 }

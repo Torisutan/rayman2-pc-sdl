@@ -20,248 +20,6 @@
 
 #include <string.h>
 
-/* 0x00487B10 */
-
-long WPARCLST_fn_lGetCapabilities (WP_tdHandleOfListOfArc hListOfArc,
-															     WP_tdhGraphNode hNode, unsigned long* p_ulCapability) {
-	WP_tdHandleOfArc hElement ;
-	int i ;
-
-	if ( hListOfArc && hNode ) {
-		LST2_M_DynamicForEachElementOf(&hListOfArc->m_hArc, hElement, i) {
-			if ( hElement->m_hNode == hNode ) {
-				*p_ulCapability = hElement->m_ulCapability ;
-				return (0) ;
-			}
-		}
-	}
-	return (-1) ;
-}
-
-/* 0x00480190 */
-
-long WPG_fn_lGetArcCapabilities (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, unsigned long* p_ulCapability)
-{
-	if ( hSrcNode && hDstNode )
-		return (WPARCLST_fn_lGetCapabilities ( hSrcNode->m_hListOfArc, hDstNode, p_ulCapability ) ) ;
-	return (-1) ;
-}
-
-/* 0x0047F800 */
-
-long WPG_fn_lGetLinkCapabilities (WP_tdHandleOfGraph hGraph,
-															WP_tdhWayPoint hSrcWayPoint,
-															WP_tdhWayPoint hDstWayPoint,
-															unsigned long* p_ulCapability) {
-	int i;
-	WP_tdhGraphNode hSrcNode, hDstNode;
-
-	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
-
-
-
-		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
-			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
-				break ;
-			}
-		}
-		if ( hDstNode ) {
-			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
-				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
-					return (WPG_fn_lGetArcCapabilities ( hSrcNode, hDstNode, p_ulCapability) ) ;
-				}
-			}
-		}
-
-	}
-	return (-1) ;
-
-}
-
-/* 0x0047F920 */
-void WPG_fn_vReinitGraph (WP_tdHandleOfGraph hGraph) {
-	int i, j;
-	WP_tdhGraphNode hNode;
-	WP_tdHandleOfArc hElement ;
-
-	if ( hGraph) {
-		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hNode, i ) {
-      hNode->m_lTypeOfWP = hNode->m_lTypeOfWPInit;
-  		LST2_M_DynamicForEachElementOf(&hNode->m_hListOfArc->m_hArc, hElement, j) {
-        hElement->m_ulCapability = hElement->m_ulCapabilityInit;
-        hElement->m_lWeight      = hElement->m_lWeightInit;
-      }
-    }
-  }
-}
-
-
-
-/* 0x00487B90 */
-long WPARCLST_fn_lGetWeight (WP_tdHandleOfListOfArc hListOfArc,
-                             WP_tdhGraphNode hNode, long *p_lWeight) {
-	WP_tdHandleOfArc hElement ;
-	int i ;
-
-	if ( hListOfArc && hNode ) {
-		LST2_M_DynamicForEachElementOf(&hListOfArc->m_hArc, hElement, i) {
-			if ( hElement->m_hNode == hNode ) {
-				*p_lWeight = hElement->m_lWeight ;
-				return (0) ;
-			}
-		}
-	}
-	return (-1) ;
-}
-
-/* 0x004801F0 */
-long WPG_fn_lGetArcWeight (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, long *p_lWeight)
-{
-	if ( hSrcNode && hDstNode )
-		return (WPARCLST_fn_lGetWeight ( hSrcNode->m_hListOfArc, hDstNode, p_lWeight ) ) ;
-	return (-1) ;
-}
-
-/* 0x0047F8C0 */
-long WPG_fn_lGetLinkWeight (WP_tdHandleOfGraph hGraph,
-															WP_tdhWayPoint hSrcWayPoint,
-															WP_tdhWayPoint hDstWayPoint,
-															long *p_lWeight) {
-	int i;
-	WP_tdhGraphNode hSrcNode, hDstNode;
-
-	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
-
-
-
-		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
-			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
-				break ;
-			}
-		}
-		if ( hDstNode ) {
-			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
-				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
-					return (WPG_fn_lGetArcWeight ( hSrcNode, hDstNode, p_lWeight) ) ;
-				}
-			}
-		}
-
-	}
-	return (-1) ;
-
-}
-
-
-
-/* 0x00487B50 */
-
-long WPARCLST_fn_lChangeWeight (WP_tdHandleOfListOfArc hListOfArc,
-                                WP_tdhGraphNode hNode, long lWeight) {
-	WP_tdHandleOfArc hElement ;
-	int i ;
-
-	if ( hListOfArc && hNode ) {
-		LST2_M_DynamicForEachElementOf(&hListOfArc->m_hArc, hElement, i) {
-			if ( hElement->m_hNode == hNode ) {
-				hElement->m_lWeight = lWeight ;
-				return (0) ;
-			}
-		}
-	}
-	return (-1) ;
-}
-
-/* 0x004801C0 */
-long WPG_fn_lChangeArcWeight (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, long lWeight)
-{
-	if ( hSrcNode && hDstNode )
-		return (WPARCLST_fn_lChangeWeight ( hSrcNode->m_hListOfArc, hDstNode, lWeight ) ) ;
-	return (-1) ;
-}
-
-/* 0x0047F860 */
-long WPG_fn_lChangeLinkWeight (WP_tdHandleOfGraph hGraph,
-																 WP_tdhWayPoint hSrcWayPoint,
-																 WP_tdhWayPoint hDstWayPoint,
-																 long lWeight) {
-	int i;
-	WP_tdhGraphNode hSrcNode, hDstNode;
-
-	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
-
-
-
-		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
-			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
-				break ;
-			}
-		}
-		if ( hDstNode ) {
-			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
-				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
-					return (WPG_fn_lChangeArcWeight ( hSrcNode, hDstNode, lWeight) ) ;
-				}
-			}
-		}
-
-	}
-	return (-1) ;
-
-}
-
-
-
-/* 0x00480160 */
-
-long WPG_fn_lChangeArcCapabilities (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, unsigned long ulCapability, long lValue)
-{
-	if ( hSrcNode && hDstNode )
-		return (WPARCLST_fn_lChangeCapabilities ( hSrcNode->m_hListOfArc, hDstNode, ulCapability, lValue ) ) ;
-	return (-1) ;
-}
-
-/* 0x0047F7A0 */
-long WPG_fn_lChangeLinkCapabilities (WP_tdHandleOfGraph hGraph,
-																     WP_tdhWayPoint hSrcWayPoint,
-																     WP_tdhWayPoint hDstWayPoint,
-																     unsigned long ulCapability, long lValue ) {
-	int i;
-	WP_tdhGraphNode hSrcNode, hDstNode;
-
-	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
-
-
-
-		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
-			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
-				break ;
-			}
-		}
-		if ( hDstNode ) {
-			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
-				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
-					return (WPG_fn_lChangeArcCapabilities ( hSrcNode, hDstNode, ulCapability, lValue) ) ;
-				}
-			}
-		}
-
-	}
-	return (-1) ;
-}
-
-/* 0x00480050 */
-WP_tdhWayPoint WPG_fn_hGetWaypointOfGraph (WP_tdHandleOfGraph hGraph, int iIndex, long* _plTypeOfWP)
-{
-	WP_tdhGraphNode hElement ;
-	int i ;
-
-	LST2_M_DynamicGetElementNumber(&hGraph->m_hListOfNode, hElement,
-																 iIndex, i) ;
-  *_plTypeOfWP = hElement->m_lTypeOfWP;
-	return (hElement->m_hWayPoint) ;
-}
-
 /* 0x0047F590 */
 
 
@@ -290,13 +48,6 @@ WP_tdHandleOfGraph WPG_fn_hCreate (char* _szName, char* _szReference)
 	}
 
 	return (hNewGraph) ;
-}
-
-/* 0x00480150 */
-WP_tdHandleOfListOfArc WPG_fn_hGetArcList (WP_tdhGraphNode hSrcNode) {
-	if ( hSrcNode )
-		return (hSrcNode->m_hListOfArc) ;
-	return (NULL) ;
 }
 
 
@@ -375,61 +126,147 @@ long __cdecl WPG_fn_lAddArcToWayPoint(WP_tdHandleOfGraph hGraph, WP_tdhWayPoint 
     return (-1);
 }
 
+long WPG_fn_lChangeArcCapabilities (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, unsigned long ulCapability, long lValue);
+
+/* 0x0047F7A0 */
+long WPG_fn_lChangeLinkCapabilities (WP_tdHandleOfGraph hGraph,
+																     WP_tdhWayPoint hSrcWayPoint,
+																     WP_tdhWayPoint hDstWayPoint,
+																     unsigned long ulCapability, long lValue ) {
+	int i;
+	WP_tdhGraphNode hSrcNode, hDstNode;
+
+	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
 
 
 
+		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
+			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
+				break ;
+			}
+		}
+		if ( hDstNode ) {
+			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
+				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
+					return (WPG_fn_lChangeArcCapabilities ( hSrcNode, hDstNode, ulCapability, lValue) ) ;
+				}
+			}
+		}
 
-
-WP_tdhGraphNode __cdecl WPG_fn_hCreateNode(WP_tdhWayPoint _hWayPoint, long _lTypeOfWP)
-{
-    WP_tdhGraphNode hNewNode = NULL;
-
-    if (_hWayPoint) {
-
-        hNewNode = (WP_tdhGraphNode)AI_fn_p_vTrueAlloc(sizeof(WP_tdstGraphNode));
-#line 1135 ".\\AIBase\\WPgraphe.c"
-        AI_fn_vMemoryLogFile(hNewNode, 0, __FILE__, __LINE__);
-        fn_vErrorOnAIAlloc();
-
-        if (hNewNode) {
-            LST2_M_DynamicInitElement(hNewNode);
-            hNewNode->m_hWayPoint = _hWayPoint;
-            hNewNode->m_lTypeOfWP = _lTypeOfWP;
-            hNewNode->m_lTypeOfWPInit = _lTypeOfWP;
-            hNewNode->m_hListOfArc = WPARCLST_fn_hInit();
-        }
-    }
-    return (hNewNode);
+	}
+	return (-1) ;
 }
 
+/* 0x0047F800 */
+
+long WPG_fn_lGetLinkCapabilities (WP_tdHandleOfGraph hGraph,
+															WP_tdhWayPoint hSrcWayPoint,
+															WP_tdhWayPoint hDstWayPoint,
+															unsigned long* p_ulCapability) {
+	int i;
+	WP_tdhGraphNode hSrcNode, hDstNode;
+
+	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
 
 
 
+		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
+			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
+				break ;
+			}
+		}
+		if ( hDstNode ) {
+			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
+				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
+					return (WPG_fn_lGetArcCapabilities ( hSrcNode, hDstNode, p_ulCapability) ) ;
+				}
+			}
+		}
 
-void __cdecl WPG_fn_vDestroyNode(WP_tdhGraphNode hNode)
-{
-    if (hNode) {
-        WPARCLST_fn_vDestroy(hNode->m_hListOfArc);
+	}
+	return (-1) ;
 
-
-#line 1166 ".\\AIBase\\WPgraphe.c"
-        AI_fn_vMemoryLogFile(hNode, AI_C_ActionFree, __FILE__, __LINE__);
-        AI_fn_vTrueFree(hNode);
-        fn_vErrorOnAIFree();
-        hNode = NULL;
-    }
 }
 
+long WPG_fn_lChangeArcWeight (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, long lWeight);
+
+/* 0x0047F860 */
+long WPG_fn_lChangeLinkWeight (WP_tdHandleOfGraph hGraph,
+																 WP_tdhWayPoint hSrcWayPoint,
+																 WP_tdhWayPoint hDstWayPoint,
+																 long lWeight) {
+	int i;
+	WP_tdhGraphNode hSrcNode, hDstNode;
+
+	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
 
 
 
+		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
+			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
+				break ;
+			}
+		}
+		if ( hDstNode ) {
+			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
+				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
+					return (WPG_fn_lChangeArcWeight ( hSrcNode, hDstNode, lWeight) ) ;
+				}
+			}
+		}
 
-void __cdecl WPG_fn_vAddArc(WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode,
-                            unsigned long ulCapability, long lWeight)
-{
-    if (hSrcNode && hDstNode) {
-        WPARCLST_fn_vAdd(hSrcNode->m_hListOfArc, hDstNode, lWeight, ulCapability);
+	}
+	return (-1) ;
+
+}
+
+long WPG_fn_lGetArcWeight (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, long *p_lWeight);
+
+/* 0x0047F8C0 */
+long WPG_fn_lGetLinkWeight (WP_tdHandleOfGraph hGraph,
+															WP_tdhWayPoint hSrcWayPoint,
+															WP_tdhWayPoint hDstWayPoint,
+															long *p_lWeight) {
+	int i;
+	WP_tdhGraphNode hSrcNode, hDstNode;
+
+	if ( hGraph && hSrcWayPoint && hDstWayPoint ) {
+
+
+
+		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hDstNode, i ) {
+			if ( hDstNode->m_hWayPoint == hDstWayPoint ) {
+				break ;
+			}
+		}
+		if ( hDstNode ) {
+			LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hSrcNode, i ) {
+				if ( hSrcNode->m_hWayPoint == hSrcWayPoint ) {
+					return (WPG_fn_lGetArcWeight ( hSrcNode, hDstNode, p_lWeight) ) ;
+				}
+			}
+		}
+
+	}
+	return (-1) ;
+
+}
+
+/* 0x0047F920 */
+void WPG_fn_vReinitGraph (WP_tdHandleOfGraph hGraph) {
+	int i, j;
+	WP_tdhGraphNode hNode;
+	WP_tdHandleOfArc hElement ;
+
+	if ( hGraph) {
+		LST2_M_DynamicForEachElementOf(&hGraph->m_hListOfNode, hNode, i ) {
+      hNode->m_lTypeOfWP = hNode->m_lTypeOfWPInit;
+  		LST2_M_DynamicForEachElementOf(&hNode->m_hListOfArc->m_hArc, hElement, j) {
+        hElement->m_ulCapability = hElement->m_ulCapabilityInit;
+        hElement->m_lWeight      = hElement->m_lWeightInit;
+      }
     }
+  }
 }
 
 
@@ -745,4 +582,122 @@ WP_tdHandleOfGraph __cdecl WPG_fn_lBuildOrderedPath(WP_tdHandleOfGraph hGraph, W
     TMP_M_Free(d_hListOfDestWeight);
 
     return (tdhNewPath);
+}
+
+/* 0x00480050 */
+WP_tdhWayPoint WPG_fn_hGetWaypointOfGraph (WP_tdHandleOfGraph hGraph, int iIndex, long* _plTypeOfWP)
+{
+	WP_tdhGraphNode hElement ;
+	int i ;
+
+	LST2_M_DynamicGetElementNumber(&hGraph->m_hListOfNode, hElement,
+																 iIndex, i) ;
+  *_plTypeOfWP = hElement->m_lTypeOfWP;
+	return (hElement->m_hWayPoint) ;
+}
+
+
+
+
+
+
+WP_tdhGraphNode __cdecl WPG_fn_hCreateNode(WP_tdhWayPoint _hWayPoint, long _lTypeOfWP)
+{
+    WP_tdhGraphNode hNewNode = NULL;
+
+    if (_hWayPoint) {
+
+        hNewNode = (WP_tdhGraphNode)AI_fn_p_vTrueAlloc(sizeof(WP_tdstGraphNode));
+#line 1135 ".\\AIBase\\WPgraphe.c"
+        AI_fn_vMemoryLogFile(hNewNode, 0, __FILE__, __LINE__);
+        fn_vErrorOnAIAlloc();
+
+        if (hNewNode) {
+            LST2_M_DynamicInitElement(hNewNode);
+            hNewNode->m_hWayPoint = _hWayPoint;
+            hNewNode->m_lTypeOfWP = _lTypeOfWP;
+            hNewNode->m_lTypeOfWPInit = _lTypeOfWP;
+            hNewNode->m_hListOfArc = WPARCLST_fn_hInit();
+        }
+    }
+    return (hNewNode);
+}
+
+
+
+
+
+void __cdecl WPG_fn_vDestroyNode(WP_tdhGraphNode hNode)
+{
+    if (hNode) {
+        WPARCLST_fn_vDestroy(hNode->m_hListOfArc);
+
+
+#line 1166 ".\\AIBase\\WPgraphe.c"
+        AI_fn_vMemoryLogFile(hNode, AI_C_ActionFree, __FILE__, __LINE__);
+        AI_fn_vTrueFree(hNode);
+        fn_vErrorOnAIFree();
+        hNode = NULL;
+    }
+}
+
+
+
+
+
+void __cdecl WPG_fn_vAddArc(WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode,
+                            unsigned long ulCapability, long lWeight)
+{
+    if (hSrcNode && hDstNode) {
+        WPARCLST_fn_vAdd(hSrcNode->m_hListOfArc, hDstNode, lWeight, ulCapability);
+    }
+}
+
+/* 0x00480150 */
+WP_tdHandleOfListOfArc WPG_fn_hGetArcList (WP_tdhGraphNode hSrcNode) {
+	if ( hSrcNode )
+		return (hSrcNode->m_hListOfArc) ;
+	return (NULL) ;
+}
+
+
+
+/* 0x00480160 */
+
+long WPG_fn_lChangeArcCapabilities (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, unsigned long ulCapability, long lValue)
+{
+	if ( hSrcNode && hDstNode )
+		return (WPARCLST_fn_lChangeCapabilities ( hSrcNode->m_hListOfArc, hDstNode, ulCapability, lValue ) ) ;
+	return (-1) ;
+}
+
+long WPARCLST_fn_lGetCapabilities (WP_tdHandleOfListOfArc hListOfArc, WP_tdhGraphNode hNode, unsigned long* p_ulCapability);
+
+/* 0x00480190 */
+
+long WPG_fn_lGetArcCapabilities (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, unsigned long* p_ulCapability)
+{
+	if ( hSrcNode && hDstNode )
+		return (WPARCLST_fn_lGetCapabilities ( hSrcNode->m_hListOfArc, hDstNode, p_ulCapability ) ) ;
+	return (-1) ;
+}
+
+long WPARCLST_fn_lChangeWeight (WP_tdHandleOfListOfArc hListOfArc, WP_tdhGraphNode hNode, long lWeight);
+
+/* 0x004801C0 */
+long WPG_fn_lChangeArcWeight (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, long lWeight)
+{
+	if ( hSrcNode && hDstNode )
+		return (WPARCLST_fn_lChangeWeight ( hSrcNode->m_hListOfArc, hDstNode, lWeight ) ) ;
+	return (-1) ;
+}
+
+long WPARCLST_fn_lGetWeight (WP_tdHandleOfListOfArc hListOfArc, WP_tdhGraphNode hNode, long *p_lWeight);
+
+/* 0x004801F0 */
+long WPG_fn_lGetArcWeight (WP_tdhGraphNode hSrcNode, WP_tdhGraphNode hDstNode, long *p_lWeight)
+{
+	if ( hSrcNode && hDstNode )
+		return (WPARCLST_fn_lGetWeight ( hSrcNode->m_hListOfArc, hDstNode, p_lWeight ) ) ;
+	return (-1) ;
 }

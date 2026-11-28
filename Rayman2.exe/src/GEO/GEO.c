@@ -65,6 +65,308 @@ static MTH3D_tdstVector gs_stCameraPosInGlobal;
 
 extern POS_tdstCompletePosition *HIE_hRetrieveCurrentMatrix(void);
 
+#include "GEO/GeoSprit.h"
+
+void POS_fn_vGetRotationMatrixCol2(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stCol2);
+
+/* 0x0041B4F0 */
+void __cdecl GEO_pc_fn_vExtendBoxWithPointsAndSprites(int *p_iObj, unsigned int *p_uMatrix,
+                                                     float *p_xMax, float *p_xMin)
+{
+    float  *pfPoint;
+    float  *pfM;
+    float  *pfSpriteSize;
+    GEO_tdstElementSprite *piSpriteSet;
+    float  *pfSpritePt;
+    float   fX, fY;
+    float   fRadius;
+    float   fScale;
+    MTH3D_tdstVector stPt;
+    MTH3D_tdstVector stSp;
+    int     iPoint;
+    int     iElem;
+    int     iOffset;
+    int     iSprite;
+
+    pfPoint = (float *)((GEO_tdstGeometricObject *)p_iObj)->d_stListOfPoints;
+    iPoint = 0;
+    if (0 < (short)((GEO_tdstGeometricObject *)p_iObj)->xNbPoints) {
+        pfM = (float *)&((POS_tdstCompletePosition *)p_uMatrix)->stTransformMatrix;
+        do {
+            MTH3D_M_vMulMatrixVector(&stPt, (MTH3D_tdstMatrix *)pfM, (MTH3D_tdstVector *)pfPoint);
+            if (stPt.xX < p_xMin[0]) {
+                p_xMin[0] = stPt.xX;
+            }
+            if (p_xMax[0] < stPt.xX) {
+                p_xMax[0] = stPt.xX;
+            }
+            if (stPt.xY < p_xMin[1]) {
+                p_xMin[1] = stPt.xY;
+            }
+            if (p_xMax[1] < stPt.xY) {
+                p_xMax[1] = stPt.xY;
+            }
+            if (stPt.xZ < p_xMin[2]) {
+                p_xMin[2] = stPt.xZ;
+            }
+            if (p_xMax[2] < stPt.xZ) {
+                p_xMax[2] = stPt.xZ;
+            }
+            iPoint = iPoint + 1;
+            pfPoint = pfPoint + 3;
+        } while (iPoint < (short)((GEO_tdstGeometricObject *)p_iObj)->xNbPoints);
+    }
+
+    iElem = 0;
+    if (0 < ((GEO_tdstGeometricObject *)p_iObj)->xNbElements) {
+        do {
+            if (((GEO_tdstGeometricObject *)p_iObj)->d_xListOfElementsTypes[iElem] == GEO_C_xElementSprites) {
+                piSpriteSet = (GEO_tdstElementSprite *)((GEO_tdstGeometricObject *)p_iObj)->d_stListOfElements[iElem];
+                iSprite = 0;
+                if (0 < piSpriteSet->xNbSprites) {
+                    pfM = (float *)&((POS_tdstCompletePosition *)p_uMatrix)->stTransformMatrix;
+                    iOffset = 0;
+                    do {
+                        pfSpriteSize = &((GEO_tdstIndexedSprite *)((char *)piSpriteSet->d_stListOfSprites + iOffset))->hSprite->d_xSizeOfSprite->xX;
+                        fX = pfSpriteSize[0];
+                        fY = pfSpriteSize[1];
+                        fScale = POS_fn_xGetMaxScale((POS_tdstCompletePosition *)p_uMatrix);
+                        pfSpritePt = (float *)(((GEO_tdstGeometricObject *)p_iObj)->d_stListOfPoints +
+                                               ((GEO_tdstIndexedSprite *)((char *)piSpriteSet->d_stListOfSprites + iOffset))->xCenterPoint);
+                        fRadius = MTH_M_xSqrt(fY * fY + fX * fX) * 0.5f * fScale;
+                        {
+                            float  tX;
+                            float  tY;
+                            float  tZ;
+                            float  lo;
+                            float  hi;
+                            MTH3D_M_vMulMatrixVector(&stSp, (MTH3D_tdstMatrix *)pfM, (MTH3D_tdstVector *)pfSpritePt);
+                            tX = stSp.xX;
+                            tY = stSp.xY;
+                            tZ = stSp.xZ;
+                            lo = tX - fRadius;
+                            if (p_xMin[0] < lo) {
+                                lo = p_xMin[0];
+                            }
+                            p_xMin[0] = lo;
+                            lo = tY - fRadius;
+                            if (p_xMin[1] < lo) {
+                                lo = p_xMin[1];
+                            }
+                            p_xMin[1] = lo;
+                            lo = tZ - fRadius;
+                            if (p_xMin[2] < lo) {
+                                lo = p_xMin[2];
+                            }
+                            p_xMin[2] = lo;
+                            hi = tX + fRadius;
+                            if (hi < p_xMax[0]) {
+                                hi = p_xMax[0];
+                            }
+                            p_xMax[0] = hi;
+                            hi = tY + fRadius;
+                            if (hi < p_xMax[1]) {
+                                hi = p_xMax[1];
+                            }
+                            p_xMax[1] = hi;
+                            hi = tZ + fRadius;
+                            if (hi < p_xMax[2]) {
+                                hi = p_xMax[2];
+                            }
+                            p_xMax[2] = hi;
+                        }
+                        iOffset = iOffset + 0x2c;
+                        iSprite = iSprite + 1;
+                    } while (iSprite < piSpriteSet->xNbSprites);
+                }
+            }
+            iElem = iElem + 1;
+        } while (iElem < ((GEO_tdstGeometricObject *)p_iObj)->xNbElements);
+    }
+}
+
+/* 0x0041b7c0 */
+void GEO_xMergeSpheres(
+    MTH3D_tdstVector *p_stOutCenter, MTH_tdxReal *p_xOutRadius,
+    MTH3D_tdstVector *p_stCenterA,   MTH_tdxReal  xRadiusA,
+    MTH3D_tdstVector *p_stCenterB,   MTH_tdxReal  xRadiusB)
+{
+    MTH3D_tdstVector stDiff;
+    MTH_tdxReal xDist, xT;
+
+    MTH3D_M_vSubVector(&stDiff, p_stCenterA, p_stCenterB);
+    xDist = MTH_M_xSqrt(MTH3D_M_xDotProductVector(&stDiff, &stDiff));
+
+    if (xDist + xRadiusA <= xRadiusB) {
+        MTH3D_M_vCopyVector(p_stOutCenter, p_stCenterB);
+        *p_xOutRadius = xRadiusB;
+        return;
+    }
+    if (xDist + xRadiusB < xRadiusA) {
+        MTH3D_M_vCopyVector(p_stOutCenter, p_stCenterA);
+        *p_xOutRadius = xRadiusA;
+        return;
+    }
+
+    xT = (1.0f - (xRadiusA - xRadiusB) / xDist) * 0.5f;
+    MTH3D_M_vLinearInterpolVector(p_stOutCenter, p_stCenterA, p_stCenterB, xT);
+    *p_xOutRadius = (xRadiusA + xDist + xRadiusB) * 0.5f;
+}
+
+/* 0x0041b8f0 */
+void GEO_xGrowSphereWithPoint(
+    MTH3D_tdstVector *p_stOutCenter, MTH_tdxReal *p_xOutRadius,
+    MTH3D_tdstVector *p_stInCenter,  MTH_tdxReal  xInRadius,
+    MTH3D_tdstVector *p_stPoint)
+{
+    MTH3D_tdstVector stDiff;
+    MTH_tdxReal xDist, xT;
+
+    MTH3D_M_vSubVector(&stDiff, p_stInCenter, p_stPoint);
+    xDist = MTH_M_xSqrt(MTH3D_M_xDotProductVector(&stDiff, &stDiff));
+
+    if (xDist <= xInRadius) {
+        MTH3D_M_vCopyVector(p_stOutCenter, p_stInCenter);
+        *p_xOutRadius = xInRadius;
+        return;
+    }
+
+    xT = (1.0f - xInRadius / xDist) * 0.5f;
+    MTH3D_M_vLinearInterpolVector(p_stOutCenter, p_stInCenter, p_stPoint, xT);
+    *p_xOutRadius = (xDist + xInRadius) * 0.5f;
+}
+void GEO_xComputeSpriteRadius(GEO_tdstIndexedSprite *p_stSprite, MTH_tdxReal *p_xOutRadius)
+{
+    MTH2D_tdstVector *p_xDimA = p_stSprite->hSprite->d_xSizeOfSprite;
+    MTH2D_tdstVector *p_xDimB = p_stSprite->hSprite->d_xDisplacementOfSprite;
+    MTH_tdxReal xW = (p_xDimA->xX + p_xDimB->xX) * p_stSprite->stSize.xX;
+    MTH_tdxReal xH = (p_xDimB->xY + p_xDimA->xY) * p_stSprite->stSize.xY;
+
+    *p_xOutRadius = MTH_M_xSqrt(xW * xW + xH * xH);
+}
+
+void GEO_xComputeObjectSphereBox(
+    GEO_tdstGeometricObject *p_stObj,
+    MTH3D_tdstVector        *p_stCenter,
+    MTH_tdxReal             *p_xRadius)
+{
+    ACP_tdxIndex xPoint, xEl, xSub;
+
+    for (xPoint = 0; xPoint < p_stObj->xNbPoints; xPoint++)
+        GEO_xGrowSphereWithPoint(p_stCenter, p_xRadius,
+            p_stCenter, *p_xRadius, p_stObj->d_stListOfPoints + xPoint);
+
+    for (xEl = 0; xEl < p_stObj->xNbElements; xEl++) {
+        if (p_stObj->d_xListOfElementsTypes[xEl] == GEO_C_xElementSprites) {
+            GEO_tdstElementSprite *p_stEl =
+                (GEO_tdstElementSprite *)p_stObj->d_stListOfElements[xEl];
+            for (xSub = 0; xSub < p_stEl->xNbSprites; xSub++) {
+                MTH3D_tdstVector stElCenter;
+                MTH_tdxReal      xElRadius;
+                ACP_tdxIndex     xCenterPoint;
+
+                GEO_xComputeSpriteRadius(&p_stEl->d_stListOfSprites[xSub], &xElRadius);
+                xCenterPoint = p_stEl->d_stListOfSprites[xSub].xCenterPoint;
+                stElCenter = p_stObj->d_stListOfPoints[xCenterPoint];
+                GEO_xMergeSpheres(p_stCenter, p_xRadius,
+                    p_stCenter, *p_xRadius, &stElCenter, xElRadius);
+            }
+        }
+        else if (p_stObj->d_xListOfElementsTypes[xEl] == GEO_C_xElementSpheres) {
+            GEO_tdstElementSpheres *p_stEl =
+                (GEO_tdstElementSpheres *)p_stObj->d_stListOfElements[xEl];
+            for (xSub = 0; xSub < p_stEl->xNbSpheres; xSub++) {
+                MTH3D_tdstVector stElCenter;
+                MTH_tdxReal      xElRadius;
+                ACP_tdxIndex     xCenterPoint;
+
+                xCenterPoint = p_stEl->d_stListOfSpheres[xSub].xCenterPoint;
+                stElCenter = p_stObj->d_stListOfPoints[xCenterPoint];
+                xElRadius  = p_stEl->d_stListOfSpheres[xSub].xRadius;
+                GEO_xMergeSpheres(p_stCenter, p_xRadius,
+                    p_stCenter, *p_xRadius, &stElCenter, xElRadius);
+            }
+        }
+    }
+}
+
+void GEO_vCreateObjectListOfParallelBox( ACP_tdxHandleOfObject hObject, ACP_tdxIndex xNumberOfParallelBoxes);
+
+ACP_tdxBool GEO_bIsLookAt(GEO_tdstGeometricObject *p_stObj)
+{
+    return (ACP_tdxBool)p_stObj->ulType;
+}
+void GEO_vTurnLookAt(
+    GEO_tdstGeometricObject  *p_stObj,
+    void                     *hVpt,
+    POS_tdstCompletePosition *p_stCurrentMatrix)
+{
+    POS_tdstCompletePosition stCamInv;
+    MTH3D_tdstVector stDir, stUp, stRight, stNewDir;
+    float fScale;
+
+    POS_fn_vInvertIsoMatrix(&stCamInv,
+        &((GLI_tdstSpecificAttributesFor3D *)((struct GLD_tdstViewportAttributes_ *)hVpt)->p_vSpecificToXD)->p_stCam->stMatrix);
+
+    MTH3D_M_vSubVector(&stDir, &stCamInv.stTranslationVector, &p_stCurrentMatrix->stTranslationVector);
+
+    fScale = MTH_M_xInvSqrt(MTH3D_M_xDotProductVector(&stDir, &stDir));
+    MTH3D_M_vMulScalarVector(&stDir, fScale, &stDir);
+
+    if (p_stObj->ulType & 2) {
+        POS_fn_vGetRotationMatrixCol2(p_stCurrentMatrix, &stUp);
+    } else {
+        stUp.xX = stCamInv.stTransformMatrix.stCol_1.xX;
+        stUp.xY = stCamInv.stTransformMatrix.stCol_1.xY;
+        stUp.xZ = stCamInv.stTransformMatrix.stCol_1.xZ;
+    }
+
+    stRight.xX = stUp.xY * stDir.xZ - stUp.xZ * stDir.xY;
+    stRight.xY = stUp.xZ * stDir.xX - stUp.xX * stDir.xZ;
+    stRight.xZ = stUp.xX * stDir.xY - stUp.xY * stDir.xX;
+
+    fScale = MTH_M_xSqrt(stRight.xX*stRight.xX + stRight.xY*stRight.xY + stRight.xZ*stRight.xZ);
+    if (MTH_C_ZERO < fScale) {
+        fScale = MTH_C_ONE / fScale;
+        stRight.xX *= fScale;
+        stRight.xY *= fScale;
+        stRight.xZ *= fScale;
+
+        stNewDir.xX = stRight.xY * stUp.xZ - stRight.xZ * stUp.xY;
+        stNewDir.xY = stRight.xZ * stUp.xX - stRight.xX * stUp.xZ;
+        stNewDir.xZ = stRight.xX * stUp.xY - stRight.xY * stUp.xX;
+
+        POS_fn_vSetRotationMatrix(p_stCurrentMatrix, &stNewDir, &stRight, &stUp);
+    }
+}
+
+MTH_tdxReal GEO_xGetZFar(void)
+{
+    return GEO_g_xZFar;
+}
+
+void GEO_vSetZFar(MTH_tdxReal _xZ)
+{
+    GEO_g_xZFar = _xZ;
+}
+
+MTH_tdxReal GEO_xGetZFarTransparencyZone(void)
+{
+    return GEO_g_xZFarTransparencyZone;
+}
+
+void GEO_vSetZFarTransparencyZone(MTH_tdxReal _xZ)
+{
+    GEO_g_xZFarTransparencyZone = _xZ;
+    if (_xZ != s_xConst0)
+        GEO_g_xOoZFarTransparencyZone = s_xConst1 / _xZ;
+}
+
+MTH_tdxReal GEO_xGetZFarTransparencyLevel(void)
+{
+    return GEO_g_xZFarTransparencyLevel;
+}
+
 static long GEO_lMainCullingSphere
 (
 	struct GLD_tdstViewportAttributes_	*p_stVpt ,
@@ -203,245 +505,6 @@ static long GEO_lMainCullingSphere
 
 	return _lCullingResult;
 }
-
-MTH_tdxReal GEO_xGetZFar(void)
-{
-    return GEO_g_xZFar;
-}
-
-void GEO_vSetZFar(MTH_tdxReal _xZ)
-{
-    GEO_g_xZFar = _xZ;
-}
-
-MTH_tdxReal GEO_xGetZFarTransparencyZone(void)
-{
-    return GEO_g_xZFarTransparencyZone;
-}
-
-void GEO_vSetZFarTransparencyZone(MTH_tdxReal _xZ)
-{
-    GEO_g_xZFarTransparencyZone = _xZ;
-    if (_xZ != s_xConst0)
-        GEO_g_xOoZFarTransparencyZone = s_xConst1 / _xZ;
-}
-
-MTH_tdxReal GEO_xGetZFarTransparencyLevel(void)
-{
-    return GEO_g_xZFarTransparencyLevel;
-}
-
-void GEO_vCreateObjectListOfParallelBox(
-    ACP_tdxHandleOfObject hObject,
-    ACP_tdxIndex          xNumberOfParallelBoxes)
-{
-    ACP_tdxIndex xIndex;
-    hObject->xNbParallelBoxes = xNumberOfParallelBoxes;
-    if (hObject->xNbParallelBoxes == 0) return;
-    if (hObject->d_stListOfParallelBoxes != NULL) return;
-    GEO_M_CPAMalloc(hObject->d_stListOfParallelBoxes, GEO_tdstParallelBox *,
-        sizeof(GEO_tdstParallelBox) * hObject->xNbParallelBoxes, E_uwGEONotEnoughtMemory);
-    for (xIndex = 0; xIndex < hObject->xNbParallelBoxes; xIndex++) {
-
-        hObject->d_stListOfParallelBoxes[xIndex].stMinPoint.xZ =
-            hObject->d_stListOfParallelBoxes[xIndex].stMinPoint.xY =
-            hObject->d_stListOfParallelBoxes[xIndex].stMinPoint.xX = MTH_C_InfinitPlus;
-        hObject->d_stListOfParallelBoxes[xIndex].stMaxPoint.xZ =
-            hObject->d_stListOfParallelBoxes[xIndex].stMaxPoint.xY =
-            hObject->d_stListOfParallelBoxes[xIndex].stMaxPoint.xX = MTH_C_InfinitMinus;
-    }
-}
-
-void GEO_xComputeNormalWeightedBySurf(
-    MTH3D_tdstVector *p_stPResult,
-    MTH3D_tdstVector *p_stPA,
-    MTH3D_tdstVector *p_stPB,
-    MTH3D_tdstVector *p_stPC)
-{
-    MTH3D_tdstVector stEdgeAB, stEdgeAC;
-
-    MTH3D_M_vSubVector(&stEdgeAB, p_stPB, p_stPA);
-    MTH3D_M_vSubVector(&stEdgeAC, p_stPC, p_stPA);
-
-    MTH3D_M_vCrossProductVectorWithoutBuffer(p_stPResult, &stEdgeAB, &stEdgeAC);
-}
-
-void GEO_xComputeObjectNormals2(GEO_tdstGeometricObject *p_stObj)
-{
-    if (p_stObj->d_stListOfPointsNormals == NULL)
-        return;
-
-    GEO_xComputeObjectNormals(p_stObj);
-}
-
-/* 0x0041b8f0 */
-void GEO_xGrowSphereWithPoint(
-    MTH3D_tdstVector *p_stOutCenter, MTH_tdxReal *p_xOutRadius,
-    MTH3D_tdstVector *p_stInCenter,  MTH_tdxReal  xInRadius,
-    MTH3D_tdstVector *p_stPoint)
-{
-    MTH3D_tdstVector stDiff;
-    MTH_tdxReal xDist, xT;
-
-    MTH3D_M_vSubVector(&stDiff, p_stInCenter, p_stPoint);
-    xDist = MTH_M_xSqrt(MTH3D_M_xDotProductVector(&stDiff, &stDiff));
-
-    if (xDist <= xInRadius) {
-        MTH3D_M_vCopyVector(p_stOutCenter, p_stInCenter);
-        *p_xOutRadius = xInRadius;
-        return;
-    }
-
-    xT = (1.0f - xInRadius / xDist) * 0.5f;
-    MTH3D_M_vLinearInterpolVector(p_stOutCenter, p_stInCenter, p_stPoint, xT);
-    *p_xOutRadius = (xDist + xInRadius) * 0.5f;
-}
-
-/* 0x0041b7c0 */
-void GEO_xMergeSpheres(
-    MTH3D_tdstVector *p_stOutCenter, MTH_tdxReal *p_xOutRadius,
-    MTH3D_tdstVector *p_stCenterA,   MTH_tdxReal  xRadiusA,
-    MTH3D_tdstVector *p_stCenterB,   MTH_tdxReal  xRadiusB)
-{
-    MTH3D_tdstVector stDiff;
-    MTH_tdxReal xDist, xT;
-
-    MTH3D_M_vSubVector(&stDiff, p_stCenterA, p_stCenterB);
-    xDist = MTH_M_xSqrt(MTH3D_M_xDotProductVector(&stDiff, &stDiff));
-
-    if (xDist + xRadiusA <= xRadiusB) {
-        MTH3D_M_vCopyVector(p_stOutCenter, p_stCenterB);
-        *p_xOutRadius = xRadiusB;
-        return;
-    }
-    if (xDist + xRadiusB < xRadiusA) {
-        MTH3D_M_vCopyVector(p_stOutCenter, p_stCenterA);
-        *p_xOutRadius = xRadiusA;
-        return;
-    }
-
-    xT = (1.0f - (xRadiusA - xRadiusB) / xDist) * 0.5f;
-    MTH3D_M_vLinearInterpolVector(p_stOutCenter, p_stCenterA, p_stCenterB, xT);
-    *p_xOutRadius = (xRadiusA + xDist + xRadiusB) * 0.5f;
-}
-
-#include "GEO/GeoSprit.h"
-void GEO_xComputeSpriteRadius(GEO_tdstIndexedSprite *p_stSprite, MTH_tdxReal *p_xOutRadius)
-{
-    MTH2D_tdstVector *p_xDimA = p_stSprite->hSprite->d_xSizeOfSprite;
-    MTH2D_tdstVector *p_xDimB = p_stSprite->hSprite->d_xDisplacementOfSprite;
-    MTH_tdxReal xW = (p_xDimA->xX + p_xDimB->xX) * p_stSprite->stSize.xX;
-    MTH_tdxReal xH = (p_xDimB->xY + p_xDimA->xY) * p_stSprite->stSize.xY;
-
-    *p_xOutRadius = MTH_M_xSqrt(xW * xW + xH * xH);
-}
-
-void GEO_xComputeObjectSphereBox(
-    GEO_tdstGeometricObject *p_stObj,
-    MTH3D_tdstVector        *p_stCenter,
-    MTH_tdxReal             *p_xRadius)
-{
-    ACP_tdxIndex xPoint, xEl, xSub;
-
-    for (xPoint = 0; xPoint < p_stObj->xNbPoints; xPoint++)
-        GEO_xGrowSphereWithPoint(p_stCenter, p_xRadius,
-            p_stCenter, *p_xRadius, p_stObj->d_stListOfPoints + xPoint);
-
-    for (xEl = 0; xEl < p_stObj->xNbElements; xEl++) {
-        if (p_stObj->d_xListOfElementsTypes[xEl] == GEO_C_xElementSprites) {
-            GEO_tdstElementSprite *p_stEl =
-                (GEO_tdstElementSprite *)p_stObj->d_stListOfElements[xEl];
-            for (xSub = 0; xSub < p_stEl->xNbSprites; xSub++) {
-                MTH3D_tdstVector stElCenter;
-                MTH_tdxReal      xElRadius;
-                ACP_tdxIndex     xCenterPoint;
-
-                GEO_xComputeSpriteRadius(&p_stEl->d_stListOfSprites[xSub], &xElRadius);
-                xCenterPoint = p_stEl->d_stListOfSprites[xSub].xCenterPoint;
-                stElCenter = p_stObj->d_stListOfPoints[xCenterPoint];
-                GEO_xMergeSpheres(p_stCenter, p_xRadius,
-                    p_stCenter, *p_xRadius, &stElCenter, xElRadius);
-            }
-        }
-        else if (p_stObj->d_xListOfElementsTypes[xEl] == GEO_C_xElementSpheres) {
-            GEO_tdstElementSpheres *p_stEl =
-                (GEO_tdstElementSpheres *)p_stObj->d_stListOfElements[xEl];
-            for (xSub = 0; xSub < p_stEl->xNbSpheres; xSub++) {
-                MTH3D_tdstVector stElCenter;
-                MTH_tdxReal      xElRadius;
-                ACP_tdxIndex     xCenterPoint;
-
-                xCenterPoint = p_stEl->d_stListOfSpheres[xSub].xCenterPoint;
-                stElCenter = p_stObj->d_stListOfPoints[xCenterPoint];
-                xElRadius  = p_stEl->d_stListOfSpheres[xSub].xRadius;
-                GEO_xMergeSpheres(p_stCenter, p_xRadius,
-                    p_stCenter, *p_xRadius, &stElCenter, xElRadius);
-            }
-        }
-    }
-}
-
-void GEO_vComputeObjectListOfParallelBox(ACP_tdxHandleOfObject hObject)
-{
-    ACP_tdxIndex xIndex;
-    if (hObject->xNbParallelBoxes == 0) return;
-    if (hObject->d_stListOfParallelBoxes == NULL)
-        GEO_vCreateObjectListOfParallelBox(hObject, hObject->xNbParallelBoxes);
-    for (xIndex = 0; xIndex < hObject->xNbParallelBoxes; xIndex++)
-        GEO_vComputeObjectParallelBox(hObject, xIndex);
-}
-
-ACP_tdxBool GEO_bIsLookAt(GEO_tdstGeometricObject *p_stObj)
-{
-    return (ACP_tdxBool)p_stObj->ulType;
-}
-
-void POS_fn_vGetRotationMatrixCol2(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stCol2);
-#pragma optimize("y", off)
-void GEO_vTurnLookAt(
-    GEO_tdstGeometricObject  *p_stObj,
-    void                     *hVpt,
-    POS_tdstCompletePosition *p_stCurrentMatrix)
-{
-    POS_tdstCompletePosition stCamInv;
-    MTH3D_tdstVector stDir, stUp, stRight, stNewDir;
-    float fScale;
-
-    POS_fn_vInvertIsoMatrix(&stCamInv,
-        &((GLI_tdstSpecificAttributesFor3D *)((struct GLD_tdstViewportAttributes_ *)hVpt)->p_vSpecificToXD)->p_stCam->stMatrix);
-
-    MTH3D_M_vSubVector(&stDir, &stCamInv.stTranslationVector, &p_stCurrentMatrix->stTranslationVector);
-
-    fScale = MTH_M_xInvSqrt(MTH3D_M_xDotProductVector(&stDir, &stDir));
-    MTH3D_M_vMulScalarVector(&stDir, fScale, &stDir);
-
-    if (p_stObj->ulType & 2) {
-        POS_fn_vGetRotationMatrixCol2(p_stCurrentMatrix, &stUp);
-    } else {
-        stUp.xX = stCamInv.stTransformMatrix.stCol_1.xX;
-        stUp.xY = stCamInv.stTransformMatrix.stCol_1.xY;
-        stUp.xZ = stCamInv.stTransformMatrix.stCol_1.xZ;
-    }
-
-    stRight.xX = stUp.xY * stDir.xZ - stUp.xZ * stDir.xY;
-    stRight.xY = stUp.xZ * stDir.xX - stUp.xX * stDir.xZ;
-    stRight.xZ = stUp.xX * stDir.xY - stUp.xY * stDir.xX;
-
-    fScale = MTH_M_xSqrt(stRight.xX*stRight.xX + stRight.xY*stRight.xY + stRight.xZ*stRight.xZ);
-    if (MTH_C_ZERO < fScale) {
-        fScale = MTH_C_ONE / fScale;
-        stRight.xX *= fScale;
-        stRight.xY *= fScale;
-        stRight.xZ *= fScale;
-
-        stNewDir.xX = stRight.xY * stUp.xZ - stRight.xZ * stUp.xY;
-        stNewDir.xY = stRight.xZ * stUp.xX - stRight.xX * stUp.xZ;
-        stNewDir.xZ = stRight.xX * stUp.xY - stRight.xY * stUp.xX;
-
-        POS_fn_vSetRotationMatrix(p_stCurrentMatrix, &stNewDir, &stRight, &stUp);
-    }
-}
-#pragma optimize("", on)
 
 void GEO_fn_vComputeCameraParametersForCulling(void *p_stVpt, MTH_tdxReal _xZFar)
 {
@@ -679,119 +742,5 @@ long GEO_lCullingBox(
 
 	return _lCullingResult;
 }
-
-/* 0x0041B4F0 */
-void __cdecl GEO_pc_fn_vExtendBoxWithPointsAndSprites(int *p_iObj, unsigned int *p_uMatrix,
-                                                     float *p_xMax, float *p_xMin)
-{
-    float  *pfPoint;
-    float  *pfM;
-    float  *pfSpriteSize;
-    GEO_tdstElementSprite *piSpriteSet;
-    float  *pfSpritePt;
-    float   fX, fY;
-    float   fRadius;
-    float   fScale;
-    MTH3D_tdstVector stPt;
-    MTH3D_tdstVector stSp;
-    int     iPoint;
-    int     iElem;
-    int     iOffset;
-    int     iSprite;
-
-    pfPoint = (float *)((GEO_tdstGeometricObject *)p_iObj)->d_stListOfPoints;
-    iPoint = 0;
-    if (0 < (short)((GEO_tdstGeometricObject *)p_iObj)->xNbPoints) {
-        pfM = (float *)&((POS_tdstCompletePosition *)p_uMatrix)->stTransformMatrix;
-        do {
-            MTH3D_M_vMulMatrixVector(&stPt, (MTH3D_tdstMatrix *)pfM, (MTH3D_tdstVector *)pfPoint);
-            if (stPt.xX < p_xMin[0]) {
-                p_xMin[0] = stPt.xX;
-            }
-            if (p_xMax[0] < stPt.xX) {
-                p_xMax[0] = stPt.xX;
-            }
-            if (stPt.xY < p_xMin[1]) {
-                p_xMin[1] = stPt.xY;
-            }
-            if (p_xMax[1] < stPt.xY) {
-                p_xMax[1] = stPt.xY;
-            }
-            if (stPt.xZ < p_xMin[2]) {
-                p_xMin[2] = stPt.xZ;
-            }
-            if (p_xMax[2] < stPt.xZ) {
-                p_xMax[2] = stPt.xZ;
-            }
-            iPoint = iPoint + 1;
-            pfPoint = pfPoint + 3;
-        } while (iPoint < (short)((GEO_tdstGeometricObject *)p_iObj)->xNbPoints);
-    }
-
-    iElem = 0;
-    if (0 < ((GEO_tdstGeometricObject *)p_iObj)->xNbElements) {
-        do {
-            if (((GEO_tdstGeometricObject *)p_iObj)->d_xListOfElementsTypes[iElem] == GEO_C_xElementSprites) {
-                piSpriteSet = (GEO_tdstElementSprite *)((GEO_tdstGeometricObject *)p_iObj)->d_stListOfElements[iElem];
-                iSprite = 0;
-                if (0 < piSpriteSet->xNbSprites) {
-                    pfM = (float *)&((POS_tdstCompletePosition *)p_uMatrix)->stTransformMatrix;
-                    iOffset = 0;
-                    do {
-                        pfSpriteSize = &((GEO_tdstIndexedSprite *)((char *)piSpriteSet->d_stListOfSprites + iOffset))->hSprite->d_xSizeOfSprite->xX;
-                        fX = pfSpriteSize[0];
-                        fY = pfSpriteSize[1];
-                        fScale = POS_fn_xGetMaxScale((POS_tdstCompletePosition *)p_uMatrix);
-                        pfSpritePt = (float *)(((GEO_tdstGeometricObject *)p_iObj)->d_stListOfPoints +
-                                               ((GEO_tdstIndexedSprite *)((char *)piSpriteSet->d_stListOfSprites + iOffset))->xCenterPoint);
-                        fRadius = MTH_M_xSqrt(fY * fY + fX * fX) * 0.5f * fScale;
-                        {
-                            float  tX;
-                            float  tY;
-                            float  tZ;
-                            float  lo;
-                            float  hi;
-                            MTH3D_M_vMulMatrixVector(&stSp, (MTH3D_tdstMatrix *)pfM, (MTH3D_tdstVector *)pfSpritePt);
-                            tX = stSp.xX;
-                            tY = stSp.xY;
-                            tZ = stSp.xZ;
-                            lo = tX - fRadius;
-                            if (p_xMin[0] < lo) {
-                                lo = p_xMin[0];
-                            }
-                            p_xMin[0] = lo;
-                            lo = tY - fRadius;
-                            if (p_xMin[1] < lo) {
-                                lo = p_xMin[1];
-                            }
-                            p_xMin[1] = lo;
-                            lo = tZ - fRadius;
-                            if (p_xMin[2] < lo) {
-                                lo = p_xMin[2];
-                            }
-                            p_xMin[2] = lo;
-                            hi = tX + fRadius;
-                            if (hi < p_xMax[0]) {
-                                hi = p_xMax[0];
-                            }
-                            p_xMax[0] = hi;
-                            hi = tY + fRadius;
-                            if (hi < p_xMax[1]) {
-                                hi = p_xMax[1];
-                            }
-                            p_xMax[1] = hi;
-                            hi = tZ + fRadius;
-                            if (hi < p_xMax[2]) {
-                                hi = p_xMax[2];
-                            }
-                            p_xMax[2] = hi;
-                        }
-                        iOffset = iOffset + 0x2c;
-                        iSprite = iSprite + 1;
-                    } while (iSprite < piSpriteSet->xNbSprites);
-                }
-            }
-            iElem = iElem + 1;
-        } while (iElem < ((GEO_tdstGeometricObject *)p_iObj)->xNbElements);
-    }
-}
+#pragma optimize("y", off)
+#pragma optimize("", on)

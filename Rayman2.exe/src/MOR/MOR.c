@@ -21,83 +21,6 @@ extern int __cdecl GLI_lGetVisualSetNumbertOfLOD(void *p);
 /* 0x0042ae70 */
 struct GEO_tdstVisualSet_ *GLI_p_stCreateTMPVisualSet(long lNbLOD);
 
-/* 0x0045dc60 */
-ACP_tdxBool __cdecl MOR_fn_bIsChannelMorphed(HIE_tdstSuperObject *_hActorSuperObject,
-                                             unsigned short _xChannelIndex)
-{
-    short                 i;
-    MOR_tdstMorphStruct  *mp;
-
-    for (i = 0; i <= MaxMorphTask; i++)
-    {
-        mp = MorphList + i;
-
-        if (mp->bInUse
-            && mp->hActorSuperObject == _hActorSuperObject
-            && mp->xChannelIndex == _xChannelIndex)
-        {
-
-            if ((mp->ucMorphType == 2 || mp->ucMorphType == 1) && mp->iCurrent >= mp->iEnd)
-                return FALSE;
-            else
-                return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-void __cdecl MOR_fn_vMorphTo(MOR_tdstMorphStruct *mp)
-{
-    float                  xRatio;
-    long                   j, k;
-    MS_tdxHandleTo3dData   h_3dData;
-    tdstObjectsTablesList *h_ObjTbl;
-    PO_tdstPhysicalObject *phy1, *phy2, *phy3;
-    GEO_tdstVisualSet     *geo1, *geo2, *geo3;
-
-    xRatio = (float)mp->iCurrent;
-    xRatio = xRatio / (float)mp->iNbMillisecond;
-    if (xRatio <= 1.0f)
-    {
-        if (xRatio < 0.0f)
-            xRatio = 0.0f;
-    }
-    else
-    {
-        xRatio = 1.0f;
-    }
-
-    h_3dData = M_GetMSHandle(mp->hActorSuperObject, 3dData);
-    h_ObjTbl = fn_h3dDataGetCurrentObjectsTable(h_3dData);
-    phy1 = (PO_tdstPhysicalObject *)h_ObjTbl->d_stObjectsTable[mp->xStartIndexInObjectTable].h_Target;
-    phy3 = (PO_tdstPhysicalObject *)mp->p_stMorphPO;
-    phy2 = (PO_tdstPhysicalObject *)h_ObjTbl->d_stObjectsTable[mp->xEndIndexInObjectTable].h_Target;
-    geo1 = phy1->_hVisualSet;
-    geo2 = phy2->_hVisualSet;
-    geo3 = phy3->_hVisualSet;
-
-    for (j = 0; j < GLI_lGetVisualSetNumbertOfLOD(geo1); j++)
-    {
-        GEO_tdstGeometricObject *e1 = geo1->d_p_stLodDefinitions[j];
-        GEO_tdstGeometricObject *e2 = geo2->d_p_stLodDefinitions[j];
-        GEO_tdstGeometricObject *e3 = geo3->d_p_stLodDefinitions[j];
-        short nbPoints = (short)e3->xNbPoints;
-
-        for (k = 0; k < nbPoints; k++)
-        {
-            MTH3D_tdstVector *p1 = &e1->d_stListOfPoints[k];
-            MTH3D_tdstVector *p2 = &e2->d_stListOfPoints[k];
-            MTH3D_tdstVector *p3 = &e3->d_stListOfPoints[k];
-            p3->xX = (p2->xX - p1->xX) * xRatio + p1->xX;
-            p3->xY = (p2->xY - p1->xY) * xRatio + p1->xY;
-            p3->xZ = p1->xZ + (p2->xZ - p1->xZ) * xRatio;
-        }
-
-        GEO_vEndModifyObject2(e3);
-    }
-}
-
 static __inline void MOR_pc_vSetSuperObjectObjectAndType(HIE_tdstSuperObject *_hSprObj, void *_hObj, unsigned long _ulType)
 {
     unsigned long ulType;
@@ -107,183 +30,11 @@ static __inline void MOR_pc_vSetSuperObjectObjectAndType(HIE_tdstSuperObject *_h
     _hSprObj->ulTypeOfLinkedObject = ulType;
 }
 
-unsigned char __cdecl MOR_fn_bRemoveMorphedObjectFromHierarchy(
-    HIE_tdstSuperObject *hSuperObject, void *p_stPhysicalObjectToRemove,
-    void *p_stPhysicalObjectToPut)
-{
-    HIE_tdstSuperObject *hChildSuperObject;
-
-    if (HIE_fn_hGetSuperObjectObject(hSuperObject) == p_stPhysicalObjectToRemove)
-    {
-        MOR_pc_vSetSuperObjectObjectAndType(hSuperObject, p_stPhysicalObjectToPut, HIE_C_ulPO);
-        return TRUE;
-    }
-
-    for (hChildSuperObject = hSuperObject->p_stFirstChild;
-         hChildSuperObject != NULL;
-         hChildSuperObject = hChildSuperObject->p_stNextBrother)
-    {
-        if (MOR_fn_bRemoveMorphedObjectFromHierarchy(hChildSuperObject,
-                p_stPhysicalObjectToRemove, p_stPhysicalObjectToPut))
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
-void __cdecl MOR_fn_vCleanMorphTask(MOR_tdstMorphStruct *mp)
-{
-    int   i;
-    int  *p;
-
-    if (mp->bInUse != FALSE)
-    {
-        p = (int *)mp;
-        for (i = 0xc; i != 0; i--)
-            *p++ = 0;
-        mp->bInUse = FALSE;
-    }
-}
-
-void __cdecl MOR_pc_fn_vCleanAllMorphTasks(void)
-{
-    short i;
-
-    for (i = 0; (int)i <= MaxMorphTask; i++)
-        if (*((unsigned char *)MorphList + (int)i * 0x30) != 0)
-            MOR_fn_vCleanMorphTask((MOR_tdstMorphStruct *)((char *)MorphList + (int)i * 0x30));
-}
-
 #include "GAM/PlayAnim.h"
-void __cdecl MOR_fn_vRemoveAllMorphedObjects(void)
-{
-    short i;
-    MOR_tdstMorphStruct *mp;
-
-    for (i = 0; (int)i <= MaxMorphTask; i++) {
-        mp = MorphList + i;
-        if (mp->bInUse != 0) {
-            MOR_fn_bRemoveMorphedObjectFromHierarchy(mp->hActorSuperObject,
-                                                     mp->p_stMorphPO,
-                                                     mp->hOriginalPhysicalObject);
-
-            if (((struct tdstEngineObject_ *)mp->hActorSuperObject->hLinkedObject.p_Void)->h_StandardGame) {
-                fn_vRemoveChannelFromMorphList(
-                    ((MS_tdxHandleTo3dData)((struct tdstEngineObject_ *)mp->hActorSuperObject->hLinkedObject.p_Void)->h_3dData)->hMorphChannelList,
-                    (unsigned short)mp->xChannelIndex);
-            }
-            MOR_fn_vDeletePhysicalObject(mp->p_stMorphPO);
-            MOR_fn_vCleanMorphTask(mp);
-        }
-    }
-    MaxMorphTask = -1;
-}
 
 typedef struct { GEO_tdstElementCones stCones; long lPcTail; } MOR_pc_tdstElementCones12;
 
-void *__cdecl MOR_fn_xCopyGeometricObjectForMorph(GEO_tdstGeometricObject *_pGeometricObjectToCopy)
-{
-    /* 0x444470 */
-    static const unsigned long aulElementSize[10] =
-        { 0, 0x20, 0x10, 0xc, 0x1c, 0x10, 0x14, 8, 8, 0xc };
-    GEO_tdstGeometricObject *pNew;
-    short xNbPoints   = (short)_pGeometricObjectToCopy->xNbPoints;
-    short xNbElements = (short)_pGeometricObjectToCopy->xNbElements;
-    short i;
-
-    GEO_vCreateTMPGeometricObject((ACP_tdxHandleOfObject *)&pNew, xNbPoints, xNbElements);
-    if (pNew == NULL)
-        return NULL;
-
-    memcpy(pNew->d_stListOfPoints, _pGeometricObjectToCopy->d_stListOfPoints,
-           (size_t)xNbPoints * sizeof(MTH3D_tdstVector));
-    memcpy(pNew->d_stListOfPointsNormals, _pGeometricObjectToCopy->d_stListOfPointsNormals,
-           (size_t)xNbPoints * sizeof(MTH3D_tdstVector));
-    memcpy(pNew->d_xListOfElementsTypes, _pGeometricObjectToCopy->d_xListOfElementsTypes,
-           (size_t)xNbElements * sizeof(ACP_tdxIndex));
-
-#define MOR_M_CopyElement(_type) \
-        pNew->d_stListOfElements[i] = GLI_pc_fn_p_vAlloc(sizeof(_type)); \
-        if (pNew->d_stListOfElements[i] == NULL) \
-            return NULL; \
-        pNew->d_xListOfElementsTypes[i] = _pGeometricObjectToCopy->d_xListOfElementsTypes[i]; \
-        *(_type *)pNew->d_stListOfElements[i] = *(_type *)_pGeometricObjectToCopy->d_stListOfElements[i]
-    for (i = 0; i < xNbElements; i++)
-    {
-        /* 0x444470 */
-        switch (_pGeometricObjectToCopy->d_xListOfElementsTypes[i])
-        {
-        case GEO_C_xElementPoints:
-            MOR_M_CopyElement(GEO_tdstElementPoints);
-            break;
-        case GEO_C_xElementLines:
-            MOR_M_CopyElement(GEO_tdstElementLines);
-            break;
-        case GEO_C_xElementFaceMapDescriptors:
-            MOR_M_CopyElement(GEO_tdstElementFaceMapDescriptors);
-            break;
-        case GEO_C_xElementSprites:
-            MOR_M_CopyElement(GEO_tdstElementSprite);
-            break;
-        case GEO_C_xElementSpheres:
-        case GEO_C_xElementAlignedBoxes:
-            MOR_M_CopyElement(GEO_tdstElementSpheres);
-            break;
-        case GEO_C_xElementCones:
-
-            MOR_M_CopyElement(MOR_pc_tdstElementCones12);
-            break;
-        case GEO_C_xElementTMeshes:
-            MOR_M_CopyElement(GEO_tdstElementTMeshes);
-            break;
-        case GEO_C_xElementIndexedTriangles:
-            MOR_M_CopyElement(GEO_tdstElementIndexedTriangles);
-            break;
-        case GEO_C_xElementNULL:
-            break;
-        }
-    }
-#undef MOR_M_CopyElement
-
-    return pNew;
-}
-
-void __cdecl MOR_fn_vDeleteGeometricObject(void *_ppGeometricObject)
-{
-    GEO_tdstGeometricObject **ppGeo = (GEO_tdstGeometricObject **)_ppGeometricObject;
-    GEO_tdstGeometricObject  *pGeo  = *ppGeo;
-    short i;
-
-    /* 0x444544 */
-    for (i = 0; i < pGeo->xNbElements; i++)
-    {
-        short xType = (short)pGeo->d_xListOfElementsTypes[i];
-
-        if (xType >= 1 && xType <= 9)
-            TMP_fn_vFree(&pGeo->d_stListOfElements[i]);
-    }
-
-    TMP_fn_vFree(&pGeo->d_stListOfPoints);
-    TMP_fn_vFree(&pGeo->d_stListOfPointsNormals);
-    TMP_fn_vFree(&pGeo->d_xListOfElementsTypes);
-    TMP_fn_vFree(&pGeo->d_stListOfElements);
-    TMP_fn_vFree(ppGeo);
-}
-
 #define MOR_M_PO_VISUALSET(p) (((PO_tdstPhysicalObject *)(p))->_hVisualSet)
-
-void __cdecl MOR_fn_vDeletePhysicalObject(void *_pPhysicalObject)
-{
-    short i;
-
-    for (i = 0; i < MOR_M_PO_VISUALSET(_pPhysicalObject)->xNbLodDefinitions; i++)
-        MOR_fn_vDeleteGeometricObject(&MOR_M_PO_VISUALSET(_pPhysicalObject)->d_p_stLodDefinitions[i]);
-
-    TMP_fn_vFree(&MOR_M_PO_VISUALSET(_pPhysicalObject)->d_xThresholdsTable);
-    TMP_fn_vFree(&MOR_M_PO_VISUALSET(_pPhysicalObject)->d_p_stLodDefinitions);
-    TMP_fn_vFree(&((PO_tdstPhysicalObject *)_pPhysicalObject)->_hVisualSet);
-    TMP_fn_vFree(&_pPhysicalObject);
-}
 
 /* 0x0042af20 */
 extern GEO_tdstGeometricObject *GLI_hGetVisualSetGeometricForADistance(GEO_tdstVisualSet *p_stVSE, MTH_tdxReal xThreshold);
@@ -521,14 +272,69 @@ ACP_tdxIndex __cdecl MOR_fn_xMorphing(HIE_tdstSuperObject *_hActorSuperObject,
     return xMorphListIndex;
 }
 
-void __cdecl MOR_fn_vDoMorph(short _xIndex)
+void __cdecl MOR_fn_vMorphTo(MOR_tdstMorphStruct *mp)
 {
-    MOR_fn_vMorphTo(&MorphList[_xIndex]);
+    float                  xRatio;
+    long                   j, k;
+    MS_tdxHandleTo3dData   h_3dData;
+    tdstObjectsTablesList *h_ObjTbl;
+    PO_tdstPhysicalObject *phy1, *phy2, *phy3;
+    GEO_tdstVisualSet     *geo1, *geo2, *geo3;
+
+    xRatio = (float)mp->iCurrent;
+    xRatio = xRatio / (float)mp->iNbMillisecond;
+    if (xRatio <= 1.0f)
+    {
+        if (xRatio < 0.0f)
+            xRatio = 0.0f;
+    }
+    else
+    {
+        xRatio = 1.0f;
+    }
+
+    h_3dData = M_GetMSHandle(mp->hActorSuperObject, 3dData);
+    h_ObjTbl = fn_h3dDataGetCurrentObjectsTable(h_3dData);
+    phy1 = (PO_tdstPhysicalObject *)h_ObjTbl->d_stObjectsTable[mp->xStartIndexInObjectTable].h_Target;
+    phy3 = (PO_tdstPhysicalObject *)mp->p_stMorphPO;
+    phy2 = (PO_tdstPhysicalObject *)h_ObjTbl->d_stObjectsTable[mp->xEndIndexInObjectTable].h_Target;
+    geo1 = phy1->_hVisualSet;
+    geo2 = phy2->_hVisualSet;
+    geo3 = phy3->_hVisualSet;
+
+    for (j = 0; j < GLI_lGetVisualSetNumbertOfLOD(geo1); j++)
+    {
+        GEO_tdstGeometricObject *e1 = geo1->d_p_stLodDefinitions[j];
+        GEO_tdstGeometricObject *e2 = geo2->d_p_stLodDefinitions[j];
+        GEO_tdstGeometricObject *e3 = geo3->d_p_stLodDefinitions[j];
+        short nbPoints = (short)e3->xNbPoints;
+
+        for (k = 0; k < nbPoints; k++)
+        {
+            MTH3D_tdstVector *p1 = &e1->d_stListOfPoints[k];
+            MTH3D_tdstVector *p2 = &e2->d_stListOfPoints[k];
+            MTH3D_tdstVector *p3 = &e3->d_stListOfPoints[k];
+            p3->xX = (p2->xX - p1->xX) * xRatio + p1->xX;
+            p3->xY = (p2->xY - p1->xY) * xRatio + p1->xY;
+            p3->xZ = p1->xZ + (p2->xZ - p1->xZ) * xRatio;
+        }
+
+        GEO_vEndModifyObject2(e3);
+    }
 }
 
-void *__cdecl MOR_fn_hGetMorphedObject(short _xIndex)
+void __cdecl MOR_fn_vCleanMorphTask(MOR_tdstMorphStruct *mp)
 {
-    return MorphList[_xIndex].p_stMorphPO;
+    int   i;
+    int  *p;
+
+    if (mp->bInUse != FALSE)
+    {
+        p = (int *)mp;
+        for (i = 0xc; i != 0; i--)
+            *p++ = 0;
+        mp->bInUse = FALSE;
+    }
 }
 
 void __cdecl GEO_fn_vMorphAddInMainLoop(void)
@@ -605,4 +411,198 @@ void __cdecl GEO_fn_vMorphAddInMainLoop(void)
             break;
         }
     }
+}
+
+void __cdecl MOR_pc_fn_vCleanAllMorphTasks(void)
+{
+    short i;
+
+    for (i = 0; (int)i <= MaxMorphTask; i++)
+        if (*((unsigned char *)MorphList + (int)i * 0x30) != 0)
+            MOR_fn_vCleanMorphTask((MOR_tdstMorphStruct *)((char *)MorphList + (int)i * 0x30));
+}
+
+/* 0x0045dc60 */
+ACP_tdxBool __cdecl MOR_fn_bIsChannelMorphed(HIE_tdstSuperObject *_hActorSuperObject,
+                                             unsigned short _xChannelIndex)
+{
+    short                 i;
+    MOR_tdstMorphStruct  *mp;
+
+    for (i = 0; i <= MaxMorphTask; i++)
+    {
+        mp = MorphList + i;
+
+        if (mp->bInUse
+            && mp->hActorSuperObject == _hActorSuperObject
+            && mp->xChannelIndex == _xChannelIndex)
+        {
+
+            if ((mp->ucMorphType == 2 || mp->ucMorphType == 1) && mp->iCurrent >= mp->iEnd)
+                return FALSE;
+            else
+                return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+void __cdecl MOR_fn_vRemoveAllMorphedObjects(void)
+{
+    short i;
+    MOR_tdstMorphStruct *mp;
+
+    for (i = 0; (int)i <= MaxMorphTask; i++) {
+        mp = MorphList + i;
+        if (mp->bInUse != 0) {
+            MOR_fn_bRemoveMorphedObjectFromHierarchy(mp->hActorSuperObject,
+                                                     mp->p_stMorphPO,
+                                                     mp->hOriginalPhysicalObject);
+
+            if (((struct tdstEngineObject_ *)mp->hActorSuperObject->hLinkedObject.p_Void)->h_StandardGame) {
+                fn_vRemoveChannelFromMorphList(
+                    ((MS_tdxHandleTo3dData)((struct tdstEngineObject_ *)mp->hActorSuperObject->hLinkedObject.p_Void)->h_3dData)->hMorphChannelList,
+                    (unsigned short)mp->xChannelIndex);
+            }
+            MOR_fn_vDeletePhysicalObject(mp->p_stMorphPO);
+            MOR_fn_vCleanMorphTask(mp);
+        }
+    }
+    MaxMorphTask = -1;
+}
+
+unsigned char __cdecl MOR_fn_bRemoveMorphedObjectFromHierarchy(
+    HIE_tdstSuperObject *hSuperObject, void *p_stPhysicalObjectToRemove,
+    void *p_stPhysicalObjectToPut)
+{
+    HIE_tdstSuperObject *hChildSuperObject;
+
+    if (HIE_fn_hGetSuperObjectObject(hSuperObject) == p_stPhysicalObjectToRemove)
+    {
+        MOR_pc_vSetSuperObjectObjectAndType(hSuperObject, p_stPhysicalObjectToPut, HIE_C_ulPO);
+        return TRUE;
+    }
+
+    for (hChildSuperObject = hSuperObject->p_stFirstChild;
+         hChildSuperObject != NULL;
+         hChildSuperObject = hChildSuperObject->p_stNextBrother)
+    {
+        if (MOR_fn_bRemoveMorphedObjectFromHierarchy(hChildSuperObject,
+                p_stPhysicalObjectToRemove, p_stPhysicalObjectToPut))
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+void *__cdecl MOR_fn_hGetMorphedObject(short _xIndex)
+{
+    return MorphList[_xIndex].p_stMorphPO;
+}
+
+void __cdecl MOR_fn_vDoMorph(short _xIndex)
+{
+    MOR_fn_vMorphTo(&MorphList[_xIndex]);
+}
+
+void *__cdecl MOR_fn_xCopyGeometricObjectForMorph(GEO_tdstGeometricObject *_pGeometricObjectToCopy)
+{
+    /* 0x444470 */
+    static const unsigned long aulElementSize[10] =
+        { 0, 0x20, 0x10, 0xc, 0x1c, 0x10, 0x14, 8, 8, 0xc };
+    GEO_tdstGeometricObject *pNew;
+    short xNbPoints   = (short)_pGeometricObjectToCopy->xNbPoints;
+    short xNbElements = (short)_pGeometricObjectToCopy->xNbElements;
+    short i;
+
+    GEO_vCreateTMPGeometricObject((ACP_tdxHandleOfObject *)&pNew, xNbPoints, xNbElements);
+    if (pNew == NULL)
+        return NULL;
+
+    memcpy(pNew->d_stListOfPoints, _pGeometricObjectToCopy->d_stListOfPoints,
+           (size_t)xNbPoints * sizeof(MTH3D_tdstVector));
+    memcpy(pNew->d_stListOfPointsNormals, _pGeometricObjectToCopy->d_stListOfPointsNormals,
+           (size_t)xNbPoints * sizeof(MTH3D_tdstVector));
+    memcpy(pNew->d_xListOfElementsTypes, _pGeometricObjectToCopy->d_xListOfElementsTypes,
+           (size_t)xNbElements * sizeof(ACP_tdxIndex));
+
+#define MOR_M_CopyElement(_type) \
+        pNew->d_stListOfElements[i] = GLI_pc_fn_p_vAlloc(sizeof(_type)); \
+        if (pNew->d_stListOfElements[i] == NULL) \
+            return NULL; \
+        pNew->d_xListOfElementsTypes[i] = _pGeometricObjectToCopy->d_xListOfElementsTypes[i]; \
+        *(_type *)pNew->d_stListOfElements[i] = *(_type *)_pGeometricObjectToCopy->d_stListOfElements[i]
+    for (i = 0; i < xNbElements; i++)
+    {
+        /* 0x444470 */
+        switch (_pGeometricObjectToCopy->d_xListOfElementsTypes[i])
+        {
+        case GEO_C_xElementPoints:
+            MOR_M_CopyElement(GEO_tdstElementPoints);
+            break;
+        case GEO_C_xElementLines:
+            MOR_M_CopyElement(GEO_tdstElementLines);
+            break;
+        case GEO_C_xElementFaceMapDescriptors:
+            MOR_M_CopyElement(GEO_tdstElementFaceMapDescriptors);
+            break;
+        case GEO_C_xElementSprites:
+            MOR_M_CopyElement(GEO_tdstElementSprite);
+            break;
+        case GEO_C_xElementSpheres:
+        case GEO_C_xElementAlignedBoxes:
+            MOR_M_CopyElement(GEO_tdstElementSpheres);
+            break;
+        case GEO_C_xElementCones:
+
+            MOR_M_CopyElement(MOR_pc_tdstElementCones12);
+            break;
+        case GEO_C_xElementTMeshes:
+            MOR_M_CopyElement(GEO_tdstElementTMeshes);
+            break;
+        case GEO_C_xElementIndexedTriangles:
+            MOR_M_CopyElement(GEO_tdstElementIndexedTriangles);
+            break;
+        case GEO_C_xElementNULL:
+            break;
+        }
+    }
+#undef MOR_M_CopyElement
+
+    return pNew;
+}
+
+void __cdecl MOR_fn_vDeleteGeometricObject(void *_ppGeometricObject)
+{
+    GEO_tdstGeometricObject **ppGeo = (GEO_tdstGeometricObject **)_ppGeometricObject;
+    GEO_tdstGeometricObject  *pGeo  = *ppGeo;
+    short i;
+
+    /* 0x444544 */
+    for (i = 0; i < pGeo->xNbElements; i++)
+    {
+        short xType = (short)pGeo->d_xListOfElementsTypes[i];
+
+        if (xType >= 1 && xType <= 9)
+            TMP_fn_vFree(&pGeo->d_stListOfElements[i]);
+    }
+
+    TMP_fn_vFree(&pGeo->d_stListOfPoints);
+    TMP_fn_vFree(&pGeo->d_stListOfPointsNormals);
+    TMP_fn_vFree(&pGeo->d_xListOfElementsTypes);
+    TMP_fn_vFree(&pGeo->d_stListOfElements);
+    TMP_fn_vFree(ppGeo);
+}
+
+void __cdecl MOR_fn_vDeletePhysicalObject(void *_pPhysicalObject)
+{
+    short i;
+
+    for (i = 0; i < MOR_M_PO_VISUALSET(_pPhysicalObject)->xNbLodDefinitions; i++)
+        MOR_fn_vDeleteGeometricObject(&MOR_M_PO_VISUALSET(_pPhysicalObject)->d_p_stLodDefinitions[i]);
+
+    TMP_fn_vFree(&MOR_M_PO_VISUALSET(_pPhysicalObject)->d_xThresholdsTable);
+    TMP_fn_vFree(&MOR_M_PO_VISUALSET(_pPhysicalObject)->d_p_stLodDefinitions);
+    TMP_fn_vFree(&((PO_tdstPhysicalObject *)_pPhysicalObject)->_hVisualSet);
+    TMP_fn_vFree(&_pPhysicalObject);
 }

@@ -49,416 +49,23 @@ void __cdecl MGT_pc_fn_vBlendPointDisplacementByRatio(unsigned long ulUnused, sh
 unsigned char __cdecl fn_bMSMagnetIsStrengthModified(void *h_MSMagnet);     /* 0x00415370 */
 unsigned char __cdecl fn_bMSMagnetIsPositionModified(void *h_MSMagnet);     /* 0x004153A0 */
 
-/* 0x00415340 */
-ACP_tdxBool fn_bMSMagnetIsNearFarModified(MS_tdxHandleToMSMagnet h_MSMagnet)
-{
-
-	return (unsigned char)( h_MSMagnet->ucModifiedFlags & MAGNET_NEARFAR_MODIFIED ? TRUE : FALSE );
-}
-/* 0x00415380 */
-void fn_vMSMagnetSetPositionModification(MS_tdxHandleToMSMagnet h_MSMagnet,ACP_tdxBool _bModified)
-{
-	if( _bModified )
-		h_MSMagnet->ucModifiedFlags |= MAGNET_POSITION_MODIFIED;
-	else
-		h_MSMagnet->ucModifiedFlags &= ~MAGNET_POSITION_MODIFIED;
-}
-/* 0x004152C0 */
-MGT_tdstMagnetModification *fn_hMSMagnetGetMagnetModification(MS_tdxHandleToMSMagnet h_MSMagnet, ACP_tdxIndex xIndex )
-{
-	return h_MSMagnet -> d_hMagnetModification[ xIndex ];
-}
-/* 0x004152D0 */
-MTH3D_tdstVector * fn_hMSMagnetGetPosition(MS_tdxHandleToMSMagnet h_MSMagnet)
-{
-	return(&(h_MSMagnet->stPosition));
-}
-/* 0x004152E0 */
-void fn_vMSMagnetSetPosition(MS_tdxHandleToMSMagnet h_MSMagnet,MTH3D_tdstVector *stPosition)
-{
-	MTH3D_M_vCopyVector(&(h_MSMagnet->stPosition), stPosition);
-}
-
-/* 0x00440CF0 */
-void __cdecl MGT_fn_vReleaseAllEmptyModifiedObjects(void)
-{
-    short                    sIdx     = 0;
-    MGT_tdstModifiedObject **pp_stObj = g_aModifiedObjects;
-
-    if (0 < g_lNbPendingMagnets) {
-        do {
-            if (*pp_stObj != 0)
-                MGT_fn_vReleasePendingIfEmpty(sIdx);
-            sIdx = (short)(sIdx + 1);
-            pp_stObj++;
-        } while ((short)sIdx < g_lNbPendingMagnets);
-    }
-}
-
-/* 0x00441740 */
-void __cdecl MGT_fn_vClearTargetModificationsInfluencedBits(int p_target, ACP_tdxBool bFlag)
-{
-    short sSlot = 0;
-    do {
-        MGT_tdstMagnetModification *p_stMod = fn_hMSMagnetGetMagnetModification((MS_tdxHandleToMSMagnet)p_target, sSlot);
-        if (p_stMod != (MGT_tdstMagnetModification *)0)
-            MGT_fn_vClearSubBitmapB(p_stMod);
-        sSlot = (short)(sSlot + 1);
-    } while (sSlot < 0x14);
-}
-
-/* 0x00441770 */
-void __cdecl MGT_fn_vSetTargetModificationsUsed(int p_target, ACP_tdxBool bUsed)
-{
-    short sSlot = 0;
-    do {
-        MGT_tdstMagnetModification *p_stMod = fn_hMSMagnetGetMagnetModification((MS_tdxHandleToMSMagnet)p_target, sSlot);
-        if (p_stMod != (MGT_tdstMagnetModification *)0)
-            p_stMod->bUsed = bUsed;
-        sSlot = (short)(sSlot + 1);
-    } while (sSlot < 0x14);
-}
-
-/* 0x00440C60 */
-void __cdecl MGT_pc_fn_vClearActiveMagnet(short sMagnetIdx)
-{
-    short sCount;
-
-    sCount = g_lNbActiveMagnets;
-    g_aActiveMagnets[sMagnetIdx] = (int *)0;
-    if ((int)sMagnetIdx == (int)sCount - 1) {
-        g_lNbActiveMagnets = (short)(g_lNbActiveMagnets - 1);
-    }
-}
-
-/* 0x00441F00 */
-short __cdecl MGT_pc_fn_sFindModifiedObjectSlot(void *p_stGeo)
-{
-    short sIdx;
-    MGT_tdstModifiedObject **ppObj;
-
-    sIdx = 0;
-    ppObj = g_aModifiedObjects;
-    if (0 < g_lNbPendingMagnets) {
-        do {
-            if (*ppObj != (MGT_tdstModifiedObject *)0 &&
-                *(void **)*ppObj == p_stGeo) {
-                return sIdx;
-            }
-            sIdx++;
-            ppObj++;
-        } while (sIdx < g_lNbPendingMagnets);
-    }
-    return -1;
-}
-
-/* 0x00441F80 */
-void __cdecl MGT_pc_fn_vClearModifiedObjectBitmap(MGT_tdstModifiedObject *p_stObj)
-{
-#define MGT_pc_M_xNbPointsOfMorphed(p_stObj) ((p_stObj)->p_stMorphedObject->xNbPoints)
-    memset(p_stObj->d_cFieldBitsAlreadyInfluencedPoints, 0,
-           ((MGT_pc_M_xNbPointsOfMorphed(p_stObj) & 7) != 0) + (MGT_pc_M_xNbPointsOfMorphed(p_stObj) >> 3));
-#undef MGT_pc_M_xNbPointsOfMorphed
-}
-
-/* 0x00441E20 */
-short __cdecl MGT_pc_fn_sAllocModifiedObject(void *p_stGeo)
-{
-    MGT_tdstModifiedObject *pObj;
-    GEO_tdstGeometricObject *pbGeo;
-    short                   sCount;
-    short                   sIdx;
-    MGT_tdstModifiedObject **pp_stSlot;
-
-#define MGT_pc_M_xNbPointsOfGeo(pbGeo) ((pbGeo)->xNbPoints)
-    pbGeo = (GEO_tdstGeometricObject *)p_stGeo;
-    pObj = (MGT_tdstModifiedObject *)GLI_pc_fn_p_vAlloc(0x28);
-    pObj->p_stMorphedObject = (struct GEO_tdstGeometricObject_ *)p_stGeo;
-    pObj->aDEF_hMagnet[0] = (MGT_tdstMagnetModification *)0;
-    pObj->aDEF_hMagnet[1] = (MGT_tdstMagnetModification *)0;
-    pObj->aDEF_hMagnet[2] = (MGT_tdstMagnetModification *)0;
-    pObj->aDEF_hMagnet[3] = (MGT_tdstMagnetModification *)0;
-    pObj->aDEF_hMagnet[4] = (MGT_tdstMagnetModification *)0;
-
-    pObj->d_cFieldBitsAlreadyInfluencedPoints = (char *)GLI_pc_fn_p_vAlloc(
-        (unsigned int)((int)MGT_pc_M_xNbPointsOfGeo(pbGeo) >> 3) +
-        (unsigned int)(((unsigned short)MGT_pc_M_xNbPointsOfGeo(pbGeo) & 7) != 0));
-    MGT_pc_fn_vClearModifiedObjectBitmap(pObj);
-
-    pObj->d_stOriginalPosition = (struct MTH3D_tdstVector_ *)GLI_pc_fn_p_vAlloc(
-        MGT_pc_M_xNbPointsOfGeo(pbGeo) * 0x0C);
-    memcpy(pObj->d_stOriginalPosition, pbGeo->d_stListOfPoints, MGT_pc_M_xNbPointsOfGeo(pbGeo) * 0x0C);
-#undef MGT_pc_M_xNbPointsOfGeo
-
-    pObj->p_stOctree = (struct COL_tdstOctree_ *)pbGeo->p_stOctree;
-    pbGeo->p_stOctree = NULL;
-    pObj->h_SuperObject = (struct HIE_tdstSuperObject *)0;
-
-    sCount = g_lNbPendingMagnets;
-    pp_stSlot = g_aModifiedObjects;
-    for (sIdx = 0; sIdx < sCount; sIdx++, pp_stSlot++) {
-        if (*pp_stSlot == (MGT_tdstModifiedObject *)0) {
-            *pp_stSlot = pObj;
-            return sIdx;
-        }
-    }
-    if (sCount < 0x14) {
-        sCount++;
-        *pp_stSlot = pObj;
-        g_lNbPendingMagnets = sCount;
-        return sIdx;
-    }
-    return -1;
-}
-
-/* 0x004413F0 */
-void __cdecl MGT_pc_fn_vClearMagnetModificationTree(int p_stSuper)
-{
-    int iChild;
-
-    HIE_fn_vSetMagnetModification((struct HIE_tdstSuperObject *)p_stSuper, 0);
-    for (iChild = (int)((struct HIE_tdstSuperObject *)p_stSuper)->p_stFirstChild; iChild != 0;
-         iChild = (int)((struct HIE_tdstSuperObject *)iChild)->p_stNextBrother) {
-        MGT_pc_fn_vClearMagnetModificationTree(iChild);
-    }
-}
-
-/* 0x00441630 */
-unsigned char __cdecl MGT_pc_fn_ucMarkInfluencedPoints(short sSubTag, float fRadiusSq,
-                                                       GEO_tdstGeometricObject *p_stGeo,
-                                                       short *psModIdx, float *p_stPos,
-                                                       struct HIE_tdstSuperObject *h_SuperObject)
-{
-    unsigned char               ucResult = 0;
-    MGT_tdstMagnetModification *p_stMod  = (MGT_tdstMagnetModification *)0;
-    short                       sPt      = 0;
-    float                      *p_stVert;
-    float                       aDelta[3];
-    double                      dDist;   /* 0x441630 */
-    unsigned char               ucBit;
-
-    if (0 < p_stGeo->xNbPoints) {
-        p_stVert = (float *)p_stGeo->d_stListOfPoints;
-        do {
-            aDelta[0] = p_stPos[0] - p_stVert[0];
-            aDelta[1] = p_stPos[1] - p_stVert[1];
-            aDelta[2] = p_stPos[2] - p_stVert[2];
-            dDist = (double)aDelta[0] * (double)aDelta[0];
-            if (dDist < (double)fRadiusSq) {
-                dDist = (double)aDelta[1] * (double)aDelta[1] + dDist;
-                if (dDist < (double)fRadiusSq) {
-                    dDist = (double)aDelta[2] * (double)aDelta[2] + dDist;
-                    if (dDist < (double)fRadiusSq) {
-                        if (p_stMod == (MGT_tdstMagnetModification *)0) {
-                            if (*psModIdx == -1)
-                                *psModIdx = MGT_pc_fn_sAllocModifiedObject(p_stGeo);
-                            p_stMod = MGT_pc_fn_p_stFindOrAllocMagnetModification(sSubTag, *psModIdx, p_stGeo);
-                            if (p_stMod != (MGT_tdstMagnetModification *)0) {
-                                p_stMod->h_SuperObject = h_SuperObject;
-                                p_stMod->bUsed = 1;
-                                ucResult = 1;
-                            }
-                        }
-                        if (p_stMod != (MGT_tdstMagnetModification *)0) {
-                            ucBit = (unsigned char)(1 << (sPt & 7));
-                            ((unsigned char *)p_stMod->d_cFieldBitsModifiedPoints)[sPt >> 3] |= ucBit;
-                            ((unsigned char *)p_stMod->d_cFieldBitsInfluencedPoints)[sPt >> 3] |= ucBit;
-                        }
-                    }
-                }
-            }
-            sPt++;
-            p_stVert += 3;
-        } while (sPt < p_stGeo->xNbPoints);
-    }
-    return ucResult;
-}
-
-/* 0x004411B0 */
-unsigned char __cdecl MGT_pc_fn_ucTreatMagnetTree(MS_tdxHandleToMSMagnet p_stTarget, int iSubTag,
-                                                  float fRadiusSq, struct HIE_tdstSuperObject *p_stSuper)
-{
-    unsigned char   ucResult = 0;
-    unsigned char   ucModified = 0;
-    unsigned char   bGo = 1;
-    unsigned char   ucFlags;
-    POS_tdstCompletePosition *p_stMatrix;
-    struct HIE_tdstSuperObject *p_stChild;
-    POS_tdstCompletePosition stInv;
-    MTH3D_tdstVector *p_stOffset;
-    GEO_tdxHandleToBoundingSphere hSphere;
-    GEO_tdxHandleToParallelBox hBox;
-    MTH3D_tdstVector *p_stPos;
-    MTH3D_tdstVector stLocalPos;
-    MTH3D_tdstVector stCenter;
-    MTH3D_tdstVector stBoxMin;
-    MTH3D_tdstVector stBoxMax;
-    float           fFar;
-    float           fRadius;
-    void           *p_stGeo;
-    short           sModIdx;
-
-    p_stGeo = HIE_fn_p_stGetGeometricObjectFromSuperObject(p_stSuper);
-    if (p_stGeo != (void *)0) {
-        ucFlags = (unsigned char)p_stSuper->ulFlags;
-        sModIdx = MGT_pc_fn_sFindModifiedObjectSlot(p_stGeo);
-        p_stMatrix = (POS_tdstCompletePosition *)p_stSuper->hGlobalMatrix;
-        p_stOffset = fn_hMSMagnetGetPosition(p_stTarget);
-        if ((ucFlags & HIE_C_Flag_ulTypeOfBoundingVolume) == 0) {
-            POS_fn_vInvertMatrix(&stInv, p_stMatrix);
-            POS_fn_vMulMatrixVertex(&stLocalPos, &stInv, p_stOffset);
-            hSphere = (GEO_tdxHandleToBoundingSphere)p_stSuper->hBoundingVolume;
-            if (hSphere != NULL) {
-                MTH3D_M_vCopyVector(&stCenter, &hSphere->stCenterPoint);
-                fRadius = hSphere->xRadius;
-                fFar = fn_xMSMagnetGetFar(p_stTarget);
-                bGo = (unsigned char)INT_fn_bIntersectSphereWithSphere(
-                          &stLocalPos, fFar, &stCenter, fRadius);
-            }
-        } else {
-            hBox = (GEO_tdxHandleToParallelBox)p_stSuper->hBoundingVolume;
-            if (hBox != NULL) {
-                p_stPos = &p_stMatrix->stTranslationVector;
-                MTH3D_M_vAddVector(&stBoxMin, p_stPos, &hBox->stMinPoint);
-                MTH3D_M_vAddVector(&stBoxMax, p_stPos, &hBox->stMaxPoint);
-                fFar = fn_xMSMagnetGetFar(p_stTarget);
-                bGo = (unsigned char)INT_fn_bIntersectSphereWithBox(
-                          p_stOffset, fFar, &stBoxMin, &stBoxMax);
-            }
-            if (bGo != 0) {
-                POS_fn_vInvertMatrix(&stInv, p_stMatrix);
-                POS_fn_vMulMatrixVertex(&stLocalPos, &stInv, p_stOffset);
-            }
-        }
-
-        if (bGo != 0) {
-            ucModified = MGT_pc_fn_ucMarkInfluencedPoints((short)iSubTag, fRadiusSq,
-                                                          (GEO_tdstGeometricObject *)p_stGeo,
-                                                          &sModIdx, (float *)&stLocalPos,
-                                                          p_stSuper);
-            if (ucModified != 0)
-                HIE_fn_vSetMagnetModification(p_stSuper, 1);
-        }
-        if (sModIdx != -1 && ucModified == 0 && fn_lMSMagnetGetStatus(p_stTarget) == 3)
-            MGT_fn_vDestroySubByTag(sModIdx, (short)iSubTag);
-        ucResult = ucModified;
-    }
-
-    if (bGo != 0) {
-        p_stChild = p_stSuper->p_stFirstChild;
-        if (p_stChild != (struct HIE_tdstSuperObject *)0) {
-            do {
-                ucResult = (unsigned char)(ucResult | MGT_pc_fn_ucTreatMagnetTree(p_stTarget, iSubTag,
-                                                                                  fRadiusSq, p_stChild));
-                p_stChild = p_stChild->p_stNextBrother;
-            } while (p_stChild != (struct HIE_tdstSuperObject *)0);
-        }
-    }
-    HIE_fn_vSetMagnetModification(p_stSuper, ucResult);
-    return ucResult;
-}
-
-/* 0x00441010 */
-void __cdecl MGT_pc_fn_vResetPendingBitmapsAndUsed(void)
-{
-    short                    sIdx = 0;
-    int                      iMag;
-    MGT_tdstModifiedObject **pp_stObj = g_aModifiedObjects;
-    MGT_tdstMagnetModification **pp_stMag;
-
-    if (0 < g_lNbPendingMagnets) {
-        do {
-            if (*pp_stObj != (MGT_tdstModifiedObject *)0) {
-                MGT_pc_fn_vClearModifiedObjectBitmap(*pp_stObj);
-                pp_stMag = (*pp_stObj)->aDEF_hMagnet;
-                for (iMag = MGT_MAX_NUMBEROF_MAGNETS; iMag != 0; iMag--) {
-                    if (*pp_stMag != (MGT_tdstMagnetModification *)0)
-                        (*pp_stMag)->bUsed = 0;
-                    pp_stMag++;
-                }
-            }
-            sIdx = (short)(sIdx + 1);
-            pp_stObj++;
-        } while (sIdx < g_lNbPendingMagnets);
-    }
-}
-
-/* 0x00441060 */
-void __cdecl MGT_pc_fn_vDestroyUnusedPendingModifs(void)
-{
-    short                       sIdx = 0;
-    short                       sMag;
-    MGT_tdstModifiedObject    **pp_stObj = g_aModifiedObjects;
-    MGT_tdstMagnetModification *p_stMod;
-    MGT_tdstMagnetModification **pp_stMag;
-
-    if (0 < g_lNbPendingMagnets) {
-        do {
-            if (*pp_stObj != (MGT_tdstModifiedObject *)0) {
-                MGT_pc_fn_vClearModifiedObjectBitmap(*pp_stObj);
-                sMag = 0;
-                pp_stMag = (*pp_stObj)->aDEF_hMagnet;
-                do {
-                    p_stMod = *pp_stMag;
-                    if (p_stMod != (MGT_tdstMagnetModification *)0) {
-                        if (p_stMod->bUsed != 0)
-                            break;
-                        MGT_pc_fn_vDestroyMagnetModification(p_stMod);
-                    }
-                    sMag = (short)(sMag + 1);
-                    pp_stMag++;
-                } while (sMag < MGT_MAX_NUMBEROF_MAGNETS);
-                if (sMag == MGT_MAX_NUMBEROF_MAGNETS)
-                    MGT_fn_vReleasePendingIfEmpty(sIdx);
-            }
-            sIdx = (short)(sIdx + 1);
-            pp_stObj++;
-        } while (sIdx < g_lNbPendingMagnets);
-    }
-}
-
 #include "SCT/Sector.h"
-void __cdecl MGT_pc_fn_vUpdateMagnetTarget(int iMagnet, MS_tdxHandleToMSMagnet p_stTarget, int iSlot)
-{
-    float           fFar, fFarSq;
-    struct HIE_tdstSuperObject *p_stSector;
-    SECT_tdxHandleOfElementLstCollisionInteraction hCollisionNode;
-    short           sSlot;
-    int             iCount;
-    long            lCount;
 
-    MGT_fn_vClearTargetModificationsInfluencedBits((int)p_stTarget, 1);
-    MGT_fn_vSetTargetModificationsUsed((int)p_stTarget, 0);
-    fFar = fn_xMSMagnetGetFar(p_stTarget);
-    fFarSq = MTH_M_xSqr(fFar);
-    MGT_pc_fn_vClearMagnetModificationTree((int)SECT_hFatherSector);
+unsigned char __cdecl HIE_fn_bGetMagnetModification(struct HIE_tdstSuperObject *_hSprObj);
+void __cdecl GEO_pc_fn_vExtendBoxWithPointsAndSprites(int *p_iObj, unsigned int *p_uMatrix,
+                                                     float *p_xMax, float *p_xMin);
 
-    p_stSector = (struct HIE_tdstSuperObject *)fn_h_SectInfoGetCurrentSector(
-                  ((struct tdstEngineObject_ *)((struct HIE_tdstSuperObject *)iMagnet)->hLinkedObject.p_Void)->h_SectInfo);
-    MGT_pc_fn_ucTreatMagnetTree(p_stTarget, iSlot, fFarSq, p_stSector);
+MGT_tdstMagnetModification *fn_hMSMagnetGetMagnetModification(MS_tdxHandleToMSMagnet h_MSMagnet, ACP_tdxIndex xIndex );
 
-    lCount         = SECT_fn_iGetNumberOfNodesInCollisionList(p_stSector);
-    hCollisionNode = SECT_fn_hGetFirstCollisionNodeInCollisionList(p_stSector);
-    sSlot          = (short)lCount;
-    if (0 < sSlot) {
-        iCount = (int)sSlot;
-        do {
-            MGT_pc_fn_ucTreatMagnetTree(p_stTarget, iSlot, fFarSq,
-                                        SECT_GetSectorInCollisionList(hCollisionNode));
-            hCollisionNode = SECT_fn_hGetNextCollisionNodeInCollisionList(hCollisionNode);
-            iCount--;
-        } while (iCount != 0);
-    }
-    sSlot = 0;
-    while (sSlot < 0x14 && fn_hMSMagnetGetMagnetModification(p_stTarget, sSlot) == (MGT_tdstMagnetModification *)0)
-        sSlot = (short)(sSlot + 1);
-    if (sSlot == 0x14) {
-        if (fn_lMSMagnetGetStatus(p_stTarget) == 3) {
-            fn_vMSMagnetSetStatus(p_stTarget, 0);
-            MGT_pc_fn_vClearActiveMagnet((short)iSlot);
-        }
-    }
-}
+MTH3D_tdstVector * fn_hMSMagnetGetPosition(MS_tdxHandleToMSMagnet h_MSMagnet);
+
+void fn_vMSMagnetSetPosition(MS_tdxHandleToMSMagnet h_MSMagnet,MTH3D_tdstVector *stPosition);
+
+ACP_tdxBool fn_bMSMagnetIsNearFarModified(MS_tdxHandleToMSMagnet h_MSMagnet);
+
+void fn_vMSMagnetSetPositionModification(MS_tdxHandleToMSMagnet h_MSMagnet,ACP_tdxBool _bModified);
+
+void __cdecl MGT_pc_fn_vUpdateMagnetTarget(int iMagnet, MS_tdxHandleToMSMagnet p_stTarget, int iSlot);
 
 /* 0x00440B50 */
 void __cdecl MGT_fn_vAddObjectToMagnetList(struct HIE_tdstSuperObject *p_stObject)
@@ -516,6 +123,57 @@ void __cdecl MGT_fn_vDeleteObjectFromMagnetList(struct HIE_tdstSuperObject *p_st
     }
 }
 
+/* 0x00440C60 */
+void __cdecl MGT_pc_fn_vClearActiveMagnet(short sMagnetIdx)
+{
+    short sCount;
+
+    sCount = g_lNbActiveMagnets;
+    g_aActiveMagnets[sMagnetIdx] = (int *)0;
+    if ((int)sMagnetIdx == (int)sCount - 1) {
+        g_lNbActiveMagnets = (short)(g_lNbActiveMagnets - 1);
+    }
+}
+
+/* 0x00440C90 */
+void __cdecl MGT_pc_fn_vReleaseActiveMagnetIfEmpty(short sMagnetIdx)
+{
+    int           iTarget;
+    short         sSlot;
+    unsigned char ucStatus;
+
+    iTarget = (int)M_GetMSHandle((HIE_tdstSuperObject *)g_aActiveMagnets[sMagnetIdx], MSMagnet);
+    if (iTarget != 0) {
+        for (sSlot = 0; sSlot < 0x14; sSlot++) {
+            if (fn_hMSMagnetGetMagnetModification((MS_tdxHandleToMSMagnet)iTarget, sSlot) != (MGT_tdstMagnetModification *)0)
+                break;
+        }
+        if (sSlot != 0x14)
+            return;
+        ucStatus = fn_lMSMagnetGetStatus((void *)iTarget);
+        if (ucStatus != 3)
+            return;
+        fn_vMSMagnetSetStatus((void *)iTarget, 0);
+    }
+    MGT_pc_fn_vClearActiveMagnet(sMagnetIdx);
+}
+
+/* 0x00440CF0 */
+void __cdecl MGT_fn_vReleaseAllEmptyModifiedObjects(void)
+{
+    short                    sIdx     = 0;
+    MGT_tdstModifiedObject **pp_stObj = g_aModifiedObjects;
+
+    if (0 < g_lNbPendingMagnets) {
+        do {
+            if (*pp_stObj != 0)
+                MGT_fn_vReleasePendingIfEmpty(sIdx);
+            sIdx = (short)(sIdx + 1);
+            pp_stObj++;
+        } while ((short)sIdx < g_lNbPendingMagnets);
+    }
+}
+
 /* 0x00440D20 */
 void __cdecl MGT_pc_fn_vReleaseActiveMagnetsClearMods(void)
 {
@@ -540,6 +198,9 @@ void __cdecl MGT_pc_fn_vReleaseActiveMagnetsClearMods(void)
         } while (sIdx < g_lNbActiveMagnets);
     }
 }
+
+void __cdecl MGT_fn_vClearTargetModificationsInfluencedBits(int p_target, ACP_tdxBool bFlag);
+void __cdecl MGT_fn_vSetTargetModificationsUsed(int p_target, ACP_tdxBool bUsed);
 
 /* 0x00440D80 */
 void __cdecl MGT_fn_vTreatMagnets(void)
@@ -679,27 +340,370 @@ void __cdecl MGT_fn_vTreatMagnets(void)
         MGT_pc_fn_vReleaseActiveMagnetsClearMods();
 }
 
-/* 0x00440C90 */
-void __cdecl MGT_pc_fn_vReleaseActiveMagnetIfEmpty(short sMagnetIdx)
+/* 0x00441010 */
+void __cdecl MGT_pc_fn_vResetPendingBitmapsAndUsed(void)
 {
-    int           iTarget;
-    short         sSlot;
-    unsigned char ucStatus;
+    short                    sIdx = 0;
+    int                      iMag;
+    MGT_tdstModifiedObject **pp_stObj = g_aModifiedObjects;
+    MGT_tdstMagnetModification **pp_stMag;
 
-    iTarget = (int)M_GetMSHandle((HIE_tdstSuperObject *)g_aActiveMagnets[sMagnetIdx], MSMagnet);
-    if (iTarget != 0) {
-        for (sSlot = 0; sSlot < 0x14; sSlot++) {
-            if (fn_hMSMagnetGetMagnetModification((MS_tdxHandleToMSMagnet)iTarget, sSlot) != (MGT_tdstMagnetModification *)0)
-                break;
-        }
-        if (sSlot != 0x14)
-            return;
-        ucStatus = fn_lMSMagnetGetStatus((void *)iTarget);
-        if (ucStatus != 3)
-            return;
-        fn_vMSMagnetSetStatus((void *)iTarget, 0);
+    if (0 < g_lNbPendingMagnets) {
+        do {
+            if (*pp_stObj != (MGT_tdstModifiedObject *)0) {
+                MGT_pc_fn_vClearModifiedObjectBitmap(*pp_stObj);
+                pp_stMag = (*pp_stObj)->aDEF_hMagnet;
+                for (iMag = MGT_MAX_NUMBEROF_MAGNETS; iMag != 0; iMag--) {
+                    if (*pp_stMag != (MGT_tdstMagnetModification *)0)
+                        (*pp_stMag)->bUsed = 0;
+                    pp_stMag++;
+                }
+            }
+            sIdx = (short)(sIdx + 1);
+            pp_stObj++;
+        } while (sIdx < g_lNbPendingMagnets);
     }
-    MGT_pc_fn_vClearActiveMagnet(sMagnetIdx);
+}
+
+/* 0x00441060 */
+void __cdecl MGT_pc_fn_vDestroyUnusedPendingModifs(void)
+{
+    short                       sIdx = 0;
+    short                       sMag;
+    MGT_tdstModifiedObject    **pp_stObj = g_aModifiedObjects;
+    MGT_tdstMagnetModification *p_stMod;
+    MGT_tdstMagnetModification **pp_stMag;
+
+    if (0 < g_lNbPendingMagnets) {
+        do {
+            if (*pp_stObj != (MGT_tdstModifiedObject *)0) {
+                MGT_pc_fn_vClearModifiedObjectBitmap(*pp_stObj);
+                sMag = 0;
+                pp_stMag = (*pp_stObj)->aDEF_hMagnet;
+                do {
+                    p_stMod = *pp_stMag;
+                    if (p_stMod != (MGT_tdstMagnetModification *)0) {
+                        if (p_stMod->bUsed != 0)
+                            break;
+                        MGT_pc_fn_vDestroyMagnetModification(p_stMod);
+                    }
+                    sMag = (short)(sMag + 1);
+                    pp_stMag++;
+                } while (sMag < MGT_MAX_NUMBEROF_MAGNETS);
+                if (sMag == MGT_MAX_NUMBEROF_MAGNETS)
+                    MGT_fn_vReleasePendingIfEmpty(sIdx);
+            }
+            sIdx = (short)(sIdx + 1);
+            pp_stObj++;
+        } while (sIdx < g_lNbPendingMagnets);
+    }
+}
+
+void __cdecl MGT_pc_fn_vClearMagnetModificationTree(int p_stSuper);
+unsigned char __cdecl MGT_pc_fn_ucTreatMagnetTree(MS_tdxHandleToMSMagnet p_stTarget, int iSubTag, float fRadiusSq, struct HIE_tdstSuperObject *p_stSuper);
+void __cdecl MGT_pc_fn_vUpdateMagnetTarget(int iMagnet, MS_tdxHandleToMSMagnet p_stTarget, int iSlot)
+{
+    float           fFar, fFarSq;
+    struct HIE_tdstSuperObject *p_stSector;
+    SECT_tdxHandleOfElementLstCollisionInteraction hCollisionNode;
+    short           sSlot;
+    int             iCount;
+    long            lCount;
+
+    MGT_fn_vClearTargetModificationsInfluencedBits((int)p_stTarget, 1);
+    MGT_fn_vSetTargetModificationsUsed((int)p_stTarget, 0);
+    fFar = fn_xMSMagnetGetFar(p_stTarget);
+    fFarSq = MTH_M_xSqr(fFar);
+    MGT_pc_fn_vClearMagnetModificationTree((int)SECT_hFatherSector);
+
+    p_stSector = (struct HIE_tdstSuperObject *)fn_h_SectInfoGetCurrentSector(
+                  ((struct tdstEngineObject_ *)((struct HIE_tdstSuperObject *)iMagnet)->hLinkedObject.p_Void)->h_SectInfo);
+    MGT_pc_fn_ucTreatMagnetTree(p_stTarget, iSlot, fFarSq, p_stSector);
+
+    lCount         = SECT_fn_iGetNumberOfNodesInCollisionList(p_stSector);
+    hCollisionNode = SECT_fn_hGetFirstCollisionNodeInCollisionList(p_stSector);
+    sSlot          = (short)lCount;
+    if (0 < sSlot) {
+        iCount = (int)sSlot;
+        do {
+            MGT_pc_fn_ucTreatMagnetTree(p_stTarget, iSlot, fFarSq,
+                                        SECT_GetSectorInCollisionList(hCollisionNode));
+            hCollisionNode = SECT_fn_hGetNextCollisionNodeInCollisionList(hCollisionNode);
+            iCount--;
+        } while (iCount != 0);
+    }
+    sSlot = 0;
+    while (sSlot < 0x14 && fn_hMSMagnetGetMagnetModification(p_stTarget, sSlot) == (MGT_tdstMagnetModification *)0)
+        sSlot = (short)(sSlot + 1);
+    if (sSlot == 0x14) {
+        if (fn_lMSMagnetGetStatus(p_stTarget) == 3) {
+            fn_vMSMagnetSetStatus(p_stTarget, 0);
+            MGT_pc_fn_vClearActiveMagnet((short)iSlot);
+        }
+    }
+}
+
+short __cdecl MGT_pc_fn_sFindModifiedObjectSlot(void *p_stGeo);
+unsigned char __cdecl MGT_pc_fn_ucMarkInfluencedPoints(short sSubTag, float fRadiusSq, GEO_tdstGeometricObject *p_stGeo, short *psModIdx, float *p_stPos, struct HIE_tdstSuperObject *h_SuperObject);
+
+/* 0x004411B0 */
+unsigned char __cdecl MGT_pc_fn_ucTreatMagnetTree(MS_tdxHandleToMSMagnet p_stTarget, int iSubTag,
+                                                  float fRadiusSq, struct HIE_tdstSuperObject *p_stSuper)
+{
+    unsigned char   ucResult = 0;
+    unsigned char   ucModified = 0;
+    unsigned char   bGo = 1;
+    unsigned char   ucFlags;
+    POS_tdstCompletePosition *p_stMatrix;
+    struct HIE_tdstSuperObject *p_stChild;
+    POS_tdstCompletePosition stInv;
+    MTH3D_tdstVector *p_stOffset;
+    GEO_tdxHandleToBoundingSphere hSphere;
+    GEO_tdxHandleToParallelBox hBox;
+    MTH3D_tdstVector *p_stPos;
+    MTH3D_tdstVector stLocalPos;
+    MTH3D_tdstVector stCenter;
+    MTH3D_tdstVector stBoxMin;
+    MTH3D_tdstVector stBoxMax;
+    float           fFar;
+    float           fRadius;
+    void           *p_stGeo;
+    short           sModIdx;
+
+    p_stGeo = HIE_fn_p_stGetGeometricObjectFromSuperObject(p_stSuper);
+    if (p_stGeo != (void *)0) {
+        ucFlags = (unsigned char)p_stSuper->ulFlags;
+        sModIdx = MGT_pc_fn_sFindModifiedObjectSlot(p_stGeo);
+        p_stMatrix = (POS_tdstCompletePosition *)p_stSuper->hGlobalMatrix;
+        p_stOffset = fn_hMSMagnetGetPosition(p_stTarget);
+        if ((ucFlags & HIE_C_Flag_ulTypeOfBoundingVolume) == 0) {
+            POS_fn_vInvertMatrix(&stInv, p_stMatrix);
+            POS_fn_vMulMatrixVertex(&stLocalPos, &stInv, p_stOffset);
+            hSphere = (GEO_tdxHandleToBoundingSphere)p_stSuper->hBoundingVolume;
+            if (hSphere != NULL) {
+                MTH3D_M_vCopyVector(&stCenter, &hSphere->stCenterPoint);
+                fRadius = hSphere->xRadius;
+                fFar = fn_xMSMagnetGetFar(p_stTarget);
+                bGo = (unsigned char)INT_fn_bIntersectSphereWithSphere(
+                          &stLocalPos, fFar, &stCenter, fRadius);
+            }
+        } else {
+            hBox = (GEO_tdxHandleToParallelBox)p_stSuper->hBoundingVolume;
+            if (hBox != NULL) {
+                p_stPos = &p_stMatrix->stTranslationVector;
+                MTH3D_M_vAddVector(&stBoxMin, p_stPos, &hBox->stMinPoint);
+                MTH3D_M_vAddVector(&stBoxMax, p_stPos, &hBox->stMaxPoint);
+                fFar = fn_xMSMagnetGetFar(p_stTarget);
+                bGo = (unsigned char)INT_fn_bIntersectSphereWithBox(
+                          p_stOffset, fFar, &stBoxMin, &stBoxMax);
+            }
+            if (bGo != 0) {
+                POS_fn_vInvertMatrix(&stInv, p_stMatrix);
+                POS_fn_vMulMatrixVertex(&stLocalPos, &stInv, p_stOffset);
+            }
+        }
+
+        if (bGo != 0) {
+            ucModified = MGT_pc_fn_ucMarkInfluencedPoints((short)iSubTag, fRadiusSq,
+                                                          (GEO_tdstGeometricObject *)p_stGeo,
+                                                          &sModIdx, (float *)&stLocalPos,
+                                                          p_stSuper);
+            if (ucModified != 0)
+                HIE_fn_vSetMagnetModification(p_stSuper, 1);
+        }
+        if (sModIdx != -1 && ucModified == 0 && fn_lMSMagnetGetStatus(p_stTarget) == 3)
+            MGT_fn_vDestroySubByTag(sModIdx, (short)iSubTag);
+        ucResult = ucModified;
+    }
+
+    if (bGo != 0) {
+        p_stChild = p_stSuper->p_stFirstChild;
+        if (p_stChild != (struct HIE_tdstSuperObject *)0) {
+            do {
+                ucResult = (unsigned char)(ucResult | MGT_pc_fn_ucTreatMagnetTree(p_stTarget, iSubTag,
+                                                                                  fRadiusSq, p_stChild));
+                p_stChild = p_stChild->p_stNextBrother;
+            } while (p_stChild != (struct HIE_tdstSuperObject *)0);
+        }
+    }
+    HIE_fn_vSetMagnetModification(p_stSuper, ucResult);
+    return ucResult;
+}
+
+/* 0x004413F0 */
+void __cdecl MGT_pc_fn_vClearMagnetModificationTree(int p_stSuper)
+{
+    int iChild;
+
+    HIE_fn_vSetMagnetModification((struct HIE_tdstSuperObject *)p_stSuper, 0);
+    for (iChild = (int)((struct HIE_tdstSuperObject *)p_stSuper)->p_stFirstChild; iChild != 0;
+         iChild = (int)((struct HIE_tdstSuperObject *)iChild)->p_stNextBrother) {
+        MGT_pc_fn_vClearMagnetModificationTree(iChild);
+    }
+}
+
+/* 0x00441420 */
+void __cdecl MGT_pc_fn_vUpdateMagnetModifiedChildren(void)
+{
+    HIE_tdstSuperObject *p_stSprObj;
+
+    for (p_stSprObj = SECT_hFatherSector->p_stFirstChild;
+         p_stSprObj != (HIE_tdstSuperObject *)0;
+         p_stSprObj = p_stSprObj->p_stNextBrother) {
+        if (HIE_fn_bGetMagnetModification(p_stSprObj) != 0)
+            MGT_pc_fn_vUpdateMagnetInfluenceTree((unsigned int *)p_stSprObj);
+    }
+}
+
+/* 0x00441450 */
+void __cdecl MGT_pc_fn_vUpdateMagnetInfluenceTree(unsigned int *p_uSprObj)
+{
+    unsigned char bHasMagnet;
+    void         *p_stGeo;
+    unsigned int *p_uMat;
+    unsigned int *p_uChild;
+    float        *pfM;
+    float        *pfOut;
+    float        *pfSrc;
+    float         aCenter[3];
+    float         fRadius;
+    float         aVecA[3];
+    float         aVecB[3];
+
+    bHasMagnet = HIE_fn_bGetMagnetModification((struct HIE_tdstSuperObject *)p_uSprObj);
+    if (bHasMagnet != 0) {
+        p_stGeo = HIE_fn_p_stGetGeometricObjectFromSuperObject((struct HIE_tdstSuperObject *)p_uSprObj);
+        p_uMat = (unsigned int *)p_uSprObj[9];
+        pfM = (float *)(p_uMat + 0xd);
+        if ((p_uSprObj[0xc] & 0x10) == 0) {
+            pfOut = (float *)p_uSprObj[0xd];
+            if (pfOut != (float *)0) {
+                aCenter[0] = pfOut[0];
+                aCenter[1] = pfOut[1];
+                aCenter[2] = pfOut[2];
+                fRadius = pfOut[3];
+                if (p_stGeo == (void *)0) {
+                    aCenter[0] = 0.0f;
+                    aCenter[1] = 0.0f;
+                    aCenter[2] = 0.0f;
+                    fRadius = 0.0f;
+                } else {
+                    GEO_xComputeObjectSphereBox((GEO_tdstGeometricObject *)p_stGeo,
+                                                (MTH3D_tdstVector *)aCenter, &fRadius);
+                }
+            }
+        } else {
+            pfOut = (float *)p_uSprObj[0xd];
+            if (pfOut != (float *)0) {
+                if (p_stGeo == (void *)0) {
+                    pfOut[3] = 0.0f;
+                    pfOut[4] = 0.0f;
+                    pfOut[5] = 0.0f;
+                    pfOut[0] = 0.0f;
+                    pfOut[1] = 0.0f;
+                    pfOut[2] = 0.0f;
+                } else {
+                    pfSrc = (float *)*(int *)p_stGeo;
+                    aVecA[0] = pfSrc[0];
+                    aVecA[1] = pfSrc[1];
+                    aVecA[2] = pfSrc[2];
+                    aVecB[0] = pfSrc[0];
+                    aVecB[1] = pfSrc[1];
+                    aVecB[2] = pfSrc[2];
+                    /* 0x00441450 */
+                    MTH3D_M_vMulMatrixVectorWithoutBuffer((MTH3D_tdstVector *)(pfOut + 3),
+                                                          (MTH3D_tdstMatrix *)pfM,
+                                                          (MTH3D_tdstVector *)aVecA);
+                    MTH3D_M_vMulMatrixVectorWithoutBuffer((MTH3D_tdstVector *)pfOut,
+                                                          (MTH3D_tdstMatrix *)pfM,
+                                                          (MTH3D_tdstVector *)aVecB);
+                    GEO_pc_fn_vExtendBoxWithPointsAndSprites((int *)p_stGeo, p_uMat,
+                                                             pfOut + 3, pfOut);
+                }
+            }
+        }
+        for (p_uChild = (unsigned int *)p_uSprObj[2]; p_uChild != (unsigned int *)0;
+             p_uChild = (unsigned int *)p_uChild[5]) {
+            MGT_pc_fn_vUpdateMagnetInfluenceTree(p_uChild);
+        }
+    }
+}
+
+short __cdecl MGT_pc_fn_sAllocModifiedObject(void *p_stGeo);
+
+/* 0x00441630 */
+unsigned char __cdecl MGT_pc_fn_ucMarkInfluencedPoints(short sSubTag, float fRadiusSq,
+                                                       GEO_tdstGeometricObject *p_stGeo,
+                                                       short *psModIdx, float *p_stPos,
+                                                       struct HIE_tdstSuperObject *h_SuperObject)
+{
+    unsigned char               ucResult = 0;
+    MGT_tdstMagnetModification *p_stMod  = (MGT_tdstMagnetModification *)0;
+    short                       sPt      = 0;
+    float                      *p_stVert;
+    float                       aDelta[3];
+    double                      dDist;   /* 0x441630 */
+    unsigned char               ucBit;
+
+    if (0 < p_stGeo->xNbPoints) {
+        p_stVert = (float *)p_stGeo->d_stListOfPoints;
+        do {
+            aDelta[0] = p_stPos[0] - p_stVert[0];
+            aDelta[1] = p_stPos[1] - p_stVert[1];
+            aDelta[2] = p_stPos[2] - p_stVert[2];
+            dDist = (double)aDelta[0] * (double)aDelta[0];
+            if (dDist < (double)fRadiusSq) {
+                dDist = (double)aDelta[1] * (double)aDelta[1] + dDist;
+                if (dDist < (double)fRadiusSq) {
+                    dDist = (double)aDelta[2] * (double)aDelta[2] + dDist;
+                    if (dDist < (double)fRadiusSq) {
+                        if (p_stMod == (MGT_tdstMagnetModification *)0) {
+                            if (*psModIdx == -1)
+                                *psModIdx = MGT_pc_fn_sAllocModifiedObject(p_stGeo);
+                            p_stMod = MGT_pc_fn_p_stFindOrAllocMagnetModification(sSubTag, *psModIdx, p_stGeo);
+                            if (p_stMod != (MGT_tdstMagnetModification *)0) {
+                                p_stMod->h_SuperObject = h_SuperObject;
+                                p_stMod->bUsed = 1;
+                                ucResult = 1;
+                            }
+                        }
+                        if (p_stMod != (MGT_tdstMagnetModification *)0) {
+                            ucBit = (unsigned char)(1 << (sPt & 7));
+                            ((unsigned char *)p_stMod->d_cFieldBitsModifiedPoints)[sPt >> 3] |= ucBit;
+                            ((unsigned char *)p_stMod->d_cFieldBitsInfluencedPoints)[sPt >> 3] |= ucBit;
+                        }
+                    }
+                }
+            }
+            sPt++;
+            p_stVert += 3;
+        } while (sPt < p_stGeo->xNbPoints);
+    }
+    return ucResult;
+}
+
+/* 0x00441740 */
+void __cdecl MGT_fn_vClearTargetModificationsInfluencedBits(int p_target, ACP_tdxBool bFlag)
+{
+    short sSlot = 0;
+    do {
+        MGT_tdstMagnetModification *p_stMod = fn_hMSMagnetGetMagnetModification((MS_tdxHandleToMSMagnet)p_target, sSlot);
+        if (p_stMod != (MGT_tdstMagnetModification *)0)
+            MGT_fn_vClearSubBitmapB(p_stMod);
+        sSlot = (short)(sSlot + 1);
+    } while (sSlot < 0x14);
+}
+
+/* 0x00441770 */
+void __cdecl MGT_fn_vSetTargetModificationsUsed(int p_target, ACP_tdxBool bUsed)
+{
+    short sSlot = 0;
+    do {
+        MGT_tdstMagnetModification *p_stMod = fn_hMSMagnetGetMagnetModification((MS_tdxHandleToMSMagnet)p_target, sSlot);
+        if (p_stMod != (MGT_tdstMagnetModification *)0)
+            p_stMod->bUsed = bUsed;
+        sSlot = (short)(sSlot + 1);
+    } while (sSlot < 0x14);
 }
 
 /* 0x004417A0 */
@@ -926,93 +930,96 @@ void __cdecl MGT_pc_fn_vBlendPointDisplacementByRatio(unsigned long ulUnused, sh
     *pucByte = (unsigned char)(*pucByte | (1 << iBit));
 }
 
-unsigned char __cdecl HIE_fn_bGetMagnetModification(struct HIE_tdstSuperObject *_hSprObj);
-void __cdecl GEO_pc_fn_vExtendBoxWithPointsAndSprites(int *p_iObj, unsigned int *p_uMatrix,
-                                                     float *p_xMax, float *p_xMin);
-
-/* 0x00441420 */
-void __cdecl MGT_pc_fn_vUpdateMagnetModifiedChildren(void)
+/* 0x00441E20 */
+short __cdecl MGT_pc_fn_sAllocModifiedObject(void *p_stGeo)
 {
-    HIE_tdstSuperObject *p_stSprObj;
+    MGT_tdstModifiedObject *pObj;
+    GEO_tdstGeometricObject *pbGeo;
+    short                   sCount;
+    short                   sIdx;
+    MGT_tdstModifiedObject **pp_stSlot;
 
-    for (p_stSprObj = SECT_hFatherSector->p_stFirstChild;
-         p_stSprObj != (HIE_tdstSuperObject *)0;
-         p_stSprObj = p_stSprObj->p_stNextBrother) {
-        if (HIE_fn_bGetMagnetModification(p_stSprObj) != 0)
-            MGT_pc_fn_vUpdateMagnetInfluenceTree((unsigned int *)p_stSprObj);
+#define MGT_pc_M_xNbPointsOfGeo(pbGeo) ((pbGeo)->xNbPoints)
+    pbGeo = (GEO_tdstGeometricObject *)p_stGeo;
+    pObj = (MGT_tdstModifiedObject *)GLI_pc_fn_p_vAlloc(0x28);
+    pObj->p_stMorphedObject = (struct GEO_tdstGeometricObject_ *)p_stGeo;
+    pObj->aDEF_hMagnet[0] = (MGT_tdstMagnetModification *)0;
+    pObj->aDEF_hMagnet[1] = (MGT_tdstMagnetModification *)0;
+    pObj->aDEF_hMagnet[2] = (MGT_tdstMagnetModification *)0;
+    pObj->aDEF_hMagnet[3] = (MGT_tdstMagnetModification *)0;
+    pObj->aDEF_hMagnet[4] = (MGT_tdstMagnetModification *)0;
+
+    pObj->d_cFieldBitsAlreadyInfluencedPoints = (char *)GLI_pc_fn_p_vAlloc(
+        (unsigned int)((int)MGT_pc_M_xNbPointsOfGeo(pbGeo) >> 3) +
+        (unsigned int)(((unsigned short)MGT_pc_M_xNbPointsOfGeo(pbGeo) & 7) != 0));
+    MGT_pc_fn_vClearModifiedObjectBitmap(pObj);
+
+    pObj->d_stOriginalPosition = (struct MTH3D_tdstVector_ *)GLI_pc_fn_p_vAlloc(
+        MGT_pc_M_xNbPointsOfGeo(pbGeo) * 0x0C);
+    memcpy(pObj->d_stOriginalPosition, pbGeo->d_stListOfPoints, MGT_pc_M_xNbPointsOfGeo(pbGeo) * 0x0C);
+#undef MGT_pc_M_xNbPointsOfGeo
+
+    pObj->p_stOctree = (struct COL_tdstOctree_ *)pbGeo->p_stOctree;
+    pbGeo->p_stOctree = NULL;
+    pObj->h_SuperObject = (struct HIE_tdstSuperObject *)0;
+
+    sCount = g_lNbPendingMagnets;
+    pp_stSlot = g_aModifiedObjects;
+    for (sIdx = 0; sIdx < sCount; sIdx++, pp_stSlot++) {
+        if (*pp_stSlot == (MGT_tdstModifiedObject *)0) {
+            *pp_stSlot = pObj;
+            return sIdx;
+        }
+    }
+    if (sCount < 0x14) {
+        sCount++;
+        *pp_stSlot = pObj;
+        g_lNbPendingMagnets = sCount;
+        return sIdx;
+    }
+    return -1;
+}
+
+/* 0x00441F00 */
+short __cdecl MGT_pc_fn_sFindModifiedObjectSlot(void *p_stGeo)
+{
+    short sIdx;
+    MGT_tdstModifiedObject **ppObj;
+
+    sIdx = 0;
+    ppObj = g_aModifiedObjects;
+    if (0 < g_lNbPendingMagnets) {
+        do {
+            if (*ppObj != (MGT_tdstModifiedObject *)0 &&
+                *(void **)*ppObj == p_stGeo) {
+                return sIdx;
+            }
+            sIdx++;
+            ppObj++;
+        } while (sIdx < g_lNbPendingMagnets);
+    }
+    return -1;
+}
+
+/* 0x00441F40 */
+void __cdecl MGT_pc_fn_vLinkMagnetModification(MGT_tdstMagnetModification *p_stMod)
+{
+    MGT_tdstModifiedObject *p_stObj = g_aModifiedObjects[p_stMod->xIndexOfModifiedObject];
+    short sIdx;
+
+    for (sIdx = 0; sIdx < MGT_MAX_NUMBEROF_MAGNETS; sIdx++) {
+        if (p_stObj->aDEF_hMagnet[sIdx] == 0) {
+            p_stObj->aDEF_hMagnet[sIdx] = p_stMod;
+            return;
+        }
     }
 }
 
-/* 0x00441450 */
-void __cdecl MGT_pc_fn_vUpdateMagnetInfluenceTree(unsigned int *p_uSprObj)
+/* 0x00441F80 */
+void __cdecl MGT_pc_fn_vClearModifiedObjectBitmap(MGT_tdstModifiedObject *p_stObj)
 {
-    unsigned char bHasMagnet;
-    void         *p_stGeo;
-    unsigned int *p_uMat;
-    unsigned int *p_uChild;
-    float        *pfM;
-    float        *pfOut;
-    float        *pfSrc;
-    float         aCenter[3];
-    float         fRadius;
-    float         aVecA[3];
-    float         aVecB[3];
-
-    bHasMagnet = HIE_fn_bGetMagnetModification((struct HIE_tdstSuperObject *)p_uSprObj);
-    if (bHasMagnet != 0) {
-        p_stGeo = HIE_fn_p_stGetGeometricObjectFromSuperObject((struct HIE_tdstSuperObject *)p_uSprObj);
-        p_uMat = (unsigned int *)p_uSprObj[9];
-        pfM = (float *)(p_uMat + 0xd);
-        if ((p_uSprObj[0xc] & 0x10) == 0) {
-            pfOut = (float *)p_uSprObj[0xd];
-            if (pfOut != (float *)0) {
-                aCenter[0] = pfOut[0];
-                aCenter[1] = pfOut[1];
-                aCenter[2] = pfOut[2];
-                fRadius = pfOut[3];
-                if (p_stGeo == (void *)0) {
-                    aCenter[0] = 0.0f;
-                    aCenter[1] = 0.0f;
-                    aCenter[2] = 0.0f;
-                    fRadius = 0.0f;
-                } else {
-                    GEO_xComputeObjectSphereBox((GEO_tdstGeometricObject *)p_stGeo,
-                                                (MTH3D_tdstVector *)aCenter, &fRadius);
-                }
-            }
-        } else {
-            pfOut = (float *)p_uSprObj[0xd];
-            if (pfOut != (float *)0) {
-                if (p_stGeo == (void *)0) {
-                    pfOut[3] = 0.0f;
-                    pfOut[4] = 0.0f;
-                    pfOut[5] = 0.0f;
-                    pfOut[0] = 0.0f;
-                    pfOut[1] = 0.0f;
-                    pfOut[2] = 0.0f;
-                } else {
-                    pfSrc = (float *)*(int *)p_stGeo;
-                    aVecA[0] = pfSrc[0];
-                    aVecA[1] = pfSrc[1];
-                    aVecA[2] = pfSrc[2];
-                    aVecB[0] = pfSrc[0];
-                    aVecB[1] = pfSrc[1];
-                    aVecB[2] = pfSrc[2];
-                    /* 0x00441450 */
-                    MTH3D_M_vMulMatrixVectorWithoutBuffer((MTH3D_tdstVector *)(pfOut + 3),
-                                                          (MTH3D_tdstMatrix *)pfM,
-                                                          (MTH3D_tdstVector *)aVecA);
-                    MTH3D_M_vMulMatrixVectorWithoutBuffer((MTH3D_tdstVector *)pfOut,
-                                                          (MTH3D_tdstMatrix *)pfM,
-                                                          (MTH3D_tdstVector *)aVecB);
-                    GEO_pc_fn_vExtendBoxWithPointsAndSprites((int *)p_stGeo, p_uMat,
-                                                             pfOut + 3, pfOut);
-                }
-            }
-        }
-        for (p_uChild = (unsigned int *)p_uSprObj[2]; p_uChild != (unsigned int *)0;
-             p_uChild = (unsigned int *)p_uChild[5]) {
-            MGT_pc_fn_vUpdateMagnetInfluenceTree(p_uChild);
-        }
-    }
+#define MGT_pc_M_xNbPointsOfMorphed(p_stObj) ((p_stObj)->p_stMorphedObject->xNbPoints)
+    memset(p_stObj->d_cFieldBitsAlreadyInfluencedPoints, 0,
+           ((MGT_pc_M_xNbPointsOfMorphed(p_stObj) & 7) != 0) + (MGT_pc_M_xNbPointsOfMorphed(p_stObj) >> 3));
+#undef MGT_pc_M_xNbPointsOfMorphed
 }

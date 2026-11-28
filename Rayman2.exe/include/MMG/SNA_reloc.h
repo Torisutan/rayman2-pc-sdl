@@ -67,7 +67,7 @@ void          __cdecl SNA_pc_vReadRawArray(void *_p_vBuffer, int _iCount,
                                            unsigned int _uiElemSize);   /* 0x0044D190 */
 void          __cdecl SNA_pc_vCloseGptFile(void);                      /* 0x0044CEC0 */
 void          __cdecl SNA_pc_vOpenSndFile(char *_szPath);              /* 0x0044D1E0 */
-void          __cdecl SNA_pc_vReadAndRelocateSnd(void);               /* 0x0044D2F0 */
+void          __cdecl SNA_pc_vReadAndRelocateSnd(char *_szPath);      /* 0x0044D2F0 */
 
 #ifdef __cplusplus
 }

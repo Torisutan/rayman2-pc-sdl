@@ -29,111 +29,6 @@ COL_CT_ASSERT(gv_off_dyneltidx, offsetof(COL_tdstGVForCollision, xDynamicElement
 COL_CT_ASSERT(gv_off_dyneltsph, offsetof(COL_tdstGVForCollision, p_stDynamicElementSpheres) == 0x20C);
 
 static COL_tdstGVForCollision COL_gs_stGVForCol;   /* 0x004F6F80 */
-#define COL_g_stGVForCol  COL_gs_stGVForCol
-
-void __cdecl COL_fn_vInitCollideStaticGeomObjWithStaticGeomObj(COL_tdstGVForCollision *p_stGV)
-{
-
-    POS_fn_vSetIdentityMatrix(&p_stGV->stInvMatrix);
-    POS_fn_vSetIdentityMatrix(&p_stGV->stD2ST0TransformMatrix);
-    POS_fn_vSetIdentityMatrix(&p_stGV->stD2ST1TransformMatrix);
-    POS_fn_vSetIdentityMatrix(&p_stGV->stS2DT0TransformMatrix);
-    POS_fn_vSetIdentityMatrix(&p_stGV->stS2DT1TransformMatrix);
-
-    POS_fn_vInvertMatrix(&p_stGV->stInvMatrix, p_stGV->p_stStaticGeomObjMatrix);
-    POS_fn_vMulMatrixMatrix(&p_stGV->stD2ST0TransformMatrix, &p_stGV->stInvMatrix, p_stGV->p_stT0DynamicGeomObjMatrix);
-    POS_fn_vMulMatrixMatrix(&p_stGV->stD2ST1TransformMatrix, &p_stGV->stInvMatrix, p_stGV->p_stT1DynamicGeomObjMatrix);
-
-    p_stGV->bSurfacicDynamicElement = COL_fn_bGetSurfaceInGeometricObject(p_stGV->p_stDynamicGeomObj);
-    if (!p_stGV->bSurfacicDynamicElement)
-    {
-        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEltWithStaticPts;
-        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEdgWithStaticEdg;
-        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEdgWithStaticElt;
-        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEltWithStaticEdg;
-        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEltWithStaticElt;
-    }
-
-    p_stGV->bDynamicSphereAndPointOnly = COL_fn_bGetSphereAndPointOnlyInGeometricObject(p_stGV->p_stDynamicGeomObj);
-
-    p_stGV->p_stOctree = p_stGV->p_stStaticGeomObj->p_stOctree;
-    if (p_stGV->p_stOctree != NULL)
-    {
-        p_stGV->xNbStaticPoints = 0;
-        p_stGV->xNbStaticEdges  = 0;
-    }
-
-    if (p_stGV->bStaticGeomObjHasNoTransformationMatrix)
-    {
-        p_stGV->xStaticScale = MTH_C_ONE;
-    }
-    else
-    {
-        p_stGV->xStaticScale = POS_fn_xGetMaxScale(p_stGV->p_stStaticGeomObjMatrix);
-    }
-}
-
-void __cdecl COL_fn_vComputeCollisionStaticGeomObjWithStaticGeomObj(COL_tdstGVForCollision *p_stGV)
-{
-    COL_fn_vInitCollideStaticGeomObjWithStaticGeomObj(p_stGV);
-
-    if (p_stGV->ulSelectedCollisionCases & COL_C_ulDynamicEltWithStaticElt)
-    {
-        for (p_stGV->xDynamicElementIndex = 0;
-             p_stGV->xDynamicElementIndex < p_stGV->p_stDynamicGeomObj->xNbElements;
-             p_stGV->xDynamicElementIndex++)
-        {
-            switch (p_stGV->p_stDynamicGeomObj->d_xListOfElementsTypes[p_stGV->xDynamicElementIndex])
-            {
-            case GEO_C_xElementSpheres:
-                if (p_stGV->ulSelectedCollisionCases & COL_C_ulDynamicSphWithStaticElt)
-                {
-                    p_stGV->p_stDynamicElementSpheres =
-                        (GEO_tdstElementSpheres *)(p_stGV->p_stDynamicGeomObj->d_stListOfElements[p_stGV->xDynamicElementIndex]);
-
-                    if (((GEO_tdstElementSpheres *)p_stGV->p_stDynamicElementSpheres)->xNbSpheres)
-                        COL_fn_vCollideStaticElementSpheresWithStaticElements(p_stGV);
-                }
-                break;
-            }
-        }
-    }
-}
-
-void __cdecl COL_fn_vCollideStaticGeomObj1WithStaticGeomObj2(
-    ACP_tdxHandleOfObject     _hGeometricObject1,
-    POS_tdstCompletePosition *_p_stGeometricObjectStartMatrix1,
-    POS_tdstCompletePosition *_p_stGeometricObjectEndMatrix1,
-    ACP_tdxHandleOfObject     _hGeometricObject2,
-    POS_tdstCompletePosition *_p_stGeometricObjectMatrix2,
-    void                     *_p_vParameter1,
-    short                     _sParameter2,
-    ACP_tdxBool               _bStaticGeomObjHasNoTransformationMatrix,
-    ACP_tdxBool               _bDynamicGeomObjHasZoomInsteadOfScale)
-{
-    COL_g_stGVForCol.bStaticGeomObjHasNoTransformationMatrix = _bStaticGeomObjHasNoTransformationMatrix;
-    COL_g_stGVForCol.bDynamicGeomObjHasZoomInsteadOfScale    = _bDynamicGeomObjHasZoomInsteadOfScale;
-    COL_g_stGVForCol.p_stDynamicGeomObj                      = _hGeometricObject1;
-    COL_g_stGVForCol.p_stT0DynamicGeomObjMatrix             = _p_stGeometricObjectEndMatrix1;
-    COL_g_stGVForCol.p_stT1DynamicGeomObjMatrix             = _p_stGeometricObjectStartMatrix1;
-    COL_g_stGVForCol.p_stStaticGeomObj                      = _hGeometricObject2;
-    COL_g_stGVForCol.p_stStaticGeomObjMatrix               = _p_stGeometricObjectMatrix2;
-    COL_g_stGVForCol.ulSelectedCollisionCases              = COL_C_ulDynamicAllWithStaticAll;
-    COL_g_stGVForCol.p_vParameter1                         = _p_vParameter1;
-    COL_g_stGVForCol.sParameter2                           = _sParameter2;
-
-    if (_hGeometricObject1 == NULL ||
-        _hGeometricObject2 == NULL ||
-        _hGeometricObject1->xNbPoints   == 0 ||
-        _hGeometricObject2->xNbPoints   == 0 ||
-        _hGeometricObject1->xNbElements == 0 ||
-        _hGeometricObject2->xNbElements == 0)
-    {
-        return;
-    }
-
-    COL_fn_vComputeCollisionStaticGeomObjWithStaticGeomObj(&COL_g_stGVForCol);
-}
 
 ACP_tdxBool __cdecl COL_fn_bDetectCollisionStaticGeomObjWithStaticGeomObj(
     GEO_tdxHandleToBoundingSphere  _hDynamicGeometricObject,
@@ -207,4 +102,109 @@ ACP_tdxBool __cdecl COL_fn_bDetectCollisionStaticGeomObjWithStaticGeomObj(
         return COL_fn_bDetectCollisionBetweenTwoParallelBoxes(&stMaxSinGPoint, &stMinSinGPoint,
                                                               &stMaxDinGPoint, &stMinDinGPoint);
     }
+}
+
+void __cdecl COL_fn_vInitCollideStaticGeomObjWithStaticGeomObj(COL_tdstGVForCollision *p_stGV)
+{
+
+    POS_fn_vSetIdentityMatrix(&p_stGV->stInvMatrix);
+    POS_fn_vSetIdentityMatrix(&p_stGV->stD2ST0TransformMatrix);
+    POS_fn_vSetIdentityMatrix(&p_stGV->stD2ST1TransformMatrix);
+    POS_fn_vSetIdentityMatrix(&p_stGV->stS2DT0TransformMatrix);
+    POS_fn_vSetIdentityMatrix(&p_stGV->stS2DT1TransformMatrix);
+
+    POS_fn_vInvertMatrix(&p_stGV->stInvMatrix, p_stGV->p_stStaticGeomObjMatrix);
+    POS_fn_vMulMatrixMatrix(&p_stGV->stD2ST0TransformMatrix, &p_stGV->stInvMatrix, p_stGV->p_stT0DynamicGeomObjMatrix);
+    POS_fn_vMulMatrixMatrix(&p_stGV->stD2ST1TransformMatrix, &p_stGV->stInvMatrix, p_stGV->p_stT1DynamicGeomObjMatrix);
+
+    p_stGV->bSurfacicDynamicElement = COL_fn_bGetSurfaceInGeometricObject(p_stGV->p_stDynamicGeomObj);
+    if (!p_stGV->bSurfacicDynamicElement)
+    {
+        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEltWithStaticPts;
+        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEdgWithStaticEdg;
+        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEdgWithStaticElt;
+        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEltWithStaticEdg;
+        p_stGV->ulSelectedCollisionCases &= ~COL_C_ulDynamicEltWithStaticElt;
+    }
+
+    p_stGV->bDynamicSphereAndPointOnly = COL_fn_bGetSphereAndPointOnlyInGeometricObject(p_stGV->p_stDynamicGeomObj);
+
+    p_stGV->p_stOctree = p_stGV->p_stStaticGeomObj->p_stOctree;
+    if (p_stGV->p_stOctree != NULL)
+    {
+        p_stGV->xNbStaticPoints = 0;
+        p_stGV->xNbStaticEdges  = 0;
+    }
+
+    if (p_stGV->bStaticGeomObjHasNoTransformationMatrix)
+    {
+        p_stGV->xStaticScale = MTH_C_ONE;
+    }
+    else
+    {
+        p_stGV->xStaticScale = POS_fn_xGetMaxScale(p_stGV->p_stStaticGeomObjMatrix);
+    }
+}
+
+void __cdecl COL_fn_vComputeCollisionStaticGeomObjWithStaticGeomObj(COL_tdstGVForCollision *p_stGV)
+{
+    COL_fn_vInitCollideStaticGeomObjWithStaticGeomObj(p_stGV);
+
+    if (p_stGV->ulSelectedCollisionCases & COL_C_ulDynamicEltWithStaticElt)
+    {
+        for (p_stGV->xDynamicElementIndex = 0;
+             p_stGV->xDynamicElementIndex < p_stGV->p_stDynamicGeomObj->xNbElements;
+             p_stGV->xDynamicElementIndex++)
+        {
+            switch (p_stGV->p_stDynamicGeomObj->d_xListOfElementsTypes[p_stGV->xDynamicElementIndex])
+            {
+            case GEO_C_xElementSpheres:
+                if (p_stGV->ulSelectedCollisionCases & COL_C_ulDynamicSphWithStaticElt)
+                {
+                    p_stGV->p_stDynamicElementSpheres =
+                        (GEO_tdstElementSpheres *)(p_stGV->p_stDynamicGeomObj->d_stListOfElements[p_stGV->xDynamicElementIndex]);
+
+                    if (((GEO_tdstElementSpheres *)p_stGV->p_stDynamicElementSpheres)->xNbSpheres)
+                        COL_fn_vCollideStaticElementSpheresWithStaticElements(p_stGV);
+                }
+                break;
+            }
+        }
+    }
+}
+#define COL_g_stGVForCol  COL_gs_stGVForCol
+
+void __cdecl COL_fn_vCollideStaticGeomObj1WithStaticGeomObj2(
+    ACP_tdxHandleOfObject     _hGeometricObject1,
+    POS_tdstCompletePosition *_p_stGeometricObjectStartMatrix1,
+    POS_tdstCompletePosition *_p_stGeometricObjectEndMatrix1,
+    ACP_tdxHandleOfObject     _hGeometricObject2,
+    POS_tdstCompletePosition *_p_stGeometricObjectMatrix2,
+    void                     *_p_vParameter1,
+    short                     _sParameter2,
+    ACP_tdxBool               _bStaticGeomObjHasNoTransformationMatrix,
+    ACP_tdxBool               _bDynamicGeomObjHasZoomInsteadOfScale)
+{
+    COL_g_stGVForCol.bStaticGeomObjHasNoTransformationMatrix = _bStaticGeomObjHasNoTransformationMatrix;
+    COL_g_stGVForCol.bDynamicGeomObjHasZoomInsteadOfScale    = _bDynamicGeomObjHasZoomInsteadOfScale;
+    COL_g_stGVForCol.p_stDynamicGeomObj                      = _hGeometricObject1;
+    COL_g_stGVForCol.p_stT0DynamicGeomObjMatrix             = _p_stGeometricObjectEndMatrix1;
+    COL_g_stGVForCol.p_stT1DynamicGeomObjMatrix             = _p_stGeometricObjectStartMatrix1;
+    COL_g_stGVForCol.p_stStaticGeomObj                      = _hGeometricObject2;
+    COL_g_stGVForCol.p_stStaticGeomObjMatrix               = _p_stGeometricObjectMatrix2;
+    COL_g_stGVForCol.ulSelectedCollisionCases              = COL_C_ulDynamicAllWithStaticAll;
+    COL_g_stGVForCol.p_vParameter1                         = _p_vParameter1;
+    COL_g_stGVForCol.sParameter2                           = _sParameter2;
+
+    if (_hGeometricObject1 == NULL ||
+        _hGeometricObject2 == NULL ||
+        _hGeometricObject1->xNbPoints   == 0 ||
+        _hGeometricObject2->xNbPoints   == 0 ||
+        _hGeometricObject1->xNbElements == 0 ||
+        _hGeometricObject2->xNbElements == 0)
+    {
+        return;
+    }
+
+    COL_fn_vComputeCollisionStaticGeomObjWithStaticGeomObj(&COL_g_stGVForCol);
 }

@@ -14,6 +14,116 @@ extern DNM_tdstMecObstacle *g_a_stObstacle;
 /* 0x00494290 */
 extern long __cdecl COL_lHaveITakeSThgIntoTheMug (DNM_tdstMecObstacle *_a_stResultObstacle, HIE_tdstSuperObject *_p_stSupObj, POS_tdstCompletePosition *_p_stStartPosition, POS_tdstCompletePosition *_p_stEndPosition);
 
+/* 0x00432A90 */
+void __cdecl MEC_vImposeRotationVector(DNM_tdstDynamics *p_stDynamic,
+                                       MTH3D_tdstVector *p_stX,
+                                       MTH3D_tdstVector *p_stY,
+                                       MTH3D_tdstVector *p_stZ)
+{
+    MTH3D_tdstMatrix *p_stImposeRotationMatrix;
+
+    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
+
+    p_stImposeRotationMatrix = DNM_M_p_stDynamicsGetImposeRotationMatrix(p_stDynamic);
+    MTH3D_M_vSetVectorsInMatrix(p_stImposeRotationMatrix, p_stX, p_stY, p_stZ);
+
+    DNM_M_vDynamicsSetImposeRotation(p_stDynamic, 1  );
+}
+
+/* 0x00445F90 */
+void __cdecl MEC_fn_vUpdateMatrix(DNM_tdstDynamics *p_stDynamic,
+                                  POS_tdxHandleToPosition _hMatrix)
+{
+    MTH3D_tdstVector stI, stJ, stK;
+
+    MTH3D_M_vSetVectorElements(&stI, DNM_M_p_stDynamicsGetScaleX(p_stDynamic),
+                                      MTH_C_ZERO, MTH_C_ZERO);
+    MTH3D_M_vSetVectorElements(&stJ, MTH_C_ZERO,
+                                      DNM_M_p_stDynamicsGetScaleY(p_stDynamic),
+                                      MTH_C_ZERO);
+    MTH3D_M_vSetVectorElements(&stK, MTH_C_ZERO, MTH_C_ZERO,
+                                      DNM_M_p_stDynamicsGetScaleZ(p_stDynamic));
+
+    POS_fn_vSetScaleMatrix(_hMatrix, &stI, &stJ, &stK);
+}
+
+/* 0x0043E250 */
+void __cdecl MEC_fn_vCancelTilt(DNM_tdstDynamics *p_stDynamic)
+{
+    MTH3D_tdstVector stInitialTranslation, stVector;
+    MTH3D_tdstVector *p_stCurrentI, *p_stCurrentJ, *p_stCurrentK;
+    MTH3D_tdstVector stOriginTranslation;
+    MTH3D_tdstVector *p_stTranslation;
+    POS_tdxHandleToPosition hCurrentMatrix;
+    MTH_tdxReal xAngle;
+
+    xAngle = DNM_M_xDynamicsGetTiltAngle(p_stDynamic);
+    if (MTH_M_bEqual(xAngle,MTH_C_ZERO)) return;
+
+    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
+    POS_fn_vGetRotationVector(hCurrentMatrix, &p_stCurrentI, &p_stCurrentJ, &p_stCurrentK);
+    p_stTranslation = POS_fn_p_stGetTranslationVector(hCurrentMatrix);
+    MTH3D_M_vSetBaseJVector(&stVector);
+
+    MTH3D_M_vMulScalarVector(&stOriginTranslation,
+                              DNM_M_xDynamicsGetTiltOrigin(p_stDynamic),
+                              p_stCurrentK);
+    MTH3D_M_vCopyVector(&stInitialTranslation, p_stTranslation);
+    MTH3D_M_vSubVector(p_stTranslation, p_stTranslation, &stOriginTranslation);
+    POS_fn_vRotatePositionAroundAxis(hCurrentMatrix, &stVector, MTH_M_xNeg(xAngle));
+    POS_fn_vSetTranslationVector(hCurrentMatrix, &stInitialTranslation);
+
+    DNM_M_vDynamicsSetTiltAngle(p_stDynamic, MTH_C_ZERO);
+}
+
+static MTH_tdxReal MEC_fn_xNegOpt(MTH_tdxReal xA)
+{
+    unsigned long  xNeg;
+    unsigned long *pA = (unsigned long *)&xA;
+
+    xNeg = (*pA) + 0x80000000;
+    return *(MTH_tdxReal *)(void *)&xNeg;
+}
+
+/* 0x00432B10 */
+void __cdecl MEC_vImposeRelativeRotation(DNM_tdstDynamics *p_stDynamic,
+                                         MTH3D_tdstMatrix *p_stRotationMatrix)
+{
+    MTH3D_tdstVector *p_stI, *p_stJ, *p_stK;
+    MTH3D_tdstMatrix stMatrix;
+    POS_tdxHandleToPosition hCurrentMatrix;
+
+    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
+    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
+    POS_fn_vGetRotationVector(hCurrentMatrix, &p_stI, &p_stJ, &p_stK);
+    MTH3D_M_vSetVectorsInMatrix(&stMatrix, p_stI, p_stJ, p_stK);
+    MTH3D_M_vMulMatrixMatrix(&stMatrix, &stMatrix, p_stRotationMatrix);
+    MTH3D_M_vGetVectorsInMatrix(p_stI, p_stJ, p_stK, &stMatrix);
+    MEC_fn_vUpdateMatrix(p_stDynamic, hCurrentMatrix);
+
+    if (DNM_M_bDynamicsIsComplexSize(p_stDynamic))
+        MEC_fn_vCancelTilt(p_stDynamic);
+}
+
+/* 0x00432D30 */
+void __cdecl MEC_vImposeTranslation(DNM_tdstDynamics *p_stDynamic,
+                                    MTH3D_tdstVector *p_stVector)
+{
+    MTH3D_tdstVector stVector;
+    MTH3D_tdstVector *p_stCurrentTranslation;
+    POS_tdxHandleToPosition hCurrentMatrix;
+
+    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
+
+    DNM_M_vDynamicsSetImposeTranslation(p_stDynamic, 1  );
+    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
+    p_stCurrentTranslation = POS_fn_p_stGetTranslationVector(hCurrentMatrix);
+
+    MTH3D_M_vSubVector(&stVector, p_stVector, p_stCurrentTranslation);
+    MTH3D_M_vCopyVector(DNM_M_pDynamicsGetAddTranslation(p_stDynamic), &stVector);
+    MTH3D_M_vNullVector(DNM_M_pDynamicsGetPreviousSpeed(p_stDynamic));
+}
+
 void __cdecl MEC_vInitTranslation(DNM_tdstDynamics *p_stDynamic,
                                   HIE_tdstSuperObject *hSupObj,
                                   MTH3D_tdstVector *p_stVector)
@@ -57,116 +167,6 @@ void __cdecl MEC_vInitTranslation(DNM_tdstDynamics *p_stDynamic,
     {
         MTH3D_M_vNullVector(DNM_M_pDynamicsGetInertiaTranslation(p_stDynamic));
     }
-}
-
-/* 0x00432D30 */
-void __cdecl MEC_vImposeTranslation(DNM_tdstDynamics *p_stDynamic,
-                                    MTH3D_tdstVector *p_stVector)
-{
-    MTH3D_tdstVector stVector;
-    MTH3D_tdstVector *p_stCurrentTranslation;
-    POS_tdxHandleToPosition hCurrentMatrix;
-
-    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
-
-    DNM_M_vDynamicsSetImposeTranslation(p_stDynamic, 1  );
-    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
-    p_stCurrentTranslation = POS_fn_p_stGetTranslationVector(hCurrentMatrix);
-
-    MTH3D_M_vSubVector(&stVector, p_stVector, p_stCurrentTranslation);
-    MTH3D_M_vCopyVector(DNM_M_pDynamicsGetAddTranslation(p_stDynamic), &stVector);
-    MTH3D_M_vNullVector(DNM_M_pDynamicsGetPreviousSpeed(p_stDynamic));
-}
-
-/* 0x00432A90 */
-void __cdecl MEC_vImposeRotationVector(DNM_tdstDynamics *p_stDynamic,
-                                       MTH3D_tdstVector *p_stX,
-                                       MTH3D_tdstVector *p_stY,
-                                       MTH3D_tdstVector *p_stZ)
-{
-    MTH3D_tdstMatrix *p_stImposeRotationMatrix;
-
-    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
-
-    p_stImposeRotationMatrix = DNM_M_p_stDynamicsGetImposeRotationMatrix(p_stDynamic);
-    MTH3D_M_vSetVectorsInMatrix(p_stImposeRotationMatrix, p_stX, p_stY, p_stZ);
-
-    DNM_M_vDynamicsSetImposeRotation(p_stDynamic, 1  );
-}
-
-/* 0x00445F90 */
-void __cdecl MEC_fn_vUpdateMatrix(DNM_tdstDynamics *p_stDynamic,
-                                  POS_tdxHandleToPosition _hMatrix)
-{
-    MTH3D_tdstVector stI, stJ, stK;
-
-    MTH3D_M_vSetVectorElements(&stI, DNM_M_p_stDynamicsGetScaleX(p_stDynamic),
-                                      MTH_C_ZERO, MTH_C_ZERO);
-    MTH3D_M_vSetVectorElements(&stJ, MTH_C_ZERO,
-                                      DNM_M_p_stDynamicsGetScaleY(p_stDynamic),
-                                      MTH_C_ZERO);
-    MTH3D_M_vSetVectorElements(&stK, MTH_C_ZERO, MTH_C_ZERO,
-                                      DNM_M_p_stDynamicsGetScaleZ(p_stDynamic));
-
-    POS_fn_vSetScaleMatrix(_hMatrix, &stI, &stJ, &stK);
-}
-
-static MTH_tdxReal MEC_fn_xNegOpt(MTH_tdxReal xA)
-{
-    unsigned long  xNeg;
-    unsigned long *pA = (unsigned long *)&xA;
-
-    xNeg = (*pA) + 0x80000000;
-    return *(MTH_tdxReal *)(void *)&xNeg;
-}
-
-/* 0x0043E250 */
-void __cdecl MEC_fn_vCancelTilt(DNM_tdstDynamics *p_stDynamic)
-{
-    MTH3D_tdstVector stInitialTranslation, stVector;
-    MTH3D_tdstVector *p_stCurrentI, *p_stCurrentJ, *p_stCurrentK;
-    MTH3D_tdstVector stOriginTranslation;
-    MTH3D_tdstVector *p_stTranslation;
-    POS_tdxHandleToPosition hCurrentMatrix;
-    MTH_tdxReal xAngle;
-
-    xAngle = DNM_M_xDynamicsGetTiltAngle(p_stDynamic);
-    if (MTH_M_bEqual(xAngle,MTH_C_ZERO)) return;
-
-    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
-    POS_fn_vGetRotationVector(hCurrentMatrix, &p_stCurrentI, &p_stCurrentJ, &p_stCurrentK);
-    p_stTranslation = POS_fn_p_stGetTranslationVector(hCurrentMatrix);
-    MTH3D_M_vSetBaseJVector(&stVector);
-
-    MTH3D_M_vMulScalarVector(&stOriginTranslation,
-                              DNM_M_xDynamicsGetTiltOrigin(p_stDynamic),
-                              p_stCurrentK);
-    MTH3D_M_vCopyVector(&stInitialTranslation, p_stTranslation);
-    MTH3D_M_vSubVector(p_stTranslation, p_stTranslation, &stOriginTranslation);
-    POS_fn_vRotatePositionAroundAxis(hCurrentMatrix, &stVector, MTH_M_xNeg(xAngle));
-    POS_fn_vSetTranslationVector(hCurrentMatrix, &stInitialTranslation);
-
-    DNM_M_vDynamicsSetTiltAngle(p_stDynamic, MTH_C_ZERO);
-}
-
-/* 0x00432B10 */
-void __cdecl MEC_vImposeRelativeRotation(DNM_tdstDynamics *p_stDynamic,
-                                         MTH3D_tdstMatrix *p_stRotationMatrix)
-{
-    MTH3D_tdstVector *p_stI, *p_stJ, *p_stK;
-    MTH3D_tdstMatrix stMatrix;
-    POS_tdxHandleToPosition hCurrentMatrix;
-
-    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
-    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
-    POS_fn_vGetRotationVector(hCurrentMatrix, &p_stI, &p_stJ, &p_stK);
-    MTH3D_M_vSetVectorsInMatrix(&stMatrix, p_stI, p_stJ, p_stK);
-    MTH3D_M_vMulMatrixMatrix(&stMatrix, &stMatrix, p_stRotationMatrix);
-    MTH3D_M_vGetVectorsInMatrix(p_stI, p_stJ, p_stK, &stMatrix);
-    MEC_fn_vUpdateMatrix(p_stDynamic, hCurrentMatrix);
-
-    if (DNM_M_bDynamicsIsComplexSize(p_stDynamic))
-        MEC_fn_vCancelTilt(p_stDynamic);
 }
 
 /* 0x00432E60 */
@@ -1281,46 +1281,4 @@ DNM_tdstDynamics * __cdecl DNM_p_stDynamicsCameraMechanics(
 	MTH3D_M_vCopyVector(DNM_M_p_stCPDGetTarget(_p_stParsingDatas), &stTarget);
 
 	return _p_stDynamics;
-}
-
-/* 0x004331D0 */
-void __cdecl DNM_fn_vSetHangingLimit(DNM_tdstDynamics *p_stDynamic,
-                                     MTH_tdxReal xValue)
-{
-    if (MEC_fn_bIsPlatform(p_stDynamic))
-    {
-        HIE_tdstSuperObject *hPlatformSO = DNM_M_hDynamicsGetPlatformSO(p_stDynamic);
-        POS_tdxHandleToPosition hGlobal = HIE_fn_hGetSuperObjectGlobalMatrix(hPlatformSO);
-        MTH_tdxReal xPlatformZ = MTH3D_M_xGetZofVector(
-            POS_fn_p_stGetTranslationVector(hGlobal));
-        DNM_M_vDynamicsSetHangingLimit(p_stDynamic, MTH_M_xSub(xValue, xPlatformZ));
-    }
-    else
-    {
-        DNM_M_vDynamicsSetHangingLimit(p_stDynamic, xValue);
-    }
-}
-
-/* 0x00433020 */
-void __cdecl MEC_vTurnAbsolute(DNM_tdstDynamics *p_stDynamic,
-                               MTH3D_tdstVector *p_stVector)
-{
-    POS_tdxHandleToPosition hCurrentMatrix;
-    MTH3D_tdstVector *p_stI, *p_stJ, *p_stK;
-
-    if (DNM_M_bDynamicsIsInit(p_stDynamic)) return;
-    if (MTH3D_M_bIsNullVector(p_stVector)) return;
-
-    hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix(p_stDynamic);
-
-    POS_fn_vGetRotationVector(hCurrentMatrix, &p_stI, &p_stJ, &p_stK);
-
-    MTH3D_M_vNormalizeVector(p_stJ, p_stVector);
-    MTH3D_M_vNegVector(p_stJ, p_stJ);
-    MTH3D_M_vCrossProductVector(p_stI, p_stJ, p_stK);
-    MTH3D_M_vCrossProductVector(p_stJ, p_stK, p_stI);
-    MEC_fn_vUpdateMatrix(p_stDynamic, hCurrentMatrix);
-
-    if (DNM_M_bDynamicsIsComplexSize(p_stDynamic))
-        MEC_fn_vCancelTilt(p_stDynamic);
 }

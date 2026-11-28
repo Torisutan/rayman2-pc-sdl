@@ -101,235 +101,15 @@ int           SNA_C_pRelocDelta_storage[SNA_C_lRelocTableSize];
 #define SNA_p_vSaveInformationBlock  Mmg_fn_vSaveInformationBlock
 #define SNA_p_vProgress              GLI_AddToProgressBar
 
-/* 0x0044D3A0 */
-void __cdecl SNA_pc_vSortLoadList(SNA_tdstLoadListEntry *_p_stList, int _iCount)
-{
-    SNA_tdstLoadListEntry *p_stLast = _p_stList + _iCount - 1;
-    SNA_tdstLoadListEntry *p_stI;
-    SNA_tdstLoadListEntry *p_stJ;
+void __cdecl SNA_pc_vSortLoadList(SNA_tdstLoadListEntry *_p_stList, int _iCount);
 
-    for (p_stI = _p_stList; p_stI < p_stLast; p_stI++) {
-        for (p_stJ = p_stI + 1; p_stJ < p_stLast + 1; p_stJ++) {
-            if (*p_stI->p_ucModuleId > *p_stJ->p_ucModuleId ||
-                (*p_stI->p_ucModuleId == *p_stJ->p_ucModuleId &&
-                 (unsigned char)p_stI->lBlockId > (unsigned char)p_stJ->lBlockId)) {
-                SNA_tdstLoadListEntry stTmp = *p_stI;
-                *p_stI = *p_stJ;
-                *p_stJ = stTmp;
-            }
-        }
-    }
-}
+void __cdecl SNA_pc_vInitLoadLists(void);
 
-/* 0x0044D430 */
-unsigned long __cdecl SNA_pc_bIsBlockInLoadList(unsigned char _ucModuleId,
-                                                char _cBlockId)
-{
-    SNA_tdstLoadListEntry *p_stBegin;
-    SNA_tdstLoadListEntry *p_stEnd;
+unsigned char __cdecl SNA_pc_bOpenSnaFamilyFile(void *_p_stFile);
 
-    if (SNA_g_ucLoadListMode != 0) {
-        p_stBegin = SNA_C_pLoadList1;
-        p_stEnd   = SNA_C_pLoadList2;
-    } else {
-        p_stBegin = SNA_C_pLoadList0;
-        p_stEnd   = SNA_C_pLoadList1;
-    }
+SNA_pc_tdstGptTable *__cdecl SNA_pc_pReadGptTable(void);
 
-    for (; p_stBegin < p_stEnd && _ucModuleId > *p_stBegin->p_ucModuleId; p_stBegin++) {
-    }
-    if (p_stBegin < p_stEnd) {
-        do {
-            if (_ucModuleId != *p_stBegin->p_ucModuleId) {
-                return 0;
-            }
-            if (_cBlockId == (char)p_stBegin->lBlockId) {
-                return 1;
-            }
-            p_stBegin++;
-        } while (p_stBegin < p_stEnd);
-    }
-    return 0;
-}
-
-/* 0x0044D4A0 */
-void __cdecl SNA_pc_vInitLoadLists(void)
-{
-    if (SNA_g_bLoadListsSorted == 0) {
-        SNA_pc_vSortLoadList(SNA_C_pLoadList1, 5);
-        SNA_pc_vSortLoadList(SNA_C_pLoadList0, 3);
-        SNA_pc_vSortLoadList(SNA_C_pLoadList2, 2);
-        SNA_g_bLoadListsSorted = 1;
-    }
-}
-
-/* 0x0044D990 */
-unsigned char __cdecl SNA_pc_bOpenSnaFamilyFile(void *_p_stFile)
-{
-    char        a_cPath[256];
-    char        a_cTemp[256];
-    char       *p_cName;
-    char       *p_cDollar;
-    const char *p_cExt;
-    unsigned char ucOk;
-
-#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
-    if (SNA_g_ucErrorMode != 0) {
-        __asm { mov dword ptr [SNA_g_pOpenErrorFrame1], offset L_body }
-        __asm { mov dword ptr [SNA_g_pOpenErrorFrame2], offset L_epi }
-        return 1;
-    }
-L_body:
-#endif /* RAYMAN2_NO_PROTECTION */
-    if (SNA_g_ucNextRelocationTableToLoad == 0xFFu) {
-        sprintf(a_cPath, SNA_C_szFmtFix, SNA_p_pcGetBaseDir());
-    } else {
-        if (SNA_p_bEmbeddedGate() && SNA_pc_bOpenEmbeddedSna(_p_stFile)) {
-            return 1;
-        }
-        p_cName   = GAM_g_stEngineStructure.a_szLevelName[SNA_g_ucNextRelocationTableToLoad];
-        p_cDollar = strchr(p_cName, '$');
-        if (p_cDollar != (char *)0) {
-            *p_cDollar = '\0';
-        }
-        sprintf(a_cPath, SNA_C_szFmtLevel, SNA_p_pcGetBaseDir(), p_cName, p_cName);
-        if (p_cDollar != (char *)0) {
-            *p_cDollar = '$';
-        }
-    }
-
-    switch (SNA_pc_g_ucNextRelocationTableKind) {
-    case 0:  p_cExt = SNA_C_szExtRtb; break;
-    case 1:  p_cExt = SNA_C_szExtRtp; break;
-    case 2:  p_cExt = SNA_C_szExtRts; break;
-    case 3:  p_cExt = SNA_C_szExtRtt; break;
-    case 4:  p_cExt = SNA_C_szExtRtl; break;
-    default: p_cExt = (const char *)0; break;
-    }
-    if (p_cExt != (const char *)0) {
-        strcat(a_cPath, p_cExt);
-    }
-
-    ucOk = SNA_pc_bOpenFile(a_cPath, 2, 0, _p_stFile);
-    if (ucOk == 0) {
-        strcpy(a_cTemp, a_cPath);
-        sprintf(a_cPath, SNA_C_szFmtCd, (int)SNA_g_cCdDriveLetter, a_cTemp);
-        ucOk = SNA_pc_bOpenFile(a_cPath, 2, 0, _p_stFile);
-        while (ucOk == 0) {
-            int iResponse = SNA_p_iAskInsertCd(SNA_C_szInsertCd,
-                                               SNA_C_szInsertCd, 0x40035);
-            if (iResponse == 2) {
-                SNA_p_vOnCdPromptAbort();
-            }
-            ucOk = SNA_pc_bOpenFile(a_cPath, 2, 0, _p_stFile);
-        }
-        strcpy(a_cPath, a_cTemp);
-    }
-
-    return ucOk;
-#ifndef RAYMAN2_NO_PROTECTION
-L_epi:;
-#endif /* RAYMAN2_NO_PROTECTION */
-}
-
-/* 0x0044DC40 */
-SNA_pc_tdstGptTable *__cdecl SNA_pc_pReadGptTable(void)
-{
-    unsigned char  a_ucStream[0x40];
-    SNA_pc_tdstGptTable  *p_stHead;
-    SNA_pc_tdstGptRecord *d_stRecords;
-    SNA_pc_tdstGptRecord *p_stRec;
-    SNA_pc_tdstRelocSlot *d_stSlots;
-    unsigned char  ucCount;
-    unsigned char  ucModule     = 0xF0;
-    unsigned char  ucBlock      = 0xF0;
-    unsigned char  ucModulePrev;
-    unsigned char  ucBlockPrev;
-    unsigned char  ucCounter;
-    unsigned char  ucIndex;
-    unsigned long  ulPtrCount;
-
-#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
-    if (SNA_g_ucErrorMode != 0) {
-        __asm { mov dword ptr [SNA_g_pGptErrorFrame1], offset L_body }
-        __asm { mov dword ptr [SNA_g_pGptErrorFrame2], offset L_epi }
-        return NULL;
-    }
-L_body:
-#endif /* RAYMAN2_NO_PROTECTION */
-    SNA_pc_vInitLoadLists();
-    if (SNA_pc_bOpenSnaFamilyFile(a_ucStream) == 0) {
-        return NULL;
-    }
-
-    SNA_fn_ulFRead(&ucCount, 1, 1, a_ucStream);
-
-    p_stHead              = (SNA_pc_tdstGptTable *)SNA_p_pAlloc(sizeof(SNA_pc_tdstGptTable));
-    p_stHead->ucNbRecords = ucCount;
-    d_stRecords = (SNA_pc_tdstGptRecord *)SNA_p_pAlloc((ucCount & 0xFFu) * sizeof(SNA_pc_tdstGptRecord));
-    p_stHead->d_stRecord  = d_stRecords;
-
-    SNA_fn_ulFRead(&SNA_g_ulGptHeaderScratch, 4, 1, a_ucStream);
-
-    ucCounter = 0;
-    ucIndex   = 0;
-    if (ucCount != 0) {
-        do {
-            ucModulePrev = ucModule;
-            ucBlockPrev  = ucBlock;
-            SNA_fn_ulFRead(&ucModule, 1, 1, a_ucStream);
-            SNA_fn_ulFRead(&ucBlock, 1, 1, a_ucStream);
-            if (ucModule == ucModulePrev && ucBlock == ucBlockPrev) {
-                p_stHead->ucNbRecords -= 1;
-                break;
-            }
-            SNA_fn_ulFRead(&ulPtrCount, 4, 1, a_ucStream);
-            if (ulPtrCount == 0) {
-                d_stSlots = NULL;
-            } else {
-                d_stSlots = (SNA_pc_tdstRelocSlot *)SNA_p_pAlloc(ulPtrCount * sizeof(SNA_pc_tdstRelocSlot));
-                SNA_fn_ulFRead(d_stSlots, ulPtrCount * sizeof(SNA_pc_tdstRelocSlot), 1, a_ucStream);
-            }
-            p_stRec   = &d_stRecords[ucIndex];
-            ucCounter = (unsigned char)(ucCounter + 1);
-            ucIndex   = ucCounter;
-            p_stRec->ucModule  = ucModule;
-            p_stRec->ucBlock   = ucBlock;
-            p_stRec->ulNbSlots = ulPtrCount;
-            p_stRec->d_stSlot  = d_stSlots;
-        } while (ucCounter < ucCount);
-    }
-
-    SNA_pc_bCloseFile(a_ucStream);
-    return p_stHead;
-#ifndef RAYMAN2_NO_PROTECTION
-L_epi:;
-#endif /* RAYMAN2_NO_PROTECTION */
-}
-
-/* 0x0044DDE0 */
-void __cdecl SNA_pc_vFreeGptTable(SNA_pc_tdstGptTable *_p_stGpt)
-{
-    SNA_pc_tdstGptRecord *d_stRecArray;
-    unsigned char ucI;
-
-    if (_p_stGpt != NULL) {
-        d_stRecArray = _p_stGpt->d_stRecord;
-        ucI      = 0;
-        if (_p_stGpt->ucNbRecords > 0) {
-            do {
-
-                SNA_pc_tdstRelocSlot **p_d_stSlots = &d_stRecArray[ucI].d_stSlot;
-                if (*p_d_stSlots != NULL) {
-                    SNA_p_vFreeAndNull(p_d_stSlots);
-                }
-                ucI++;
-            } while (ucI < _p_stGpt->ucNbRecords);
-        }
-        SNA_p_vFreeAndNull(&d_stRecArray);
-        SNA_p_vFreeAndNull(&_p_stGpt);
-    }
-}
+void __cdecl SNA_pc_vFreeGptTable(SNA_pc_tdstGptTable *_p_stGpt);
 
 /* 0x0044CF10 */
 void __cdecl SNA_pc_vReloadGptTable(void)
@@ -356,24 +136,7 @@ void __cdecl SNA_pc_vReleaseGptTable(void)
     SNA_g_pRelocCursor    = NULL;
 }
 
-/* 0x0044D040 */
-void __cdecl SNA_pc_vRelocateGptSlot(unsigned long *_p_ulSlot)
-{
-    unsigned char ucModule;
-    unsigned char ucBlock;
-    int           iIdx;
-
-    if (SNA_g_pRelocCursor < SNA_g_pRelocCursorEnd
-            && *_p_ulSlot == SNA_g_pRelocCursor->ulValue) {
-        ucModule = SNA_g_pRelocCursor->ucModule;
-        ucBlock  = SNA_g_pRelocCursor->ucBlock;
-        iIdx     = (int)((unsigned long)ucBlock + (unsigned long)ucModule * 10);
-        if (SNA_C_pRelocFlag[iIdx] != 0) {
-            *_p_ulSlot = *_p_ulSlot + (unsigned long)SNA_C_pRelocDelta[iIdx];
-        }
-        SNA_g_pRelocCursor = SNA_g_pRelocCursor + 1;
-    }
-}
+unsigned long __cdecl SNA_pc_bIsBlockInLoadList(unsigned char _ucModuleId, char _cBlockId);
 
 /* 0x0044D4F0 */
 int __cdecl SNA_pc_vLoadAndRelocate(char *_szFile)
@@ -534,6 +297,190 @@ int __cdecl SNA_pc_vLoadAndRelocate(char *_szFile)
     return 1;
 }
 
+/* 0x0044D990 */
+unsigned char __cdecl SNA_pc_bOpenSnaFamilyFile(void *_p_stFile)
+{
+    char        a_cPath[256];
+    char        a_cTemp[256];
+    char       *p_cName;
+    char       *p_cDollar;
+    const char *p_cExt;
+    unsigned char ucOk;
+
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
+    if (SNA_g_ucErrorMode != 0) {
+        __asm { mov dword ptr [SNA_g_pOpenErrorFrame1], offset L_body }
+        __asm { mov dword ptr [SNA_g_pOpenErrorFrame2], offset L_epi }
+        return 1;
+    }
+L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
+    if (SNA_g_ucNextRelocationTableToLoad == 0xFFu) {
+        sprintf(a_cPath, SNA_C_szFmtFix, SNA_p_pcGetBaseDir());
+    } else {
+        if (SNA_p_bEmbeddedGate() && SNA_pc_bOpenEmbeddedSna(_p_stFile)) {
+            return 1;
+        }
+        p_cName   = GAM_g_stEngineStructure.a_szLevelName[SNA_g_ucNextRelocationTableToLoad];
+        p_cDollar = strchr(p_cName, '$');
+        if (p_cDollar != (char *)0) {
+            *p_cDollar = '\0';
+        }
+        sprintf(a_cPath, SNA_C_szFmtLevel, SNA_p_pcGetBaseDir(), p_cName, p_cName);
+        if (p_cDollar != (char *)0) {
+            *p_cDollar = '$';
+        }
+    }
+
+    switch (SNA_pc_g_ucNextRelocationTableKind) {
+    case 0:  p_cExt = SNA_C_szExtRtb; break;
+    case 1:  p_cExt = SNA_C_szExtRtp; break;
+    case 2:  p_cExt = SNA_C_szExtRts; break;
+    case 3:  p_cExt = SNA_C_szExtRtt; break;
+    case 4:  p_cExt = SNA_C_szExtRtl; break;
+    default: p_cExt = (const char *)0; break;
+    }
+    if (p_cExt != (const char *)0) {
+        strcat(a_cPath, p_cExt);
+    }
+
+    ucOk = SNA_pc_bOpenFile(a_cPath, 2, 0, _p_stFile);
+    if (ucOk == 0) {
+        strcpy(a_cTemp, a_cPath);
+        sprintf(a_cPath, SNA_C_szFmtCd, (int)SNA_g_cCdDriveLetter, a_cTemp);
+        ucOk = SNA_pc_bOpenFile(a_cPath, 2, 0, _p_stFile);
+        while (ucOk == 0) {
+            int iResponse = SNA_p_iAskInsertCd(SNA_C_szInsertCd,
+                                               SNA_C_szInsertCd, 0x40035);
+            if (iResponse == 2) {
+                SNA_p_vOnCdPromptAbort();
+            }
+            ucOk = SNA_pc_bOpenFile(a_cPath, 2, 0, _p_stFile);
+        }
+        strcpy(a_cPath, a_cTemp);
+    }
+
+    return ucOk;
+#ifndef RAYMAN2_NO_PROTECTION
+L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
+}
+
+/* 0x0044DBE0 */
+unsigned char __cdecl GAM_pc_fn_ucFindLevelNameIndex(char *szName)
+{
+    unsigned int uLen;
+    unsigned int uIdx;
+
+    uIdx = GAM_g_stEngineStructure.ucNumberOfLevels;
+    uLen = strlen(szName);
+    while (uIdx--)
+    {
+        if (_strnicmp(szName, GAM_g_stEngineStructure.a_szLevelName[uIdx], uLen) == 0)
+            return (unsigned char)uIdx;
+    }
+    return 0xff;
+}
+
+/* 0x0044DC40 */
+SNA_pc_tdstGptTable *__cdecl SNA_pc_pReadGptTable(void)
+{
+    unsigned char  a_ucStream[0x40];
+    SNA_pc_tdstGptTable  *p_stHead;
+    SNA_pc_tdstGptRecord *d_stRecords;
+    SNA_pc_tdstGptRecord *p_stRec;
+    SNA_pc_tdstRelocSlot *d_stSlots;
+    unsigned char  ucCount;
+    unsigned char  ucModule     = 0xF0;
+    unsigned char  ucBlock      = 0xF0;
+    unsigned char  ucModulePrev;
+    unsigned char  ucBlockPrev;
+    unsigned char  ucCounter;
+    unsigned char  ucIndex;
+    unsigned long  ulPtrCount;
+
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
+    if (SNA_g_ucErrorMode != 0) {
+        __asm { mov dword ptr [SNA_g_pGptErrorFrame1], offset L_body }
+        __asm { mov dword ptr [SNA_g_pGptErrorFrame2], offset L_epi }
+        return NULL;
+    }
+L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
+    SNA_pc_vInitLoadLists();
+    if (SNA_pc_bOpenSnaFamilyFile(a_ucStream) == 0) {
+        return NULL;
+    }
+
+    SNA_fn_ulFRead(&ucCount, 1, 1, a_ucStream);
+
+    p_stHead              = (SNA_pc_tdstGptTable *)SNA_p_pAlloc(sizeof(SNA_pc_tdstGptTable));
+    p_stHead->ucNbRecords = ucCount;
+    d_stRecords = (SNA_pc_tdstGptRecord *)SNA_p_pAlloc((ucCount & 0xFFu) * sizeof(SNA_pc_tdstGptRecord));
+    p_stHead->d_stRecord  = d_stRecords;
+
+    SNA_fn_ulFRead(&SNA_g_ulGptHeaderScratch, 4, 1, a_ucStream);
+
+    ucCounter = 0;
+    ucIndex   = 0;
+    if (ucCount != 0) {
+        do {
+            ucModulePrev = ucModule;
+            ucBlockPrev  = ucBlock;
+            SNA_fn_ulFRead(&ucModule, 1, 1, a_ucStream);
+            SNA_fn_ulFRead(&ucBlock, 1, 1, a_ucStream);
+            if (ucModule == ucModulePrev && ucBlock == ucBlockPrev) {
+                p_stHead->ucNbRecords -= 1;
+                break;
+            }
+            SNA_fn_ulFRead(&ulPtrCount, 4, 1, a_ucStream);
+            if (ulPtrCount == 0) {
+                d_stSlots = NULL;
+            } else {
+                d_stSlots = (SNA_pc_tdstRelocSlot *)SNA_p_pAlloc(ulPtrCount * sizeof(SNA_pc_tdstRelocSlot));
+                SNA_fn_ulFRead(d_stSlots, ulPtrCount * sizeof(SNA_pc_tdstRelocSlot), 1, a_ucStream);
+            }
+            p_stRec   = &d_stRecords[ucIndex];
+            ucCounter = (unsigned char)(ucCounter + 1);
+            ucIndex   = ucCounter;
+            p_stRec->ucModule  = ucModule;
+            p_stRec->ucBlock   = ucBlock;
+            p_stRec->ulNbSlots = ulPtrCount;
+            p_stRec->d_stSlot  = d_stSlots;
+        } while (ucCounter < ucCount);
+    }
+
+    SNA_pc_bCloseFile(a_ucStream);
+    return p_stHead;
+#ifndef RAYMAN2_NO_PROTECTION
+L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
+}
+
+/* 0x0044DDE0 */
+void __cdecl SNA_pc_vFreeGptTable(SNA_pc_tdstGptTable *_p_stGpt)
+{
+    SNA_pc_tdstGptRecord *d_stRecArray;
+    unsigned char ucI;
+
+    if (_p_stGpt != NULL) {
+        d_stRecArray = _p_stGpt->d_stRecord;
+        ucI      = 0;
+        if (_p_stGpt->ucNbRecords > 0) {
+            do {
+
+                SNA_pc_tdstRelocSlot **p_d_stSlots = &d_stRecArray[ucI].d_stSlot;
+                if (*p_d_stSlots != NULL) {
+                    SNA_p_vFreeAndNull(p_d_stSlots);
+                }
+                ucI++;
+            } while (ucI < _p_stGpt->ucNbRecords);
+        }
+        SNA_p_vFreeAndNull(&d_stRecArray);
+        SNA_p_vFreeAndNull(&_p_stGpt);
+    }
+}
+
 SNA_pc_tdhFile SNA_g_hGptFile;   /* 0x005149BC */
 FILE  *SNA_g_pSndFile;   /* 0x005149B8 */
 
@@ -546,44 +493,6 @@ extern void *__stdcall SND_fn_pGetBinEvent(unsigned long ulBinId);
 void __cdecl SNA_pc_vRawReadGptFile(void *_p_vBuffer, unsigned long _dwBytes)
 {
     SNA_pc_M_bReadFile(SNA_g_hGptFile, _p_vBuffer, _dwBytes, &_dwBytes);
-}
-
-/* 0x0044CD60 */
-void __cdecl SNA_pc_vOpenGptFile(char *_szPath)
-{
-    char a_cTemp[256];
-
-    SNA_pc_vInitLoadLists();
-    SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
-                                        SNA_pc_C_ulAttributeNormal);
-    if (SNA_g_hGptFile == SNA_pc_C_hInvalidFile) {
-        strcpy(a_cTemp, _szPath);
-        sprintf(_szPath, SNA_C_szFmtCd, (int)SNA_g_cCdDriveLetter, a_cTemp);
-        SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
-                                            SNA_pc_C_ulAttributeNormal);
-        while (SNA_g_hGptFile == SNA_pc_C_hInvalidFile) {
-            int iResponse = SNA_p_iAskInsertCd(SNA_C_szInsertCd,
-                                               SNA_C_szInsertCd, 0x40035);
-            if (iResponse == 2) {
-                SNA_p_vOnCdPromptAbort();
-            }
-            SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
-                                                SNA_pc_C_ulAttributeNormal);
-        }
-        strcpy(_szPath, a_cTemp);
-    }
-
-    if (SNA_g_pGptContext != NULL) {
-        SNA_pc_vFreeGptTable(SNA_g_pGptContext);
-    }
-    SNA_g_pGptContext = NULL;
-    SNA_g_pGptContext = SNA_pc_pReadGptTable();
-
-    SNA_g_pRelocCursor    = SNA_g_pGptContext->d_stRecord[0].d_stSlot;
-    SNA_g_pRelocCursorEnd = SNA_g_pGptContext->d_stRecord[0].d_stSlot
-                          + SNA_g_pGptContext->d_stRecord[0].ulNbSlots;
-
-    SNA_p_vProgress(1);
 }
 
 /* 0x0044CFC0 */
@@ -608,6 +517,25 @@ unsigned long __cdecl SNA_pc_ulReadAndRelocateLong(void)
         SNA_g_pRelocCursor = SNA_g_pRelocCursor + 1;
     }
     return ulResult;
+}
+
+/* 0x0044D040 */
+void __cdecl SNA_pc_vRelocateGptSlot(unsigned long *_p_ulSlot)
+{
+    unsigned char ucModule;
+    unsigned char ucBlock;
+    int           iIdx;
+
+    if (SNA_g_pRelocCursor < SNA_g_pRelocCursorEnd
+            && *_p_ulSlot == SNA_g_pRelocCursor->ulValue) {
+        ucModule = SNA_g_pRelocCursor->ucModule;
+        ucBlock  = SNA_g_pRelocCursor->ucBlock;
+        iIdx     = (int)((unsigned long)ucBlock + (unsigned long)ucModule * 10);
+        if (SNA_C_pRelocFlag[iIdx] != 0) {
+            *_p_ulSlot = *_p_ulSlot + (unsigned long)SNA_C_pRelocDelta[iIdx];
+        }
+        SNA_g_pRelocCursor = SNA_g_pRelocCursor + 1;
+    }
 }
 
 /* 0x0044D0B0 */
@@ -679,6 +607,44 @@ void __cdecl SNA_pc_vReadRawArray(void *_p_vBuffer, int _iCount,
     }
 }
 
+/* 0x0044CD60 */
+void __cdecl SNA_pc_vOpenGptFile(char *_szPath)
+{
+    char a_cTemp[256];
+
+    SNA_pc_vInitLoadLists();
+    SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                                        SNA_pc_C_ulAttributeNormal);
+    if (SNA_g_hGptFile == SNA_pc_C_hInvalidFile) {
+        strcpy(a_cTemp, _szPath);
+        sprintf(_szPath, SNA_C_szFmtCd, (int)SNA_g_cCdDriveLetter, a_cTemp);
+        SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                                            SNA_pc_C_ulAttributeNormal);
+        while (SNA_g_hGptFile == SNA_pc_C_hInvalidFile) {
+            int iResponse = SNA_p_iAskInsertCd(SNA_C_szInsertCd,
+                                               SNA_C_szInsertCd, 0x40035);
+            if (iResponse == 2) {
+                SNA_p_vOnCdPromptAbort();
+            }
+            SNA_g_hGptFile = SNA_pc_M_hOpenFile(_szPath, SNA_pc_C_ulAccessRead, SNA_pc_C_ulOpenExisting,
+                                                SNA_pc_C_ulAttributeNormal);
+        }
+        strcpy(_szPath, a_cTemp);
+    }
+
+    if (SNA_g_pGptContext != NULL) {
+        SNA_pc_vFreeGptTable(SNA_g_pGptContext);
+    }
+    SNA_g_pGptContext = NULL;
+    SNA_g_pGptContext = SNA_pc_pReadGptTable();
+
+    SNA_g_pRelocCursor    = SNA_g_pGptContext->d_stRecord[0].d_stSlot;
+    SNA_g_pRelocCursorEnd = SNA_g_pGptContext->d_stRecord[0].d_stSlot
+                          + SNA_g_pGptContext->d_stRecord[0].ulNbSlots;
+
+    SNA_p_vProgress(1);
+}
+
 /* 0x0044CEC0 */
 void __cdecl SNA_pc_vCloseGptFile(void)
 {
@@ -722,7 +688,7 @@ void __cdecl SNA_pc_vOpenSndFile(char *_szPath)
 }
 
 /* 0x0044D2F0 */
-void __cdecl SNA_pc_vReadAndRelocateSnd(void)
+void __cdecl SNA_pc_vReadAndRelocateSnd(char *_szPath)
 {
     SNA_pc_tdstRelocSlot *p_stSlot;
     int            iEvent;
@@ -745,30 +711,66 @@ void __cdecl SNA_pc_vReadAndRelocateSnd(void)
     fclose(SNA_g_pSndFile);
 }
 
-/* 0x0044E750 */
-BOOL __stdcall SNA_pc_fn_bReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD dwToRead,
-                                   LPDWORD lpRead, LPOVERLAPPED lpOverlapped)
+/* 0x0044D3A0 */
+void __cdecl SNA_pc_vSortLoadList(SNA_tdstLoadListEntry *_p_stList, int _iCount)
 {
-#ifndef RAYMAN2_NO_PROTECTION   /* Win32 call through a code-pool stub */
-    unsigned char *p_ucStub;
-    unsigned char *p_ucEnd;
-    BOOL bResult;
-    void *hProcess;
+    SNA_tdstLoadListEntry *p_stLast = _p_stList + _iCount - 1;
+    SNA_tdstLoadListEntry *p_stI;
+    SNA_tdstLoadListEntry *p_stJ;
 
-    MMG_pc_M_vStepLcg();
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
-    MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpReadFile, 0x50, 0xC3);
-    MMG_pc_M_vFlushPool(hProcess);
-    bResult = ((BOOL (__stdcall *)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED))p_ucStub)(
-        hFile, lpBuffer, dwToRead, lpRead, lpOverlapped);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-        MMG_pc_M_vStepLcg();
-        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    for (p_stI = _p_stList; p_stI < p_stLast; p_stI++) {
+        for (p_stJ = p_stI + 1; p_stJ < p_stLast + 1; p_stJ++) {
+            if (*p_stI->p_ucModuleId > *p_stJ->p_ucModuleId ||
+                (*p_stI->p_ucModuleId == *p_stJ->p_ucModuleId &&
+                 (unsigned char)p_stI->lBlockId > (unsigned char)p_stJ->lBlockId)) {
+                SNA_tdstLoadListEntry stTmp = *p_stI;
+                *p_stI = *p_stJ;
+                *p_stJ = stTmp;
+            }
+        }
     }
-    return bResult;
-#else
-    return SNA_pc_M_bReadFile(hFile, lpBuffer, dwToRead, lpRead);   /* lpOverlapped: NULL */
-#endif /* RAYMAN2_NO_PROTECTION */
+}
+
+/* 0x0044D430 */
+unsigned long __cdecl SNA_pc_bIsBlockInLoadList(unsigned char _ucModuleId,
+                                                char _cBlockId)
+{
+    SNA_tdstLoadListEntry *p_stBegin;
+    SNA_tdstLoadListEntry *p_stEnd;
+
+    if (SNA_g_ucLoadListMode != 0) {
+        p_stBegin = SNA_C_pLoadList1;
+        p_stEnd   = SNA_C_pLoadList2;
+    } else {
+        p_stBegin = SNA_C_pLoadList0;
+        p_stEnd   = SNA_C_pLoadList1;
+    }
+
+    for (; p_stBegin < p_stEnd && _ucModuleId > *p_stBegin->p_ucModuleId; p_stBegin++) {
+    }
+    if (p_stBegin < p_stEnd) {
+        do {
+            if (_ucModuleId != *p_stBegin->p_ucModuleId) {
+                return 0;
+            }
+            if (_cBlockId == (char)p_stBegin->lBlockId) {
+                return 1;
+            }
+            p_stBegin++;
+        } while (p_stBegin < p_stEnd);
+    }
+    return 0;
+}
+
+/* 0x0044D4A0 */
+void __cdecl SNA_pc_vInitLoadLists(void)
+{
+    if (SNA_g_bLoadListsSorted == 0) {
+        SNA_pc_vSortLoadList(SNA_C_pLoadList1, 5);
+        SNA_pc_vSortLoadList(SNA_C_pLoadList0, 3);
+        SNA_pc_vSortLoadList(SNA_C_pLoadList2, 2);
+        SNA_g_bLoadListsSorted = 1;
+    }
 }
 
 extern unsigned int __cdecl MMG_pc_fn_ulStepLcgState(void);
@@ -837,6 +839,8 @@ unsigned long  SNA_pc_g_ulUnitNumerator;      /* 0x005117B0 */
 unsigned long  SNA_pc_g_ulUnitDenominator;    /* 0x005117C0 */
 unsigned long  SNA_pc_g_ulOffsetMul;          /* 0x005117BC */
 long           SNA_pc_g_lOffsetBase;          /* 0x00511754 */
+
+BOOL __stdcall SNA_pc_fn_bReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD dwToRead, LPDWORD lpRead, LPOVERLAPPED lpOverlapped);
 
 #ifndef RAYMAN2_NO_PROTECTION
 void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
@@ -966,6 +970,32 @@ void __cdecl SNA_pc_vVerifyCdLevelsFile(void)
     SNA_pc_M_bCloseFile(hFile);
 }
 #endif /* RAYMAN2_NO_PROTECTION */
+
+/* 0x0044E750 */
+BOOL __stdcall SNA_pc_fn_bReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD dwToRead,
+                                   LPDWORD lpRead, LPOVERLAPPED lpOverlapped)
+{
+#ifndef RAYMAN2_NO_PROTECTION   /* Win32 call through a code-pool stub */
+    unsigned char *p_ucStub;
+    unsigned char *p_ucEnd;
+    BOOL bResult;
+    void *hProcess;
+
+    MMG_pc_M_vStepLcg();
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
+    MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpReadFile, 0x50, 0xC3);
+    MMG_pc_M_vFlushPool(hProcess);
+    bResult = ((BOOL (__stdcall *)(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED))p_ucStub)(
+        hFile, lpBuffer, dwToRead, lpRead, lpOverlapped);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+        MMG_pc_M_vStepLcg();
+        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    }
+    return bResult;
+#else
+    return SNA_pc_M_bReadFile(hFile, lpBuffer, dwToRead, lpRead);   /* lpOverlapped: NULL */
+#endif /* RAYMAN2_NO_PROTECTION */
+}
 
 HANDLE __stdcall SNA_pc_fn_hCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
                                         LPSECURITY_ATTRIBUTES lpSecurityAttributes,

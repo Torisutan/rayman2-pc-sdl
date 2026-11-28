@@ -30,58 +30,6 @@ extern char __cdecl fn_bStandardGameIsAPlatform (void *hSupObj);
 /* 0x0040B040 */
 extern void __cdecl fn_vReputCharacterSuperObjectAtTheWorld (struct HIE_tdstSuperObject *h_SupObject);
 
-void __cdecl MEC_fn_vDynamicComputeAbsoluteMatrix (
-	DNM_tdstDynamics *p_stDynamic,
-	HIE_tdstSuperObject *hSupObj,
-	POS_tdxHandleToPosition hPreviousMatrix,
-	POS_tdxHandleToPosition hInvPreviousMatrix,
-	POS_tdxHandleToPosition hCurrentMatrix )
-{
-	POS_tdstCompletePosition stMatrix;
-	POS_tdxHandleToPosition hMatrix;
-	POS_tdxHandleToPosition hPreviousDynamicMatrix, hCurrentDynamicMatrix;
-	MTH3D_tdstVector stVector;
-	MTH3D_tdstVector *p_stI, *p_stJ, *p_stK;
-	MTH3D_tdstVector *p_stContact;
-
-	hPreviousDynamicMatrix = DNM_M_p_stDynamicsGetPreviousMatrix (p_stDynamic);
-	hCurrentDynamicMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
-
-	hMatrix = (POS_tdxHandleToPosition)&stMatrix;
-	POS_fn_vMulMatrixMatrix (hMatrix, hCurrentMatrix, hInvPreviousMatrix);
-
-	p_stContact = DNM_M_pDynamicsGetContact (p_stDynamic);
-	POS_fn_vGetTranslationVector ( hCurrentDynamicMatrix, &stVector );
-	MTH3D_M_vSubVector (&stVector,&stVector,p_stContact);
-	MTH3D_M_vSetXofVector ( &stVector, MTH_C_ZERO );
-	MTH3D_M_vSetYofVector ( &stVector, MTH_C_ZERO );
-
-	POS_fn_vMulMatrixMatrix ( hPreviousDynamicMatrix, hMatrix, hPreviousDynamicMatrix );
-	POS_fn_vMulMatrixMatrix ( hCurrentDynamicMatrix, hMatrix, hCurrentDynamicMatrix );
-
-	if (!DNM_M_bDynamicsIsStickOnPlatform(p_stDynamic) && !MEC_fn_bIsEqualRotationMatrix (hPreviousMatrix,hCurrentMatrix) )
-	{
-		POS_fn_vGetRotationVector ( hPreviousDynamicMatrix, &p_stI, &p_stJ, &p_stK );
-		MTH3D_M_vSetZofVector ( p_stJ, MTH_C_ZERO );
-		MTH3D_M_vNormalizeVector ( p_stJ, p_stJ );
-		MTH3D_M_vSetBaseKVector( p_stK );
-		MTH3D_M_vCrossProductVectorWithoutBuffer(p_stI, p_stJ, p_stK);
-		MTH3D_M_vNormalizeVector ( p_stI, p_stI );
-		MEC_fn_vUpdateMatrix ( p_stDynamic, hPreviousDynamicMatrix );
-
-		POS_fn_vGetRotationVector ( hCurrentDynamicMatrix, &p_stI, &p_stJ, &p_stK );
-		MTH3D_M_vSetZofVector ( p_stJ, MTH_C_ZERO );
-		MTH3D_M_vNormalizeVector ( p_stJ, p_stJ );
-		MTH3D_M_vSetBaseKVector( p_stK );
-		MTH3D_M_vCrossProductVectorWithoutBuffer(p_stI, p_stJ, p_stK);
-		MTH3D_M_vNormalizeVector ( p_stI, p_stI );
-		MEC_fn_vUpdateMatrix ( p_stDynamic, hCurrentDynamicMatrix );
-	}
-
-	POS_fn_vCopyMatrix ( HIE_fn_hGetSuperObjectGlobalMatrix (hSupObj), hCurrentDynamicMatrix );
-	HIE_fn_vComputeNewRelativeMatrix (hSupObj);
-}
-
 void __cdecl MEC_fn_vUpdatePlatform (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, POS_tdxHandleToPosition hPreviousReferenceMatrix, POS_tdxHandleToPosition hInvPreviousReferenceMatrix )
 {
 	POS_tdxHandleToPosition hCurrentMatrix;
@@ -109,36 +57,6 @@ void __cdecl MEC_fn_vUpdatePlatform (DNM_tdstDynamics *p_stDynamic, HIE_tdstSupe
 			}
 		}
 	}
-}
-
-/* 0x0043D950 */
-void __cdecl MEC_fn_vSetPlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, HIE_tdstSuperObject *hFatherSupObj)
-{
-	if (DNM_M_bDynamicsIsLockPlatform (p_stDynamic)) return;
-	DNM_M_vDynamicsSetPlatformSO (p_stDynamic, hFatherSupObj);
-	HIE_M_vIsolate(hSupObj);
-	HIE_fn_vSuperObjectAddTail(hFatherSupObj, hSupObj);
-}
-
-/* 0x0043DA00 */
-void __cdecl MEC_fn_vCutPlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj)
-{
-	if (DNM_M_bDynamicsIsLockPlatform (p_stDynamic)) return;
-	HIE_fn_vInvalidateSuperObject (&DNM_M_hDynamicsGetPlatformSO (p_stDynamic));
-	fn_vReputCharacterSuperObjectAtTheWorld (hSupObj);
-}
-
-void __cdecl MEC_fn_vForcePlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, HIE_tdstSuperObject *hFatherSupObj)
-{
-	MEC_fn_vSetPlatformLink ( p_stDynamic, hSupObj, hFatherSupObj);
-	DNM_M_bDynamicsSetLockPlatform (p_stDynamic, TRUE);
-}
-
-/* 0x0043DA60 */
-void __cdecl MEC_fn_vFreePlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj)
-{
-	DNM_M_bDynamicsSetLockPlatform (p_stDynamic, FALSE);
-	MEC_fn_vCutPlatformLink ( p_stDynamic, hSupObj );
 }
 
 ACP_tdxBool __cdecl MEC_fn_vBasePlatformManagement ( DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj )
@@ -194,4 +112,86 @@ ACP_tdxBool __cdecl MEC_fn_vBasePlatformManagement ( DNM_tdstDynamics *p_stDynam
 		return TRUE;
 	}
 	return FALSE;
+}
+
+/* 0x0043D950 */
+void __cdecl MEC_fn_vSetPlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, HIE_tdstSuperObject *hFatherSupObj)
+{
+	if (DNM_M_bDynamicsIsLockPlatform (p_stDynamic)) return;
+	DNM_M_vDynamicsSetPlatformSO (p_stDynamic, hFatherSupObj);
+	HIE_M_vIsolate(hSupObj);
+	HIE_fn_vSuperObjectAddTail(hFatherSupObj, hSupObj);
+}
+
+/* 0x0043DA00 */
+void __cdecl MEC_fn_vCutPlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj)
+{
+	if (DNM_M_bDynamicsIsLockPlatform (p_stDynamic)) return;
+	HIE_fn_vInvalidateSuperObject (&DNM_M_hDynamicsGetPlatformSO (p_stDynamic));
+	fn_vReputCharacterSuperObjectAtTheWorld (hSupObj);
+}
+
+void __cdecl MEC_fn_vForcePlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj, HIE_tdstSuperObject *hFatherSupObj)
+{
+	MEC_fn_vSetPlatformLink ( p_stDynamic, hSupObj, hFatherSupObj);
+	DNM_M_bDynamicsSetLockPlatform (p_stDynamic, TRUE);
+}
+
+/* 0x0043DA60 */
+void __cdecl MEC_fn_vFreePlatformLink (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj)
+{
+	DNM_M_bDynamicsSetLockPlatform (p_stDynamic, FALSE);
+	MEC_fn_vCutPlatformLink ( p_stDynamic, hSupObj );
+}
+
+void __cdecl MEC_fn_vDynamicComputeAbsoluteMatrix (
+	DNM_tdstDynamics *p_stDynamic,
+	HIE_tdstSuperObject *hSupObj,
+	POS_tdxHandleToPosition hPreviousMatrix,
+	POS_tdxHandleToPosition hInvPreviousMatrix,
+	POS_tdxHandleToPosition hCurrentMatrix )
+{
+	POS_tdstCompletePosition stMatrix;
+	POS_tdxHandleToPosition hMatrix;
+	POS_tdxHandleToPosition hPreviousDynamicMatrix, hCurrentDynamicMatrix;
+	MTH3D_tdstVector stVector;
+	MTH3D_tdstVector *p_stI, *p_stJ, *p_stK;
+	MTH3D_tdstVector *p_stContact;
+
+	hPreviousDynamicMatrix = DNM_M_p_stDynamicsGetPreviousMatrix (p_stDynamic);
+	hCurrentDynamicMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
+
+	hMatrix = (POS_tdxHandleToPosition)&stMatrix;
+	POS_fn_vMulMatrixMatrix (hMatrix, hCurrentMatrix, hInvPreviousMatrix);
+
+	p_stContact = DNM_M_pDynamicsGetContact (p_stDynamic);
+	POS_fn_vGetTranslationVector ( hCurrentDynamicMatrix, &stVector );
+	MTH3D_M_vSubVector (&stVector,&stVector,p_stContact);
+	MTH3D_M_vSetXofVector ( &stVector, MTH_C_ZERO );
+	MTH3D_M_vSetYofVector ( &stVector, MTH_C_ZERO );
+
+	POS_fn_vMulMatrixMatrix ( hPreviousDynamicMatrix, hMatrix, hPreviousDynamicMatrix );
+	POS_fn_vMulMatrixMatrix ( hCurrentDynamicMatrix, hMatrix, hCurrentDynamicMatrix );
+
+	if (!DNM_M_bDynamicsIsStickOnPlatform(p_stDynamic) && !MEC_fn_bIsEqualRotationMatrix (hPreviousMatrix,hCurrentMatrix) )
+	{
+		POS_fn_vGetRotationVector ( hPreviousDynamicMatrix, &p_stI, &p_stJ, &p_stK );
+		MTH3D_M_vSetZofVector ( p_stJ, MTH_C_ZERO );
+		MTH3D_M_vNormalizeVector ( p_stJ, p_stJ );
+		MTH3D_M_vSetBaseKVector( p_stK );
+		MTH3D_M_vCrossProductVectorWithoutBuffer(p_stI, p_stJ, p_stK);
+		MTH3D_M_vNormalizeVector ( p_stI, p_stI );
+		MEC_fn_vUpdateMatrix ( p_stDynamic, hPreviousDynamicMatrix );
+
+		POS_fn_vGetRotationVector ( hCurrentDynamicMatrix, &p_stI, &p_stJ, &p_stK );
+		MTH3D_M_vSetZofVector ( p_stJ, MTH_C_ZERO );
+		MTH3D_M_vNormalizeVector ( p_stJ, p_stJ );
+		MTH3D_M_vSetBaseKVector( p_stK );
+		MTH3D_M_vCrossProductVectorWithoutBuffer(p_stI, p_stJ, p_stK);
+		MTH3D_M_vNormalizeVector ( p_stI, p_stI );
+		MEC_fn_vUpdateMatrix ( p_stDynamic, hCurrentDynamicMatrix );
+	}
+
+	POS_fn_vCopyMatrix ( HIE_fn_hGetSuperObjectGlobalMatrix (hSupObj), hCurrentDynamicMatrix );
+	HIE_fn_vComputeNewRelativeMatrix (hSupObj);
 }

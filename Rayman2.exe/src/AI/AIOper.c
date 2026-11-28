@@ -49,102 +49,6 @@ extern void __cdecl fn_vBuildVectorForAffectOperator(char cComponent, void *p_st
 static const unsigned long AI_OPER_xZero_bits = 0x00000000u;
 #define AI_OPER_xZero        (*(const float *)&AI_OPER_xZero_bits)
 
-/* 0x00481DA0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stVectorDotOperator(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long         opId     = *(unsigned long *)((char *)p_stTree - 8);
-    AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(
-        p_SuperObjPerso, p_stTree, (AI_tdstGetSetParam *)p_lValue);
-
-    if (p_lValue[3] == 0x15)
-    {
-
-        switch (opId)
-        {
-        case 0xd:
-            p_lValue[3] = 8;
-            break;
-        case 0xe:
-        {
-            float xY = *(float *)&p_lValue[1];
-            *(float *)&p_lValue[0] = xY;
-            p_lValue[3] = 8;
-            break;
-        }
-        case 0xf:
-        {
-            float xZ = *(float *)&p_lValue[2];
-            *(float *)&p_lValue[0] = xZ;
-            p_lValue[3] = 8;
-            break;
-        }
-        default:
-            break;
-        }
-    }
-    return p_stNext;
-}
-
-/* 0x00481A60 */
-AI_tdstNodeInterpret *__cdecl fn_p_stVectorOperator(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    AI_tdstGetSetParam    stParam1, stParam2;
-    long                  eOperatorId = *(long *)((char *)p_stTree - 8);
-    MTH3D_tdstVector     *p_stVector, *p_stVector1, *p_stVector2 = (MTH3D_tdstVector *)0;
-    MTH_tdxReal           xFactor = MTH_C_ONE;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
-    p_stVector1 = (MTH3D_tdstVector *)stParam1.uParam.a_xVectorValue;
-
-    if (eOperatorId != 0x14)
-    {
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
-        if ((eOperatorId == 0x10) || (eOperatorId == 0x11))
-        {
-            p_stVector2 = (MTH3D_tdstVector *)stParam2.uParam.a_xVectorValue;
-        }
-        else
-        {
-            xFactor = M_ReturnParam_xValue(&stParam2);
-        }
-    }
-
-    p_stVector = (MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue;
-    p_stValue->eType = E_vt_Vector;
-
-    switch (eOperatorId)
-    {
-    case 0x10:
-        MTH3D_M_vAddVector(p_stVector, p_stVector1, p_stVector2);
-        return p_stTree;
-    case 0x11:
-        MTH3D_M_vSubVector(p_stVector, p_stVector1, p_stVector2);
-        return p_stTree;
-    case 0x12:
-        MTH3D_M_vMulScalarVector(p_stVector, xFactor, p_stVector1);
-        return p_stTree;
-    case 0x13:
-        if (MTH_M_bDifferentWithEpsilon(xFactor, MTH_C_ZERO, MTH_C_EpsilonPlus))
-        {
-            MTH3D_M_vDivScalarVector(p_stVector, p_stVector1, xFactor);
-        }
-        else
-        {
-            MTH3D_M_vNullVector(p_stVector);
-        }
-        return p_stTree;
-    case 0x14:
-        MTH3D_M_vNegVector(p_stVector, p_stVector1);
-        return p_stTree;
-    default:
-        break;
-    }
-    MTH3D_M_vNullVector(p_stVector);
-    return p_stTree;
-}
-
 #define AI_MTH_M_lAdd(A,B) ( (A)+(B) )
 #define AI_MTH_M_lSub(A,B) ( (A)-(B) )
 #define AI_MTH_M_lMul(A,B) ( (A)*(B) )
@@ -230,6 +134,86 @@ AI_tdstNodeInterpret *__cdecl fn_p_stScalarOperator(
     return p_stTree;
 }
 
+/* 0x00481A60 */
+AI_tdstNodeInterpret *__cdecl fn_p_stVectorOperator(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    AI_tdstGetSetParam    stParam1, stParam2;
+    long                  eOperatorId = *(long *)((char *)p_stTree - 8);
+    MTH3D_tdstVector     *p_stVector, *p_stVector1, *p_stVector2 = (MTH3D_tdstVector *)0;
+    MTH_tdxReal           xFactor = MTH_C_ONE;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
+    p_stVector1 = (MTH3D_tdstVector *)stParam1.uParam.a_xVectorValue;
+
+    if (eOperatorId != 0x14)
+    {
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
+        if ((eOperatorId == 0x10) || (eOperatorId == 0x11))
+        {
+            p_stVector2 = (MTH3D_tdstVector *)stParam2.uParam.a_xVectorValue;
+        }
+        else
+        {
+            xFactor = M_ReturnParam_xValue(&stParam2);
+        }
+    }
+
+    p_stVector = (MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue;
+    p_stValue->eType = E_vt_Vector;
+
+    switch (eOperatorId)
+    {
+    case 0x10:
+        MTH3D_M_vAddVector(p_stVector, p_stVector1, p_stVector2);
+        return p_stTree;
+    case 0x11:
+        MTH3D_M_vSubVector(p_stVector, p_stVector1, p_stVector2);
+        return p_stTree;
+    case 0x12:
+        MTH3D_M_vMulScalarVector(p_stVector, xFactor, p_stVector1);
+        return p_stTree;
+    case 0x13:
+        if (MTH_M_bDifferentWithEpsilon(xFactor, MTH_C_ZERO, MTH_C_EpsilonPlus))
+        {
+            MTH3D_M_vDivScalarVector(p_stVector, p_stVector1, xFactor);
+        }
+        else
+        {
+            MTH3D_M_vNullVector(p_stVector);
+        }
+        return p_stTree;
+    case 0x14:
+        MTH3D_M_vNegVector(p_stVector, p_stVector1);
+        return p_stTree;
+    default:
+        break;
+    }
+    MTH3D_M_vNullVector(p_stVector);
+    return p_stTree;
+}
+
+/* 0x00481C50 */
+AI_tdstNodeInterpret *__cdecl fn_p_stArrayOperator(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    HIE_tdstSuperObject  *p_stObject = p_SuperObjPerso;
+    AI_tdstNodeInterpret *p_stArray  = p_stTree;
+    AI_tdstNodeInterpret *p_stNext;
+    unsigned char         ucId;
+
+    if (p_stTree->eType == 0x02)
+        p_stArray = AI_M_pfn_fn_p_stOperatorGetPerso(
+            p_SuperObjPerso, p_stTree + 1, &p_stObject);
+
+    ucId    = (unsigned char)M_ucVarIdInterpret(p_stArray);
+    p_stNext = fn_p_stEvalTree(
+        p_SuperObjPerso, p_stArray + 1, (AI_tdstGetSetParam *)p_lValue);
+
+    fn_vOperatorGetDsgVar(ucId, (unsigned char)p_lValue[0], p_stObject, p_lValue);
+    return p_stNext;
+}
+
 /* 0x00481CE0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stDotOperator(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
@@ -262,6 +246,43 @@ AI_tdstNodeInterpret *__cdecl fn_p_stDotOperator(
     return p_stTree;
 }
 
+/* 0x00481DA0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stVectorDotOperator(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long         opId     = *(unsigned long *)((char *)p_stTree - 8);
+    AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(
+        p_SuperObjPerso, p_stTree, (AI_tdstGetSetParam *)p_lValue);
+
+    if (p_lValue[3] == 0x15)
+    {
+
+        switch (opId)
+        {
+        case 0xd:
+            p_lValue[3] = 8;
+            break;
+        case 0xe:
+        {
+            float xY = *(float *)&p_lValue[1];
+            *(float *)&p_lValue[0] = xY;
+            p_lValue[3] = 8;
+            break;
+        }
+        case 0xf:
+        {
+            float xZ = *(float *)&p_lValue[2];
+            *(float *)&p_lValue[0] = xZ;
+            p_lValue[3] = 8;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return p_stNext;
+}
+
 /* 0x004825E0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stUltraOperator(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
@@ -288,44 +309,4 @@ AI_tdstNodeInterpret *__cdecl fn_p_stModelCastOperator(
         : ((*(long *)p_stObject != 2) ? 0 : *((long *)p_stObject + 1));
     p_lValue[3] = 0x0b;
     return p_stNext;
-}
-
-/* 0x00481C50 */
-AI_tdstNodeInterpret *__cdecl fn_p_stArrayOperator(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    HIE_tdstSuperObject  *p_stObject = p_SuperObjPerso;
-    AI_tdstNodeInterpret *p_stArray  = p_stTree;
-    AI_tdstNodeInterpret *p_stNext;
-    unsigned char         ucId;
-
-    if (p_stTree->eType == 0x02)
-        p_stArray = AI_M_pfn_fn_p_stOperatorGetPerso(
-            p_SuperObjPerso, p_stTree + 1, &p_stObject);
-
-    ucId    = (unsigned char)M_ucVarIdInterpret(p_stArray);
-    p_stNext = fn_p_stEvalTree(
-        p_SuperObjPerso, p_stArray + 1, (AI_tdstGetSetParam *)p_lValue);
-
-    fn_vOperatorGetDsgVar(ucId, (unsigned char)p_lValue[0], p_stObject, p_lValue);
-    return p_stNext;
-}
-
-/* 0x00482F10 */
-unsigned char __cdecl fn_ucAreThereFloatIfYesConvertThem(AI_tdstGetSetParam *p_stParam1,
-                                                         AI_tdstGetSetParam *p_stParam2)
-{
-    unsigned char ucIsThereFloat = (unsigned char)(p_stParam1->eType == E_vt_Float);
-    if (ucIsThereFloat)
-    {
-        if (p_stParam2->eType != E_vt_Float)
-            p_stParam2->uParam.xValue = (float)(long)p_stParam2->uParam.lValue;
-    }
-    else
-    {
-        ucIsThereFloat = (unsigned char)(p_stParam2->eType == E_vt_Float);
-        if (ucIsThereFloat)
-            p_stParam1->uParam.xValue = (float)(long)p_stParam1->uParam.lValue;
-    }
-    return ucIsThereFloat;
 }

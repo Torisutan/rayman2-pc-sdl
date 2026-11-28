@@ -27,27 +27,12 @@ extern unsigned char __cdecl fn_ucIsAnAlwaysObject(void *p_stObject);
 #define DNM_C_xCloneBaseBytes      0x154
 #define DNM_C_xCloneReportBytes    sizeof(DNM_tdstReport)
 
-void __cdecl DNM_fn_vDynamicsCopyClone ( DNM_tdstDynamics *_p_stDst, DNM_tdstDynamics *_p_stSrc )
-{
-	DNM_tdstReport* p_stReport=NULL;
+#define DNM_fn_p_stDynamGetDynamics    fn_p_stDynamGetDynamics
 
-	if (DNM_M_bDynamicsIsCollisionReport(_p_stDst))
-	{
-
-		p_stReport = DNM_M_p_stDynamicsGetReport (_p_stDst);
-	}
-
-	if (DNM_M_bDynamicsIsComplexSize(_p_stSrc)) memcpy ( _p_stDst, _p_stSrc, DNM_C_xCloneComplexBytes );
-	else if (DNM_M_bDynamicsIsAdvancedSize(_p_stSrc)) memcpy ( _p_stDst, _p_stSrc, DNM_C_xCloneAdvancedBytes );
-	else memcpy ( _p_stDst, _p_stSrc, DNM_C_xCloneBaseBytes );
-
-	if (p_stReport)
-	{
-		DNM_M_p_stDynamicsGetReport(_p_stDst) = p_stReport;
-		if (DNM_M_bDynamicsIsCollisionReport(_p_stSrc))
-			memcpy ( p_stReport, DNM_M_p_stDynamicsGetReport(_p_stSrc), DNM_C_xCloneReportBytes );
-	}
-}
+/* 0x00412DF0 */
+extern void __cdecl GLI_pc_fn_vFree(void **ppUser);
+extern void __cdecl fn_vDynamSetDynamics(MS_tdxHandleToDynam h_Dynam, void *p_stDynam);  /* 0x0042DB20 */
+extern void __cdecl fn_vGameFreeInHLM(void *p_vObject);
 
 /* 0x00412BE0 */
 void __cdecl fn_vDynamAlloc(HIE_tdstEngineObject *p_stObject)
@@ -75,6 +60,37 @@ void __cdecl fn_vDynamAlloc(HIE_tdstEngineObject *p_stObject)
                       0,
                       DNM_fn_ucIsAnAlwaysObject(p_stObject));
 }
+
+#define DNM_M_bDynamicsIsAlways_CPA(p)          ((DNM_M_ulEndFlags(p) & DNM_C_Always) ? 1 : 0)
+#define DNM_M_bDynamicsIsCollisionReport_CPA(p) ((DNM_M_ulEndFlags(p) & DNM_C_CollisionReport) ? 1 : 0)
+
+#define DNM_M_p_stDynamicsGetReportWithoutCheckAccess(p) DNM_M_p_stDynamicsGetReport(p)
+#define M_GameFreeInHLM(p_vPointer) { fn_vGameFreeInHLM((void *)(p_vPointer)); p_vPointer = NULL; }
+
+void __cdecl fn_v_DynamicFree(MS_tdxHandleToDynam h_Dynam)
+{
+    DNM_tdstDynamics *p_stDynamic;
+
+    if( (p_stDynamic = fn_p_stDynamGetDynamics(h_Dynam)) == NULL )
+        return;
+
+    if (DNM_M_bDynamicsIsAlways_CPA(p_stDynamic))
+    {
+        if (DNM_M_bDynamicsIsCollisionReport_CPA(p_stDynamic))
+            GLI_pc_fn_vFree(&DNM_M_p_stDynamicsGetReportWithoutCheckAccess(p_stDynamic));
+        GLI_pc_fn_vFree(&p_stDynamic);
+    }
+    else
+    {
+        if (DNM_M_bDynamicsIsCollisionReport_CPA(p_stDynamic))
+            M_GameFreeInHLM (DNM_M_p_stDynamicsGetReportWithoutCheckAccess(p_stDynamic));
+        M_GameFreeInHLM (p_stDynamic);
+    }
+
+    fn_vDynamSetDynamics( h_Dynam, NULL );
+}
+
+void __cdecl DNM_fn_vDynamicsCopyClone ( DNM_tdstDynamics *_p_stDst, DNM_tdstDynamics *_p_stSrc );
 
 /* 0x00412FF0 */
 void __cdecl fn_vDynamCopyClone(HIE_tdstEngineObject *_p_stObjectDest,
@@ -135,42 +151,6 @@ void __cdecl fn_vDynamCopyClone(HIE_tdstEngineObject *_p_stObjectDest,
     DNM_M_vDynamicsSetAlways(hDest->p_stDynamics, bAlways);
 }
 
-#define DNM_fn_p_stDynamGetDynamics    fn_p_stDynamGetDynamics
-
-/* 0x00412DF0 */
-extern void __cdecl GLI_pc_fn_vFree(void **ppUser);
-extern void __cdecl fn_vDynamSetDynamics(MS_tdxHandleToDynam h_Dynam, void *p_stDynam);  /* 0x0042DB20 */
-extern void __cdecl fn_vGameFreeInHLM(void *p_vObject);
-
-#define DNM_M_bDynamicsIsAlways_CPA(p)          ((DNM_M_ulEndFlags(p) & DNM_C_Always) ? 1 : 0)
-#define DNM_M_bDynamicsIsCollisionReport_CPA(p) ((DNM_M_ulEndFlags(p) & DNM_C_CollisionReport) ? 1 : 0)
-
-#define DNM_M_p_stDynamicsGetReportWithoutCheckAccess(p) DNM_M_p_stDynamicsGetReport(p)
-#define M_GameFreeInHLM(p_vPointer) { fn_vGameFreeInHLM((void *)(p_vPointer)); p_vPointer = NULL; }
-
-void __cdecl fn_v_DynamicFree(MS_tdxHandleToDynam h_Dynam)
-{
-    DNM_tdstDynamics *p_stDynamic;
-
-    if( (p_stDynamic = fn_p_stDynamGetDynamics(h_Dynam)) == NULL )
-        return;
-
-    if (DNM_M_bDynamicsIsAlways_CPA(p_stDynamic))
-    {
-        if (DNM_M_bDynamicsIsCollisionReport_CPA(p_stDynamic))
-            GLI_pc_fn_vFree(&DNM_M_p_stDynamicsGetReportWithoutCheckAccess(p_stDynamic));
-        GLI_pc_fn_vFree(&p_stDynamic);
-    }
-    else
-    {
-        if (DNM_M_bDynamicsIsCollisionReport_CPA(p_stDynamic))
-            M_GameFreeInHLM (DNM_M_p_stDynamicsGetReportWithoutCheckAccess(p_stDynamic));
-        M_GameFreeInHLM (p_stDynamic);
-    }
-
-    fn_vDynamSetDynamics( h_Dynam, NULL );
-}
-
 DNM_tdstDynamics * __cdecl fn_p_stDynamGetDynamicsSO(HIE_tdstSuperObject *hSupObj)
 {
     void *h_Object;
@@ -189,32 +169,24 @@ DNM_tdstDynamics * __cdecl fn_p_stDynamGetDynamicsSO(HIE_tdstSuperObject *hSupOb
     return p_stDynamics;
 }
 
-MTH_tdxReal __cdecl fn_xComputeAngleOfPerso(HIE_tdstSuperObject *pSuperObjPerso)
+void __cdecl DNM_fn_vDynamicsCopyClone ( DNM_tdstDynamics *_p_stDst, DNM_tdstDynamics *_p_stSrc )
 {
-    MTH_tdxReal xCos, xSin, xAngle;
-    MTH3D_tdstVector p_stI, p_stJ, p_stK;
+	DNM_tdstReport* p_stReport=NULL;
 
-    POS_fn_vGetRotationMatrix(HIE_fn_hGetSuperObjectMatrix(pSuperObjPerso),
-                              &p_stI, &p_stJ, &p_stK);
-    xCos = MTH3D_M_xGetXofVector(&p_stI);
-    xSin = MTH3D_M_xGetYofVector(&p_stI);
+	if (DNM_M_bDynamicsIsCollisionReport(_p_stDst))
+	{
 
-    if (xCos != MTH_C_ZERO)
-    {
-        xAngle = MTH_M_xATan(xSin / xCos);
-        if (xCos < MTH_C_ZERO)
-            xAngle = MTH_M_xAdd(xAngle, MTH_C_Pi);
-        if (xAngle < MTH_C_ZERO)
-            xAngle = MTH_M_xAdd(xAngle, MTH_C_2Pi);
-        else if (xAngle >= MTH_C_2Pi)
-            xAngle = MTH_M_xSub(xAngle, MTH_C_2Pi);
-    }
-    else
-    {
-        if (xSin >= MTH_C_ZERO)
-            xAngle = (MTH_tdxReal)MTH_C_PiBy2;
-        else
-            xAngle = MTH_M_xNeg(MTH_C_PiBy2);
-    }
-    return xAngle;
+		p_stReport = DNM_M_p_stDynamicsGetReport (_p_stDst);
+	}
+
+	if (DNM_M_bDynamicsIsComplexSize(_p_stSrc)) memcpy ( _p_stDst, _p_stSrc, DNM_C_xCloneComplexBytes );
+	else if (DNM_M_bDynamicsIsAdvancedSize(_p_stSrc)) memcpy ( _p_stDst, _p_stSrc, DNM_C_xCloneAdvancedBytes );
+	else memcpy ( _p_stDst, _p_stSrc, DNM_C_xCloneBaseBytes );
+
+	if (p_stReport)
+	{
+		DNM_M_p_stDynamicsGetReport(_p_stDst) = p_stReport;
+		if (DNM_M_bDynamicsIsCollisionReport(_p_stSrc))
+			memcpy ( p_stReport, DNM_M_p_stDynamicsGetReport(_p_stSrc), DNM_C_xCloneReportBytes );
+	}
 }

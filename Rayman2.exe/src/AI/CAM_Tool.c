@@ -30,6 +30,66 @@ void __cdecl fn_vSectInfoInitForSingleCharacter(HIE_tdstSuperObject *hCharacter,
 
 #define DNM_M_p_stCPDGetTarget(_p_stParsingDatas)			(&(_p_stParsingDatas)->stVector)
 
+typedef int CAM_tdxCtxKnob0, CAM_tdxCtxKnob1, CAM_tdxCtxKnob2;
+
+void __cdecl fn_vSectInfoSetCurrentSector(void *h_SectInfo, void *hCurrentSector);
+void *__cdecl fn_h_SectInfoGetCurrentSector(void *h_SectInfo);
+
+typedef void *MS_tdxHandleToSectInfo;
+#define M_GetCineinfo(_p_stSuperObject_, _Name_)\
+(\
+	(MS_tdxHandleToInternalCineinfo)\
+		(\
+			(\
+				M_GetMSHandle(_p_stSuperObject_,Cineinfo)\
+			)\
+			->h##_Name_\
+		)\
+)
+
+#define CAM_C_xAverageForComputeLinearSpeed	(CAM_g_stCameraConstants.xAverageForComputeLinearSpeed)
+#define CAM_C_xMinLinearSpeedTgtPerso		(CAM_g_stCameraConstants.xMinLinearSpeedTgtPerso)
+#define CAM_C_xCutAngleFactorPos			(CAM_g_stCameraConstants.xCutAngleFactorPos)
+#define CAM_C_xCutAngleFactorTgt			(CAM_g_stCameraConstants.xCutAngleFactorTgt)
+#define CAM_C_xMinAngularSpeedTgtPerso		(CAM_g_stCameraConstants.xMinAngularSpeedTgtPerso)
+
+#ifndef C_IAFlags_NoDynChangeTheta
+#define C_IAFlags_NoDynChangeTheta				0x0020
+#endif
+#ifndef C_IAFlags_PositionIsAlreadyComputed
+#define C_IAFlags_PositionIsAlreadyComputed		0x2000
+#endif
+#ifndef C_IAFlags_RefAxisIsAlreadyComputed
+#define C_IAFlags_RefAxisIsAlreadyComputed		0x4000
+#endif
+#ifndef C_VolIAFlags_InitJustCopiedInCurrent
+#define C_VolIAFlags_InitJustCopiedInCurrent	0x02
+#endif
+
+#include "MEC/macdpid.h"
+
+#include "MEC/dnmdynam.h"
+
+/* 0x00414420 */
+void CAM_fn_vAverageSpeed(MS_tdxHandleToCineinfo _hCineinfo, MTH_tdxReal xTimeWindow, MTH3D_tdstVector *p_result);
+
+#ifndef C_WOT_ulGround
+#define C_WOT_ulGround			0x00000001
+#endif
+
+#include "GAM/PlayAnim.h"
+
+#ifndef C_IAFlags_RefAxisIsAlreadyComputed
+#define C_IAFlags_RefAxisIsAlreadyComputed      0x4000
+#endif
+
+extern char cRefAxisIsAlreadyComputed;
+extern char cNoDynChangeTheta;
+void CAM_fn_vComputeRealWantedPos(CAM_tdstUpdateCamera *_p_stStruct);
+void CAM_fn_vComputeMovePosWithDynTheta(CAM_tdstUpdateCamera *_p_stStruct);
+void CAM_fn_vForceFailureVisibility(CAM_tdstUpdateCamera *_p_stStruct);
+void CAM_fn_vComputeFailureVisibility(CAM_tdstUpdateCamera *_p_stStruct);
+
 void CAM_memcpy(void *dest, void *src, long size)
 {
 	register long *psrc = (long*)src;
@@ -81,6 +141,22 @@ void CAM_fn_vSetResetInternalFlag(
 	}
 }
 
+void CAM_fn_vForceCameraPos(
+	HIE_tdstSuperObject			*_hSuperObjCamera,
+	MTH3D_tdstVector			*_p_stPosition)
+{
+	DNM_tdstReport			*p_stReport;
+
+	p_stReport = fn_pstGetDNMReport(_hSuperObjCamera);
+
+	POS_fn_vSetTranslationVector(HIE_fn_hGetSuperObjectGlobalMatrix(_hSuperObjCamera), _p_stPosition);
+	POS_fn_vSetTranslationVector(HIE_fn_hGetSuperObjectMatrix(_hSuperObjCamera), _p_stPosition);
+
+	MTH3D_M_vNullVector(DNM_M_p_stReportGetLastMove(p_stReport));
+
+	fn_vSectInfoInitForSingleCharacter(_hSuperObjCamera, _p_stPosition);
+}
+
 void CAM_fn_vForceCameraTgt(
 	HIE_tdstSuperObject			*_hSuperObjCamera,
 	MTH3D_tdstVector			*_p_stPosition,
@@ -120,23 +196,104 @@ void CAM_fn_vForceCameraTgt(
 
 }
 
-void CAM_fn_vForceCameraPos(
-	HIE_tdstSuperObject			*_hSuperObjCamera,
-	MTH3D_tdstVector			*_p_stPosition)
+ACP_tdxBool CAM_fn_bPersoIsMoving(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stMove)
 {
-	DNM_tdstReport			*p_stReport;
 
-	p_stReport = fn_pstGetDNMReport(_hSuperObjCamera);
+	MTH3D_tdstVector	stMove;
 
-	POS_fn_vSetTranslationVector(HIE_fn_hGetSuperObjectGlobalMatrix(_hSuperObjCamera), _p_stPosition);
-	POS_fn_vSetTranslationVector(HIE_fn_hGetSuperObjectMatrix(_hSuperObjCamera), _p_stPosition);
+	CAM_fn_vAverageSpeed(_p_stStruct->hCineinfo, CAM_C_xAverageForComputeLinearSpeed, &stMove);
+	if(MTH_M_bGreater(MTH3D_M_xNormVector(&stMove), CAM_C_xMinLinearSpeedTgtPerso))
+	{
+		if(_p_stMove)
+		{
+			MTH3D_M_vCopyVector(_p_stMove, &stMove);
+		}
+		return TRUE;
+	}
 
-	MTH3D_M_vNullVector(DNM_M_p_stReportGetLastMove(p_stReport));
+	if(_p_stMove)
+		MTH3D_M_vNullVector(_p_stMove);
 
-	fn_vSectInfoInitForSingleCharacter(_hSuperObjCamera, _p_stPosition);
+	return FALSE;
 }
 
-typedef int CAM_tdxCtxKnob0, CAM_tdxCtxKnob1, CAM_tdxCtxKnob2;
+ACP_tdxBool CAM_fn_bPersoIsTurning(HIE_tdstSuperObject *_h_SuperObjPerso, MTH_tdxReal *_p_xAngularSpeed)
+{
+
+	MS_tdxHandleToDynam		h_Dynam;
+	DNM_tdstDynamics		*p_stDynamics;
+	DNM_tdstReport			*p_stReport;
+
+	MTH_tdxReal				xAngle;
+
+	if(_p_xAngularSpeed)
+		*_p_xAngularSpeed = MTH_C_ZERO;
+
+    h_Dynam = M_GetMSHandle(_h_SuperObjPerso, Dynam);
+	if(h_Dynam == NULL)
+		return FALSE;
+	p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam);
+    if(p_stDynamics == NULL)
+		return FALSE;
+	p_stReport = DNM_M_p_stDynamicsGetReport(p_stDynamics);
+	if(p_stReport == NULL)
+		return FALSE;
+
+	xAngle = MTH_M_xRotationGetAngle(MTH_M_p_stMoveGetAngular(DNM_M_p_stReportGetAbsoluteCurrSpeed(p_stReport)));
+
+	if(MTH_M_bGreater(xAngle, CAM_C_xMinAngularSpeedTgtPerso))
+	{
+		if(_p_xAngularSpeed)
+			*_p_xAngularSpeed = xAngle;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+ACP_tdxBool CAM_fn_bPersoOnFace(HIE_tdstSuperObject *_h_SuperObjPerso, MTH3D_tdstVector *_p_stNormal)
+{
+
+	MS_tdxHandleToDynam		h_Dynam;
+	DNM_tdstDynamics		*p_stDynamics;
+	DNM_tdstReport			*p_stReport;
+
+    h_Dynam = M_GetMSHandle(_h_SuperObjPerso, Dynam);
+	if(h_Dynam == NULL)
+		return FALSE;
+	p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam);
+    if(p_stDynamics == NULL)
+		return FALSE;
+	p_stReport = DNM_M_p_stDynamicsGetReport(p_stDynamics);
+	if(p_stReport == NULL)
+		return FALSE;
+
+	if(!(p_stReport->m_ulCurrSurfaceState & C_WOT_ulGround))
+		return FALSE;
+
+	MTH3D_M_vCopyVector(_p_stNormal, &p_stReport->m_stGround.m_stNorm);
+	return TRUE;
+}
+
+HIE_tdstSuperObject *CAM_fn_hGetFather(HIE_tdstSuperObject *_h_SuperObjPerso)
+{
+	MS_tdxHandleToDynam			h_Dynam;
+	DNM_tdstDynamics			*p_stDynamics;
+
+	if(_h_SuperObjPerso == NULL)
+		return NULL;
+	h_Dynam = M_GetMSHandle(_h_SuperObjPerso, Dynam);
+	if(h_Dynam == NULL)
+		return NULL;
+	p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam);
+	if(p_stDynamics == NULL)
+		return NULL;
+
+	if (!DNM_M_bDynamicsIsComplexSize(p_stDynamics))
+		return NULL;
+
+	return DNM_M_hDynamicsGetPlatformSO(p_stDynamics);
+}
 void CAM_fn_vComputeProjection(
 	MTH3D_tdstVector	*_p_sDestVector,
 	MTH3D_tdstVector	*_p_sSrcVector,
@@ -216,46 +373,114 @@ MTH_tdxReal CAM_fn_xComputeRotation(
 #endif
 }
 
-void __cdecl fn_vSectInfoSetCurrentSector(void *h_SectInfo, void *hCurrentSector);
-void *__cdecl fn_h_SectInfoGetCurrentSector(void *h_SectInfo);
+/* 0x004739D0 */
+ACP_tdxBool __cdecl CAM_fn_bEqualVectorWithEpsilon(MTH3D_tdstVector *_p_stVector1,
+                                                   MTH3D_tdstVector *_p_stVector2,
+                                                   MTH_tdxReal _xEpsilon)
+{
+    MTH3D_tdstVector stDiffVector;
+    MTH_tdxReal      xDist;
 
-typedef void *MS_tdxHandleToSectInfo;
-#define M_GetCineinfo(_p_stSuperObject_, _Name_)\
-(\
-	(MS_tdxHandleToInternalCineinfo)\
-		(\
-			(\
-				M_GetMSHandle(_p_stSuperObject_,Cineinfo)\
-			)\
-			->h##_Name_\
-		)\
-)
+    MTH3D_M_vSubVector(&stDiffVector, _p_stVector1, _p_stVector2);
+    xDist = MTH3D_M_xSqrVector(&stDiffVector);
 
-#define CAM_C_xAverageForComputeLinearSpeed	(CAM_g_stCameraConstants.xAverageForComputeLinearSpeed)
-#define CAM_C_xMinLinearSpeedTgtPerso		(CAM_g_stCameraConstants.xMinLinearSpeedTgtPerso)
-#define CAM_C_xCutAngleFactorPos			(CAM_g_stCameraConstants.xCutAngleFactorPos)
-#define CAM_C_xCutAngleFactorTgt			(CAM_g_stCameraConstants.xCutAngleFactorTgt)
-#define CAM_C_xMinAngularSpeedTgtPerso		(CAM_g_stCameraConstants.xMinAngularSpeedTgtPerso)
+    if (MTH_M_bGreater(xDist, MTH_M_xSqr(_xEpsilon)))
+        return 0;
+    return 1;
+}
 
-#ifndef C_IAFlags_NoDynChangeTheta
-#define C_IAFlags_NoDynChangeTheta				0x0020
-#endif
-#ifndef C_IAFlags_PositionIsAlreadyComputed
-#define C_IAFlags_PositionIsAlreadyComputed		0x2000
-#endif
-#ifndef C_IAFlags_RefAxisIsAlreadyComputed
-#define C_IAFlags_RefAxisIsAlreadyComputed		0x4000
-#endif
-#ifndef C_VolIAFlags_InitJustCopiedInCurrent
-#define C_VolIAFlags_InitJustCopiedInCurrent	0x02
-#endif
+void CAM_fn_vCheckValidityOfComputedAngles(
+	MS_tdxHandleToInternalCineinfo	_hIntCineInfo,
+	MTH_tdxReal						*_p_xHorizontalAngle,
+	MTH_tdxReal						*_p_xVerticalAngle)
+{
 
-#include "MEC/macdpid.h"
+	MTH_tdxReal		xAbsHorizontalAngle, xAbsVerticalAngle;
 
-#include "MEC/dnmdynam.h"
+	xAbsHorizontalAngle =  MTH_M_xAbs(*_p_xHorizontalAngle);
 
-/* 0x00414420 */
-void CAM_fn_vAverageSpeed(MS_tdxHandleToCineinfo _hCineinfo, MTH_tdxReal xTimeWindow, MTH3D_tdstVector *p_result);
+	xAbsVerticalAngle = MTH_M_xAbs(*_p_xVerticalAngle);
+
+	if(MTH_M_bGreater(xAbsVerticalAngle, MTH_C_PiBy2))
+	{
+		if (MTH_M_bGreater(*_p_xVerticalAngle, MTH_C_ZERO))
+			*_p_xVerticalAngle = MTH_M_xSub(MTH_C_Pi, *_p_xVerticalAngle);
+		else
+			*_p_xVerticalAngle = MTH_M_xSub(MTH_M_xNeg(MTH_C_Pi), *_p_xVerticalAngle);
+	}
+
+	*_p_xHorizontalAngle = CAM_fn_xSetAngleInInterval02Pi(*_p_xHorizontalAngle);
+	*_p_xVerticalAngle = CAM_fn_xSetAngleInInterval02Pi(*_p_xVerticalAngle);
+}
+
+void CAM_fn_vComputeAnglesBetweenTwoVectors(
+	MS_tdxHandleToInternalCineinfo	_hIntCineInfo,
+	MTH3D_tdstVector				*_p_stSourceVector,
+	MTH3D_tdstVector				*_p_stTargetVector,
+	MTH_tdxReal						*_p_xHorizontalAngle,
+	MTH_tdxReal						*_p_xVerticalAngle,
+	MTH3D_tdstVector				*_p_stRefAxisZ)
+{
+	*_p_xHorizontalAngle = CAM_fn_xComputeHorizontalAngle(_p_stSourceVector, _p_stTargetVector, _p_stRefAxisZ);
+	*_p_xVerticalAngle = CAM_fn_xComputeVerticalAngle(_p_stSourceVector, _p_stTargetVector, _p_stRefAxisZ);
+
+	CAM_fn_vCheckValidityOfComputedAngles(_hIntCineInfo, _p_xHorizontalAngle, _p_xVerticalAngle);
+}
+
+MTH_tdxReal CAM_fn_xSetAngleInIntervalPiPi(MTH_tdxReal _xAngle)
+{
+	if (MTH_M_bGreater(_xAngle, MTH_C_Pi))
+		return (MTH_M_xSub(_xAngle, MTH_C_2Pi));
+	else if(MTH_M_bLessEqual(_xAngle, MTH_M_xNeg(MTH_C_Pi)))
+		return (MTH_M_xAdd(_xAngle, MTH_C_2Pi));
+	else
+		return (_xAngle);
+}
+
+MTH_tdxReal CAM_fn_xSetAngleInInterval02Pi(MTH_tdxReal _xAngle)
+{
+	if (MTH_M_bLess(_xAngle, MTH_C_ZERO))
+		return(MTH_M_xAdd(_xAngle, MTH_C_2Pi));
+	else if (MTH_M_bGreaterEqual(_xAngle, MTH_C_2Pi))
+		return(MTH_M_xSub(_xAngle, MTH_C_2Pi));
+	else
+		return (_xAngle);
+}
+void CAM_fn_vGetPersoSightAxis(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stAxis,  MTH3D_tdstVector *_p_stAxisZ)
+{
+	MTH3D_tdstVector			stFirstComplementaryAxis;
+	MTH3D_tdstVector			stSecondComplementaryAxis;
+	POS_tdstCompletePosition	*p_stPersoGlobalMatrix;
+	MTH3D_tdstVector			stTmpVector1, stTmpVector2;
+	unsigned char						ucChannel;
+	HIE_tdstSuperObject			*hPerso;
+	MS_tdxHandleTo3dData		h3dData;
+	CHN_tdxHandleToChannelArray	hChannelList;
+
+	hPerso = _p_stStruct->hCineinfoWork->hSuperObjectTargeted;
+
+	fn_vGetPersoSightAxisSystem
+	(
+		_p_stStruct->hCineinfo,
+		_p_stAxis,
+		&stFirstComplementaryAxis,
+		&stSecondComplementaryAxis
+	);
+
+	if ((ucChannel = _p_stStruct->hCineinfoWork->cChannel) != C_ucUnknownChannel)
+	{
+
+		h3dData = M_GetMSHandle(hPerso, 3dData);
+		hChannelList = h3dData->hArrayOfChannels;
+		hPerso = hChannelList ? hChannelList[(unsigned int)(short)ucChannel].hSupObject : NULL;
+	}
+	p_stPersoGlobalMatrix = HIE_fn_hGetSuperObjectGlobalMatrix(hPerso);
+
+	POS_fn_vGetRotationMatrix(p_stPersoGlobalMatrix, &stTmpVector1, _p_stAxis, &stTmpVector2);
+	if (_p_stAxisZ)
+		MTH3D_M_vCopyVector(_p_stAxisZ, &stTmpVector2);
+	MTH3D_M_vNegVector(_p_stAxis, _p_stAxis);
+}
 
 /* 0x00473C60 */
 MTH_tdxReal __cdecl Cam_fn_xComputeProjectionRail(MTH3D_tdstVector *_p_stTargetedPersoPos,
@@ -407,167 +632,6 @@ void Cam_fn_vComputeMovingOnRail
 	}
 }
 
-void CAM_fn_vCheckValidityOfComputedAngles(
-	MS_tdxHandleToInternalCineinfo	_hIntCineInfo,
-	MTH_tdxReal						*_p_xHorizontalAngle,
-	MTH_tdxReal						*_p_xVerticalAngle)
-{
-
-	MTH_tdxReal		xAbsHorizontalAngle, xAbsVerticalAngle;
-
-	xAbsHorizontalAngle =  MTH_M_xAbs(*_p_xHorizontalAngle);
-
-	xAbsVerticalAngle = MTH_M_xAbs(*_p_xVerticalAngle);
-
-	if(MTH_M_bGreater(xAbsVerticalAngle, MTH_C_PiBy2))
-	{
-		if (MTH_M_bGreater(*_p_xVerticalAngle, MTH_C_ZERO))
-			*_p_xVerticalAngle = MTH_M_xSub(MTH_C_Pi, *_p_xVerticalAngle);
-		else
-			*_p_xVerticalAngle = MTH_M_xSub(MTH_M_xNeg(MTH_C_Pi), *_p_xVerticalAngle);
-	}
-
-	*_p_xHorizontalAngle = CAM_fn_xSetAngleInInterval02Pi(*_p_xHorizontalAngle);
-	*_p_xVerticalAngle = CAM_fn_xSetAngleInInterval02Pi(*_p_xVerticalAngle);
-}
-
-void CAM_fn_vComputeAnglesBetweenTwoVectors(
-	MS_tdxHandleToInternalCineinfo	_hIntCineInfo,
-	MTH3D_tdstVector				*_p_stSourceVector,
-	MTH3D_tdstVector				*_p_stTargetVector,
-	MTH_tdxReal						*_p_xHorizontalAngle,
-	MTH_tdxReal						*_p_xVerticalAngle,
-	MTH3D_tdstVector				*_p_stRefAxisZ)
-{
-	*_p_xHorizontalAngle = CAM_fn_xComputeHorizontalAngle(_p_stSourceVector, _p_stTargetVector, _p_stRefAxisZ);
-	*_p_xVerticalAngle = CAM_fn_xComputeVerticalAngle(_p_stSourceVector, _p_stTargetVector, _p_stRefAxisZ);
-
-	CAM_fn_vCheckValidityOfComputedAngles(_hIntCineInfo, _p_xHorizontalAngle, _p_xVerticalAngle);
-}
-
-MTH_tdxReal CAM_fn_xSetAngleInIntervalPiPi(MTH_tdxReal _xAngle)
-{
-	if (MTH_M_bGreater(_xAngle, MTH_C_Pi))
-		return (MTH_M_xSub(_xAngle, MTH_C_2Pi));
-	else if(MTH_M_bLessEqual(_xAngle, MTH_M_xNeg(MTH_C_Pi)))
-		return (MTH_M_xAdd(_xAngle, MTH_C_2Pi));
-	else
-		return (_xAngle);
-}
-
-MTH_tdxReal CAM_fn_xSetAngleInInterval02Pi(MTH_tdxReal _xAngle)
-{
-	if (MTH_M_bLess(_xAngle, MTH_C_ZERO))
-		return(MTH_M_xAdd(_xAngle, MTH_C_2Pi));
-	else if (MTH_M_bGreaterEqual(_xAngle, MTH_C_2Pi))
-		return(MTH_M_xSub(_xAngle, MTH_C_2Pi));
-	else
-		return (_xAngle);
-}
-
-HIE_tdstSuperObject *CAM_fn_hGetFather(HIE_tdstSuperObject *_h_SuperObjPerso)
-{
-	MS_tdxHandleToDynam			h_Dynam;
-	DNM_tdstDynamics			*p_stDynamics;
-
-	if(_h_SuperObjPerso == NULL)
-		return NULL;
-	h_Dynam = M_GetMSHandle(_h_SuperObjPerso, Dynam);
-	if(h_Dynam == NULL)
-		return NULL;
-	p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam);
-	if(p_stDynamics == NULL)
-		return NULL;
-
-	if (!DNM_M_bDynamicsIsComplexSize(p_stDynamics))
-		return NULL;
-
-	return DNM_M_hDynamicsGetPlatformSO(p_stDynamics);
-}
-
-#ifndef C_WOT_ulGround
-#define C_WOT_ulGround			0x00000001
-#endif
-
-ACP_tdxBool CAM_fn_bPersoOnFace(HIE_tdstSuperObject *_h_SuperObjPerso, MTH3D_tdstVector *_p_stNormal)
-{
-
-	MS_tdxHandleToDynam		h_Dynam;
-	DNM_tdstDynamics		*p_stDynamics;
-	DNM_tdstReport			*p_stReport;
-
-    h_Dynam = M_GetMSHandle(_h_SuperObjPerso, Dynam);
-	if(h_Dynam == NULL)
-		return FALSE;
-	p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam);
-    if(p_stDynamics == NULL)
-		return FALSE;
-	p_stReport = DNM_M_p_stDynamicsGetReport(p_stDynamics);
-	if(p_stReport == NULL)
-		return FALSE;
-
-	if(!(p_stReport->m_ulCurrSurfaceState & C_WOT_ulGround))
-		return FALSE;
-
-	MTH3D_M_vCopyVector(_p_stNormal, &p_stReport->m_stGround.m_stNorm);
-	return TRUE;
-}
-
-ACP_tdxBool CAM_fn_bPersoIsTurning(HIE_tdstSuperObject *_h_SuperObjPerso, MTH_tdxReal *_p_xAngularSpeed)
-{
-
-	MS_tdxHandleToDynam		h_Dynam;
-	DNM_tdstDynamics		*p_stDynamics;
-	DNM_tdstReport			*p_stReport;
-
-	MTH_tdxReal				xAngle;
-
-	if(_p_xAngularSpeed)
-		*_p_xAngularSpeed = MTH_C_ZERO;
-
-    h_Dynam = M_GetMSHandle(_h_SuperObjPerso, Dynam);
-	if(h_Dynam == NULL)
-		return FALSE;
-	p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam);
-    if(p_stDynamics == NULL)
-		return FALSE;
-	p_stReport = DNM_M_p_stDynamicsGetReport(p_stDynamics);
-	if(p_stReport == NULL)
-		return FALSE;
-
-	xAngle = MTH_M_xRotationGetAngle(MTH_M_p_stMoveGetAngular(DNM_M_p_stReportGetAbsoluteCurrSpeed(p_stReport)));
-
-	if(MTH_M_bGreater(xAngle, CAM_C_xMinAngularSpeedTgtPerso))
-	{
-		if(_p_xAngularSpeed)
-			*_p_xAngularSpeed = xAngle;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-ACP_tdxBool CAM_fn_bPersoIsMoving(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stMove)
-{
-
-	MTH3D_tdstVector	stMove;
-
-	CAM_fn_vAverageSpeed(_p_stStruct->hCineinfo, CAM_C_xAverageForComputeLinearSpeed, &stMove);
-	if(MTH_M_bGreater(MTH3D_M_xNormVector(&stMove), CAM_C_xMinLinearSpeedTgtPerso))
-	{
-		if(_p_stMove)
-		{
-			MTH3D_M_vCopyVector(_p_stMove, &stMove);
-		}
-		return TRUE;
-	}
-
-	if(_p_stMove)
-		MTH3D_M_vNullVector(_p_stMove);
-
-	return FALSE;
-}
-
 void CAM_fn_vInitCameraStructure(HIE_tdstSuperObject *_hSuperObjPerso, CAM_tdstUpdateCamera *_p_stStruct)
 {
 
@@ -623,43 +687,6 @@ void CAM_fn_vInitCameraStructure(HIE_tdstSuperObject *_hSuperObjPerso, CAM_tdstU
 				_p_stStruct->cTgtPersoIsMovingRelative = 0;
 		}
 	}
-}
-
-#include "GAM/PlayAnim.h"
-void CAM_fn_vGetPersoSightAxis(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stAxis,  MTH3D_tdstVector *_p_stAxisZ)
-{
-	MTH3D_tdstVector			stFirstComplementaryAxis;
-	MTH3D_tdstVector			stSecondComplementaryAxis;
-	POS_tdstCompletePosition	*p_stPersoGlobalMatrix;
-	MTH3D_tdstVector			stTmpVector1, stTmpVector2;
-	unsigned char						ucChannel;
-	HIE_tdstSuperObject			*hPerso;
-	MS_tdxHandleTo3dData		h3dData;
-	CHN_tdxHandleToChannelArray	hChannelList;
-
-	hPerso = _p_stStruct->hCineinfoWork->hSuperObjectTargeted;
-
-	fn_vGetPersoSightAxisSystem
-	(
-		_p_stStruct->hCineinfo,
-		_p_stAxis,
-		&stFirstComplementaryAxis,
-		&stSecondComplementaryAxis
-	);
-
-	if ((ucChannel = _p_stStruct->hCineinfoWork->cChannel) != C_ucUnknownChannel)
-	{
-
-		h3dData = M_GetMSHandle(hPerso, 3dData);
-		hChannelList = h3dData->hArrayOfChannels;
-		hPerso = hChannelList ? hChannelList[(unsigned int)(short)ucChannel].hSupObject : NULL;
-	}
-	p_stPersoGlobalMatrix = HIE_fn_hGetSuperObjectGlobalMatrix(hPerso);
-
-	POS_fn_vGetRotationMatrix(p_stPersoGlobalMatrix, &stTmpVector1, _p_stAxis, &stTmpVector2);
-	if (_p_stAxisZ)
-		MTH3D_M_vCopyVector(_p_stAxisZ, &stTmpVector2);
-	MTH3D_M_vNegVector(_p_stAxis, _p_stAxis);
 }
 
 void CAM_fn_vSendParametersToParsing(CAM_tdstUpdateCamera *_p_stStruct)
@@ -760,17 +787,6 @@ void CAM_fn_vSendParametersToParsing(CAM_tdstUpdateCamera *_p_stStruct)
 		M_xMACDPIDGetCutAngleFactorPos(p_stMACDPID) = M_xMACDPIDGetCutAngleFactorTgt(p_stMACDPID) = MTH_C_ONE;
 	}
 }
-
-#ifndef C_IAFlags_RefAxisIsAlreadyComputed
-#define C_IAFlags_RefAxisIsAlreadyComputed      0x4000
-#endif
-
-extern char cRefAxisIsAlreadyComputed;
-extern char cNoDynChangeTheta;
-void CAM_fn_vComputeRealWantedPos(CAM_tdstUpdateCamera *_p_stStruct);
-void CAM_fn_vComputeMovePosWithDynTheta(CAM_tdstUpdateCamera *_p_stStruct);
-void CAM_fn_vForceFailureVisibility(CAM_tdstUpdateCamera *_p_stStruct);
-void CAM_fn_vComputeFailureVisibility(CAM_tdstUpdateCamera *_p_stStruct);
 
 void CAM_fn_vForceBestPosition(HIE_tdstSuperObject *_hCamera)
 {

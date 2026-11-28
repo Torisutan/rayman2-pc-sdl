@@ -28,15 +28,6 @@ unsigned char __cdecl fn_ucIsRuleInActionTable(AI_tdstIntelligence *p_stIntellig
     return ucNbEntries;
 }
 
-/* 0x00482990 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetTableAction(AI_tdstIntelligence *p_stIntelligence,
-                                                    unsigned char ucNEntry)
-{
-    g_ucUseDefaultActionReturn = AI_M_ActionTableUseActionReturn(p_stIntelligence, ucNEntry);
-    g_ucNewActionReturn        = AI_M_ActionTableNewActionReturn(p_stIntelligence, ucNEntry);
-    return (AI_tdstNodeInterpret *)AI_M_ActionTableNumNode(p_stIntelligence, ucNEntry);
-}
-
 /* 0x00482760 */
 void __cdecl fn_vUseCurrentActionTableEntry(AI_tdstIntelligence *p_stIntelligence, unsigned char ucNRule,
                                             AI_tdstNodeInterpret *p_stNode)
@@ -125,4 +116,13 @@ void __cdecl fn_vUnuseAllRulesFromSchedule(AI_tdstIntelligence *p_stIntelligence
         }
         AI_M_ActionTableNbEntriesUsed(p_stIntelligence) = ucNbEntries;
     }
+}
+
+/* 0x00482990 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetTableAction(AI_tdstIntelligence *p_stIntelligence,
+                                                    unsigned char ucNEntry)
+{
+    g_ucUseDefaultActionReturn = AI_M_ActionTableUseActionReturn(p_stIntelligence, ucNEntry);
+    g_ucNewActionReturn        = AI_M_ActionTableNewActionReturn(p_stIntelligence, ucNEntry);
+    return (AI_tdstNodeInterpret *)AI_M_ActionTableNumNode(p_stIntelligence, ucNEntry);
 }

@@ -4,11 +4,33 @@
 #include "AI/DsgMem.h"
 #include "AI/DsgVarTable.h"
 
-/* 0x00481860 */
-tdp_fn_ucSetDsgVarFunctionPtr fn_p_fn_pGetDsgVarSetFunctionPtr(enum tdeDsgVarTypeId_ eDsgVarTypeId)
+/* 0x00481D70 */
+extern unsigned char __cdecl fn_ucGetFieldValue(unsigned long ulFieldId, void *p_stContext,
+                                                AI_tdstGetSetParam *p_stValue);
+extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
+
+/* 0x004824F0 */
+extern unsigned char __cdecl fn_ucSetFieldValue(unsigned long ulFieldId, void *p_stContext,
+                                                AI_tdstGetSetParam *p_stValue);
+
+unsigned char fn_ucGetDsgVarValue(void *pMyVarAddr,unsigned char ucIndex,tdeDsgVarTypeId eDsgVarTypeId,AI_tdstGetSetParam *p_stGetSetParam);
+
+/* 0x004815F0 */
+unsigned char __cdecl fn_ucGetDsgVar(unsigned char ucId, unsigned char ucIndex,
+                                     AI_tdstMind *p_stMind, AI_tdstGetSetParam *p_stGetSetParam)
 {
-	return(a_stDsgVarTypeTable[eDsgVarTypeId].p_fn_ucSetDsgVarFunction);
+    return (fn_ucGetDsgVarValue((void *)M_GetDsgVarAddr(p_stMind, ucId), ucIndex,
+                                M_GetDsgVarType(p_stMind, ucId), p_stGetSetParam));
 }
+
+/* 0x00481630 */
+unsigned char fn_ucGetDsgVarValue(void *pMyVarAddr,unsigned char ucIndex,tdeDsgVarTypeId eDsgVarTypeId,AI_tdstGetSetParam *p_stGetSetParam)
+{
+	tdp_fn_ucGetDsgVarFunctionPtr p_fn_ucGetDsgVar=fn_p_fn_pGetDsgVarGetFunctionPtr(eDsgVarTypeId);
+	return(p_fn_ucGetDsgVar(pMyVarAddr,ucIndex,p_stGetSetParam));
+}
+
+tdp_fn_ucSetDsgVarFunctionPtr fn_p_fn_pGetDsgVarSetFunctionPtr(enum tdeDsgVarTypeId_ eDsgVarTypeId);
 
 /* 0x00481800 */
 unsigned char __cdecl fn_ucSetDsgVar(unsigned char ucId, unsigned char ucIndex,
@@ -21,21 +43,6 @@ unsigned char __cdecl fn_ucSetDsgVar(unsigned char ucId, unsigned char ucIndex,
 	return(p_fn_ucSetDsgVar(pMyVarAddr,ucIndex,p_stGetSetParam));
 }
 
-/* 0x00481630 */
-unsigned char fn_ucGetDsgVarValue(void *pMyVarAddr,unsigned char ucIndex,tdeDsgVarTypeId eDsgVarTypeId,AI_tdstGetSetParam *p_stGetSetParam)
-{
-	tdp_fn_ucGetDsgVarFunctionPtr p_fn_ucGetDsgVar=fn_p_fn_pGetDsgVarGetFunctionPtr(eDsgVarTypeId);
-	return(p_fn_ucGetDsgVar(pMyVarAddr,ucIndex,p_stGetSetParam));
-}
-
-/* 0x004815F0 */
-unsigned char __cdecl fn_ucGetDsgVar(unsigned char ucId, unsigned char ucIndex,
-                                     AI_tdstMind *p_stMind, AI_tdstGetSetParam *p_stGetSetParam)
-{
-    return (fn_ucGetDsgVarValue((void *)M_GetDsgVarAddr(p_stMind, ucId), ucIndex,
-                                M_GetDsgVarType(p_stMind, ucId), p_stGetSetParam));
-}
-
 /* 0x00481CB0 */
 void __cdecl fn_vOperatorGetDsgVar(unsigned char ucVarId, unsigned char ucIndex,
                                    HIE_tdstSuperObject *hSuperObjPerso, AI_tdstGetSetParam *p_stValue)
@@ -43,6 +50,13 @@ void __cdecl fn_vOperatorGetDsgVar(unsigned char ucVarId, unsigned char ucIndex,
    if (fn_ucGetDsgVar(ucVarId, ucIndex, AI_M_stGetMindOfSuperObj(hSuperObjPerso), p_stValue)==C_INVALID_GET)
    {
    }
+}
+
+void __cdecl fn_vOperatorGetField(unsigned long ulFieldId, void *p_stContext,
+                                  void *p_stGetSetParam)
+{
+    if (fn_ucGetFieldValue(ulFieldId, p_stContext, (AI_tdstGetSetParam *)p_stGetSetParam) == 0)
+        fn_vOnAIErm_M_UpdateLastError(0x22, (char *)0);
 }
 
 /* 0x00482420 */
@@ -53,18 +67,6 @@ void __cdecl fn_vOperatorSetDsgVar(unsigned char ucVarId, unsigned char ucIndex,
    {
 
    }
-}
-
-/* 0x00481D70 */
-extern unsigned char __cdecl fn_ucGetFieldValue(unsigned long ulFieldId, void *p_stContext,
-                                                AI_tdstGetSetParam *p_stValue);
-extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
-
-void __cdecl fn_vOperatorGetField(unsigned long ulFieldId, void *p_stContext,
-                                  void *p_stGetSetParam)
-{
-    if (fn_ucGetFieldValue(ulFieldId, p_stContext, (AI_tdstGetSetParam *)p_stGetSetParam) == 0)
-        fn_vOnAIErm_M_UpdateLastError(0x22, (char *)0);
 }
 
 /* 0x00482450 */
@@ -78,16 +80,7 @@ void __cdecl fn_vGetFieldOrDsgVarForAffectOperator(void *p_stContext, unsigned l
         fn_vOperatorGetField((unsigned long)lFieldId, p_stContext, p_stGetSetParam);
 }
 
-/* 0x004824F0 */
-extern unsigned char __cdecl fn_ucSetFieldValue(unsigned long ulFieldId, void *p_stContext,
-                                                AI_tdstGetSetParam *p_stValue);
-
-void __cdecl fn_vOperatorSetField(unsigned long ulFieldId, void *p_stContext,
-                                  void *p_stGetSetParam)
-{
-    if (fn_ucSetFieldValue(ulFieldId, p_stContext, (AI_tdstGetSetParam *)p_stGetSetParam) == 0)
-        fn_vOnAIErm_M_UpdateLastError(0x22, (char *)0);
-}
+void __cdecl fn_vOperatorSetField(unsigned long ulFieldId, void *p_stContext, void *p_stGetSetParam);
 
 /* 0x004824A0 */
 void __cdecl fn_vSetFieldOrDsgVarForAffectOperator(void *p_stContext, unsigned long ulType,
@@ -98,6 +91,13 @@ void __cdecl fn_vSetFieldOrDsgVarForAffectOperator(void *p_stContext, unsigned l
         fn_vOperatorSetDsgVar(ulDsgVarId, ulDsgVarIndex, p_stContext, p_stGetSetParam);
     else if (ulType == 9)
         fn_vOperatorSetField((unsigned long)lFieldId, p_stContext, p_stGetSetParam);
+}
+
+void __cdecl fn_vOperatorSetField(unsigned long ulFieldId, void *p_stContext,
+                                  void *p_stGetSetParam)
+{
+    if (fn_ucSetFieldValue(ulFieldId, p_stContext, (AI_tdstGetSetParam *)p_stGetSetParam) == 0)
+        fn_vOnAIErm_M_UpdateLastError(0x22, (char *)0);
 }
 
 /* 0x00482520 */

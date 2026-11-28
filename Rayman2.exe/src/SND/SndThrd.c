@@ -108,38 +108,6 @@ void __stdcall SND_fn_vQuitCriticalSectionThreadSnd(void)
     SND_pc_M_bReleaseLock(SND_pc_g_hSoundMutex);
 }
 
-void __stdcall SND_fn_vWaitForValueThreadSnd(unsigned long *p_ulValue,
-                                             unsigned long ulExpected)
-{
-    long lTries = 0;
-
-    while ((*p_ulValue != ulExpected) && (lTries < 10)) {
-        lTries++;
-        SND_pc_M_vSleep(0x64);
-    }
-    if (*p_ulValue != ulExpected) {
-        SND_fn_vDisplayError(E_uwSndThreadDeadLockError,
-                             (char *)SND_C_szEmptyThrd);
-    }
-}
-
-void __cdecl SND_pc_fn_vInitErrorDisplayCs(void)
-{
-    SND_pc_M_vInitCriticalSection(&SND_pc_g_stErrDispCs);
-    SND_pc_g_hErrDispBusyEvent = SND_pc_M_hCreateManualEvent();
-}
-
-void __cdecl SND_pc_fn_vDesInitErrorDisplayCs(void)
-{
-    SND_pc_tdhEvent hEvent = SND_pc_g_hErrDispBusyEvent;
-
-    SND_pc_M_vLeaveCriticalSection(&SND_pc_g_stErrDispCs);
-    SND_pc_M_vDeleteCriticalSection(&SND_pc_g_stErrDispCs);
-    SND_pc_g_hErrDispBusyEvent = NULL;
-    SND_pc_M_bResetEvent(hEvent);
-    SND_pc_M_bDeleteEvent(hEvent);
-}
-
 void __stdcall SND_fn_vEnterCriticalSectionForErrorDisplay(void)
 {
     SND_pc_M_vEnterCriticalSection(&SND_pc_g_stErrDispCs);
@@ -188,6 +156,44 @@ long __cdecl SND_fn_bGetThemePosition(unsigned long *pulOut1, unsigned long *pul
 /* 0x004B8648 */
 static tdpfnResNameCallback SND_pc_g_pfnResNameCallback;
 
+extern void *__cdecl SND_pc_fn_pstFindBankItemById(long lKey);                 /* 0x00454380 */
+extern int   __cdecl SND_pc_fn_iSetResourceVolumeByType(tdstBlockResourceMem *pRes, long lVolume); /* 0x004585B0 */
+
+/* 0x00454EE0 */
+extern long __stdcall SND_fn_rGetDopplerFactor(void);
+
+void __stdcall SND_fn_vWaitForValueThreadSnd(unsigned long *p_ulValue,
+                                             unsigned long ulExpected)
+{
+    long lTries = 0;
+
+    while ((*p_ulValue != ulExpected) && (lTries < 10)) {
+        lTries++;
+        SND_pc_M_vSleep(0x64);
+    }
+    if (*p_ulValue != ulExpected) {
+        SND_fn_vDisplayError(E_uwSndThreadDeadLockError,
+                             (char *)SND_C_szEmptyThrd);
+    }
+}
+
+void __cdecl SND_pc_fn_vInitErrorDisplayCs(void)
+{
+    SND_pc_M_vInitCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_g_hErrDispBusyEvent = SND_pc_M_hCreateManualEvent();
+}
+
+void __cdecl SND_pc_fn_vDesInitErrorDisplayCs(void)
+{
+    SND_pc_tdhEvent hEvent = SND_pc_g_hErrDispBusyEvent;
+
+    SND_pc_M_vLeaveCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_M_vDeleteCriticalSection(&SND_pc_g_stErrDispCs);
+    SND_pc_g_hErrDispBusyEvent = NULL;
+    SND_pc_M_bResetEvent(hEvent);
+    SND_pc_M_bDeleteEvent(hEvent);
+}
+
 /* 0x00454E00 */
 SndBool __stdcall dbgSND_fn_bGetAskedTheme(tduRefRes *asked_theme, SndBool *transiting)
 {
@@ -206,6 +212,12 @@ void __stdcall dbgSND_fn_vGetInfoForObjectSound(long id, long type, char *str, l
     SND_fn_vGetInfoForObjectSound(id, type, str, size_ptr);
 }
 
+/* 0x00454E60 */
+long __stdcall dbgSND_fn_lGetSizeOfSoundParam(struct SoundParam_ *pObj)
+{
+    return SND_M_lGetSizeOfSoundParam(pObj);
+}
+
 /* 0x00454E80 */
 void __stdcall SND_fn_vSetResNameCallback(tdpfnResNameCallback pfn)
 {
@@ -221,15 +233,6 @@ const char * __stdcall SND_fn_czGetResNameFromEdId(unsigned long edId)
     }
     return SND_pc_g_pfnResNameCallback(edId);
 }
-
-/* 0x00454E60 */
-long __stdcall dbgSND_fn_lGetSizeOfSoundParam(struct SoundParam_ *pObj)
-{
-    return SND_M_lGetSizeOfSoundParam(pObj);
-}
-
-extern void *__cdecl SND_pc_fn_pstFindBankItemById(long lKey);                 /* 0x00454380 */
-extern int   __cdecl SND_pc_fn_iSetResourceVolumeByType(tdstBlockResourceMem *pRes, long lVolume); /* 0x004585B0 */
 SndBool __stdcall dbgSND_fn_bSetResourceStaticVolume(long lResId, long lVolume)
 {
     void *pItem = SND_pc_fn_pstFindBankItemById(lResId);
@@ -238,9 +241,6 @@ SndBool __stdcall dbgSND_fn_bSetResourceStaticVolume(long lResId, long lVolume)
         return (SndBool)SND_pc_fn_iSetResourceVolumeByType((tdstBlockResourceMem *)pItem, lVolume);
     return 0;
 }
-
-/* 0x00454EE0 */
-extern long __stdcall SND_fn_rGetDopplerFactor(void);
 long __stdcall dbgSND_fn_rGetDopplerFactor(void)
 {
     return SND_fn_rGetDopplerFactor();

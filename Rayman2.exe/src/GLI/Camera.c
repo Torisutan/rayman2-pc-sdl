@@ -8,6 +8,19 @@
 #include <windows.h>
 #include "GLI/GLD.h"
 
+void __cdecl GLI_xSetCameraNearFar(void *p_stCam, float xNear_unused, float xFar)
+{
+    (void)xNear_unused;
+
+    ((GLI_tdstCamera *)p_stCam)->xNear = 0.25f;
+
+    if (xFar == 0.0f) {
+        ((GLI_tdstCamera *)p_stCam)->xFar = 100000.0f;
+    } else {
+        ((GLI_tdstCamera *)p_stCam)->xFar = xFar;
+    }
+}
+
 void __cdecl GLI_xGetCameraMatrix(void *p_stCam, long *p_stMatrix)
 {
 
@@ -40,17 +53,32 @@ void __cdecl GLI_xSetCameraRatio(void *p_stCam, float xRatio)
         MTH_M_xMul(((GLI_tdstCamera *)p_stCam)->xAlphaX, xRatio);
 }
 
-void __cdecl GLI_xSetCameraNearFar(void *p_stCam, float xNear_unused, float xFar)
+#include "GLD/GLD_Pub.h"
+#include "GLI/Vpt3D.h"
+void __cdecl GLI_xSetViewportCamera(short hDevice, short hViewport, long lCam)
 {
-    (void)xNear_unused;
+    struct GLD_tdstViewportAttributes_ stViewAttrib;
+    GLI_tdstSpecificAttributesFor3D *p_stSpecAttrib3D;
 
-    ((GLI_tdstCamera *)p_stCam)->xNear = 0.25f;
-
-    if (xFar == 0.0f) {
-        ((GLI_tdstCamera *)p_stCam)->xFar = 100000.0f;
-    } else {
-        ((GLI_tdstCamera *)p_stCam)->xFar = xFar;
+    if (GLD_bGetViewportAttributes(hDevice, hViewport, &stViewAttrib) != 0) {
+        p_stSpecAttrib3D = (GLI_tdstSpecificAttributesFor3D *)stViewAttrib.p_vSpecificToXD;
+        if ((GLI_tdstCamera *)lCam != p_stSpecAttrib3D->p_stCam) {
+            p_stSpecAttrib3D->p_stCam = (GLI_tdstCamera *)lCam;
+            GLI_xAdjustCameraToViewport(hDevice, hViewport, (struct GLI_tdstCamera_ *)lCam);
+        }
     }
+}
+
+void __cdecl GLI_xGetViewportCamera(unsigned long hDevice, unsigned short hViewport, void **p_stCam)
+{
+    struct GLD_tdstViewportAttributes_ stViewAttrib;
+    GLI_tdstSpecificAttributesFor3D *p_stSpecAttrib3D;
+
+    if ( !GLD_bGetViewportAttributes( (GLD_tdhDevice)hDevice, hViewport, &stViewAttrib ) )
+      return ;
+
+    p_stSpecAttrib3D = (GLI_tdstSpecificAttributesFor3D *)stViewAttrib.p_vSpecificToXD;
+    (*p_stCam) = p_stSpecAttrib3D->p_stCam ;
 }
 
 void __cdecl GLI_xCreateCamera(GLI_tdstCamera **h_stCam, long lCameraMode)
@@ -113,32 +141,4 @@ fill_block:
         (*h_stCam)->xFar = 10000.0f;
         (*h_stCam)->xRatio = GLI_M_Div((*h_stCam)->xAlphaY , (*h_stCam)->xAlphaX );
     }
-}
-
-#include "GLD/GLD_Pub.h"
-#include "GLI/Vpt3D.h"
-void __cdecl GLI_xSetViewportCamera(short hDevice, short hViewport, long lCam)
-{
-    struct GLD_tdstViewportAttributes_ stViewAttrib;
-    GLI_tdstSpecificAttributesFor3D *p_stSpecAttrib3D;
-
-    if (GLD_bGetViewportAttributes(hDevice, hViewport, &stViewAttrib) != 0) {
-        p_stSpecAttrib3D = (GLI_tdstSpecificAttributesFor3D *)stViewAttrib.p_vSpecificToXD;
-        if ((GLI_tdstCamera *)lCam != p_stSpecAttrib3D->p_stCam) {
-            p_stSpecAttrib3D->p_stCam = (GLI_tdstCamera *)lCam;
-            GLI_xAdjustCameraToViewport(hDevice, hViewport, (struct GLI_tdstCamera_ *)lCam);
-        }
-    }
-}
-
-void __cdecl GLI_xGetViewportCamera(unsigned long hDevice, unsigned short hViewport, void **p_stCam)
-{
-    struct GLD_tdstViewportAttributes_ stViewAttrib;
-    GLI_tdstSpecificAttributesFor3D *p_stSpecAttrib3D;
-
-    if ( !GLD_bGetViewportAttributes( (GLD_tdhDevice)hDevice, hViewport, &stViewAttrib ) )
-      return ;
-
-    p_stSpecAttrib3D = (GLI_tdstSpecificAttributesFor3D *)stViewAttrib.p_vSpecificToXD;
-    (*p_stCam) = p_stSpecAttrib3D->p_stCam ;
 }

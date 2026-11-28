@@ -9,9 +9,6 @@
 #include "GLI/ui_reset_redraw.h"
 #include <string.h>
 #include <windows.h>
-#ifdef RAYMAN2_WIDESCREEN
-#include "GLI/GLI_ratio.h"
-#endif /* RAYMAN2_WIDESCREEN */
 #ifdef RAYMAN2_FAST_LOADING
 #include "GLI/GLI_fastload.h"
 #endif /* RAYMAN2_FAST_LOADING */
@@ -354,39 +351,6 @@ void __cdecl GLI_pc_fn_vExpandRows32B(uint32_t *pBuffer, int lHeight, int lWidth
     }
 }
 
-void __cdecl GLI_pc_fn_vReplaceLowAlphaPixels(uint32_t *pPixels,
-                              int lHeight,
-                              int lWidth,
-                              uint32_t ulReplacement)
-{
-    uint32_t *pEnd = pPixels + (lWidth * lHeight);
-
-    while (pPixels < pEnd) {
-        if ((*pPixels & 0xff000000u) < 0xc0000000u) {
-            *pPixels = ulReplacement;
-        }
-        ++pPixels;
-    }
-}
-
-void __cdecl GLI_pc_fn_vApplyColorKeyAlpha(uint32_t *pPixels,
-                              int lHeight,
-                              int lWidth,
-                              uint32_t ulKey)
-{
-    uint32_t *pEnd = pPixels + (lWidth * lHeight);
-
-    while (pPixels < pEnd) {
-        uint32_t ulPixel = *pPixels;
-        if ((ulPixel & 0x00ffffffu) == ulKey) {
-            *pPixels = ulPixel & 0x00ffffffu;
-        } else {
-            *pPixels = ulPixel | 0xff000000u;
-        }
-        ++pPixels;
-    }
-}
-
 #define GLI_M_ColorKeySubNeighbour(ulPix)                                   \
     {                                                                       \
         ulNeigh = (ulPix);                                                  \
@@ -396,96 +360,6 @@ void __cdecl GLI_pc_fn_vApplyColorKeyAlpha(uint32_t *pPixels,
             xB -= (float)( ulNeigh        & 0xffu) * (1.0f / -9.0f);        \
         }                                                                   \
     }
-
-/* 0x004254b0 */
-void __cdecl GLI_pc_fn_vColorKeyNeighborhoodPassA(uint32_t *pPixels,
-                              uint32_t  ulWidth,
-                              int       lHeight,
-                              uint32_t  ulKey)
-{
-    uint32_t *p_ulCursor;
-    uint32_t *p_ulRow;
-    uint32_t  ulPixCount;
-    uint32_t  ulRowOffset;
-    uint32_t  ulCol;
-    int       lYPrev, lYNext, lXPrev, lXNext;
-    uint32_t  ulRgb;
-
-    if ((ulWidth == 1) && (lHeight == 1)) {
-        return;
-    }
-
-    ulPixCount = (uint32_t)lHeight * ulWidth;
-
-    for (p_ulCursor = pPixels; p_ulCursor < pPixels + ulPixCount; p_ulCursor++) {
-        ulRgb = *p_ulCursor & 0xffffffu;
-        if (ulRgb == (ulKey & 0xffffffu)) {
-            *p_ulCursor = ulRgb;
-        } else {
-            *p_ulCursor = *p_ulCursor | 0xff000000u;
-        }
-    }
-
-    p_ulRow = pPixels;
-    for (ulRowOffset = 0; ulRowOffset < ulPixCount; ulRowOffset += ulWidth, p_ulRow += ulWidth) {
-
-        lYPrev = ((ulRowOffset != 0) ? -1 : 1) * ulWidth;
-
-        lYNext = ((ulRowOffset == ((uint32_t)(lHeight - 1)) * ulWidth) ? -1 : 1) * ulWidth;
-
-        ulCol      = 0;
-        p_ulCursor = p_ulRow;
-        while (ulCol < ulWidth) {
-
-            lXNext = (ulCol == ulWidth - 1) ? -1 : 1;
-
-            lXPrev = (ulCol != 0) ? -1 : 1;
-
-            if ((*p_ulCursor & 0xff000000u) == 0) {
-
-                float    xR, xG, xB;
-                uint32_t ulNeigh;
-
-                xR = 0.0f;
-                xG = 0.0f;
-                xB = 0.0f;
-                ulNeigh = p_ulCursor[lXNext];
-                if ((ulNeigh & 0xff000000u) != 0) {
-                    xR = (float)((ulNeigh >> 16) & 0xffu) * (1.0f / 9.0f);
-                    xG = (float)((ulNeigh >>  8) & 0xffu) * (1.0f / 9.0f);
-                    xB = (float)( ulNeigh        & 0xffu) * (1.0f / 9.0f);
-                }
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lXPrev]);
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYNext]);
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYNext + lXNext]);
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYNext + lXPrev]);
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYPrev]);
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYPrev + lXNext]);
-                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYPrev + lXPrev]);
-
-                /* 0x00425995 */
-                *p_ulCursor = (((long)xG & 0xffffu) | (((long)xR & 0xffu) << 8)) << 8
-                              | ((long)xB & 0xffffffu);
-            } else {
-
-                signed char cKeyNeighborCount = 0;
-                if ((p_ulCursor[lXNext]            & 0xff000000u) == 0) cKeyNeighborCount = 1;
-                if ((p_ulCursor[lXPrev]            & 0xff000000u) == 0) cKeyNeighborCount++;
-                if ((p_ulCursor[lYNext]            & 0xff000000u) == 0) cKeyNeighborCount++;
-                if ((p_ulCursor[lYNext + lXNext]   & 0xff000000u) == 0) cKeyNeighborCount++;
-                if ((p_ulCursor[lYNext + lXPrev]   & 0xff000000u) == 0) cKeyNeighborCount++;
-                if ((p_ulCursor[lYPrev]            & 0xff000000u) == 0) cKeyNeighborCount++;
-                if ((p_ulCursor[lYPrev + lXNext]   & 0xff000000u) == 0) cKeyNeighborCount++;
-                if ((p_ulCursor[lYPrev + lXPrev]   & 0xff000000u) == 0) cKeyNeighborCount++;
-                if (cKeyNeighborCount >= 7) {
-                    *p_ulCursor = *p_ulCursor & 0xffffffu;
-                }
-            }
-            ulCol++;
-            p_ulCursor++;
-        }
-    }
-}
 
 #include "GLI/GLI_types.h"
 #include "GLI/devinfo.h"
@@ -593,95 +467,97 @@ void __cdecl GLI_pc_fn_vColorKeyNeighborhoodPassB(int hTexture, uint32_t ulBuffe
     }
 }
 
-/* 0x00493a40 */
-void __cdecl FIL_LoadGFLikeImageToRecord(void       *hConcatFile,
-                                         char       *p_szPath,
-                                         char       *p_szFilename,
-                                         FIL_tdstGF *pGF)
+/* 0x004254b0 */
+void __cdecl GLI_pc_fn_vColorKeyNeighborhoodPassA(uint32_t *pPixels,
+                              uint32_t  ulWidth,
+                              int       lHeight,
+                              uint32_t  ulKey)
 {
-    struct FIL_tdstFileInConcatFile_ *hStream;
-    FIL_tdstRealGFFileHeader hdr;
-    unsigned char *pBitMap;
-    unsigned long  uPlane, uPixel, k;
-    unsigned char  ucByte, ucRepeatVal, ucRepeatCount;
+    uint32_t *p_ulCursor;
+    uint32_t *p_ulRow;
+    uint32_t  ulPixCount;
+    uint32_t  ulRowOffset;
+    uint32_t  ulCol;
+    int       lYPrev, lYNext, lXPrev, lXNext;
+    uint32_t  ulRgb;
 
-    /* 0x493a5a */
-    pGF->p_ucBitMap                      = (unsigned char *)0;
-    pGF->p_ucPalette                     = (unsigned char *)0;
-    pGF->stFileHeader.uwNbColorInPalette = 0;
-    pGF->stFileHeader.ulWidth            = 0;
-    pGF->stFileHeader.ulHeight           = 0;
-    pGF->stFileHeader.ucBpp              = 0;
-    pGF->stFileHeader.ucBpcInPalette     = 0;
-    pGF->stFileHeader.ulImageSize        = 0;
-    pGF->stFileHeader.ucFormat           = 0xff;
-
-    hStream = (struct FIL_tdstFileInConcatFile_ *)
-        FIL_fn_hOpenFileInConcatFile(hConcatFile, p_szPath, p_szFilename);
-    if (hStream == NULL)
+    if ((ulWidth == 1) && (lHeight == 1)) {
         return;
-
-    FIL_fn_lReadFileInConcatFile(&hdr, 0xe, 1, hStream);
-
-    pGF->stFileHeader.ulWidth     = hdr.ulWidth;
-    pGF->stFileHeader.ulHeight    = hdr.ulHeight;
-    pGF->stFileHeader.ulImageSize = hdr.ulWidth * hdr.ulHeight;
-    pGF->stFileHeader.ucBpp       = hdr.ucBpp;
-    pGF->stFileHeader.ucRLECode   = hdr.ucRLECode;
-    pGF->stFileHeader.ucVersion   = 1;
-
-    if (hdr.ucBpp == 1) {
-        pGF->stFileHeader.uwNbColorInPalette = 0x100;
-        pGF->stFileHeader.ucBpcInPalette     = 4;
     }
 
-    if (pGF->stFileHeader.lChromakeyIndex == -1) {
-        pGF->stFileHeader.ucRed   = 0;
-        pGF->stFileHeader.ucGreen = 0;
-        pGF->stFileHeader.ucBlue  = 0;
-    }
+    ulPixCount = (uint32_t)lHeight * ulWidth;
 
-    pGF->p_ucBitMap = (unsigned char *)GLI_pc_fn_p_vAlloc(
-        (unsigned long)hdr.ucBpp *
-        hdr.ulWidth *
-        hdr.ulHeight);
-
-    if (pGF->stFileHeader.uwNbColorInPalette != 0 &&
-        pGF->stFileHeader.ucBpcInPalette     != 0) {
-        pGF->p_ucPalette = (unsigned char *)GLI_pc_fn_p_vAlloc(
-            (unsigned long)pGF->stFileHeader.uwNbColorInPalette *
-            (unsigned long)pGF->stFileHeader.ucBpcInPalette);
-        FIL_fn_lReadFileInConcatFile(
-            pGF->p_ucPalette,
-            (long)pGF->stFileHeader.ucBpcInPalette,
-            (long)pGF->stFileHeader.uwNbColorInPalette,
-            hStream);
-    }
-
-    pBitMap = pGF->p_ucBitMap;
-    if (pGF->stFileHeader.ucBpp != 0) {
-        for (uPlane = 0; uPlane < (unsigned long)pGF->stFileHeader.ucBpp; uPlane++) {
-            uPixel = 0;
-            while (uPixel < (unsigned long)pGF->stFileHeader.ulImageSize) {
-                FIL_fn_lReadFileInConcatFile(&ucByte, 1, 1, hStream);
-                if (ucByte == pGF->stFileHeader.ucRLECode) {
-                    FIL_fn_lReadFileInConcatFile(&ucRepeatVal,   1, 1, hStream);
-                    FIL_fn_lReadFileInConcatFile(&ucRepeatCount, 1, 1, hStream);
-                    for (k = 0; k < (unsigned long)ucRepeatCount; k++) {
-                        pBitMap[(uPixel + k) *
-                                (unsigned long)pGF->stFileHeader.ucBpp + uPlane] = ucRepeatVal;
-                    }
-                    uPixel += (unsigned long)ucRepeatCount;
-                } else {
-                    pBitMap[uPixel * (unsigned long)pGF->stFileHeader.ucBpp + uPlane] = ucByte;
-                    uPixel++;
-                }
-            }
+    for (p_ulCursor = pPixels; p_ulCursor < pPixels + ulPixCount; p_ulCursor++) {
+        ulRgb = *p_ulCursor & 0xffffffu;
+        if (ulRgb == (ulKey & 0xffffffu)) {
+            *p_ulCursor = ulRgb;
+        } else {
+            *p_ulCursor = *p_ulCursor | 0xff000000u;
         }
     }
 
-    FIL_fn_vCloseFileInConcatFile(&hStream);
+    p_ulRow = pPixels;
+    for (ulRowOffset = 0; ulRowOffset < ulPixCount; ulRowOffset += ulWidth, p_ulRow += ulWidth) {
+
+        lYPrev = ((ulRowOffset != 0) ? -1 : 1) * ulWidth;
+
+        lYNext = ((ulRowOffset == ((uint32_t)(lHeight - 1)) * ulWidth) ? -1 : 1) * ulWidth;
+
+        ulCol      = 0;
+        p_ulCursor = p_ulRow;
+        while (ulCol < ulWidth) {
+
+            lXNext = (ulCol == ulWidth - 1) ? -1 : 1;
+
+            lXPrev = (ulCol != 0) ? -1 : 1;
+
+            if ((*p_ulCursor & 0xff000000u) == 0) {
+
+                float    xR, xG, xB;
+                uint32_t ulNeigh;
+
+                xR = 0.0f;
+                xG = 0.0f;
+                xB = 0.0f;
+                ulNeigh = p_ulCursor[lXNext];
+                if ((ulNeigh & 0xff000000u) != 0) {
+                    xR = (float)((ulNeigh >> 16) & 0xffu) * (1.0f / 9.0f);
+                    xG = (float)((ulNeigh >>  8) & 0xffu) * (1.0f / 9.0f);
+                    xB = (float)( ulNeigh        & 0xffu) * (1.0f / 9.0f);
+                }
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lXPrev]);
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYNext]);
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYNext + lXNext]);
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYNext + lXPrev]);
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYPrev]);
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYPrev + lXNext]);
+                GLI_M_ColorKeySubNeighbour(p_ulCursor[lYPrev + lXPrev]);
+
+                /* 0x00425995 */
+                *p_ulCursor = (((long)xG & 0xffffu) | (((long)xR & 0xffu) << 8)) << 8
+                              | ((long)xB & 0xffffffu);
+            } else {
+
+                signed char cKeyNeighborCount = 0;
+                if ((p_ulCursor[lXNext]            & 0xff000000u) == 0) cKeyNeighborCount = 1;
+                if ((p_ulCursor[lXPrev]            & 0xff000000u) == 0) cKeyNeighborCount++;
+                if ((p_ulCursor[lYNext]            & 0xff000000u) == 0) cKeyNeighborCount++;
+                if ((p_ulCursor[lYNext + lXNext]   & 0xff000000u) == 0) cKeyNeighborCount++;
+                if ((p_ulCursor[lYNext + lXPrev]   & 0xff000000u) == 0) cKeyNeighborCount++;
+                if ((p_ulCursor[lYPrev]            & 0xff000000u) == 0) cKeyNeighborCount++;
+                if ((p_ulCursor[lYPrev + lXNext]   & 0xff000000u) == 0) cKeyNeighborCount++;
+                if ((p_ulCursor[lYPrev + lXPrev]   & 0xff000000u) == 0) cKeyNeighborCount++;
+                if (cKeyNeighborCount >= 7) {
+                    *p_ulCursor = *p_ulCursor & 0xffffffu;
+                }
+            }
+            ulCol++;
+            p_ulCursor++;
+        }
+    }
 }
+
+void __cdecl FIL_LoadGFLikeImageToRecord(void *hConcatFile, char *p_szPath, char *p_szFilename, FIL_tdstGF *pGF);
 
 void __cdecl GLI_pc_fn_vLoadTextureSourceA(void *p_stTexture, char *p_szFileName, uint32_t *pBuffer)
 {
@@ -892,6 +768,10 @@ void __cdecl GLI_pc_fn_vLoadTextureSourceB(void *p_stTexture, char *p_szFileName
 
     GLI_pc_fn_vFreeIfNotNull((void **)&p_vTakeOwnership);
 }
+
+void __cdecl GLI_pc_fn_vReplaceLowAlphaPixels(uint32_t *pPixels, int lHeight, int lWidth, uint32_t ulReplacement);
+
+void __cdecl GLI_pc_fn_vApplyColorKeyAlpha(uint32_t *pPixels, int lHeight, int lWidth, uint32_t ulKey);
 
 /* 0x00426550 */
 void __cdecl GLI_xLoadTextureInTexelField(void *p_stTexture,
@@ -1148,6 +1028,71 @@ void __cdecl GLI_BlendPixelIntoUiSurface(int p_stUiObject,
     }
 }
 
+void __cdecl GLI_FillProgressBarSpan(int ui_object, unsigned int old_progress, unsigned int new_progress);
+
+/* 0x0045f420 */
+void __cdecl GLI_DrawProgressBarFrameAndFill(int ui_object)
+{
+    GLI_pc_tdstProgressUi *p_stUi;
+    float *p_xBlend;
+    unsigned long ulX;
+    unsigned long ulY;
+    unsigned long ulXEnd;
+    unsigned long ulYEnd;
+    long lYTop;
+    long lYBottom;
+
+    if (GLI_pc_g_lProgressBarDivisor == 0) {
+        GLI_pc_g_lProgressBarDivisor = 100;
+    }
+    p_stUi = (GLI_pc_tdstProgressUi *)ui_object;
+    ulY = (unsigned long)p_stUi->lBarYStart;
+    ulYEnd = (unsigned long)p_stUi->lBarYEnd;
+    if (ulY <= ulYEnd) {
+        do {
+            ulX = (unsigned long)p_stUi->lBarXStart;
+            ulXEnd = (unsigned long)p_stUi->lBarXEnd;
+            if (ulX <= ulXEnd) {
+                p_xBlend = p_stUi->a_xBackgroundBlend;
+                do {
+                    GLI_BlendPixelIntoUiSurface(ui_object, (int)ulX, (int)ulY, p_xBlend);
+                    ulXEnd = (unsigned long)p_stUi->lBarXEnd;
+                    ulX++;
+                } while (ulX <= ulXEnd);
+            }
+            ulYEnd = (unsigned long)p_stUi->lBarYEnd;
+            ulY++;
+        } while (ulY <= ulYEnd);
+    }
+    ulX = (unsigned long)p_stUi->lBarXStart + 1;
+    ulXEnd = (unsigned long)p_stUi->lBarXEnd - 1;
+    if (ulX <= ulXEnd) {
+        p_xBlend = p_stUi->a_xBorderBlend;
+        do {
+            lYTop = p_stUi->lBarYStart;
+            GLI_BlendPixelIntoUiSurface(ui_object, (int)ulX, lYTop, p_xBlend);
+            lYBottom = p_stUi->lBarYEnd;
+            GLI_BlendPixelIntoUiSurface(ui_object, (int)ulX, lYBottom, p_xBlend);
+            ulXEnd = (unsigned long)p_stUi->lBarXEnd - 1;
+            ulX++;
+        } while (ulX <= ulXEnd);
+    }
+    ulY = (unsigned long)p_stUi->lBarYStart;
+    ulYEnd = (unsigned long)p_stUi->lBarYEnd;
+    if (ulY <= ulYEnd) {
+        p_xBlend = p_stUi->a_xBorderBlend;
+        do {
+            lYTop = p_stUi->lBarXStart;
+            GLI_BlendPixelIntoUiSurface(ui_object, lYTop, (int)ulY, p_xBlend);
+            lYBottom = p_stUi->lBarXEnd;
+            GLI_BlendPixelIntoUiSurface(ui_object, lYBottom, (int)ulY, p_xBlend);
+            ulYEnd = (unsigned long)p_stUi->lBarYEnd;
+            ulY++;
+        } while (ulY <= ulYEnd);
+    }
+    GLI_FillProgressBarSpan((int)&GLI_pc_g_stProgressUi, 0, GLI_pc_g_lProgressBarCurPos);
+}
+
 /* 0x0045f530 */
 void __cdecl GLI_FillProgressBarSpan(int ui_object,
                                      unsigned int old_progress,
@@ -1245,69 +1190,6 @@ void __cdecl GLI_FillProgressBarSpan(int ui_object,
     }
 }
 
-/* 0x0045f420 */
-void __cdecl GLI_DrawProgressBarFrameAndFill(int ui_object)
-{
-    GLI_pc_tdstProgressUi *p_stUi;
-    float *p_xBlend;
-    unsigned long ulX;
-    unsigned long ulY;
-    unsigned long ulXEnd;
-    unsigned long ulYEnd;
-    long lYTop;
-    long lYBottom;
-
-    if (GLI_pc_g_lProgressBarDivisor == 0) {
-        GLI_pc_g_lProgressBarDivisor = 100;
-    }
-    p_stUi = (GLI_pc_tdstProgressUi *)ui_object;
-    ulY = (unsigned long)p_stUi->lBarYStart;
-    ulYEnd = (unsigned long)p_stUi->lBarYEnd;
-    if (ulY <= ulYEnd) {
-        do {
-            ulX = (unsigned long)p_stUi->lBarXStart;
-            ulXEnd = (unsigned long)p_stUi->lBarXEnd;
-            if (ulX <= ulXEnd) {
-                p_xBlend = p_stUi->a_xBackgroundBlend;
-                do {
-                    GLI_BlendPixelIntoUiSurface(ui_object, (int)ulX, (int)ulY, p_xBlend);
-                    ulXEnd = (unsigned long)p_stUi->lBarXEnd;
-                    ulX++;
-                } while (ulX <= ulXEnd);
-            }
-            ulYEnd = (unsigned long)p_stUi->lBarYEnd;
-            ulY++;
-        } while (ulY <= ulYEnd);
-    }
-    ulX = (unsigned long)p_stUi->lBarXStart + 1;
-    ulXEnd = (unsigned long)p_stUi->lBarXEnd - 1;
-    if (ulX <= ulXEnd) {
-        p_xBlend = p_stUi->a_xBorderBlend;
-        do {
-            lYTop = p_stUi->lBarYStart;
-            GLI_BlendPixelIntoUiSurface(ui_object, (int)ulX, lYTop, p_xBlend);
-            lYBottom = p_stUi->lBarYEnd;
-            GLI_BlendPixelIntoUiSurface(ui_object, (int)ulX, lYBottom, p_xBlend);
-            ulXEnd = (unsigned long)p_stUi->lBarXEnd - 1;
-            ulX++;
-        } while (ulX <= ulXEnd);
-    }
-    ulY = (unsigned long)p_stUi->lBarYStart;
-    ulYEnd = (unsigned long)p_stUi->lBarYEnd;
-    if (ulY <= ulYEnd) {
-        p_xBlend = p_stUi->a_xBorderBlend;
-        do {
-            lYTop = p_stUi->lBarXStart;
-            GLI_BlendPixelIntoUiSurface(ui_object, lYTop, (int)ulY, p_xBlend);
-            lYBottom = p_stUi->lBarXEnd;
-            GLI_BlendPixelIntoUiSurface(ui_object, lYBottom, (int)ulY, p_xBlend);
-            ulYEnd = (unsigned long)p_stUi->lBarYEnd;
-            ulY++;
-        } while (ulY <= ulYEnd);
-    }
-    GLI_FillProgressBarSpan((int)&GLI_pc_g_stProgressUi, 0, GLI_pc_g_lProgressBarCurPos);
-}
-
 /* 0x0045f7e0 */
 unsigned int __cdecl GLI_AddToProgressBar(int lIncrement)
 {
@@ -1345,17 +1227,52 @@ unsigned int __cdecl GLI_AddToProgressBar(int lIncrement)
     return ulNewPos;
 }
 
-/* 0x00421fd0 */
-void __cdecl GLI_pc_fn_vWrite16bBitmapToBackBuffer(void *p_vBuffer, long lPitch, long lHeight,
-                                                   long lArg4, long lArg5, long lArg6, long lArg7)
+void __cdecl GLI_pc_fn_vWrite16bBitmapToBackBuffer(void *p_vBuffer, long lPitch, long lHeight, long lArg4, long lArg5, long lArg6, long lArg7);
+#include "GLI/mater_st.h"
+
+/* 0x00424bb0 */
+void __cdecl GLI_vLockAnimatedTexture(void *hMaterial)
 {
-#ifdef RAYMAN2_WIDESCREEN
-    /* the bitmap (vignette, 4:3) is squeezed into its 4:3 band; size and rect unchanged */
-    if ( GLI_g_xSafeAreaRatio < MTH_C_ONE )
-        p_vBuffer = GLI_fn_p_vSqueezeBitmapToSafeArea(p_vBuffer, lPitch, lHeight);
-#endif /* RAYMAN2_WIDESCREEN */
-    ((void (__cdecl *)(void *, long, long, long, long, long, long))GLI_DRV_g_vWrite16bBitmapToBackBuffer)
-        (p_vBuffer, lPitch, lHeight, lArg4, lArg5, lArg6, lArg7);
+    ((ACP_tdxHandleOfMaterial)hMaterial)->xIsLocked = 1;
+}
+
+/* 0x00424bc0 */
+void __cdecl GLI_vUnLockAnimatedTexture(void *hMaterial)
+{
+    ((ACP_tdxHandleOfMaterial)hMaterial)->xIsLocked = 0;
+}
+
+void __cdecl GLI_pc_fn_vReplaceLowAlphaPixels(uint32_t *pPixels,
+                              int lHeight,
+                              int lWidth,
+                              uint32_t ulReplacement)
+{
+    uint32_t *pEnd = pPixels + (lWidth * lHeight);
+
+    while (pPixels < pEnd) {
+        if ((*pPixels & 0xff000000u) < 0xc0000000u) {
+            *pPixels = ulReplacement;
+        }
+        ++pPixels;
+    }
+}
+
+void __cdecl GLI_pc_fn_vApplyColorKeyAlpha(uint32_t *pPixels,
+                              int lHeight,
+                              int lWidth,
+                              uint32_t ulKey)
+{
+    uint32_t *pEnd = pPixels + (lWidth * lHeight);
+
+    while (pPixels < pEnd) {
+        uint32_t ulPixel = *pPixels;
+        if ((ulPixel & 0x00ffffffu) == ulKey) {
+            *pPixels = ulPixel & 0x00ffffffu;
+        } else {
+            *pPixels = ulPixel | 0xff000000u;
+        }
+        ++pPixels;
+    }
 }
 
 #include "GAM/GAM_pc_DrawLock.h"

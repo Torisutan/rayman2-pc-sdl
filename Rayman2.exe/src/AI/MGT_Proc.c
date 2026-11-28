@@ -11,6 +11,20 @@
 extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
 #define AI_M_pfn_M_AIFatalError(uwError) \
     fn_vOnAIErm_M_UpdateLastError((unsigned short)(uwError), (char *)0)
+extern void __cdecl MGT_fn_vAddObjectToMagnetList(HIE_tdstSuperObject *p_stObject);
+
+/* 0x00488220 */
+AI_tdstNodeInterpret *__cdecl MGT_fn_p_stActiveMagnet(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
+{
+    unsigned long        procId  = (unsigned long)M_eProcedureIdInterpret(p_stTree-1);
+
+    fn_vGetUltraOperatorPerso(fn_ucGetProcedureUltraOperator(procId), p_SuperObjPerso,
+                                 &p_SuperObjPerso);
+
+    MGT_fn_vAddObjectToMagnetList(p_SuperObjPerso);
+    return p_stTree;
+}
 
 /* 0x004883B0 */
 AI_tdstNodeInterpret *__cdecl MGT_fn_p_stGetInfo(

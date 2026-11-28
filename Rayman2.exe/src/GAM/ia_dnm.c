@@ -17,68 +17,7 @@
 #include "GAM/STRUCTUR/Engmode.h"
 #include "MEC/DNMRepor.h"
 
-void __cdecl fn_vMakeCharacterThink(HIE_tdstSuperObject *p_stSuperObj)
-{
-    AI_tdstMind         *p_stMind;
-    MS_tdxHandleToBrain  h_Brain;
-
-    fn_v3dDataUpdateBrainCounter(p_stSuperObj);
-
-    if (!fn_b3dDataCanComputeBrain(p_stSuperObj))
-        return;
-    if ((h_Brain = M_GetMSHandle(p_stSuperObj, Brain)) == NULL)
-        return;
-    if ((p_stMind = AI_M_pstGetMindOfBrain(h_Brain)) == NULL)
-        return;
-
-    fn_v3dDataUpdateMainBrainCounter(M_GetMSHandle(p_stSuperObj, 3dData));
-    gcGlobAleat = (char)fn_uw3dDataGetMainBrainCounter(M_GetMSHandle(p_stSuperObj, 3dData));
-
-    if (!fn_bDoReflexPerso(p_stSuperObj))
-    {
-
-        if ((h_Brain = M_GetMSHandle(p_stSuperObj, Brain)) != NULL)
-            if ((p_stMind = AI_M_pstGetMindOfBrain(h_Brain)) != NULL)
-                fn_bDoIntelligencePerso(p_stSuperObj);
-    }
-}
-
-/* 0x00412040 */
-void *__cdecl fn_h_GetCurrentDNMIdCard(HIE_tdstSuperObject *p_SuperObjPerso)
-{
-    tdxHandleToState hCurrentState =
-        fn_h3dDataGetCurrentState(M_GetMSHandle(p_SuperObjPerso, 3dData));
-
-    if (hCurrentState == NULL)
-        return NULL;
-    return fn_hGetStateMechanicsIdCard(hCurrentState);
-}
-
 #define C_WOT_ulMobile 0x00010000
-
-/* 0x00411F80 */
-void __cdecl fn_vSuperObjectSetLastCollidedCharacter(HIE_tdstSuperObject *hCharacter,
-                                                     HIE_tdstSuperObject *_h_LastCollidedCharacter)
-{
-    DNM_tdstReport   *p_stDynamReport;
-    MS_tdxHandleToDynam h_Dynam;
-    DNM_tdstDynamics *p_stDynamics;
-
-    if ((h_Dynam = M_GetMSHandle(hCharacter,Dynam)) == NULL )
-        return;
-
-    if ((p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam)) == NULL)
-        return;
-
-    p_stDynamReport = DNM_M_p_stDynamicsGetReport(p_stDynamics);
-    if (!p_stDynamReport)
-        return;
-
-    DNM_M_p_stObstacleSetObject(DNM_M_p_stReportGetCharacter(p_stDynamReport),_h_LastCollidedCharacter);
-
-    if (!_h_LastCollidedCharacter)
-        DNM_M_ulReportSetSurfaceState (p_stDynamReport, (DNM_M_ulReportGetSurfaceState(p_stDynamReport) & ~C_WOT_ulMobile));
-}
 
 #define DNM_M_vDynamicsSetSpeedAnim(_p_stDynamics,pstSpeedAnim) \
     MTH3D_M_vCopyVector(DNM_M_p_stDynamicsGetSpeedAnim(_p_stDynamics), pstSpeedAnim)
@@ -86,32 +25,6 @@ void __cdecl fn_vSuperObjectSetLastCollidedCharacter(HIE_tdstSuperObject *hChara
 /* 0x0040FF90 */
 MTH3D_tdstVector *__cdecl PLA_fn_stGetLinearSpeedVector(HIE_tdstSuperObject *p_stSuperObject, short sLastFrame);
 MTH3D_tdstMatrix *__cdecl PLA_fn_stGetAngularSpeedMatrix(HIE_tdstSuperObject *p_stSuperObject, short sLastFrame);
-
-/* 0x00412060 */
-void __cdecl fn_vTransferSpeedInformationPLA_DNM(HIE_tdstSuperObject *p_SuperObjPerso, short sLastFrame)
-{
-    MS_tdxHandleToDynam h_Dynam;
-    DNM_tdstDynamics *p_stDynamics;
-    MTH3D_tdstVector *p_MthVector;
-    MTH3D_tdstMatrix *p_MthRotationMatrix;
-
-    if ((h_Dynam = M_GetMSHandle(p_SuperObjPerso, Dynam)) == NULL)
-        return;
-    if ((p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam)) == NULL)
-        return;
-
-    p_MthVector = PLA_fn_stGetLinearSpeedVector(p_SuperObjPerso, sLastFrame);
-    p_MthRotationMatrix = PLA_fn_stGetAngularSpeedMatrix(p_SuperObjPerso, sLastFrame);
-
-    if (p_MthVector)
-    {
-
-          DNM_M_vDynamicsSetSpeedAnim(p_stDynamics, p_MthVector);
-    }
-
-    if (p_MthRotationMatrix)
-        MEC_vImposeRelativeRotation(p_stDynamics, p_MthRotationMatrix);
-}
 
 typedef void (*tdpfnDynamicFunction)(DNM_tdstDynamics *_p_stDynamics, HIE_tdstSuperObject *_hSupObj,
                                      void *_p_stParsingDatas, void *_h_MecIdCard, MTH_tdxReal _xDT);
@@ -122,39 +35,6 @@ extern void *__cdecl fn_p_stDynamGetParsingDatas(void *h_Dynam);
 extern void __cdecl fn_vDynamSetUsedMechanics(void *h_Dynam, long eUsedMechanics);
 struct DNM_stMecBaseIdCard;
 void __cdecl DNM_fn_vChangeIdCard(DNM_tdstDynamics *p_stDynamics, struct DNM_stMecBaseIdCard *hNewIdCard);
-
-/* 0x00412150 */
-void __cdecl fn_vMakeCharacterMechanicallyReact(HIE_tdstSuperObject *p_stSuperObj)
-{
-    MS_tdxHandleToDynam h_Dynam;
-    DNM_tdstDynamics *p_stDynamics;
-    void *h_IdentityCard;
-
-    if ((h_Dynam = M_GetMSHandle(p_stSuperObj, Dynam)) == NULL)
-        return;
-    if ((p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam)) == NULL)
-        return;
-
-    h_IdentityCard = fn_h_GetCurrentDNMIdCard(p_stSuperObj);
-
-    if (DNM_M_pDynamicsGetCurrentIdCard(p_stDynamics) != h_IdentityCard)
-        DNM_fn_vChangeIdCard(p_stDynamics, h_IdentityCard);
-
-    if (h_IdentityCard != NULL)
-    {
-        g_a_pfnDynamicFunction[DNM_fn_eIdentityCardGetType(h_IdentityCard)]
-        (
-            p_stDynamics,
-            p_stSuperObj,
-            fn_p_stDynamGetParsingDatas(M_GetMSHandle(p_stSuperObj, Dynam)),
-            h_IdentityCard,
-            M_xGetUsefulDeltaTimeInSeconds(GAM_g_stEngineStructure.stEngineTimer)
-        );
-
-        if (DNM_M_bDynamicsIsCollisionReport(p_stDynamics)) DNM_M_ReportStateTranslate(DNM_M_p_stDynamicsGetReport(p_stDynamics));
-        fn_vDynamSetUsedMechanics(h_Dynam, DNM_fn_eIdentityCardGetType(h_IdentityCard));
-    }
-}
 
 extern void __cdecl GLI_xGetMaterialTextureScrollingCoef(ACP_tdxHandleOfMaterial hMaterial, long lNumberOfTexture,
                                                          long *p_bSwitch, MTH_tdxReal *p_fUSpeed,
@@ -287,6 +167,30 @@ void __cdecl fn_vGetScrollSpeedMatCollided(HIE_tdstSuperObject *p_stSuperObj, MT
     }
 }
 
+/* 0x00411F80 */
+void __cdecl fn_vSuperObjectSetLastCollidedCharacter(HIE_tdstSuperObject *hCharacter,
+                                                     HIE_tdstSuperObject *_h_LastCollidedCharacter)
+{
+    DNM_tdstReport   *p_stDynamReport;
+    MS_tdxHandleToDynam h_Dynam;
+    DNM_tdstDynamics *p_stDynamics;
+
+    if ((h_Dynam = M_GetMSHandle(hCharacter,Dynam)) == NULL )
+        return;
+
+    if ((p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam)) == NULL)
+        return;
+
+    p_stDynamReport = DNM_M_p_stDynamicsGetReport(p_stDynamics);
+    if (!p_stDynamReport)
+        return;
+
+    DNM_M_p_stObstacleSetObject(DNM_M_p_stReportGetCharacter(p_stDynamReport),_h_LastCollidedCharacter);
+
+    if (!_h_LastCollidedCharacter)
+        DNM_M_ulReportSetSurfaceState (p_stDynamReport, (DNM_M_ulReportGetSurfaceState(p_stDynamReport) & ~C_WOT_ulMobile));
+}
+
 /* 0x00411FC0 */
 HIE_tdstSuperObject *fn_hSuperObjectGetLastCollidedCharacter(HIE_tdstSuperObject *hCharacter) {
 	DNM_tdstReport * p_stDynamReport;
@@ -317,4 +221,106 @@ HIE_tdstSuperObject *fn_hSuperObjectGetLastCollidedCharacter(HIE_tdstSuperObject
 	}
 
 	return p_stObjectCollided;
+}
+
+void __cdecl InitArrayOfDynamicFunction(void **p_pfnRecord)
+{
+    p_pfnRecord[0] = (void *)DNM_p_stDynamicsCameraMechanics;
+    p_pfnRecord[1] = (void *)MEC_p_stDynamicsBaseMechanics;
+}
+
+/* 0x00412040 */
+void *__cdecl fn_h_GetCurrentDNMIdCard(HIE_tdstSuperObject *p_SuperObjPerso)
+{
+    tdxHandleToState hCurrentState =
+        fn_h3dDataGetCurrentState(M_GetMSHandle(p_SuperObjPerso, 3dData));
+
+    if (hCurrentState == NULL)
+        return NULL;
+    return fn_hGetStateMechanicsIdCard(hCurrentState);
+}
+
+/* 0x00412060 */
+void __cdecl fn_vTransferSpeedInformationPLA_DNM(HIE_tdstSuperObject *p_SuperObjPerso, short sLastFrame)
+{
+    MS_tdxHandleToDynam h_Dynam;
+    DNM_tdstDynamics *p_stDynamics;
+    MTH3D_tdstVector *p_MthVector;
+    MTH3D_tdstMatrix *p_MthRotationMatrix;
+
+    if ((h_Dynam = M_GetMSHandle(p_SuperObjPerso, Dynam)) == NULL)
+        return;
+    if ((p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam)) == NULL)
+        return;
+
+    p_MthVector = PLA_fn_stGetLinearSpeedVector(p_SuperObjPerso, sLastFrame);
+    p_MthRotationMatrix = PLA_fn_stGetAngularSpeedMatrix(p_SuperObjPerso, sLastFrame);
+
+    if (p_MthVector)
+    {
+
+          DNM_M_vDynamicsSetSpeedAnim(p_stDynamics, p_MthVector);
+    }
+
+    if (p_MthRotationMatrix)
+        MEC_vImposeRelativeRotation(p_stDynamics, p_MthRotationMatrix);
+}
+
+void __cdecl fn_vMakeCharacterThink(HIE_tdstSuperObject *p_stSuperObj)
+{
+    AI_tdstMind         *p_stMind;
+    MS_tdxHandleToBrain  h_Brain;
+
+    fn_v3dDataUpdateBrainCounter(p_stSuperObj);
+
+    if (!fn_b3dDataCanComputeBrain(p_stSuperObj))
+        return;
+    if ((h_Brain = M_GetMSHandle(p_stSuperObj, Brain)) == NULL)
+        return;
+    if ((p_stMind = AI_M_pstGetMindOfBrain(h_Brain)) == NULL)
+        return;
+
+    fn_v3dDataUpdateMainBrainCounter(M_GetMSHandle(p_stSuperObj, 3dData));
+    gcGlobAleat = (char)fn_uw3dDataGetMainBrainCounter(M_GetMSHandle(p_stSuperObj, 3dData));
+
+    if (!fn_bDoReflexPerso(p_stSuperObj))
+    {
+
+        if ((h_Brain = M_GetMSHandle(p_stSuperObj, Brain)) != NULL)
+            if ((p_stMind = AI_M_pstGetMindOfBrain(h_Brain)) != NULL)
+                fn_bDoIntelligencePerso(p_stSuperObj);
+    }
+}
+
+/* 0x00412150 */
+void __cdecl fn_vMakeCharacterMechanicallyReact(HIE_tdstSuperObject *p_stSuperObj)
+{
+    MS_tdxHandleToDynam h_Dynam;
+    DNM_tdstDynamics *p_stDynamics;
+    void *h_IdentityCard;
+
+    if ((h_Dynam = M_GetMSHandle(p_stSuperObj, Dynam)) == NULL)
+        return;
+    if ((p_stDynamics = fn_p_stDynamGetDynamics(h_Dynam)) == NULL)
+        return;
+
+    h_IdentityCard = fn_h_GetCurrentDNMIdCard(p_stSuperObj);
+
+    if (DNM_M_pDynamicsGetCurrentIdCard(p_stDynamics) != h_IdentityCard)
+        DNM_fn_vChangeIdCard(p_stDynamics, h_IdentityCard);
+
+    if (h_IdentityCard != NULL)
+    {
+        g_a_pfnDynamicFunction[DNM_fn_eIdentityCardGetType(h_IdentityCard)]
+        (
+            p_stDynamics,
+            p_stSuperObj,
+            fn_p_stDynamGetParsingDatas(M_GetMSHandle(p_stSuperObj, Dynam)),
+            h_IdentityCard,
+            M_xGetUsefulDeltaTimeInSeconds(GAM_g_stEngineStructure.stEngineTimer)
+        );
+
+        if (DNM_M_bDynamicsIsCollisionReport(p_stDynamics)) DNM_M_ReportStateTranslate(DNM_M_p_stDynamicsGetReport(p_stDynamics));
+        fn_vDynamSetUsedMechanics(h_Dynam, DNM_fn_eIdentityCardGetType(h_IdentityCard));
+    }
 }

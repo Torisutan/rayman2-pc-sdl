@@ -29,6 +29,43 @@ typedef void (__cdecl *pfn_FinalizeMaterial_t)(int);
 void __cdecl GLI_xSetLightState(void *p_stLight, long b_lOnOff);
 void __cdecl GLI_xGetLightState(void *p_stLight, long *pb_lOnOff);
 
+/* 0x00503D5C */
+static float gs_fCoefOfMultiplicationForScolledTextures;
+
+void __cdecl GLI_xSetMaterialType(void *hMaterial, unsigned long xMType)
+{
+    *(unsigned long *)hMaterial = xMType;
+}
+
+void __cdecl GLI_xGetMaterialType(void *hMaterial, unsigned long *xMType)
+{
+    *xMType = *(unsigned long *)hMaterial;
+}
+#define GLI_M_gs_fCoefMulScrolledTex (gs_fCoefOfMultiplicationForScolledTextures)
+
+#define GLI_M_gs_fCoefMulAnimatedTex   (gs_fCoefOfMultiplicationForAnimatedTexture)
+
+unsigned char GLI_M_g_bAnimFinishedFlag_storage;     /* 0x4a7270 */
+unsigned char GLI_M_g_bTakeCareOfAnimCoord_storage;  /* 0x4a7274 */
+#define GLI_M_gs_lActualRefreshNumber  (GLI_M_gs_lActualRefreshNumber_storage)
+#define GLI_M_g_bAnimFinishedFlag      (GLI_M_g_bAnimFinishedFlag_storage)
+#define GLI_M_g_bTakeCareOfAnimCoord   (GLI_M_g_bTakeCareOfAnimCoord_storage)
+
+#include "GLI/devinfo.h"
+unsigned char GLI_M_g_bOneShotAnim_storage;     /* 0x4a7278 */
+float         GLI_M_g_xBaseTimeForAnim_storage; /* 0x503d60 */
+#define GLI_M_g_bOneShotAnim           (GLI_M_g_bOneShotAnim_storage)
+#define GLI_M_g_xBaseTimeForAnim       (GLI_M_g_xBaseTimeForAnim_storage)
+
+#define GLI_M_xUVScrollThreshold  (0.0f)
+
+#include "GAM/PlayAnim.h"
+#include "GEO/GEO_types.h"
+#include "PO/POStruc.h"
+#include "GLI/VisuS_st.h"
+
+extern tdstEngineObject *g_AlphabetCharacterPointer;
+
 void __cdecl GLI_xCreateMaterial(void **p_hMaterial)
 {
     struct GLI_tdstMaterial_ *p_stMat;
@@ -89,60 +126,27 @@ fill_block:
     GLI_fn_vFinalizeMaterial((int)p_stMat);
 }
 
-void __cdecl GLI_xSetMaterialTexture(void *hMaterial, void *p_stTexture)
+/* 0x00424770 */
+void __cdecl GLI_xDuplicateMaterial(void **p_hDest, void *hSource)
 {
-    struct GLI_tdstMaterial_ *p_stMat = (struct GLI_tdstMaterial_ *)hMaterial;
-    GLI_tdstTexture *p_stTex = (GLI_tdstTexture *)p_stTexture;
+    typedef struct { unsigned long ul[0x1e]; } GLI_tdst30Dword;
+    unsigned long  aColor[4];
+    long           lSpecExp;
+    void          *pTexture;
+    long           lType;
 
-    p_stMat->p_stTexture = p_stTex;
-    if (p_stTex != NULL) {
+    GLI_xCreateMaterial(p_hDest);
 
-        if (*(unsigned char *)&p_stTex->ulTextureCaps & 0x08)
-            p_stMat->ulMaterialType &= 0xfffffbffUL;
-        if (*(unsigned char *)&p_stTex->ulTextureCaps & 0x40) {
-            p_stMat->ulMaterialType &= 0xf7ffffffUL;
-            return;
-        }
-    }
-    p_stMat->ulMaterialType |= 0x08000000UL;
-}
+    *(GLI_tdst30Dword *)*p_hDest = *(GLI_tdst30Dword *)hSource;
 
-void __cdecl GLI_xSetMaterialTextureScrollingCoef(void *hMaterial, long lNumberOfTexture,
-                                                  long bSwitch, MTH_tdxReal fUSpeed,
-                                                  MTH_tdxReal fVSpeed)
-{
-    ACP_tdxHandleOfMaterial hMat;
-
-    hMat = (ACP_tdxHandleOfMaterial)hMaterial;
-    hMat->fAddU = hMat->fConstantAddU = fUSpeed ;
-    hMat->fAddV = hMat->fConstantAddV = fVSpeed ;
-    hMat->lIncrementIsEnable = bSwitch ;
-
-    if ((MTH_M_bEqual(fUSpeed, MTH_C_ZERO)) && (MTH_M_bEqual(fVSpeed, MTH_C_ZERO)))
-        hMat->lIncrementIsEnable = 0;
-}
-
-void __cdecl GLI_xGetMaterialTextureScrollingCoef(void *hMaterial, long lNumberOfTexture,
-                                                  long *p_bSwitch, MTH_tdxReal *p_fUSpeed,
-                                                  MTH_tdxReal *p_fVSpeed)
-{
-    *p_fUSpeed = ((ACP_tdxHandleOfMaterial)hMaterial)->fConstantAddU ;
-    *p_fVSpeed = ((ACP_tdxHandleOfMaterial)hMaterial)->fConstantAddV ;
-    *p_bSwitch = ((ACP_tdxHandleOfMaterial)hMaterial)->lIncrementIsEnable;
-}
-
-void __cdecl GLI_xSetMaterialTextureDecalage(void *hMaterial, long lNumberOfTexture,
-                                             long bSwitch, MTH_tdxReal fUSpeed,
-                                             MTH_tdxReal fVSpeed)
-{
-    ACP_tdxHandleOfMaterial hMat;
-
-    hMat = (ACP_tdxHandleOfMaterial)hMaterial;
-    hMat->fAddU = fUSpeed ;
-    hMat->fAddV = fVSpeed ;
-    hMat->lIncrementIsEnable = bSwitch ;
-    if ((MTH_M_bEqual(hMat->fAddU, MTH_C_ZERO)) && (MTH_M_bEqual(hMat->fAddV, MTH_C_ZERO)))
-        hMat->lIncrementIsEnable = 0;
+    GLI_xGetMaterialAmbientCoef(hSource, aColor);   GLI_xSetMaterialAmbientCoef(*p_hDest, aColor);
+    GLI_xGetMaterialDiffuseCoef(hSource, aColor);   GLI_xSetMaterialDiffuseCoef(*p_hDest, aColor);
+    GLI_xGetMaterialColor(hSource, aColor);         GLI_xSetMaterialColor(*p_hDest, aColor);
+    GLI_xGetMaterialTexture(hSource, &pTexture);    GLI_xSetMaterialTexture(*p_hDest, pTexture);
+    GLI_xGetLightState(hSource, &lType);   /* 0x426f50 */
+    GLI_xSetLightState(*p_hDest, lType);
+    GLI_xGetMaterialSpecularCoef(hSource, &lSpecExp, aColor);
+    GLI_xSetMaterialSpecularCoef(*p_hDest, lSpecExp, aColor);
 }
 
 /* 0x00424860 */
@@ -179,52 +183,6 @@ void __cdecl GLI_xGetMaterialColor(void *hMaterial, void *p_stColor)
 
     hMat = (ACP_tdxHandleOfMaterial)hMaterial;
     *(GEO_tdstColor *)p_stColor = hMat->stColor;
-}
-
-/* 0x00424B10 */
-void __cdecl GLI_xSetMaterialTextureScrollingOnOff(void *hMaterial, long bSwitch)
-{
-    ACP_tdxHandleOfMaterial hMat;
-
-    hMat = (ACP_tdxHandleOfMaterial)hMaterial;
-    if (bSwitch
-        && MTH_M_bEqual(hMat->fConstantAddU, MTH_C_ZERO)
-        && MTH_M_bEqual(hMat->fConstantAddV, MTH_C_ZERO))
-        return;
-    hMat->lIncrementIsEnable = bSwitch;
-}
-
-/* 0x004249e0 */
-void __cdecl GLI_vSetMaterialAsChromed(void *hMaterial, long bChromed)
-{
-    if (bChromed != 0) {
-        *(unsigned long *)hMaterial &= (GLI_C_lAllIsEnable - GLI_C_lIsNotChromed);
-    } else {
-        *(unsigned long *)hMaterial |= GLI_C_lIsNotChromed;
-    }
-}
-
-/* 0x00424770 */
-void __cdecl GLI_xDuplicateMaterial(void **p_hDest, void *hSource)
-{
-    typedef struct { unsigned long ul[0x1e]; } GLI_tdst30Dword;
-    unsigned long  aColor[4];
-    long           lSpecExp;
-    void          *pTexture;
-    long           lType;
-
-    GLI_xCreateMaterial(p_hDest);
-
-    *(GLI_tdst30Dword *)*p_hDest = *(GLI_tdst30Dword *)hSource;
-
-    GLI_xGetMaterialAmbientCoef(hSource, aColor);   GLI_xSetMaterialAmbientCoef(*p_hDest, aColor);
-    GLI_xGetMaterialDiffuseCoef(hSource, aColor);   GLI_xSetMaterialDiffuseCoef(*p_hDest, aColor);
-    GLI_xGetMaterialColor(hSource, aColor);         GLI_xSetMaterialColor(*p_hDest, aColor);
-    GLI_xGetMaterialTexture(hSource, &pTexture);    GLI_xSetMaterialTexture(*p_hDest, pTexture);
-    GLI_xGetLightState(hSource, &lType);   /* 0x426f50 */
-    GLI_xSetLightState(*p_hDest, lType);
-    GLI_xGetMaterialSpecularCoef(hSource, &lSpecExp, aColor);
-    GLI_xSetMaterialSpecularCoef(*p_hDest, lSpecExp, aColor);
 }
 
 /* 0x00424920 */
@@ -265,11 +223,90 @@ void __cdecl GLI_xGetMaterialSpecularCoef(void *hMaterial, long *p_lExp, void *p
     *p_lExp = hMat->lSpecularExponent;
 }
 
+/* 0x004249e0 */
+void __cdecl GLI_vSetMaterialAsChromed(void *hMaterial, long bChromed)
+{
+    if (bChromed != 0) {
+        *(unsigned long *)hMaterial &= (GLI_C_lAllIsEnable - GLI_C_lIsNotChromed);
+    } else {
+        *(unsigned long *)hMaterial |= GLI_C_lIsNotChromed;
+    }
+}
+
+void __cdecl GLI_xSetMaterialTexture(void *hMaterial, void *p_stTexture)
+{
+    struct GLI_tdstMaterial_ *p_stMat = (struct GLI_tdstMaterial_ *)hMaterial;
+    GLI_tdstTexture *p_stTex = (GLI_tdstTexture *)p_stTexture;
+
+    p_stMat->p_stTexture = p_stTex;
+    if (p_stTex != NULL) {
+
+        if (*(unsigned char *)&p_stTex->ulTextureCaps & 0x08)
+            p_stMat->ulMaterialType &= 0xfffffbffUL;
+        if (*(unsigned char *)&p_stTex->ulTextureCaps & 0x40) {
+            p_stMat->ulMaterialType &= 0xf7ffffffUL;
+            return;
+        }
+    }
+    p_stMat->ulMaterialType |= 0x08000000UL;
+}
+
 /* 0x00424a40 */
 void __cdecl GLI_xGetMaterialTexture(void *hMaterial, void **p_hTexture)
 {
 
     *p_hTexture = ((ACP_tdxHandleOfMaterial)hMaterial)->p_stTexture;
+}
+
+void __cdecl GLI_xSetMaterialTextureScrollingCoef(void *hMaterial, long lNumberOfTexture,
+                                                  long bSwitch, MTH_tdxReal fUSpeed,
+                                                  MTH_tdxReal fVSpeed)
+{
+    ACP_tdxHandleOfMaterial hMat;
+
+    hMat = (ACP_tdxHandleOfMaterial)hMaterial;
+    hMat->fAddU = hMat->fConstantAddU = fUSpeed ;
+    hMat->fAddV = hMat->fConstantAddV = fVSpeed ;
+    hMat->lIncrementIsEnable = bSwitch ;
+
+    if ((MTH_M_bEqual(fUSpeed, MTH_C_ZERO)) && (MTH_M_bEqual(fVSpeed, MTH_C_ZERO)))
+        hMat->lIncrementIsEnable = 0;
+}
+
+void __cdecl GLI_xSetMaterialTextureDecalage(void *hMaterial, long lNumberOfTexture,
+                                             long bSwitch, MTH_tdxReal fUSpeed,
+                                             MTH_tdxReal fVSpeed)
+{
+    ACP_tdxHandleOfMaterial hMat;
+
+    hMat = (ACP_tdxHandleOfMaterial)hMaterial;
+    hMat->fAddU = fUSpeed ;
+    hMat->fAddV = fVSpeed ;
+    hMat->lIncrementIsEnable = bSwitch ;
+    if ((MTH_M_bEqual(hMat->fAddU, MTH_C_ZERO)) && (MTH_M_bEqual(hMat->fAddV, MTH_C_ZERO)))
+        hMat->lIncrementIsEnable = 0;
+}
+
+void __cdecl GLI_xGetMaterialTextureScrollingCoef(void *hMaterial, long lNumberOfTexture,
+                                                  long *p_bSwitch, MTH_tdxReal *p_fUSpeed,
+                                                  MTH_tdxReal *p_fVSpeed)
+{
+    *p_fUSpeed = ((ACP_tdxHandleOfMaterial)hMaterial)->fConstantAddU ;
+    *p_fVSpeed = ((ACP_tdxHandleOfMaterial)hMaterial)->fConstantAddV ;
+    *p_bSwitch = ((ACP_tdxHandleOfMaterial)hMaterial)->lIncrementIsEnable;
+}
+
+/* 0x00424B10 */
+void __cdecl GLI_xSetMaterialTextureScrollingOnOff(void *hMaterial, long bSwitch)
+{
+    ACP_tdxHandleOfMaterial hMat;
+
+    hMat = (ACP_tdxHandleOfMaterial)hMaterial;
+    if (bSwitch
+        && MTH_M_bEqual(hMat->fConstantAddU, MTH_C_ZERO)
+        && MTH_M_bEqual(hMat->fConstantAddV, MTH_C_ZERO))
+        return;
+    hMat->lIncrementIsEnable = bSwitch;
 }
 
 /* 0x00424b40 */
@@ -321,45 +358,7 @@ void __cdecl GLI_vSetCurrentAnimatedTextureNumber(void *hMaterial, long lTexture
     hMat->p_stActualAnimatedTExtureNode = p_Node;
 }
 
-/* 0x00424bb0 */
-void __cdecl GLI_vLockAnimatedTexture(void *hMaterial)
-{
-    ((ACP_tdxHandleOfMaterial)hMaterial)->xIsLocked = 1;
-}
-
-/* 0x00424bc0 */
-void __cdecl GLI_vUnLockAnimatedTexture(void *hMaterial)
-{
-    ((ACP_tdxHandleOfMaterial)hMaterial)->xIsLocked = 0;
-}
-
-/* 0x00503D5C */
-static float gs_fCoefOfMultiplicationForScolledTextures;
-
-void __cdecl GLI_xSetMaterialType(void *hMaterial, unsigned long xMType)
-{
-    *(unsigned long *)hMaterial = xMType;
-}
-
-void __cdecl GLI_xGetMaterialType(void *hMaterial, unsigned long *xMType)
-{
-    *xMType = *(unsigned long *)hMaterial;
-}
-#define GLI_M_gs_fCoefMulScrolledTex (gs_fCoefOfMultiplicationForScolledTextures)
-
-#define GLI_M_gs_fCoefMulAnimatedTex   (gs_fCoefOfMultiplicationForAnimatedTexture)
-
-unsigned char GLI_M_g_bAnimFinishedFlag_storage;     /* 0x4a7270 */
-unsigned char GLI_M_g_bTakeCareOfAnimCoord_storage;  /* 0x4a7274 */
-#define GLI_M_gs_lActualRefreshNumber  (GLI_M_gs_lActualRefreshNumber_storage)
-#define GLI_M_g_bAnimFinishedFlag      (GLI_M_g_bAnimFinishedFlag_storage)
-#define GLI_M_g_bTakeCareOfAnimCoord   (GLI_M_g_bTakeCareOfAnimCoord_storage)
-
-#include "GLI/devinfo.h"
-unsigned char GLI_M_g_bOneShotAnim_storage;     /* 0x4a7278 */
-float         GLI_M_g_xBaseTimeForAnim_storage; /* 0x503d60 */
-#define GLI_M_g_bOneShotAnim           (GLI_M_g_bOneShotAnim_storage)
-#define GLI_M_g_xBaseTimeForAnim       (GLI_M_g_xBaseTimeForAnim_storage)
+void __cdecl GLI_vUnLockAnimatedTexture(void *hMaterial);
 
 void __cdecl GLI_vRefreshAllCyclingTextures(float fCoef)
 {
@@ -367,8 +366,6 @@ void __cdecl GLI_vRefreshAllCyclingTextures(float fCoef)
     GLI_M_gs_fCoefMulAnimatedTex  = GLI_M_gs_fCoefMulAnimatedTex + fCoef;
     GLI_M_gs_lActualRefreshNumber = GLI_M_gs_lActualRefreshNumber + 1;
 }
-
-#define GLI_M_xUVScrollThreshold  (0.0f)
 void __cdecl GLI_pc_vRefreshOneCyclingTexture(void *hMaterial)
 {
     struct GLI_tdstMaterial_ *p_stMat = (struct GLI_tdstMaterial_ *)hMaterial;
@@ -468,13 +465,6 @@ set_refresh_number:
     if (GLI_M_g_bTakeCareOfAnimCoord == 0)
         p_stMat->dwActualRefreshNumber = GLI_M_gs_lActualRefreshNumber;
 }
-
-#include "GAM/PlayAnim.h"
-#include "GEO/GEO_types.h"
-#include "PO/POStruc.h"
-#include "GLI/VisuS_st.h"
-
-extern tdstEngineObject *g_AlphabetCharacterPointer;
 
 /* 0x00424E90 */
 void *__cdecl GLI_pGetVisualMaterialForLetter(int c)

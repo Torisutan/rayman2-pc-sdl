@@ -176,38 +176,6 @@ long __cdecl GLD_bSetFullScreenModeForDevice(GLD_tdhDevice hDev,
     return 1;
 }
 
-long __cdecl GLD_bSwapToWindowedMode(short hDev, int bRebuildMode)
-{
-
-    if (*(volatile unsigned long *)GLD_ADDR_7210 != 0) {
-        for (;;) {   }
-    }
-    *(volatile unsigned long *)GLD_ADDR_720C = 1;
-
-    {
-        GLD_tdstDevice *p_stDev = (GLD_tdstDevice *)GLD_pc_pGetDevice((short)hDev);
-        if (!p_stDev) {
-            *(volatile unsigned long *)GLD_ADDR_720C = 0;
-            return 0;
-        }
-        p_stDev->stDevAttrib.bFullScreen = 1;
-
-        if (bRebuildMode == 0) {
-            (*(void (__cdecl **)(HWND, int))&GLI_DRV_g_vActivateGli)(p_stDev->stDevAttrib.hNormalModeWnd, 1);
-            *(volatile unsigned long *)GLD_ADDR_720C = 0;
-            return 1;
-        }
-
-        {
-            long lResult;
-            (*(void (__cdecl **)(HWND))&GLI_DRV_g_vPrepareForGliFullScreen)(p_stDev->stDevAttrib.hFullScreenModeWnd);
-            lResult = GLD_pc_bRecreateDevice(hDev, (unsigned long *)p_stDev);
-            *(volatile unsigned long *)GLD_ADDR_720C = 0;
-            return lResult;
-        }
-    }
-}
-
 long __cdecl GLD_bSwapDeviceMode(short hDev, int bRebuildMode)
 {
     if (*(volatile unsigned long *)GLD_ADDR_7210 != 0) {
@@ -244,47 +212,41 @@ long __cdecl GLD_bSwapDeviceMode(short hDev, int bRebuildMode)
     }
 }
 
+long __cdecl GLD_bSwapToWindowedMode(short hDev, int bRebuildMode)
+{
+
+    if (*(volatile unsigned long *)GLD_ADDR_7210 != 0) {
+        for (;;) {   }
+    }
+    *(volatile unsigned long *)GLD_ADDR_720C = 1;
+
+    {
+        GLD_tdstDevice *p_stDev = (GLD_tdstDevice *)GLD_pc_pGetDevice((short)hDev);
+        if (!p_stDev) {
+            *(volatile unsigned long *)GLD_ADDR_720C = 0;
+            return 0;
+        }
+        p_stDev->stDevAttrib.bFullScreen = 1;
+
+        if (bRebuildMode == 0) {
+            (*(void (__cdecl **)(HWND, int))&GLI_DRV_g_vActivateGli)(p_stDev->stDevAttrib.hNormalModeWnd, 1);
+            *(volatile unsigned long *)GLD_ADDR_720C = 0;
+            return 1;
+        }
+
+        {
+            long lResult;
+            (*(void (__cdecl **)(HWND))&GLI_DRV_g_vPrepareForGliFullScreen)(p_stDev->stDevAttrib.hFullScreenModeWnd);
+            lResult = GLD_pc_bRecreateDevice(hDev, (unsigned long *)p_stDev);
+            *(volatile unsigned long *)GLD_ADDR_720C = 0;
+            return lResult;
+        }
+    }
+}
+
 typedef struct { unsigned long a[0x18]; } GLD_pc_tdstDevAttrCopy;
 
-long __cdecl GLD_bGetDeviceAttributes(short hDev, void *pstDevAttrib)
-{
-    GLD_pc_tdstDevAttrCopy *p_stDev;
-
-    *(volatile unsigned long *)GLD_ADDR_7210 = 1;
-    if (*(volatile unsigned long *)GLD_ADDR_720C != 0) {
-        for (;;) {   }
-    }
-    p_stDev = (GLD_pc_tdstDevAttrCopy *)GLD_pc_pGetDevice(hDev);
-    if (p_stDev == NULL) {
-        return 0;
-    }
-    *(GLD_pc_tdstDevAttrCopy *)pstDevAttrib = *p_stDev;
-    *(volatile unsigned long *)GLD_ADDR_7210 = 0;
-    return 1;
-}
-
 typedef struct { unsigned long a[0x1c]; } GLD_pc_tdstVptAttrCopy;
-
-long __cdecl GLD_bGetViewportAttributes(GLD_tdhDevice hNotUsed, GLD_tdhViewport hVP, void *pstViewAttrib)
-{
-    short hDev;
-    short hOldVP;
-    GLD_pc_tdstVptAttrCopy *pstView;
-
-    *(volatile unsigned long *)GLD_ADDR_7210 = 1;
-    if (*(volatile unsigned long *)GLD_ADDR_720C != 0) {
-        for (;;) {   }
-    }
-    hDev = (short)(hVP / 16);
-    GLD_pc_pGetDevice(hDev);
-    hOldVP = (short)(hVP % 16);
-    pstView = (GLD_pc_tdstVptAttrCopy *)GLD_pGetViewport(hDev, hOldVP);
-    pstView->a[0x19] = (unsigned long)-1;
-    pstView->a[0x18] = 0;
-    *(GLD_pc_tdstVptAttrCopy *)pstViewAttrib = *pstView;
-    *(volatile unsigned long *)GLD_ADDR_7210 = 0;
-    return 1;
-}
 
 long __cdecl GLD_bReleaseViewportAndDevice(short hDev, short hVP)
 {
@@ -300,49 +262,6 @@ long __cdecl GLD_bReleaseViewportAndDevice(short hDev, short hVP)
     }
 
     GLD_bDeleteDevice((short)hDev);
-    return 1;
-}
-
-long __cdecl GLD_bDeleteViewport(short hDev_unused, short hVpPacked)
-{
-    int           iSignedPacked;
-    short         sDev;
-    short         sVp;
-    int          *pDevice;
-    int          *pViewport;
-    int          *p_iScribble;
-    int           iScribbleCount;
-
-    *(volatile unsigned long *)GLD_ADDR_7210 = 1;
-    if (*(volatile unsigned long *)GLD_ADDR_720C != 0) {
-        for (;;) {   }
-    }
-
-    iSignedPacked = (int)(short)hVpPacked;
-    sDev          = (short)(iSignedPacked / 16);
-    pDevice       = (int *)GLD_pc_pGetDevice(sDev);
-
-    sVp           = (short)(iSignedPacked % 16);
-    pViewport = (int *)GLD_pGetViewport(sDev, sVp);
-
-    p_iScribble = pViewport;
-    for (iScribbleCount = 0x1d; iScribbleCount != 0; iScribbleCount--) {
-        *p_iScribble = (int)0xCCCCCCCCu;
-        p_iScribble++;
-    }
-
-    {
-        DWORD (__cdecl *pfnChannelForTid)(DWORD, char) =
-            (DWORD (__cdecl *)(DWORD, char))Mmg_fn_ucGiveChannelId;
-
-        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
-        fn_vGenFree(pViewport, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
-    }
-
-    ((struct GLD_stDevice *)pDevice)->pstViewports[sVp] = 0;
-
-    *(volatile unsigned long *)GLD_ADDR_7210 = 0;
-    (void)hDev_unused;
     return 1;
 }
 
@@ -507,6 +426,23 @@ static void fn_vUpdateViewportSizesInPixels( GLD_tdstDevice *p_stDev, GLD_tdstVi
     }
 }
 
+long __cdecl GLD_bGetDeviceAttributes(short hDev, void *pstDevAttrib)
+{
+    GLD_pc_tdstDevAttrCopy *p_stDev;
+
+    *(volatile unsigned long *)GLD_ADDR_7210 = 1;
+    if (*(volatile unsigned long *)GLD_ADDR_720C != 0) {
+        for (;;) {   }
+    }
+    p_stDev = (GLD_pc_tdstDevAttrCopy *)GLD_pc_pGetDevice(hDev);
+    if (p_stDev == NULL) {
+        return 0;
+    }
+    *(GLD_pc_tdstDevAttrCopy *)pstDevAttrib = *p_stDev;
+    *(volatile unsigned long *)GLD_ADDR_7210 = 0;
+    return 1;
+}
+
 typedef struct { unsigned long a[0x10]; } GLD_pc_tdstVpSlotCopy;
 extern void __cdecl SND_PrintUsedStaticMemory(void);
 #define GLD_pc_fn_vDebugReport                                                     \
@@ -639,26 +575,50 @@ long __cdecl GLD_bSetViewportPosition(short hNotUsed, short hVP, void *pstViewAt
     return 1;
 }
 
-/* 0x00420a40 */
-long __cdecl fn_bGetVPHandle(GLD_tdhDevice hDev, GLD_tdhViewport *phVP)
+long __cdecl GLD_bDeleteViewport(short hDev_unused, short hVpPacked)
 {
-    GLD_tdhViewport hVP;
-    void          **pstDevice;
+    int           iSignedPacked;
+    short         sDev;
+    short         sVp;
+    int          *pDevice;
+    int          *pViewport;
+    int          *p_iScribble;
+    int           iScribbleCount;
 
-    pstDevice = (void **)GLD_pc_pGetDevice(hDev);
-
-    for (hVP = 0; hVP < 16; hVP++)
-    {
-        if (!(pstDevice + 0x60 / 4)[hVP])
-        {
-            *phVP = hVP;
-            return 1;
-        }
+    *(volatile unsigned long *)GLD_ADDR_7210 = 1;
+    if (*(volatile unsigned long *)GLD_ADDR_720C != 0) {
+        for (;;) {   }
     }
 
-    *phVP = -1;
-    return 0;
+    iSignedPacked = (int)(short)hVpPacked;
+    sDev          = (short)(iSignedPacked / 16);
+    pDevice       = (int *)GLD_pc_pGetDevice(sDev);
+
+    sVp           = (short)(iSignedPacked % 16);
+    pViewport = (int *)GLD_pGetViewport(sDev, sVp);
+
+    p_iScribble = pViewport;
+    for (iScribbleCount = 0x1d; iScribbleCount != 0; iScribbleCount--) {
+        *p_iScribble = (int)0xCCCCCCCCu;
+        p_iScribble++;
+    }
+
+    {
+        DWORD (__cdecl *pfnChannelForTid)(DWORD, char) =
+            (DWORD (__cdecl *)(DWORD, char))Mmg_fn_ucGiveChannelId;
+
+        Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xff, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
+        fn_vGenFree(pViewport, pfnChannelForTid(MMG_pc_M_ulGetCurrentThreadId(), 0));
+    }
+
+    ((struct GLD_stDevice *)pDevice)->pstViewports[sVp] = 0;
+
+    *(volatile unsigned long *)GLD_ADDR_7210 = 0;
+    (void)hDev_unused;
+    return 1;
 }
+
+long __cdecl fn_bGetVPHandle(GLD_tdhDevice hDev, GLD_tdhViewport *phVP);
 
 long __cdecl GLD_bCreateViewport(GLD_tdhDevice  hDev,
                                   unsigned long *p_ulViewAttribs,
@@ -706,10 +666,83 @@ long __cdecl GLD_bCreateViewport(GLD_tdhDevice  hDev,
     return 1;
 }
 
+/* 0x00420a40 */
+long __cdecl fn_bGetVPHandle(GLD_tdhDevice hDev, GLD_tdhViewport *phVP)
+{
+    GLD_tdhViewport hVP;
+    void          **pstDevice;
+
+    pstDevice = (void **)GLD_pc_pGetDevice(hDev);
+
+    for (hVP = 0; hVP < 16; hVP++)
+    {
+        if (!(pstDevice + 0x60 / 4)[hVP])
+        {
+            *phVP = hVP;
+            return 1;
+        }
+    }
+
+    *phVP = -1;
+    return 0;
+}
+
+long __cdecl GLD_bGetViewportAttributes(GLD_tdhDevice hNotUsed, GLD_tdhViewport hVP, void *pstViewAttrib)
+{
+    short hDev;
+    short hOldVP;
+    GLD_pc_tdstVptAttrCopy *pstView;
+
+    *(volatile unsigned long *)GLD_ADDR_7210 = 1;
+    if (*(volatile unsigned long *)GLD_ADDR_720C != 0) {
+        for (;;) {   }
+    }
+    hDev = (short)(hVP / 16);
+    GLD_pc_pGetDevice(hDev);
+    hOldVP = (short)(hVP % 16);
+    pstView = (GLD_pc_tdstVptAttrCopy *)GLD_pGetViewport(hDev, hOldVP);
+    pstView->a[0x19] = (unsigned long)-1;
+    pstView->a[0x18] = 0;
+    *(GLD_pc_tdstVptAttrCopy *)pstViewAttrib = *pstView;
+    *(volatile unsigned long *)GLD_ADDR_7210 = 0;
+    return 1;
+}
+
 void __cdecl GLD_pc_fn_vExitCallback(void)
 {
     GLD_bReleaseViewportAndDevice(0, 0);
     exit(-4);
+}
+
+void __cdecl GLD_pc_fn_vRestartFrameTimer(void);
+
+long __cdecl GLD_pc_bFirstTimeInit(void)
+{
+    int           iSlot;
+    void        **ppDeviceTable;
+
+    Erm_fn_vSetCallBackForExit(GLD_pc_fn_vExitCallback);
+
+    if (g_ucGLDModuleId == 0xFF) {
+        g_ucGLDModuleId = Erm_fn_ucInitErrMsg();
+    }
+
+    Mmg_fn_v_InitMmg(g_ucGLDModuleId, 4, 0x186A0u);
+    Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xFF, 0);
+
+    ppDeviceTable = (void **)GLD_pc_g_a_pDeviceTable;
+    for (iSlot = 0; iSlot < 0x10; iSlot++) {
+        ppDeviceTable[iSlot] = NULL;
+    }
+
+    if ((short)TMR_fn_wInitLibrary() == 0x7FFF) {
+        ERM_fn_vUpdateLastError(0x34, g_ucGLDModuleId, 0, 0x36, -1, 0xFF, 0xFF,
+                                (char *)GLD_g_szDriverVersion);
+        return 0;
+    }
+
+    GLD_pc_fn_vRestartFrameTimer();
+    return 1;
 }
 
 void __cdecl GLD_pc_fn_vRestartFrameTimer(void)
@@ -802,48 +835,7 @@ void __cdecl GLD_pc_vSimulateFlipSynchroWithoutVSync(long lFrameCount)
     } while (stCount.m_ulLowPart < ulTarget && stCount.m_ulHighPart == 0);
 }
 
-long __cdecl GLD_pc_bFirstTimeInit(void)
-{
-    int           iSlot;
-    void        **ppDeviceTable;
-
-    Erm_fn_vSetCallBackForExit(GLD_pc_fn_vExitCallback);
-
-    if (g_ucGLDModuleId == 0xFF) {
-        g_ucGLDModuleId = Erm_fn_ucInitErrMsg();
-    }
-
-    Mmg_fn_v_InitMmg(g_ucGLDModuleId, 4, 0x186A0u);
-    Mmg_fn_v_SetModeAlloc(g_ucGLDModuleId, 0xFF, 0);
-
-    ppDeviceTable = (void **)GLD_pc_g_a_pDeviceTable;
-    for (iSlot = 0; iSlot < 0x10; iSlot++) {
-        ppDeviceTable[iSlot] = NULL;
-    }
-
-    if ((short)TMR_fn_wInitLibrary() == 0x7FFF) {
-        ERM_fn_vUpdateLastError(0x34, g_ucGLDModuleId, 0, 0x36, -1, 0xFF, 0xFF,
-                                (char *)GLD_g_szDriverVersion);
-        return 0;
-    }
-
-    GLD_pc_fn_vRestartFrameTimer();
-    return 1;
-}
-
-long __cdecl GLD_pc_lFindFreeDeviceHandle(short *p_hDev)
-{
-    short sSlot;
-
-    for (sSlot = 0; sSlot < 0x10; sSlot++) {
-        if (((void **)GLD_pc_g_a_pDeviceTable)[sSlot] == NULL) {
-            *p_hDev = sSlot;
-            return 1;
-        }
-    }
-    *p_hDev = -1;
-    return 0;
-}
+long __cdecl GLD_pc_lFindFreeDeviceHandle(short *p_hDev);
 
 long __cdecl GLD_bCreateDevice(GLD_tdstDeviceAttributes *pstDevAttrib, short *p_hDev)
 {
@@ -907,6 +899,20 @@ long __cdecl GLD_bCreateDevice(GLD_tdstDeviceAttributes *pstDevAttrib, short *p_
     return 1;
 }
 
+long __cdecl GLD_pc_lFindFreeDeviceHandle(short *p_hDev)
+{
+    short sSlot;
+
+    for (sSlot = 0; sSlot < 0x10; sSlot++) {
+        if (((void **)GLD_pc_g_a_pDeviceTable)[sSlot] == NULL) {
+            *p_hDev = sSlot;
+            return 1;
+        }
+    }
+    *p_hDev = -1;
+    return 0;
+}
+
 long __cdecl GLD_bGiveSpecificAttributesToViewport(short hDev_unused,
                                                     short hVpPacked,
                                                     void          *p_vAttribs)
@@ -958,31 +964,6 @@ long __cdecl GLD_bRequestWriteToViewport(short hDev_unused,
 
     ((struct GLD_stDevice *)pDevice)->lWriteInProgress = 1;
     *(volatile unsigned long *)GLD_ADDR_7210 = 0;
-
-    (void)hDev_unused;
-    return 1;
-}
-
-long __cdecl GLD_bWriteToViewportFinished2D(short hDev_unused,
-                                             short hVpPacked)
-{
-    int             iSignedPacked;
-    short           sDev;
-    short           sVp;
-    int            *pDevice;
-    int            *pVp;
-
-    iSignedPacked = (int)(short)hVpPacked;
-    sDev          = (short)(iSignedPacked / 16);
-    pDevice       = (int *)GLD_pc_pGetDevice(sDev);
-
-    sVp           = (short)(iSignedPacked % 16);
-    pVp           = (int *)GLD_pGetViewport(sDev, sVp);
-
-    ((void (__cdecl *)(void))GLI_DRV_g_bUnlockDevice)();
-
-    ((struct GLD_stViewport *)pVp)->bIsLocked = 0;
-    ((struct GLD_stDevice *)pDevice)->lWriteInProgress = 0;
 
     (void)hDev_unused;
     return 1;
@@ -1067,20 +1048,29 @@ long __cdecl GLD_bRequestWriteToViewport2D(short hDev_unused,
     return 0;
 }
 
-void __cdecl GLD_pc_fn_vWriteScanlineRgb24(float *p_xSrc, unsigned char *p_ucDst, unsigned long ulCount)
+long __cdecl GLD_bWriteToViewportFinished2D(short hDev_unused,
+                                             short hVpPacked)
 {
-    float *p_xEnd;
+    int             iSignedPacked;
+    short           sDev;
+    short           sVp;
+    int            *pDevice;
+    int            *pVp;
 
-    p_xEnd = p_xSrc + ulCount * 4;
-    for (; p_xSrc < p_xEnd; p_xSrc += 4) {
-        /* 0x0042B430 */
-        p_ucDst[0] = (unsigned char)(long)p_xSrc[3];
-        p_ucDst++;
-        p_ucDst[0] = (unsigned char)(long)p_xSrc[2];
-        p_ucDst++;
-        p_ucDst[0] = (unsigned char)(long)p_xSrc[1];
-        p_ucDst++;
-    }
+    iSignedPacked = (int)(short)hVpPacked;
+    sDev          = (short)(iSignedPacked / 16);
+    pDevice       = (int *)GLD_pc_pGetDevice(sDev);
+
+    sVp           = (short)(iSignedPacked % 16);
+    pVp           = (int *)GLD_pGetViewport(sDev, sVp);
+
+    ((void (__cdecl *)(void))GLI_DRV_g_bUnlockDevice)();
+
+    ((struct GLD_stViewport *)pVp)->bIsLocked = 0;
+    ((struct GLD_stDevice *)pDevice)->lWriteInProgress = 0;
+
+    (void)hDev_unused;
+    return 1;
 }
 
 void __cdecl GLD_pc_fn_vUnpackScanline16ToFloat(GLD_tdpstPixelFormat p_stFmt, unsigned short *p_usSrc,
@@ -1117,6 +1107,22 @@ void __cdecl GLD_pc_fn_vUnpackScanline16ToFloat(GLD_tdpstPixelFormat p_stFmt, un
     *p_xDst = p_xDst[-4];
 }
 
+void __cdecl GLD_pc_fn_vWriteScanlineRgb24(float *p_xSrc, unsigned char *p_ucDst, unsigned long ulCount)
+{
+    float *p_xEnd;
+
+    p_xEnd = p_xSrc + ulCount * 4;
+    for (; p_xSrc < p_xEnd; p_xSrc += 4) {
+        /* 0x0042B430 */
+        p_ucDst[0] = (unsigned char)(long)p_xSrc[3];
+        p_ucDst++;
+        p_ucDst[0] = (unsigned char)(long)p_xSrc[2];
+        p_ucDst++;
+        p_ucDst[0] = (unsigned char)(long)p_xSrc[1];
+        p_ucDst++;
+    }
+}
+
 /* 0x0042B480 */
 void __cdecl GLI_pc_fn_vBlendScanlineRGB(float *p_xTable, float *p_xOut,
                                          unsigned long ulCountA, unsigned long ulCountB, float xWeight);
@@ -1125,176 +1131,6 @@ unsigned char GLD_pc_g_a_ucRgbScanline[0x8000];        /* 0x004A72B8 */
 unsigned char GLD_pc_g_a_ucFloatRgbScanline[0x8000];   /* 0x004AF2B8 */
 static const float GLI_pc_g_xBlendOne;                  /* 0x0049C674 */
 extern long __cdecl _ftol(void);
-
-void __cdecl GLD_vGetFrontBufferIn24BitsAA(
-    short hGLDDevice, short hGLDViewport,
-    unsigned long lWidth, unsigned long lHeight,
-    unsigned char *p_lBufferDst)
-{
-    GLD_tdstPixelFormat stFmt;
-    GLD_pc_tdstVptAttrCopy stAttr;
-    struct GLD_tdstViewportAttributes_ *p_stAttr;
-    long lRequestOk;
-    long lCanWrite;
-    long lPitchWords;
-    unsigned long ulWidth;
-    unsigned long ulRowBytes;
-    unsigned long ulCount;
-    unsigned long ulRows;
-    unsigned long ulPrevIdx;
-    unsigned long *p_ulZero;
-    unsigned short *p_usSrc;
-    long lIdx;
-    float xPos;
-    float xPrevPos;
-    float xStep;
-    float xW;
-
-    p_stAttr = (struct GLD_tdstViewportAttributes_ *)&stAttr;
-    GLD_bGetPixelFormatOfDevice(&stFmt, hGLDDevice, hGLDViewport);
-    lRequestOk = GLD_bRequestWriteToViewport2D(hGLDDevice, hGLDViewport,
-                                               (unsigned long *)&stAttr, &lCanWrite);
-    if (lRequestOk != 0 && lCanWrite != 0) {
-        lPitchWords = p_stAttr->lPitch >> 1;
-        p_usSrc = (unsigned short *)p_stAttr->p_cVirtualScreen;
-
-        if (stFmt.lPixelNbBits == 0x20) {
-
-            if (p_stAttr->dwHeight != lHeight) {
-                return;
-            }
-            for (; lHeight != 0; lHeight--) {
-                for (ulWidth = lWidth; ulWidth != 0; ulWidth--) {
-                    p_lBufferDst[0] = (unsigned char)p_usSrc[0];
-                    p_lBufferDst[1] = (unsigned char)(p_usSrc[0] >> 8);
-                    p_lBufferDst[2] = (unsigned char)p_usSrc[1];
-                    p_lBufferDst += 3;
-                    p_usSrc += 2;
-                }
-            }
-        } else if (stFmt.lPixelNbBits == 0x10) {
-
-            ulWidth = lWidth;
-            if (lWidth < p_stAttr->dwWidth) {
-                ulWidth = p_stAttr->dwWidth;
-            }
-            if (lHeight == p_stAttr->dwHeight) {
-                if (lHeight != 0) {
-                    ulRowBytes = ulWidth << 2;
-                    ulRows = lHeight;
-                    do {
-                        if (ulRowBytes != 0) {
-                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
-                            for (ulCount = ulRowBytes & 0x3fffffff; ulCount != 0; ulCount--) {
-                                *p_ulZero++ = 0;
-                            }
-                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucFloatRgbScanline;
-                            for (ulCount = ulRowBytes & 0x3fffffff; ulCount != 0; ulCount--) {
-                                *p_ulZero++ = 0;
-                            }
-                        }
-                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
-                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
-                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
-                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, 1.0f);
-                        GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
-                            p_lBufferDst, lWidth);
-                        p_lBufferDst += lWidth * 3;
-                        p_usSrc += lPitchWords;
-                        ulRows--;
-                    } while (ulRows != 0);
-                }
-            } else if (p_stAttr->dwHeight < lHeight) {
-
-                xPos = 0.0f;
-                xPrevPos = 0.0f;
-                ulPrevIdx = 0;
-                xStep = (float)p_stAttr->dwHeight / (float)(long)lHeight;
-                if (lHeight != 0) {
-                    ulRows = lHeight;
-                    do {
-                        lIdx = (long)xPos;
-                        if ((unsigned long)lIdx != ulPrevIdx) {
-                            p_usSrc += lPitchWords;
-                        }
-                        ulRowBytes = ulWidth * 4;
-                        if (ulRowBytes != 0) {
-                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
-                            for (ulCount = ulRowBytes; ulCount != 0; ulCount--) {
-                                *p_ulZero++ = 0;
-                            }
-                        }
-                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
-                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
-                        xW = xPos - (float)lIdx;
-                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
-                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth,
-                            GLI_pc_g_xBlendOne - xW);
-                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc + lPitchWords,
-                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
-                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
-                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, xW);
-                        GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
-                            p_lBufferDst, lWidth);
-                        xPos = xPos + xStep;
-                        p_lBufferDst += lWidth * 3;
-                        ulPrevIdx = (unsigned long)lIdx;
-                        ulRows--;
-                    } while (ulRows != 0);
-                }
-            } else if (lHeight < p_stAttr->dwHeight) {
-
-                xPos = 0.0f;
-                xPrevPos = 0.0f;
-                ulPrevIdx = 0;
-                ulRowBytes = ulWidth * 4;
-                if (ulRowBytes != 0) {
-                    p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
-                    for (ulCount = (ulWidth & 0xfffffff) << 2; ulCount != 0; ulCount--) {
-                        *p_ulZero++ = 0;
-                    }
-                    p_ulZero = (unsigned long *)GLD_pc_g_a_ucFloatRgbScanline;
-                    for (ulCount = (ulWidth & 0xfffffff) << 2; ulCount != 0; ulCount--) {
-                        *p_ulZero++ = 0;
-                    }
-                }
-                if (p_stAttr->dwHeight != 0) {
-                    ulRows = p_stAttr->dwHeight;
-                    do {
-                        lIdx = (long)xPos;
-                        xStep = (float)lHeight / (float)(long)p_stAttr->dwHeight;
-                        xW = xStep;
-                        if ((unsigned long)lIdx != ulPrevIdx) {
-                            GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
-                                (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth,
-                                (float)lIdx - xPrevPos);
-                            GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
-                                p_lBufferDst, lWidth);
-                            if (ulRowBytes != 0) {
-                                p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
-                                for (ulCount = ulRowBytes; ulCount != 0; ulCount--) {
-                                    *p_ulZero++ = 0;
-                                }
-                            }
-                            p_lBufferDst += lWidth * 3;
-                            xW = xPos - (float)lIdx;
-                        }
-                        xPrevPos = xPos;
-                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
-                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
-                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
-                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, xW);
-                        xPos = xPos + xStep;
-                        p_usSrc += lPitchWords;
-                        ulRows--;
-                        ulPrevIdx = (unsigned long)lIdx;
-                    } while (ulRows != 0);
-                }
-            }
-        }
-        GLD_bWriteToViewportFinished2D(hGLDDevice, hGLDViewport);
-    }
-}
 
 extern void GLI_xAdjustCameraToViewport(short hDevice, short hViewport, struct GLI_tdstCamera_ *p_stCam);
 void __cdecl fn_vChangeViewPortPercent(
@@ -1467,5 +1303,175 @@ void __cdecl GLI_pc_fn_vBlendScanlineRGB(float *p_xTable, float *p_xOut,
                 ulLoop--;
             } while (ulLoop != 0);
         }
+    }
+}
+
+void __cdecl GLD_vGetFrontBufferIn24BitsAA(
+    short hGLDDevice, short hGLDViewport,
+    unsigned long lWidth, unsigned long lHeight,
+    unsigned char *p_lBufferDst)
+{
+    GLD_tdstPixelFormat stFmt;
+    GLD_pc_tdstVptAttrCopy stAttr;
+    struct GLD_tdstViewportAttributes_ *p_stAttr;
+    long lRequestOk;
+    long lCanWrite;
+    long lPitchWords;
+    unsigned long ulWidth;
+    unsigned long ulRowBytes;
+    unsigned long ulCount;
+    unsigned long ulRows;
+    unsigned long ulPrevIdx;
+    unsigned long *p_ulZero;
+    unsigned short *p_usSrc;
+    long lIdx;
+    float xPos;
+    float xPrevPos;
+    float xStep;
+    float xW;
+
+    p_stAttr = (struct GLD_tdstViewportAttributes_ *)&stAttr;
+    GLD_bGetPixelFormatOfDevice(&stFmt, hGLDDevice, hGLDViewport);
+    lRequestOk = GLD_bRequestWriteToViewport2D(hGLDDevice, hGLDViewport,
+                                               (unsigned long *)&stAttr, &lCanWrite);
+    if (lRequestOk != 0 && lCanWrite != 0) {
+        lPitchWords = p_stAttr->lPitch >> 1;
+        p_usSrc = (unsigned short *)p_stAttr->p_cVirtualScreen;
+
+        if (stFmt.lPixelNbBits == 0x20) {
+
+            if (p_stAttr->dwHeight != lHeight) {
+                return;
+            }
+            for (; lHeight != 0; lHeight--) {
+                for (ulWidth = lWidth; ulWidth != 0; ulWidth--) {
+                    p_lBufferDst[0] = (unsigned char)p_usSrc[0];
+                    p_lBufferDst[1] = (unsigned char)(p_usSrc[0] >> 8);
+                    p_lBufferDst[2] = (unsigned char)p_usSrc[1];
+                    p_lBufferDst += 3;
+                    p_usSrc += 2;
+                }
+            }
+        } else if (stFmt.lPixelNbBits == 0x10) {
+
+            ulWidth = lWidth;
+            if (lWidth < p_stAttr->dwWidth) {
+                ulWidth = p_stAttr->dwWidth;
+            }
+            if (lHeight == p_stAttr->dwHeight) {
+                if (lHeight != 0) {
+                    ulRowBytes = ulWidth << 2;
+                    ulRows = lHeight;
+                    do {
+                        if (ulRowBytes != 0) {
+                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                            for (ulCount = ulRowBytes & 0x3fffffff; ulCount != 0; ulCount--) {
+                                *p_ulZero++ = 0;
+                            }
+                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucFloatRgbScanline;
+                            for (ulCount = ulRowBytes & 0x3fffffff; ulCount != 0; ulCount--) {
+                                *p_ulZero++ = 0;
+                            }
+                        }
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, 1.0f);
+                        GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
+                            p_lBufferDst, lWidth);
+                        p_lBufferDst += lWidth * 3;
+                        p_usSrc += lPitchWords;
+                        ulRows--;
+                    } while (ulRows != 0);
+                }
+            } else if (p_stAttr->dwHeight < lHeight) {
+
+                xPos = 0.0f;
+                xPrevPos = 0.0f;
+                ulPrevIdx = 0;
+                xStep = (float)p_stAttr->dwHeight / (float)(long)lHeight;
+                if (lHeight != 0) {
+                    ulRows = lHeight;
+                    do {
+                        lIdx = (long)xPos;
+                        if ((unsigned long)lIdx != ulPrevIdx) {
+                            p_usSrc += lPitchWords;
+                        }
+                        ulRowBytes = ulWidth * 4;
+                        if (ulRowBytes != 0) {
+                            p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                            for (ulCount = ulRowBytes; ulCount != 0; ulCount--) {
+                                *p_ulZero++ = 0;
+                            }
+                        }
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        xW = xPos - (float)lIdx;
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth,
+                            GLI_pc_g_xBlendOne - xW);
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc + lPitchWords,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, xW);
+                        GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
+                            p_lBufferDst, lWidth);
+                        xPos = xPos + xStep;
+                        p_lBufferDst += lWidth * 3;
+                        ulPrevIdx = (unsigned long)lIdx;
+                        ulRows--;
+                    } while (ulRows != 0);
+                }
+            } else if (lHeight < p_stAttr->dwHeight) {
+
+                xPos = 0.0f;
+                xPrevPos = 0.0f;
+                ulPrevIdx = 0;
+                ulRowBytes = ulWidth * 4;
+                if (ulRowBytes != 0) {
+                    p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                    for (ulCount = (ulWidth & 0xfffffff) << 2; ulCount != 0; ulCount--) {
+                        *p_ulZero++ = 0;
+                    }
+                    p_ulZero = (unsigned long *)GLD_pc_g_a_ucFloatRgbScanline;
+                    for (ulCount = (ulWidth & 0xfffffff) << 2; ulCount != 0; ulCount--) {
+                        *p_ulZero++ = 0;
+                    }
+                }
+                if (p_stAttr->dwHeight != 0) {
+                    ulRows = p_stAttr->dwHeight;
+                    do {
+                        lIdx = (long)xPos;
+                        xStep = (float)lHeight / (float)(long)p_stAttr->dwHeight;
+                        xW = xStep;
+                        if ((unsigned long)lIdx != ulPrevIdx) {
+                            GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                                (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth,
+                                (float)lIdx - xPrevPos);
+                            GLD_pc_fn_vWriteScanlineRgb24((float *)GLD_pc_g_a_ucRgbScanline,
+                                p_lBufferDst, lWidth);
+                            if (ulRowBytes != 0) {
+                                p_ulZero = (unsigned long *)GLD_pc_g_a_ucRgbScanline;
+                                for (ulCount = ulRowBytes; ulCount != 0; ulCount--) {
+                                    *p_ulZero++ = 0;
+                                }
+                            }
+                            p_lBufferDst += lWidth * 3;
+                            xW = xPos - (float)lIdx;
+                        }
+                        xPrevPos = xPos;
+                        GLD_pc_fn_vUnpackScanline16ToFloat(&stFmt, p_usSrc,
+                            (float *)GLD_pc_g_a_ucFloatRgbScanline, (long)ulWidth, 1.0f);
+                        GLI_pc_fn_vBlendScanlineRGB((float *)GLD_pc_g_a_ucFloatRgbScanline,
+                            (float *)GLD_pc_g_a_ucRgbScanline, p_stAttr->dwWidth, lWidth, xW);
+                        xPos = xPos + xStep;
+                        p_usSrc += lPitchWords;
+                        ulRows--;
+                        ulPrevIdx = (unsigned long)lIdx;
+                    } while (ulRows != 0);
+                }
+            }
+        }
+        GLD_bWriteToViewportFinished2D(hGLDDevice, hGLDViewport);
     }
 }

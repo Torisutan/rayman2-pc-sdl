@@ -14,6 +14,9 @@
 #include "GLI/GlobalAlpha.h"
 #include "GLI/Proj.h"
 #include "GLI/sprite.h"
+#ifdef RAYMAN2_WIDESCREEN
+#include "GLI/GLI_ratio.h"
+#endif /* RAYMAN2_WIDESCREEN */
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -33,6 +36,57 @@ void          __cdecl SNA_pc_vReloadGptTable(void);            /* 0x0044cf10 */
 void          __cdecl SNA_pc_vReleaseGptTable(void);           /* 0x0044cf60 */
 void          __cdecl SNA_pc_vRelocateGptSlot(unsigned long *_p_ulSlot); /* 0x0044d040 */
 
+static const char GLI_CD_szInsertMsg[] = "Please insert the CD";
+
+/* 0x005040B0 */
+unsigned long GLI_pc_g_a3_xMirrorPlaneNormal[3];
+unsigned long GLI_pc_g_xMirrorPlaneDistance;
+
+long                a3_lSinEffectFreqSaved[3];      /* 0x00504090 */
+MTH3D_tdstVector    stSinEffectAmpSaved;            /* 0x00504030 */
+char                g_cSinusEffectStateSaved;       /* 0x00504020 */
+char                g_cSinusEffectFlagSaved;        /* 0x00504060 */
+
+long                a3_xSinEffectBaseSaved[3];      /* 0x00504050 */
+MTH3D_tdstVector    stSinEffectVector;              /* 0x00504010 */
+MTH3D_tdstVector    stSinEffectVectorSaved;         /* 0x005040C0 */
+long                xSinusEffectDepthStart;         /* 0x0050401C */
+long                xSinusEffectDepthStartSaved;    /* 0x0050404C */
+
+static unsigned long GLI_pc_g_ulModeRequestedFlag;   /* 0x00504804 */
+
+long GLI_pc_g_lTexturesMemMode = 6;   /* 0x004a077c */
+
+#include "GLI/GLI_BigGlobals.h"
+
+#pragma intrinsic(memcpy)
+
+#include "GLI/VisuS_st.h"
+
+/* 0x426B80 */
+extern ACP_tdxBool HIE_pc_fn_bIntersectMatrixSegmentInCameraSector(POS_tdstCompletePosition *p_stMatA,
+                                                                   POS_tdstCompletePosition *p_stMatB);
+
+extern void __cdecl GLI_vDoMaterialSelection(struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals);
+
+/* 0x00408580 */
+unsigned long __cdecl GAM_pc_fn_ulGetEngineTrameNumber(void)
+{
+    return GAM_g_ulEngineTrameNumber;
+}
+
+/* 0x00420b00 */
+void __cdecl GLI_pc_fn_vBeginScene(unsigned short hDevice)
+{
+    (*(void (__cdecl **)(void))GLI_DRV_bBeginScene)();
+}
+
+/* 0x00420b10 */
+void __cdecl GLI_pc_fn_vEndScene(unsigned short hDevice)
+{
+    (*(void (__cdecl **)(void))GLI_DRV_bEndScene_)();
+}
+
 /* 0x00421820 */
 void __cdecl FUN_00421820(void)
 {
@@ -48,11 +102,7 @@ void __cdecl FUN_00421820(void)
     SNA_g_pGptContext = NULL;
 }
 
-/* 0x00424fe0 */
-void __cdecl FUN_00424fe0(unsigned int arg)
-{
-    GLI_g_ul503d54 = arg & 0xff;
-}
+void __cdecl FUN_00424fe0(unsigned int arg);
 
 /* 0x00421860 */
 void __cdecl FUN_00421860(unsigned int arg)
@@ -60,16 +110,81 @@ void __cdecl FUN_00421860(unsigned int arg)
     FUN_00424fe0(arg);
 }
 
-/* 0x00420b00 */
-void __cdecl GLI_pc_fn_vBeginScene(unsigned short hDevice)
+/* 0x00421e80 */
+void __cdecl GLI_fnv_SetDllName(const char *name)
 {
-    (*(void (__cdecl **)(void))GLI_DRV_bBeginScene)();
+    strcpy((char *)GLI_pc_g_szConfiguredDllName, name);
 }
 
-/* 0x00420b10 */
-void __cdecl GLI_pc_fn_vEndScene(unsigned short hDevice)
+/* 0x00421eb0 */
+void __cdecl GLI_fnv_SetDriverName(const char *name)
 {
-    (*(void (__cdecl **)(void))GLI_DRV_bEndScene_)();
+    strcpy((char *)GLI_pc_g_szEnumModesDriver, name);
+}
+
+/* 0x00421ee0 */
+void __cdecl GLI_fnv_SetDeviceName(const char *name)
+{
+    strcpy((char *)GLI_pc_g_szEnumModesDevice, name);
+}
+
+void __cdecl GLI_fnv_SetModeByString(char *param_1)
+{
+    char *p;
+
+    *param_1 = '1';
+    GLI_pc_g_ulModeRequestedFlag = 1;
+    p = strchr(param_1, '-');
+    if (p != (char *)0)
+    {
+        GLI_pc_g_ulRequestedWidth = (unsigned long)atoi(p + 1);
+        p = strchr(p + 1, 'x');
+        if (p != (char *)0)
+        {
+            GLI_pc_g_ulRequestedHeight = (unsigned long)atoi(p + 1);
+            p = strchr(p + 1, 'x');
+            if (p != (char *)0)
+                GLI_pc_g_ulRequestedBpp = (unsigned long)atoi(p + 1);
+        }
+    }
+}
+
+/* 0x00421f90 */
+void __cdecl GLI_xClearViewingList(void)
+{
+    (*(void (__cdecl **)(void))GLI_DRV_xClearViewingList)();
+}
+
+/* 0x00421fa0 */
+void __cdecl GLI_xSendListToViewport(unsigned long arg)
+{
+    (*(void (__cdecl **)(unsigned long))GLI_DRV_xSendListToViewport_)(arg);
+}
+
+/* 0x00421fb0 */
+void __cdecl GLI_ClearZBufferRegion(long lXStart,long lXEnd,long lYStart,long lYEnd)
+{
+    ((void (__cdecl *)(long, long, long, long))
+        GLI_DRV_g_vClearZBufferRegion)(lXStart, lXEnd, lYStart, lYEnd);
+}
+
+/* 0x00421fd0 */
+void __cdecl GLI_pc_fn_vWrite16bBitmapToBackBuffer(void *p_vBuffer, long lPitch, long lHeight,
+                                                   long lArg4, long lArg5, long lArg6, long lArg7)
+{
+#ifdef RAYMAN2_WIDESCREEN
+    /* the bitmap (vignette, 4:3) is squeezed into its 4:3 band; size and rect unchanged */
+    if ( GLI_g_xSafeAreaRatio < MTH_C_ONE )
+        p_vBuffer = GLI_fn_p_vSqueezeBitmapToSafeArea(p_vBuffer, lPitch, lHeight);
+#endif /* RAYMAN2_WIDESCREEN */
+    ((void (__cdecl *)(void *, long, long, long, long, long, long))GLI_DRV_g_vWrite16bBitmapToBackBuffer)
+        (p_vBuffer, lPitch, lHeight, lArg4, lArg5, lArg6, lArg7);
+}
+
+/* 0x00422000 */
+void __cdecl FUN_00422000(int arg)
+{
+    GLI_BIG_GLOBALS->lAMirrorIsDetected = (arg != 0) ? 3 : 0;
 }
 
 /* 0x00422020 */
@@ -91,7 +206,17 @@ void __cdecl GLI_fn_vNonOptimizedWindowedMode(void)
     (*(void (__cdecl **)(void))GLI_DRV_vNonOptimizedWindowedMode)();
 }
 
-static const char GLI_CD_szInsertMsg[] = "Please insert the CD";
+/* 0x004225d0 */
+void __cdecl FUN_004225d0(unsigned long *p_dst, unsigned long *p_src)
+{
+    memcpy(p_dst, p_src, 0x37 * 4);
+}
+
+/* 0x00423610 */
+void __cdecl FUN_00423610(const char *name)
+{
+    strcpy((char *)GLI_pc_g_szTexArchiveFileName, name);
+}
 
 /* 0x00423640 */
 void __cdecl GLI_pc_fn_vLoadTexGlobalsTail(void)
@@ -194,35 +319,6 @@ void __cdecl GLI_pc_fn_vLoadTexGlobalsFull(void)
     SNA_pc_vReleaseGptTable();
 }
 
-/* 0x004251b0 */
-void __cdecl GLI_fn_vCloseBigFileTextures(void)
-{
-    FIL_fn_vCloseConcatFile(&GLI_g_hConcatTexturesFile);  /* 0x00493590 */
-}
-
-/* 0x00428da0 */
-void __cdecl FUN_00428da0(int base, short *p, int idx, int arg4)
-{
-    HIE_pc_fn_vLoadScaledShortRecords(
-        (float *)((char *)0 + idx * 0x10 + 0x14c14 + base), p, arg4);
-}
-
-/* 0x00428dd0 */
-void __cdecl GLI_vSetLensFlareRef ( void *p_vRef )
-{
-    GLI_pc_g_p_vLensFlareRef = p_vRef;
-}
-
-/* 0x00423610 */
-void __cdecl FUN_00423610(const char *name)
-{
-    strcpy((char *)GLI_pc_g_szTexArchiveFileName, name);
-}
-
-/* 0x005040B0 */
-unsigned long GLI_pc_g_a3_xMirrorPlaneNormal[3];
-unsigned long GLI_pc_g_xMirrorPlaneDistance;
-
 /* 0x00423990 */
 void __cdecl FUN_00423990(unsigned long arg1_unused, unsigned long *p_vec3, unsigned long scalar)
 {
@@ -317,17 +413,6 @@ void __cdecl GLI_vSetSinEffetBase(long xBase)
     GLI_M_lSinEffectBase = xBase;
 }
 
-long                a3_lSinEffectFreqSaved[3];      /* 0x00504090 */
-MTH3D_tdstVector    stSinEffectAmpSaved;            /* 0x00504030 */
-char                g_cSinusEffectStateSaved;       /* 0x00504020 */
-char                g_cSinusEffectFlagSaved;        /* 0x00504060 */
-
-long                a3_xSinEffectBaseSaved[3];      /* 0x00504050 */
-MTH3D_tdstVector    stSinEffectVector;              /* 0x00504010 */
-MTH3D_tdstVector    stSinEffectVectorSaved;         /* 0x005040C0 */
-long                xSinusEffectDepthStart;         /* 0x0050401C */
-long                xSinusEffectDepthStartSaved;    /* 0x0050404C */
-
 /* 0x00423EB0 */
 void __cdecl GLI_vSaveSinusContext(void)
 {
@@ -360,49 +445,6 @@ void __cdecl GLI_vRestoreSinusContext(void)
     g_cSinusEffectFlag = g_cSinusEffectFlagSaved;
 }
 
-/* 0x00421e80 */
-void __cdecl GLI_fnv_SetDllName(const char *name)
-{
-    strcpy((char *)GLI_pc_g_szConfiguredDllName, name);
-}
-
-/* 0x00421eb0 */
-void __cdecl GLI_fnv_SetDriverName(const char *name)
-{
-    strcpy((char *)GLI_pc_g_szEnumModesDriver, name);
-}
-
-/* 0x00421ee0 */
-void __cdecl GLI_fnv_SetDeviceName(const char *name)
-{
-    strcpy((char *)GLI_pc_g_szEnumModesDevice, name);
-}
-
-static unsigned long GLI_pc_g_ulModeRequestedFlag;   /* 0x00504804 */
-
-void __cdecl GLI_fnv_SetModeByString(char *param_1)
-{
-    char *p;
-
-    *param_1 = '1';
-    GLI_pc_g_ulModeRequestedFlag = 1;
-    p = strchr(param_1, '-');
-    if (p != (char *)0)
-    {
-        GLI_pc_g_ulRequestedWidth = (unsigned long)atoi(p + 1);
-        p = strchr(p + 1, 'x');
-        if (p != (char *)0)
-        {
-            GLI_pc_g_ulRequestedHeight = (unsigned long)atoi(p + 1);
-            p = strchr(p + 1, 'x');
-            if (p != (char *)0)
-                GLI_pc_g_ulRequestedBpp = (unsigned long)atoi(p + 1);
-        }
-    }
-}
-
-long GLI_pc_g_lTexturesMemMode = 6;   /* 0x004a077c */
-
 void __cdecl GLI_pc_fn_vParseTexturesMemIni(char *szValue)
 {
     if (!_stricmp(szValue, "Vram"))
@@ -423,43 +465,34 @@ void __cdecl GLI_pc_fn_vParseTexturesMemIni(char *szValue)
         GLI_pc_g_lTexturesMemMode = 6;
 }
 
-/* 0x00421f90 */
-void __cdecl GLI_xClearViewingList(void)
+long __cdecl FUN_00424fd0(void)
 {
-    (*(void (__cdecl **)(void))GLI_DRV_xClearViewingList)();
+    return GLI_pc_g_lTexturesMemMode;
 }
 
-/* 0x00421fa0 */
-void __cdecl GLI_xSendListToViewport(unsigned long arg)
+/* 0x00424fe0 */
+void __cdecl FUN_00424fe0(unsigned int arg)
 {
-    (*(void (__cdecl **)(unsigned long))GLI_DRV_xSendListToViewport_)(arg);
+    GLI_g_ul503d54 = arg & 0xff;
 }
 
-/* 0x00421fb0 */
-void __cdecl GLI_ClearZBufferRegion(long lXStart,long lXEnd,long lYStart,long lYEnd)
+/* 0x004251b0 */
+void __cdecl GLI_fn_vCloseBigFileTextures(void)
 {
-    ((void (__cdecl *)(long, long, long, long))
-        GLI_DRV_g_vClearZBufferRegion)(lXStart, lXEnd, lYStart, lYEnd);
+    FIL_fn_vCloseConcatFile(&GLI_g_hConcatTexturesFile);  /* 0x00493590 */
 }
 
-#include "GLI/GLI_BigGlobals.h"
-
-/* 0x00422000 */
-void __cdecl FUN_00422000(int arg)
+/* 0x00428da0 */
+void __cdecl FUN_00428da0(int base, short *p, int idx, int arg4)
 {
-    GLI_BIG_GLOBALS->lAMirrorIsDetected = (arg != 0) ? 3 : 0;
+    HIE_pc_fn_vLoadScaledShortRecords(
+        (float *)((char *)0 + idx * 0x10 + 0x14c14 + base), p, arg4);
 }
 
-/* 0x004225d0 */
-void __cdecl FUN_004225d0(unsigned long *p_dst, unsigned long *p_src)
+/* 0x00428dd0 */
+void __cdecl GLI_vSetLensFlareRef ( void *p_vRef )
 {
-    memcpy(p_dst, p_src, 0x37 * 4);
-}
-
-/* 0x00408580 */
-unsigned long __cdecl GAM_pc_fn_ulGetEngineTrameNumber(void)
-{
-    return GAM_g_ulEngineTrameNumber;
+    GLI_pc_g_p_vLensFlareRef = p_vRef;
 }
 
 /* 0x00428de0 */
@@ -485,8 +518,6 @@ char __cdecl GLI_cRegisterLensFlare (void *p_vRef)
     }
     return -1;
 }
-
-#pragma intrinsic(memcpy)
 
 /* 0x00428e60 */
 void __cdecl GLI_vUnregisterLensFlare(void *p_vRef)
@@ -523,40 +554,6 @@ long __cdecl GLI_lLensFlareExist(void *p_vRef)
     }
     return -1;
 }
-
-/* 0x0042a980 */
-void __cdecl FUN_0042a980(unsigned long arg, unsigned long argExtra)
-{
-    GLI_g_ul4a72b0 = arg;
-}
-
-#include "GLI/VisuS_st.h"
-
-/* 0x0042af60 */
-int __cdecl GLI_lGetVisualSetNumbertOfLOD(void *p)
-{
-    return (int)((GEO_tdstVisualSet *)p)->xNbLodDefinitions;
-}
-
-/* 0x0042b2b0 */
-unsigned long __cdecl GLI_hGetRLI(void *p, unsigned int idx)
-{
-    int iIdx = (int)(idx & 0xff);
-    int iCount = ((GEO_tdstVisualSet *)p)->lNumberOfRLI;
-    unsigned long *p_uArr;
-    if (iIdx < iCount)
-    {
-        p_uArr = (unsigned long *)((GEO_tdstVisualSet *)p)->d_hRLI;
-        return p_uArr[iIdx];
-    }
-    return 0;
-}
-
-/* 0x426B80 */
-extern ACP_tdxBool HIE_pc_fn_bIntersectMatrixSegmentInCameraSector(POS_tdstCompletePosition *p_stMatA,
-                                                                   POS_tdstCompletePosition *p_stMatB);
-
-extern void __cdecl GLI_vDoMaterialSelection(struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals);
 
 #include "GEO/GeoSprit.h"
 #include "GMT/GmtFunct.h"
@@ -797,4 +794,30 @@ void __cdecl GLI_vDrawIndexedSprite(void *p_stVpt,
                                       p_stGlobals);
         p_stGlobals->lHierachDrawMask = (long)ulFlagsG;
     }
+}
+
+/* 0x0042a980 */
+void __cdecl FUN_0042a980(unsigned long arg, unsigned long argExtra)
+{
+    GLI_g_ul4a72b0 = arg;
+}
+
+/* 0x0042af60 */
+int __cdecl GLI_lGetVisualSetNumbertOfLOD(void *p)
+{
+    return (int)((GEO_tdstVisualSet *)p)->xNbLodDefinitions;
+}
+
+/* 0x0042b2b0 */
+unsigned long __cdecl GLI_hGetRLI(void *p, unsigned int idx)
+{
+    int iIdx = (int)(idx & 0xff);
+    int iCount = ((GEO_tdstVisualSet *)p)->lNumberOfRLI;
+    unsigned long *p_uArr;
+    if (iIdx < iCount)
+    {
+        p_uArr = (unsigned long *)((GEO_tdstVisualSet *)p)->d_hRLI;
+        return p_uArr[iIdx];
+    }
+    return 0;
 }

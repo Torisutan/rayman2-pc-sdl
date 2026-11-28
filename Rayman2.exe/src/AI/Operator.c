@@ -5,48 +5,6 @@
 
 HIE_tdstSuperObject *g_hCurrentSuperObjPerso;
 
-void __cdecl fn_vGetUltraOperatorPerso(
-    unsigned char         bYouHaveRightToUseThisFunction,
-    HIE_tdstSuperObject  *hCurrentSuperObjPerso,
-    HIE_tdstSuperObject **hNewSuperObjPerso)
-{
-    if (g_hCurrentSuperObjPerso  )
-    {
-        if (bYouHaveRightToUseThisFunction)
-        {
-            *hNewSuperObjPerso = g_hCurrentSuperObjPerso;
-            g_hCurrentSuperObjPerso = NULL;
-        }
-
-    }
-    else
-        *hNewSuperObjPerso = hCurrentSuperObjPerso;
-}
-
-/* 0x00482590 */
-void __cdecl fn_vSetUltraOperatorPerso(HIE_tdstSuperObject *hCurrentSuperObjPerso,
-                                       HIE_tdstSuperObject *hNewCurrentSuperObjPerso)
-{
-
-    g_hCurrentSuperObjPerso = (hCurrentSuperObjPerso != hNewCurrentSuperObjPerso)
-                                  ? hNewCurrentSuperObjPerso : NULL;
-}
-
-/* 0x00481C10 */
-AI_tdstNodeInterpret *__cdecl fn_p_stOperatorGetPerso(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree,
-    HIE_tdstSuperObject **hSuperObjPersoFound)
-{
-  HIE_tdstSuperObject *hSuperObjPerso;
-  AI_tdstGetSetParam stValue;
-
-	M_EvalNextParameter(&stValue);
-
-  hSuperObjPerso = (HIE_tdstSuperObject *)M_GetSetParam_p_stSupObjValue(&stValue);
-	*hSuperObjPersoFound=hSuperObjPerso;
-	return p_stTree;
-}
-
 #include <stddef.h>
 #include "MTH/MTH_flt.h"
 #include "MTH/MTH3D.h"
@@ -114,6 +72,21 @@ void fn_vSetVectorComponentForAffectOperator(unsigned char ucXYZflag,MTH3D_tdstV
 void fn_vBuildVectorForAffectOperator(unsigned char ucXYZflag,AI_tdstGetSetParam *p_stParam,MTH_tdxReal xReal);
 unsigned char fn_ucGetTreeNbParam(AI_tdstNodeInterpret *p_stTree);
 unsigned char fn_ucAreThereFloatIfYesConvertThem(AI_tdstGetSetParam *p_stParam1,AI_tdstGetSetParam *p_stParam2);
+
+/* 0x00481C10 */
+AI_tdstNodeInterpret *__cdecl fn_p_stOperatorGetPerso(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree,
+    HIE_tdstSuperObject **hSuperObjPersoFound)
+{
+  HIE_tdstSuperObject *hSuperObjPerso;
+  AI_tdstGetSetParam stValue;
+
+	M_EvalNextParameter(&stValue);
+
+  hSuperObjPerso = (HIE_tdstSuperObject *)M_GetSetParam_p_stSupObjValue(&stValue);
+	*hSuperObjPersoFound=hSuperObjPerso;
+	return p_stTree;
+}
 
 AI_tdstNodeInterpret *fn_p_stAffectOperator(HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
@@ -434,4 +407,31 @@ AI_tdstNodeInterpret *fn_p_stAffectOperator(HIE_tdstSuperObject *p_SuperObjPerso
 
   M_Full_GetSetParam_ActionReturn(p_stValue,C_ACTION_ENGINE_CONTINUE);
   return(p_stTree);
+}
+
+/* 0x00482590 */
+void __cdecl fn_vSetUltraOperatorPerso(HIE_tdstSuperObject *hCurrentSuperObjPerso,
+                                       HIE_tdstSuperObject *hNewCurrentSuperObjPerso)
+{
+
+    g_hCurrentSuperObjPerso = (hCurrentSuperObjPerso != hNewCurrentSuperObjPerso)
+                                  ? hNewCurrentSuperObjPerso : NULL;
+}
+
+void __cdecl fn_vGetUltraOperatorPerso(
+    unsigned char         bYouHaveRightToUseThisFunction,
+    HIE_tdstSuperObject  *hCurrentSuperObjPerso,
+    HIE_tdstSuperObject **hNewSuperObjPerso)
+{
+    if (g_hCurrentSuperObjPerso  )
+    {
+        if (bYouHaveRightToUseThisFunction)
+        {
+            *hNewSuperObjPerso = g_hCurrentSuperObjPerso;
+            g_hCurrentSuperObjPerso = NULL;
+        }
+
+    }
+    else
+        *hNewSuperObjPerso = hCurrentSuperObjPerso;
 }

@@ -21,57 +21,6 @@ unsigned char        TFMT_g_stInfoTextAffiche_storage[TFMT_C_MAX_TEXTAFFICHE * T
 #define TFMT_g_bFreeTextAfficheBlocs    (TFMT_g_bFreeTextAfficheBlocs_storage)
 #define TFMT_g_stInfoTextAffiche        (TFMT_g_stInfoTextAffiche_storage)
 
-/* 0x00409A20 */
-unsigned char TFMT_ucNumberOfCurrentTextAffiche( HIE_tdstSuperObject *p_SuperObjPersoTreated )
-{
-    register unsigned char i;
-    for (i = 0; i < TFMT_C_MAX_TEXTAFFICHE; i++)
-    {
-        if (p_SuperObjPersoTreated == TFMT_gp_SuperObjPersoGenerated[i])
-        {
-            return i;
-        }
-    }
-
-    return i ;
-}
-
-/* 0x00409A50 */
-unsigned char __cdecl TFMT_ucSetNumber4CurrentTextAffiche(void)
-{
-    register unsigned char i;
-    for (i = 0; i < TFMT_C_MAX_TEXTAFFICHE; i++)
-    {
-        if (TFMT_g_bFreeTextAfficheBlocs[i])
-        {
-            TFMT_g_bFreeTextAfficheBlocs[i] = FALSE;
-            return i;
-        }
-    }
-
-    return i;
-}
-
-/* 0x00409A90 */
-void __cdecl TFMT_ucClearNumberOfCurrentTextAffiche(HIE_tdstSuperObject *p_SuperObjPersoTreated)
-{
-    unsigned char i;
-
-    for (i = 0; i < TFMT_C_MAX_TEXTAFFICHE; i++)
-    {
-        if (p_SuperObjPersoTreated == TFMT_gp_SuperObjPersoGenerated[i])
-        {
-            TFMT_g_bFreeTextAfficheBlocs[i] = 1  ;
-            TFMT_gp_SuperObjPersoGenerated[i] = NULL;
-            memset(TFMT_g_stInfoTextAffiche + i * TFMT_C_sizeofInfoTextAffiche, 0x00,
-                   TFMT_C_sizeofInfoTextAffiche);
-            *(unsigned long *)(TFMT_g_stInfoTextAffiche + i * TFMT_C_sizeofInfoTextAffiche) =
-                1  ;
-            break;
-        }
-    }
-}
-
 static unsigned long TFMT_gs_hRandomHandleForTFMT_storage = 0xFFFFFFFFu;
 static long  TFMT_g_lOffsetObjectTable_storage = 0;
 static float TFMT_g_xDefaultCharWidth_storage  = 0.0f;
@@ -177,8 +126,6 @@ void TFMT_vChangeLetter
 	}
 }
 
-#define TFMT_C_MAX_WIDTHTABLEELEMENT  256
-
 /* 0x004099D0 */
 void __cdecl TFMT_vInitTextAfficheStructure(void)
 {
@@ -193,6 +140,59 @@ void __cdecl TFMT_vInitTextAfficheStructure(void)
         TFMT_gp_SuperObjPersoGenerated[iCpt] = NULL;
     }
 }
+
+/* 0x00409A20 */
+unsigned char TFMT_ucNumberOfCurrentTextAffiche( HIE_tdstSuperObject *p_SuperObjPersoTreated )
+{
+    register unsigned char i;
+    for (i = 0; i < TFMT_C_MAX_TEXTAFFICHE; i++)
+    {
+        if (p_SuperObjPersoTreated == TFMT_gp_SuperObjPersoGenerated[i])
+        {
+            return i;
+        }
+    }
+
+    return i ;
+}
+
+/* 0x00409A50 */
+unsigned char __cdecl TFMT_ucSetNumber4CurrentTextAffiche(void)
+{
+    register unsigned char i;
+    for (i = 0; i < TFMT_C_MAX_TEXTAFFICHE; i++)
+    {
+        if (TFMT_g_bFreeTextAfficheBlocs[i])
+        {
+            TFMT_g_bFreeTextAfficheBlocs[i] = FALSE;
+            return i;
+        }
+    }
+
+    return i;
+}
+
+/* 0x00409A90 */
+void __cdecl TFMT_ucClearNumberOfCurrentTextAffiche(HIE_tdstSuperObject *p_SuperObjPersoTreated)
+{
+    unsigned char i;
+
+    for (i = 0; i < TFMT_C_MAX_TEXTAFFICHE; i++)
+    {
+        if (p_SuperObjPersoTreated == TFMT_gp_SuperObjPersoGenerated[i])
+        {
+            TFMT_g_bFreeTextAfficheBlocs[i] = 1  ;
+            TFMT_gp_SuperObjPersoGenerated[i] = NULL;
+            memset(TFMT_g_stInfoTextAffiche + i * TFMT_C_sizeofInfoTextAffiche, 0x00,
+                   TFMT_C_sizeofInfoTextAffiche);
+            *(unsigned long *)(TFMT_g_stInfoTextAffiche + i * TFMT_C_sizeofInfoTextAffiche) =
+                1  ;
+            break;
+        }
+    }
+}
+
+#define TFMT_C_MAX_WIDTHTABLEELEMENT  256
 
 /* 0x00409B00 */
 void __cdecl TFMT_vInitScapingTable(MTH_tdxReal _xValue)

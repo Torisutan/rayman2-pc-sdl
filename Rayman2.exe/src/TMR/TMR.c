@@ -13,6 +13,47 @@ typedef void  (__cdecl *tFUN_0045E930)(short wType, LARGE_INTEGER *out);
 #include "TMR/TMR_globals.h"
 #include "TMR/errTmr.h"
 
+/* 0x0045DE70 */
+short __stdcall TMR_fn_wCreateTimer( short wTimerType )
+{
+    short   i;
+
+    if ( TimerLibOk == 0 )
+    {
+        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrLibraryNotInitialized, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+    if ( wTimerCount == C_uwTimerMaxCount )
+    {
+        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrMaxTimerCountReached, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+    if ( wTimerType > C_wTimerFrequencyHigh )
+    {
+        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrInvalidType, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+    if ( a3_ulTimerFrequency[wTimerType] == 0 )
+    {
+        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrTypeNotAvailable, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+
+    for ( i = 0 ; i < C_uwTimerMaxCount ; i++ )
+        if ( a_stTimerTab[i].m_wTimerState == C_wTimerUnused ) break;
+    if ( i == C_uwTimerMaxCount )
+    {
+        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrMaxTimerCountReached, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+
+    a_stTimerTab[i].m_wTimerType = wTimerType;
+    a_stTimerTab[i].m_wTimerState = C_wTimerReady;
+    wTimerCount++;
+
+    return (i);
+}
+
 /* 0x0045DF90 */
 short __stdcall TMR_fn_wStartTimer( short wTimerHandle )
 {
@@ -111,6 +152,37 @@ short __stdcall TMR_fn_wStopTimer( short wTimerHandle )
     return (0);
 }
 
+/* 0x0045E210 */
+short __stdcall TMR_fn_wSetTimerValue( short wTimerHandle, stTimerCount *p_stValue )
+{
+    short           wTimerType;
+
+    if ( TimerLibOk == 0 )
+    {
+        Erm_M_UpdateLastError (Tmr, C_ucErmDefaultChannel, E_uwTmrLibraryNotInitialized, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+    if ( wTimerHandle >= C_uwTimerMaxCount )
+    {
+        Erm_M_UpdateLastError (Tmr, C_ucErmDefaultChannel, E_uwTmrInvalidHandle, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+    if ( a_stTimerTab[wTimerHandle].m_wTimerType > C_wTimerFrequencyHigh )
+    {
+        Erm_M_UpdateLastError (Tmr, C_ucErmDefaultChannel, E_uwTmrInvalidForEventTimer, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
+        return (C_wTimerError);
+    }
+
+    wTimerType = a_stTimerTab[wTimerHandle].m_wTimerType;
+
+    a_stTimerTab[wTimerHandle].m_stTimerCount_TotalValue.m_ulLowPart = p_stValue->m_ulLowPart;
+    a_stTimerTab[wTimerHandle].m_stTimerCount_TotalValue.m_ulHighPart = p_stValue->m_ulHighPart;
+
+    a_stTimerTab[wTimerHandle].m_wTimerState = C_wTimerPaused;
+
+    return (0);
+}
+
 /* 0x0045E2E0 */
 short __stdcall TMR_fn_wReadTimer( short wTimerHandle, stTimerCount *p_stTimerCount)
 {
@@ -170,78 +242,6 @@ short __stdcall TMR_fn_wReadTimer( short wTimerHandle, stTimerCount *p_stTimerCo
     fn_vAddTimerValues((unsigned int *)p_stTimerCount,(unsigned int *)&stValue);
 
     return (0);
-}
-
-/* 0x0045E210 */
-short __stdcall TMR_fn_wSetTimerValue( short wTimerHandle, stTimerCount *p_stValue )
-{
-    short           wTimerType;
-
-    if ( TimerLibOk == 0 )
-    {
-        Erm_M_UpdateLastError (Tmr, C_ucErmDefaultChannel, E_uwTmrLibraryNotInitialized, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-    if ( wTimerHandle >= C_uwTimerMaxCount )
-    {
-        Erm_M_UpdateLastError (Tmr, C_ucErmDefaultChannel, E_uwTmrInvalidHandle, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-    if ( a_stTimerTab[wTimerHandle].m_wTimerType > C_wTimerFrequencyHigh )
-    {
-        Erm_M_UpdateLastError (Tmr, C_ucErmDefaultChannel, E_uwTmrInvalidForEventTimer, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-
-    wTimerType = a_stTimerTab[wTimerHandle].m_wTimerType;
-
-    a_stTimerTab[wTimerHandle].m_stTimerCount_TotalValue.m_ulLowPart = p_stValue->m_ulLowPart;
-    a_stTimerTab[wTimerHandle].m_stTimerCount_TotalValue.m_ulHighPart = p_stValue->m_ulHighPart;
-
-    a_stTimerTab[wTimerHandle].m_wTimerState = C_wTimerPaused;
-
-    return (0);
-}
-
-/* 0x0045DE70 */
-short __stdcall TMR_fn_wCreateTimer( short wTimerType )
-{
-    short   i;
-
-    if ( TimerLibOk == 0 )
-    {
-        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrLibraryNotInitialized, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-    if ( wTimerCount == C_uwTimerMaxCount )
-    {
-        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrMaxTimerCountReached, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-    if ( wTimerType > C_wTimerFrequencyHigh )
-    {
-        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrInvalidType, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-    if ( a3_ulTimerFrequency[wTimerType] == 0 )
-    {
-        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrTypeNotAvailable, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-
-    for ( i = 0 ; i < C_uwTimerMaxCount ; i++ )
-        if ( a_stTimerTab[i].m_wTimerState == C_wTimerUnused ) break;
-    if ( i == C_uwTimerMaxCount )
-    {
-        Erm_M_UpdateLastError(Tmr, C_ucErmDefaultChannel, E_uwTmrMaxTimerCountReached, C_lErmNoDebugData, C_ucErmOpenInfoWindow, C_ucAllowStopForDebug, NULL);
-        return (C_wTimerError);
-    }
-
-    a_stTimerTab[i].m_wTimerType = wTimerType;
-    a_stTimerTab[i].m_wTimerState = C_wTimerReady;
-    wTimerCount++;
-
-    return (i);
 }
 
 /* 0x0045E480 */

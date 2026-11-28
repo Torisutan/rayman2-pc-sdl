@@ -76,8 +76,7 @@ void __cdecl GLI_xSendObjectToViewport(
     struct GLD_tdstViewportAttributes *p_stVpt,
     void                              *p_stObj,
     void                              *p_stLight,
-    long                               lDrawModeMask,
-    long                               lHieFlags)
+    long                               lDrawModeMask)
 {
     struct GLI_tdstLight_ stAmbientLight;
     float         xSavedAlpha;
@@ -228,118 +227,6 @@ typedef void (__cdecl *GLI_pfn_vDoMaterialSelection_t)(void *p_stGlobals);
 typedef void (__cdecl *GLI_pfn_xPerspectiveProject_t)(
     void *p_stCam, long lCount, float *p_stSource, float *p_stDest);
 
-unsigned char __cdecl GLI_vDrawWorldSprite(
-    MTH3D_tdstVector           *pPosition,
-    void                       *hMaterial,
-    MTH_tdxReal                 xScaleX,
-    MTH_tdxReal                 xScaleY,
-    struct GLD_tdstViewportAttributes *p_stViewport,
-    unsigned long               ulAnimTime)
-{
-    struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals;
-
-    void *p_vSpecificToXD = p_stViewport->p_vSpecificToXD;
-    void *p_stCam         = *(void **)p_vSpecificToXD;
-
-    MTH3D_tdstVector stSrc;
-    float aTransformed[4];
-    float aProjCenter[4];
-    float aSpriteCorners[12];
-    float aProjCorners[12];
-
-    struct { float xX, xY, xZ, xW; } aQuad[4];
-    MTH_tdxReal xAnimTime;
-
-    *GLI_g_bTakeCareOfAnimCoord_ADDR = 1;
-    *GLI_g_bOneShotAnim_ADDR         = 1;
-    *GLI_g_bAnimFinishedFlag_ADDR    = 0;
-
-    xAnimTime = MTH_M_xLongToReal(ulAnimTime);
-    *GLI_g_xBaseTimeForAnim_ADDR = xAnimTime;
-
-    stSrc.xX = pPosition->xX;
-    stSrc.xY = pPosition->xY;
-    stSrc.xZ = pPosition->xZ;
-    POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aTransformed,
-                            &((GLI_tdstCamera *)p_stCam)->stMatrix,
-                            &stSrc);
-
-    GLI_xSerialProjection(p_stCam, 1, aTransformed, aProjCenter);
-
-    aSpriteCorners[0]  = xScaleX;
-    aSpriteCorners[1]  = 0.0f;
-    aSpriteCorners[2]  = aTransformed[2];
-    aSpriteCorners[3]  = 0.0f;
-    aSpriteCorners[4]  = 0.0f;
-    aSpriteCorners[5]  = -xScaleY;
-    aSpriteCorners[6]  = aTransformed[2];
-    aSpriteCorners[7]  = 0.0f;
-    aSpriteCorners[8]  = 0.0f;
-    aSpriteCorners[9]  = 0.0f;
-
-    aSpriteCorners[10] = aTransformed[2];
-    aSpriteCorners[11] = 0.0f;
-
-    {
-        GLI_pfn_xPerspectiveProject_t fn_xPerspProject =
-            (GLI_pfn_xPerspectiveProject_t)GLI_xSerialProjectionNoTrans;   /* 0x0042C7D0 */
-        fn_xPerspProject(p_stCam, 3, aSpriteCorners, aProjCorners);
-    }
-
-    aQuad[0].xX = ((aProjCenter[0] - aProjCorners[0]) - aProjCorners[4]) + aProjCorners[8];
-    aQuad[0].xY = ((aProjCenter[1] - aProjCorners[1]) - aProjCorners[5]) + aProjCorners[9];
-    aQuad[1].xX = ((aProjCorners[0] + aProjCenter[0]) - aProjCorners[4]) + aProjCorners[8];
-    aQuad[1].xY = ((aProjCorners[1] + aProjCenter[1]) - aProjCorners[5]) + aProjCorners[9];
-    aQuad[2].xX = aProjCorners[0] + aProjCorners[4] + aProjCorners[8] + aProjCenter[0];
-    aQuad[2].xY = aProjCorners[1] + aProjCorners[5] + aProjCorners[9] + aProjCenter[1];
-    aQuad[3].xX = aProjCorners[4] + aProjCorners[8] + (aProjCenter[0] - aProjCorners[0]);
-    aQuad[3].xY = aProjCorners[5] + aProjCorners[9] + (aProjCenter[1] - aProjCorners[1]);
-
-    *GLI_g_bTakeCareOfAnimCoord_ADDR = 1;
-    *GLI_g_bOneShotAnim_ADDR         = 1;
-    *GLI_g_bAnimFinishedFlag_ADDR    = 0;
-    *GLI_g_xBaseTimeForAnim_ADDR = xAnimTime;
-
-    p_stGlobals = GLI_BIG_GLOBALS;
-    p_stGlobals->hCurrentMaterial = hMaterial;
-
-    {
-        unsigned long ulSavedDrawMode;
-        GLI_pfn_vDoMaterialSelection_t fn_vDoMaterialSelection =
-            (GLI_pfn_vDoMaterialSelection_t)&GLI_vDoMaterialSelection;
-
-        ulSavedDrawMode = (unsigned long)p_stGlobals->lHierachDrawMask;
-        p_stGlobals->lHierachDrawMask = GLI_SPRITE_MATERIAL_MASK;
-
-        p_stGlobals = GLI_BIG_GLOBALS;
-        fn_vDoMaterialSelection(p_stGlobals);
-
-        p_stGlobals = GLI_BIG_GLOBALS;
-        p_stGlobals->xTextureDontAcceptFog = 1;
-        p_stGlobals = GLI_BIG_GLOBALS;
-        p_stGlobals->xWaterPlaneDistance = 0;
-
-        if (*GLI_g_xSpriteNearClip_ADDR < aProjCenter[2] &&
-            aProjCenter[2] <= *GLI_g_xSpriteFarClip_ADDR)
-        {
-            p_stGlobals = GLI_BIG_GLOBALS;
-            (*GLI_DRV_vSendSpriteToClip_)(
-                (struct GLI_tdstAligned2DVector_ *)&aQuad[0],
-                aProjCenter[2],
-                p_stGlobals);
-        }
-
-        p_stGlobals = GLI_BIG_GLOBALS;
-        p_stGlobals->lHierachDrawMask = ulSavedDrawMode;
-    }
-
-    *GLI_g_bTakeCareOfAnimCoord_ADDR = 0;
-    *GLI_g_bOneShotAnim_ADDR         = 0;
-
-    /* 0x4a7270 */
-    return *GLI_g_bAnimFinishedFlag_ADDR;
-}
-
 static const float GLI_gs_xOnePercent = 0.01f;   /* 0x0049c618 */
 #define GLI_g_xOnePercent_ADDR  (&GLI_gs_xOnePercent)
 
@@ -453,6 +340,118 @@ void __cdecl GLI_vDraw2DSpriteWithPercent(
     }
 
     }
+}
+
+unsigned char __cdecl GLI_vDrawWorldSprite(
+    MTH3D_tdstVector           *pPosition,
+    void                       *hMaterial,
+    MTH_tdxReal                 xScaleX,
+    MTH_tdxReal                 xScaleY,
+    struct GLD_tdstViewportAttributes *p_stViewport,
+    unsigned long               ulAnimTime)
+{
+    struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals;
+
+    void *p_vSpecificToXD = p_stViewport->p_vSpecificToXD;
+    void *p_stCam         = *(void **)p_vSpecificToXD;
+
+    MTH3D_tdstVector stSrc;
+    float aTransformed[4];
+    float aProjCenter[4];
+    float aSpriteCorners[12];
+    float aProjCorners[12];
+
+    struct { float xX, xY, xZ, xW; } aQuad[4];
+    MTH_tdxReal xAnimTime;
+
+    *GLI_g_bTakeCareOfAnimCoord_ADDR = 1;
+    *GLI_g_bOneShotAnim_ADDR         = 1;
+    *GLI_g_bAnimFinishedFlag_ADDR    = 0;
+
+    xAnimTime = MTH_M_xLongToReal(ulAnimTime);
+    *GLI_g_xBaseTimeForAnim_ADDR = xAnimTime;
+
+    stSrc.xX = pPosition->xX;
+    stSrc.xY = pPosition->xY;
+    stSrc.xZ = pPosition->xZ;
+    POS_fn_vMulMatrixVertex((MTH3D_tdstVector *)aTransformed,
+                            &((GLI_tdstCamera *)p_stCam)->stMatrix,
+                            &stSrc);
+
+    GLI_xSerialProjection(p_stCam, 1, aTransformed, aProjCenter);
+
+    aSpriteCorners[0]  = xScaleX;
+    aSpriteCorners[1]  = 0.0f;
+    aSpriteCorners[2]  = aTransformed[2];
+    aSpriteCorners[3]  = 0.0f;
+    aSpriteCorners[4]  = 0.0f;
+    aSpriteCorners[5]  = -xScaleY;
+    aSpriteCorners[6]  = aTransformed[2];
+    aSpriteCorners[7]  = 0.0f;
+    aSpriteCorners[8]  = 0.0f;
+    aSpriteCorners[9]  = 0.0f;
+
+    aSpriteCorners[10] = aTransformed[2];
+    aSpriteCorners[11] = 0.0f;
+
+    {
+        GLI_pfn_xPerspectiveProject_t fn_xPerspProject =
+            (GLI_pfn_xPerspectiveProject_t)GLI_xSerialProjectionNoTrans;   /* 0x0042C7D0 */
+        fn_xPerspProject(p_stCam, 3, aSpriteCorners, aProjCorners);
+    }
+
+    aQuad[0].xX = ((aProjCenter[0] - aProjCorners[0]) - aProjCorners[4]) + aProjCorners[8];
+    aQuad[0].xY = ((aProjCenter[1] - aProjCorners[1]) - aProjCorners[5]) + aProjCorners[9];
+    aQuad[1].xX = ((aProjCorners[0] + aProjCenter[0]) - aProjCorners[4]) + aProjCorners[8];
+    aQuad[1].xY = ((aProjCorners[1] + aProjCenter[1]) - aProjCorners[5]) + aProjCorners[9];
+    aQuad[2].xX = aProjCorners[0] + aProjCorners[4] + aProjCorners[8] + aProjCenter[0];
+    aQuad[2].xY = aProjCorners[1] + aProjCorners[5] + aProjCorners[9] + aProjCenter[1];
+    aQuad[3].xX = aProjCorners[4] + aProjCorners[8] + (aProjCenter[0] - aProjCorners[0]);
+    aQuad[3].xY = aProjCorners[5] + aProjCorners[9] + (aProjCenter[1] - aProjCorners[1]);
+
+    *GLI_g_bTakeCareOfAnimCoord_ADDR = 1;
+    *GLI_g_bOneShotAnim_ADDR         = 1;
+    *GLI_g_bAnimFinishedFlag_ADDR    = 0;
+    *GLI_g_xBaseTimeForAnim_ADDR = xAnimTime;
+
+    p_stGlobals = GLI_BIG_GLOBALS;
+    p_stGlobals->hCurrentMaterial = hMaterial;
+
+    {
+        unsigned long ulSavedDrawMode;
+        GLI_pfn_vDoMaterialSelection_t fn_vDoMaterialSelection =
+            (GLI_pfn_vDoMaterialSelection_t)&GLI_vDoMaterialSelection;
+
+        ulSavedDrawMode = (unsigned long)p_stGlobals->lHierachDrawMask;
+        p_stGlobals->lHierachDrawMask = GLI_SPRITE_MATERIAL_MASK;
+
+        p_stGlobals = GLI_BIG_GLOBALS;
+        fn_vDoMaterialSelection(p_stGlobals);
+
+        p_stGlobals = GLI_BIG_GLOBALS;
+        p_stGlobals->xTextureDontAcceptFog = 1;
+        p_stGlobals = GLI_BIG_GLOBALS;
+        p_stGlobals->xWaterPlaneDistance = 0;
+
+        if (*GLI_g_xSpriteNearClip_ADDR < aProjCenter[2] &&
+            aProjCenter[2] <= *GLI_g_xSpriteFarClip_ADDR)
+        {
+            p_stGlobals = GLI_BIG_GLOBALS;
+            (*GLI_DRV_vSendSpriteToClip_)(
+                (struct GLI_tdstAligned2DVector_ *)&aQuad[0],
+                aProjCenter[2],
+                p_stGlobals);
+        }
+
+        p_stGlobals = GLI_BIG_GLOBALS;
+        p_stGlobals->lHierachDrawMask = ulSavedDrawMode;
+    }
+
+    *GLI_g_bTakeCareOfAnimCoord_ADDR = 0;
+    *GLI_g_bOneShotAnim_ADDR         = 0;
+
+    /* 0x4a7270 */
+    return *GLI_g_bAnimFinishedFlag_ADDR;
 }
 
 /* 0x00429F70 */
@@ -1303,6 +1302,50 @@ void __cdecl GLI_pc_fn_vTransformObjectVertices(char *p_stGlobals)
     }
 }
 
+void __cdecl GLI_pc_fn_vTransformObjectVerticesSinus(char *p_stGlobals)
+{
+    GLI_tdstCamera   *p_stCam;
+    MTH3D_tdstVector  stI, stJ, stK, stT;
+    float             fVar2, fVar3, fVar4;
+    float             fScaleX, fScaleY;
+    float            *pfVar5;
+    float            *pfVar6;
+    float            *pfVar7;
+    float            *pfEnd;
+    float             fZ;
+    float             fRecip;
+
+    p_stCam = ((struct GLI_tdstInternalGlobalValuesFor3dEngine_ *)p_stGlobals)->p_stCurrentCamera;
+    fScaleX = p_stCam->stScale.xX * p_stCam->xScreen;
+    fScaleY = p_stCam->stScale.xY * p_stCam->xScreen;
+    POS_fn_vGetTransformMatrix((POS_tdstCompletePosition *)(p_stGlobals + 0x2d344), &stI, &stJ, &stK);
+    fVar4 = stK.xY; fVar3 = stK.xX; fVar2 = stJ.xX;
+    stJ.xX = stI.xY; stK.xX = stI.xZ; stI.xY = fVar2;
+    stK.xY = stJ.xZ; stJ.xZ = fVar4; stI.xZ = fVar3;
+    POS_fn_vGetTranslationVector((POS_tdstCompletePosition *)(p_stGlobals + 0x2d344), &stT);
+
+    pfVar5 = (float *)(p_stGlobals + 0x2c);
+    pfVar7 = *(float **)(*(char **)(p_stGlobals + 4));
+    pfEnd  = pfVar5 + *(short *)(*(char **)(p_stGlobals + 4) + 0x2c) * 4;
+    if (pfVar5 < pfEnd) {
+        do {
+            pfVar5[0] = pfVar7[2] * stI.xZ + pfVar7[0] * stI.xX + pfVar7[1] * stI.xY + stT.xX;
+            pfVar5[1] = pfVar7[2] * stJ.xZ + pfVar7[0] * stJ.xX + pfVar7[1] * stJ.xY + stT.xY;
+            pfVar5[2] = pfVar7[2] * stK.xZ + pfVar7[0] * stK.xX + pfVar7[1] * stK.xY + stT.xZ;
+            GLI_pc_fn_vOffsetPointBySinusEffect(pfVar5);
+            fZ = pfVar5[2];
+
+            fRecip = MTH_fn_fInverseOpt(fZ);
+            pfVar5[10000] = pfVar5[0] * fRecip * fScaleX + p_stCam->stTrans.xX;
+            pfVar6 = pfVar5 + 4;
+            pfVar7 = pfVar7 + 3;
+            pfVar5[0x2711] = fRecip * fScaleY * pfVar5[1] + p_stCam->stTrans.xY;
+            pfVar5[0x2712] = p_stCam->xNear * fRecip;
+            pfVar5 = pfVar6;
+        } while (pfVar6 < pfEnd);
+    }
+}
+
 void __cdecl GLI_pc_fn_vTransformObjectVerticesClipped(char *p_stGlobals)
 {
     GLI_tdstCamera   *p_stCam;
@@ -1350,50 +1393,6 @@ void __cdecl GLI_pc_fn_vTransformObjectVerticesClipped(char *p_stGlobals)
             pfVar6 = pfVar6 + 4;
             pfVar7 = pfVar7 + 3;
         } while (pfVar8 < pfVar4);
-    }
-}
-
-void __cdecl GLI_pc_fn_vTransformObjectVerticesSinus(char *p_stGlobals)
-{
-    GLI_tdstCamera   *p_stCam;
-    MTH3D_tdstVector  stI, stJ, stK, stT;
-    float             fVar2, fVar3, fVar4;
-    float             fScaleX, fScaleY;
-    float            *pfVar5;
-    float            *pfVar6;
-    float            *pfVar7;
-    float            *pfEnd;
-    float             fZ;
-    float             fRecip;
-
-    p_stCam = ((struct GLI_tdstInternalGlobalValuesFor3dEngine_ *)p_stGlobals)->p_stCurrentCamera;
-    fScaleX = p_stCam->stScale.xX * p_stCam->xScreen;
-    fScaleY = p_stCam->stScale.xY * p_stCam->xScreen;
-    POS_fn_vGetTransformMatrix((POS_tdstCompletePosition *)(p_stGlobals + 0x2d344), &stI, &stJ, &stK);
-    fVar4 = stK.xY; fVar3 = stK.xX; fVar2 = stJ.xX;
-    stJ.xX = stI.xY; stK.xX = stI.xZ; stI.xY = fVar2;
-    stK.xY = stJ.xZ; stJ.xZ = fVar4; stI.xZ = fVar3;
-    POS_fn_vGetTranslationVector((POS_tdstCompletePosition *)(p_stGlobals + 0x2d344), &stT);
-
-    pfVar5 = (float *)(p_stGlobals + 0x2c);
-    pfVar7 = *(float **)(*(char **)(p_stGlobals + 4));
-    pfEnd  = pfVar5 + *(short *)(*(char **)(p_stGlobals + 4) + 0x2c) * 4;
-    if (pfVar5 < pfEnd) {
-        do {
-            pfVar5[0] = pfVar7[2] * stI.xZ + pfVar7[0] * stI.xX + pfVar7[1] * stI.xY + stT.xX;
-            pfVar5[1] = pfVar7[2] * stJ.xZ + pfVar7[0] * stJ.xX + pfVar7[1] * stJ.xY + stT.xY;
-            pfVar5[2] = pfVar7[2] * stK.xZ + pfVar7[0] * stK.xX + pfVar7[1] * stK.xY + stT.xZ;
-            GLI_pc_fn_vOffsetPointBySinusEffect(pfVar5);
-            fZ = pfVar5[2];
-
-            fRecip = MTH_fn_fInverseOpt(fZ);
-            pfVar5[10000] = pfVar5[0] * fRecip * fScaleX + p_stCam->stTrans.xX;
-            pfVar6 = pfVar5 + 4;
-            pfVar7 = pfVar7 + 3;
-            pfVar5[0x2711] = fRecip * fScaleY * pfVar5[1] + p_stCam->stTrans.xY;
-            pfVar5[0x2712] = p_stCam->xNear * fRecip;
-            pfVar5 = pfVar6;
-        } while (pfVar6 < pfEnd);
     }
 }
 

@@ -202,38 +202,6 @@ void __cdecl FUN_00409c80(void)
     GAM_g_xFrameLength = (float)(fTicksAsFloat / (double)i64Tps);
 }
 
-/* 0x0045fb90 */
-char * __cdecl GLI_pc_fn_szStristr(char *szHaystack, char *szNeedle)
-{
-    char *p_szScan      = szHaystack;
-    char *p_szMatch     = szHaystack;
-
-    char *p_szNeedle    = szNeedle;
-
-    while (*p_szScan != '\0') {
-        if (*p_szNeedle == '\0') {
-            break;
-        }
-        {
-            if (tolower(*p_szScan) ==
-                tolower(*p_szNeedle)) {
-
-                if (p_szMatch == NULL) {
-                    p_szMatch = p_szScan;
-                }
-                p_szNeedle++;
-            } else {
-
-                p_szNeedle = szNeedle;
-                p_szMatch  = NULL;
-            }
-            p_szScan++;
-        }
-    }
-
-    return (*p_szNeedle == '\0') ? p_szMatch : NULL;
-}
-
 static const char GLI_HELP_szDllFmt_storage[]      = "dll/%s%s.dll";
 static const char GLI_HELP_szDllSuffix_storage[]   = "vf";
 static const char GLI_HELP_szErrTitle_storage[]    = "%s setup error";
@@ -382,6 +350,14 @@ void GLI_xAdjustCameraToViewport( GLD_tdhDevice hDevice, GLD_tdhViewport hViewpo
 	GLI_xAdjustCameraToViewport2( &stDevAttrib, &stViewAttrib, p_stCam );
 }
 
+/* 0x004221D0 */
+long __cdecl pc_GLI_lIsResolutionAvailable(long lSlot)
+{
+    if (lSlot < 0 || lSlot > 2)
+        return 0;
+    return (char)GLI_pc_a_stStandardDisplayMode[lSlot].ucEnabled;
+}
+
 /* 0x004221F0 */
 long __cdecl pc_GLI_lGetNbResolutions(void)
 {
@@ -400,14 +376,6 @@ long __cdecl pc_GLI_lGetCurrentResolution(void)
             return lSlot;
     }
     return 3;
-}
-
-/* 0x004221D0 */
-long __cdecl pc_GLI_lIsResolutionAvailable(long lSlot)
-{
-    if (lSlot < 0 || lSlot > 2)
-        return 0;
-    return (char)GLI_pc_a_stStandardDisplayMode[lSlot].ucEnabled;
 }
 
 /* 0x00422360 */

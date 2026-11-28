@@ -6,6 +6,170 @@
 
 #define C_SectorMinPriority 0
 
+#define GLI_C_lHasNoMirror							0x10000000
+
+#define SCT_pc_FLT_AT(p, off)  (*(float *)((unsigned char *)(p) + (off)))
+#define SCT_pc_ABS_F(x)        MTH_M_xAbs(x)
+
+extern unsigned short GAM_g_uw5115d0_storage;
+extern void          *g_a_hTextGeoObject[10];
+extern unsigned long  AI_g_ulSpoMask;
+extern unsigned char  GLI_pc_g_cSinusEffectState;
+extern void __cdecl SHW_fn_vSentToViewPort(void *p_stVpt, void *p_stSuperObject,
+                                                           long lUnused, unsigned long ulDrawModeMask,
+                                                           void *hObject);
+extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
+extern float __cdecl GEO_xGetZFarTransparencyLevel(void);
+extern void __cdecl GEO_vSetPointOfObject(void *hObject, MTH3D_tdstVector *p_stPoint,
+                                          short xIndexOfPoint);
+extern void __cdecl GEO_vSetUVOfIndexedTriangles(void *hObject, short hElement, short xUVIdx,
+                                                 void *p_stUV);
+extern void __cdecl GEO_vSetFaceOfIndexedTriangles(void *hObject, short hElement, short xFace,
+                                                   short x1, short x2, short x3);
+extern void __cdecl GEO_vSetIndexedUVOfFaceOfIndexedTriangles(void *hObject, short hElement,
+                                                              short xFace, short xUV1, short xUV2,
+                                                              short xUV3);
+extern unsigned char __cdecl INT_fn_bDetectIntersectSegmentWithBox(MTH3D_tdstVector *p_stVertex1,
+                                                         MTH3D_tdstVector *p_stVect12,
+                                                         MTH3D_tdstVector *p_stMinPoint,
+                                                         MTH3D_tdstVector *p_stMaxPoint,
+                                                         void *p_xNull);
+
+#include "GAM/PlayAnim.h"
+#include "SCT/SectExt.h"
+
+/* 0x005040D4 */
+float SCT_pc_g_xMirrorHeightOffset;
+
+/* 0x0044B410 */
+void __cdecl SCT_pc_fn_vComputeMirrorMatrix(POS_tdstCompletePosition *_p_stSourceMatrix,
+                                            POS_tdstCompletePosition *_p_stMirrorMatrix,
+                                            MTH3D_tdstVector         *_p_stReflectedPoint,
+                                            MTH3D_tdstVector         *_p_stPlaneNormal,
+                                            MTH3D_tdstVector         *_p_stPlanePoint)
+{
+    const float C_xOne      =  1.0f;   /* 0x0049C8E0 */
+    const float C_xMinusTwo = -2.0f;   /* 0x0049C8D8 */
+
+    POS_tdstCompletePosition stInvSource;
+    POS_tdstCompletePosition stReflection;
+    POS_tdstCompletePosition stTmp;
+    MTH3D_tdstVector         stI, stJ, stK;
+    MTH3D_tdstVector         stTrans;
+    MTH3D_tdstVector         stReflected;
+    MTH3D_tdstVector         stD;
+    MTH3D_tdstVector         stNt;
+    float nx = _p_stPlaneNormal->xX;
+    float ny = _p_stPlaneNormal->xY;
+    float nz = _p_stPlaneNormal->xZ;
+    float t;
+
+    POS_fn_vSetIdentityMatrix(&stInvSource);
+    POS_fn_vInvertMatrix(&stInvSource, _p_stSourceMatrix);
+    POS_fn_vSetIdentityMatrix(&stReflection);
+
+    stI.xX = C_xOne - (nx * nx + nx * nx);
+    stI.xY = ny * nx * C_xMinusTwo;
+    stI.xZ = nz * nx * C_xMinusTwo;
+    stJ.xX = stI.xY;
+    stJ.xY = C_xOne - (ny * ny + ny * ny);
+    stJ.xZ = ny * nz * C_xMinusTwo;
+    stK.xX = stI.xZ;
+    stK.xY = stJ.xZ;
+    stK.xZ = C_xOne - (nz * nz + nz * nz);
+    POS_fn_vSetRotationMatrix(&stReflection, &stI, &stJ, &stK);
+
+    POS_fn_vGetTranslationVector(&stInvSource, &stTrans);
+
+    MTH3D_M_vSubVector(&stD, &stTrans, _p_stPlanePoint);
+    t = (ny * stD.xY + nx * stD.xX + nz * stD.xZ) * C_xMinusTwo;
+    stNt.xX = nx * t;
+    stNt.xY = ny * t;
+    stNt.xZ = nz * t;
+    MTH3D_M_vAddVector(&stReflected, &stTrans, &stNt);
+
+    stTmp = stInvSource;
+    POS_fn_vMulMatrixMatrix(&stInvSource, &stReflection, &stTmp);
+    POS_fn_vSetTranslationVector(&stInvSource, &stReflected);
+    *_p_stReflectedPoint = stReflected;
+
+    POS_fn_vSetIdentityMatrix(_p_stMirrorMatrix);
+    POS_fn_vInvertMatrix(_p_stMirrorMatrix, &stInvSource);
+}
+void __cdecl SCT_pc_fn_vCollectMirrorsOfSectors(void *_hVpt, HIE_tdstSuperObject *_hSprObjSector,
+                                                HIE_tdstSuperObject **_p_hHandleOfMirror,
+                                                void **_p_hHandleOfGeometricMirror,
+                                                HIE_tdstSuperObject **_p_hSectorList,
+                                                short *_p_shNbOfSectors)
+{
+    SECT_tdxHandleOfSectorObject                 hSectorObject;
+    SECT_tdxHandleOfElementLstCharacter          hCharacter;
+    HIE_tdstSuperObject                         *hChild;
+    SECT_tdxHandleOfElementLstGraphicInteraction hGraphicInteractionChild;
+    HIE_tdstSuperObject                         *hNeighbour;
+    short                shNbNeighbours;
+    short                shLoop;
+    short                shIdx;
+    short                shCountBefore;
+
+    *_p_shNbOfSectors = 0;
+    hSectorObject = (SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject(_hSprObjSector);
+    if ((_hSprObjSector->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
+        HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, _hSprObjSector, _p_hHandleOfMirror,
+                                          _p_hHandleOfGeometricMirror, _p_shNbOfSectors, 6);
+    }
+    for (hCharacter = LST2_M_DynamicGetFirstElement(&hSectorObject->stListOfCharacters);
+         hCharacter != NULL;
+         hCharacter = LST2_M_DynamicGetNextElement(hCharacter)) {
+        hChild = hCharacter->hPointerOfCharacter;
+        if ((hChild->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
+            HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, hChild, _p_hHandleOfMirror,
+                                              _p_hHandleOfGeometricMirror, _p_shNbOfSectors, 6);
+        }
+    }
+
+    shIdx = 0;
+    if (0 < *_p_shNbOfSectors) {
+        do {
+            _p_hSectorList[shIdx] = _hSprObjSector;
+            shIdx = (short)(shIdx + 1);
+        } while (shIdx < *_p_shNbOfSectors);
+    }
+
+    hGraphicInteractionChild = LST2_M_StaticGetFirstElement(&hSectorObject->stListOfSectorsInGraphicInteraction);
+    shNbNeighbours = (short)LST2_M_StaticGetNumberOfElements(&hSectorObject->stListOfSectorsInGraphicInteraction);
+    if (0 < shNbNeighbours) {
+        shLoop = shNbNeighbours;
+        do {
+            shCountBefore = *_p_shNbOfSectors;
+            shIdx         = shCountBefore;
+            hNeighbour    = hGraphicInteractionChild->hPointerOfSectorSO;
+            if ((hNeighbour->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
+                HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, hNeighbour, _p_hHandleOfMirror,
+                                                  _p_hHandleOfGeometricMirror, _p_shNbOfSectors, 6);
+            }
+            for (hCharacter = LST2_M_DynamicGetFirstElement(&((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject(hNeighbour))->stListOfCharacters);
+                 hCharacter != NULL;
+                 hCharacter = LST2_M_DynamicGetNextElement(hCharacter)) {
+                hChild = hCharacter->hPointerOfCharacter;
+                if ((hChild->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
+                    HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, hChild, _p_hHandleOfMirror,
+                                                      _p_hHandleOfGeometricMirror,
+                                                      _p_shNbOfSectors, 6);
+                }
+            }
+            if (shCountBefore < *_p_shNbOfSectors) {
+                do {
+                    _p_hSectorList[shIdx] = hNeighbour;
+                    shIdx = (short)(shIdx + 1);
+                } while (shIdx < *_p_shNbOfSectors);
+            }
+            hGraphicInteractionChild = LST2_M_StaticGetNextElement(hGraphicInteractionChild);
+            shLoop   = (short)(shLoop - 1);
+        } while (shLoop != 0);
+    }
+}
+
 /* 0x0044BC10 */
 void __cdecl SECT_fn_vGetMinPointInBorder(void *_hSector, MTH3D_tdstVector *_p_stMinPoint)
 {
@@ -26,6 +190,18 @@ void __cdecl SECT_fn_vGetCenterOfBorder(void *_hSector, MTH3D_tdstVector *_p_stC
     MTH3D_M_vDivScalarVector(_p_stCenter, _p_stCenter, MTH_C_2);
 }
 
+/* 0x0044BCC0 */
+SECT_tdxHandleOfElementLstDNMLights __cdecl SECT_fn_hCreateElementLstDNMLights(void)
+{
+    SECT_tdxHandleOfElementLstDNMLights hDNMLightsElement;
+
+    GEO_M_CPAMalloc(hDNMLightsElement, SECT_tdxHandleOfElementLstDNMLights,
+                    sizeof(struct SECT_tdstListOfDNMLights_), E_uwGEONotEnoughtMemory);
+
+    LST2_M_DynamicInitElement(hDNMLightsElement);
+    return hDNMLightsElement;
+}
+
 /* 0x0044BDC0 */
 int __cdecl SECT_fn_bIsInBorderBox(MTH3D_tdstVector *_p_stPosition, void *_hSector)
 {
@@ -44,38 +220,6 @@ int __cdecl SECT_fn_bIsInBorderBox(MTH3D_tdstVector *_p_stPosition, void *_hSect
         return FALSE;
 
     return TRUE;
-}
-
-/* 0x0044c170 */
-void __cdecl SECT_fn_vAddHeadCharListNode(HIE_tdstSuperObject *hSector,
-                                          SECT_tdxHandleOfElementLstCharacter hNode)
-{
-    LST2_M_DynamicAddHead(&((SECT_tdstSector *)HIE_fn_hGetSuperObjectObject(hSector))->stListOfCharacters, hNode);
-}
-
-/* 0x0044c0d0 */
-void __cdecl SECT_fn_vAddTailCharListNode(HIE_tdstSuperObject *hSector,
-                                          SECT_tdxHandleOfElementLstCharacter hNode)
-{
-    LST2_M_DynamicAddTail(&((SECT_tdstSector *)HIE_fn_hGetSuperObjectObject(hSector))->stListOfCharacters, hNode);
-}
-
-/* 0x0044C2C0 */
-char __cdecl SECT_fn_bIsThisSectorVirtual(void *_hSprObjSector)
-{
-    return ((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hSprObjSector))->xVirtual;
-}
-
-/* 0x0044C2D0 */
-char __cdecl fn_cGetSectorCameraType(void *_hSprObjSector)
-{
-    return ((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hSprObjSector))->cCameraType;
-}
-
-/* 0x0044C2E0 */
-float __cdecl fn_xGetSectorZFar(void *_hSprObjSector)
-{
-    return ((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hSprObjSector))->xZFar;
 }
 
 /* 0x0044BE50 */
@@ -155,186 +299,6 @@ HIE_tdstSuperObject *__cdecl SECT_fn_hResearchInWhatSectorIAm(HIE_tdstSuperObjec
     return hSectorWhereIAm;
 }
 
-/* 0x0044B410 */
-void __cdecl SCT_pc_fn_vComputeMirrorMatrix(POS_tdstCompletePosition *_p_stSourceMatrix,
-                                            POS_tdstCompletePosition *_p_stMirrorMatrix,
-                                            MTH3D_tdstVector         *_p_stReflectedPoint,
-                                            MTH3D_tdstVector         *_p_stPlaneNormal,
-                                            MTH3D_tdstVector         *_p_stPlanePoint)
-{
-    const float C_xOne      =  1.0f;   /* 0x0049C8E0 */
-    const float C_xMinusTwo = -2.0f;   /* 0x0049C8D8 */
-
-    POS_tdstCompletePosition stInvSource;
-    POS_tdstCompletePosition stReflection;
-    POS_tdstCompletePosition stTmp;
-    MTH3D_tdstVector         stI, stJ, stK;
-    MTH3D_tdstVector         stTrans;
-    MTH3D_tdstVector         stReflected;
-    MTH3D_tdstVector         stD;
-    MTH3D_tdstVector         stNt;
-    float nx = _p_stPlaneNormal->xX;
-    float ny = _p_stPlaneNormal->xY;
-    float nz = _p_stPlaneNormal->xZ;
-    float t;
-
-    POS_fn_vSetIdentityMatrix(&stInvSource);
-    POS_fn_vInvertMatrix(&stInvSource, _p_stSourceMatrix);
-    POS_fn_vSetIdentityMatrix(&stReflection);
-
-    stI.xX = C_xOne - (nx * nx + nx * nx);
-    stI.xY = ny * nx * C_xMinusTwo;
-    stI.xZ = nz * nx * C_xMinusTwo;
-    stJ.xX = stI.xY;
-    stJ.xY = C_xOne - (ny * ny + ny * ny);
-    stJ.xZ = ny * nz * C_xMinusTwo;
-    stK.xX = stI.xZ;
-    stK.xY = stJ.xZ;
-    stK.xZ = C_xOne - (nz * nz + nz * nz);
-    POS_fn_vSetRotationMatrix(&stReflection, &stI, &stJ, &stK);
-
-    POS_fn_vGetTranslationVector(&stInvSource, &stTrans);
-
-    MTH3D_M_vSubVector(&stD, &stTrans, _p_stPlanePoint);
-    t = (ny * stD.xY + nx * stD.xX + nz * stD.xZ) * C_xMinusTwo;
-    stNt.xX = nx * t;
-    stNt.xY = ny * t;
-    stNt.xZ = nz * t;
-    MTH3D_M_vAddVector(&stReflected, &stTrans, &stNt);
-
-    stTmp = stInvSource;
-    POS_fn_vMulMatrixMatrix(&stInvSource, &stReflection, &stTmp);
-    POS_fn_vSetTranslationVector(&stInvSource, &stReflected);
-    *_p_stReflectedPoint = stReflected;
-
-    POS_fn_vSetIdentityMatrix(_p_stMirrorMatrix);
-    POS_fn_vInvertMatrix(_p_stMirrorMatrix, &stInvSource);
-}
-
-/* 0x0044BCC0 */
-SECT_tdxHandleOfElementLstDNMLights __cdecl SECT_fn_hCreateElementLstDNMLights(void)
-{
-    SECT_tdxHandleOfElementLstDNMLights hDNMLightsElement;
-
-    GEO_M_CPAMalloc(hDNMLightsElement, SECT_tdxHandleOfElementLstDNMLights,
-                    sizeof(struct SECT_tdstListOfDNMLights_), E_uwGEONotEnoughtMemory);
-
-    LST2_M_DynamicInitElement(hDNMLightsElement);
-    return hDNMLightsElement;
-}
-
-#define GLI_C_lHasNoMirror							0x10000000
-void __cdecl SCT_pc_fn_vCollectMirrorsOfSectors(void *_hVpt, HIE_tdstSuperObject *_hSprObjSector,
-                                                HIE_tdstSuperObject **_p_hHandleOfMirror,
-                                                void **_p_hHandleOfGeometricMirror,
-                                                HIE_tdstSuperObject **_p_hSectorList,
-                                                short *_p_shNbOfSectors)
-{
-    SECT_tdxHandleOfSectorObject                 hSectorObject;
-    SECT_tdxHandleOfElementLstCharacter          hCharacter;
-    HIE_tdstSuperObject                         *hChild;
-    SECT_tdxHandleOfElementLstGraphicInteraction hGraphicInteractionChild;
-    HIE_tdstSuperObject                         *hNeighbour;
-    short                shNbNeighbours;
-    short                shLoop;
-    short                shIdx;
-    short                shCountBefore;
-
-    *_p_shNbOfSectors = 0;
-    hSectorObject = (SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject(_hSprObjSector);
-    if ((_hSprObjSector->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
-        HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, _hSprObjSector, _p_hHandleOfMirror,
-                                          _p_hHandleOfGeometricMirror, _p_shNbOfSectors, 6);
-    }
-    for (hCharacter = LST2_M_DynamicGetFirstElement(&hSectorObject->stListOfCharacters);
-         hCharacter != NULL;
-         hCharacter = LST2_M_DynamicGetNextElement(hCharacter)) {
-        hChild = hCharacter->hPointerOfCharacter;
-        if ((hChild->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
-            HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, hChild, _p_hHandleOfMirror,
-                                              _p_hHandleOfGeometricMirror, _p_shNbOfSectors, 6);
-        }
-    }
-
-    shIdx = 0;
-    if (0 < *_p_shNbOfSectors) {
-        do {
-            _p_hSectorList[shIdx] = _hSprObjSector;
-            shIdx = (short)(shIdx + 1);
-        } while (shIdx < *_p_shNbOfSectors);
-    }
-
-    hGraphicInteractionChild = LST2_M_StaticGetFirstElement(&hSectorObject->stListOfSectorsInGraphicInteraction);
-    shNbNeighbours = (short)LST2_M_StaticGetNumberOfElements(&hSectorObject->stListOfSectorsInGraphicInteraction);
-    if (0 < shNbNeighbours) {
-        shLoop = shNbNeighbours;
-        do {
-            shCountBefore = *_p_shNbOfSectors;
-            shIdx         = shCountBefore;
-            hNeighbour    = hGraphicInteractionChild->hPointerOfSectorSO;
-            if ((hNeighbour->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
-                HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, hNeighbour, _p_hHandleOfMirror,
-                                                  _p_hHandleOfGeometricMirror, _p_shNbOfSectors, 6);
-            }
-            for (hCharacter = LST2_M_DynamicGetFirstElement(&((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject(hNeighbour))->stListOfCharacters);
-                 hCharacter != NULL;
-                 hCharacter = LST2_M_DynamicGetNextElement(hCharacter)) {
-                hChild = hCharacter->hPointerOfCharacter;
-                if ((hChild->lDrawModeMask & GLI_C_lHasNoMirror) == 0) {
-                    HIE_fn_hFindAllMirrorsInHierarchy(_hVpt, hChild, _p_hHandleOfMirror,
-                                                      _p_hHandleOfGeometricMirror,
-                                                      _p_shNbOfSectors, 6);
-                }
-            }
-            if (shCountBefore < *_p_shNbOfSectors) {
-                do {
-                    _p_hSectorList[shIdx] = hNeighbour;
-                    shIdx = (short)(shIdx + 1);
-                } while (shIdx < *_p_shNbOfSectors);
-            }
-            hGraphicInteractionChild = LST2_M_StaticGetNextElement(hGraphicInteractionChild);
-            shLoop   = (short)(shLoop - 1);
-        } while (shLoop != 0);
-    }
-}
-
-/* 0x0044c210 */
-void __cdecl SECT_fn_vAddTailDNMLightsListNode(HIE_tdstSuperObject *hSector,
-                                               SECT_tdxHandleOfElementLstDNMLights hNode)
-{
-    LST2_M_DynamicAddTail(&((SECT_tdstSector *)HIE_fn_hGetSuperObjectObject(hSector))->stListOfDNMLights, hNode);
-}
-
-/* 0x0044C2F0 */
-void *__cdecl SECT_fn_p_stGetMinPointInBorder(void *_hSector)
-{
-    return &((SECT_tdxHandleOfSectorObject)_hSector)->stMinMaxPoints[0];
-}
-
-/* 0x0044C300 */
-void *__cdecl SECT_fn_p_stGetMaxPointInBorder(void *_hSector)
-{
-    return &((SECT_tdxHandleOfSectorObject)_hSector)->stMinMaxPoints[1];
-}
-
-/* 0x0044C540 */
-MTH_tdxReal SHW_fn_vComputeZofShadowPoint (MTH3D_tdstVector	*_p_stPickedPoint,
-										   MTH3D_tdstVector	*_p_stGlobalNormalOfPickedFace,
-										   MTH_tdxReal		_xInvGlobalNormalxZ,
-										   MTH_tdxReal		_xOffsetX,
-										   MTH_tdxReal		_xOffsetY)
-{
-	return (MTH_M_xSub (_p_stPickedPoint->xZ,
-		MTH_M_xMul(_xInvGlobalNormalxZ,
-			   MTH_M_xAdd(
-				  MTH_M_xMul(_p_stGlobalNormalOfPickedFace->xX, MTH_M_xSub(_xOffsetX, _p_stPickedPoint->xX)),
-				  MTH_M_xMul(_p_stGlobalNormalOfPickedFace->xY, MTH_M_xSub(_xOffsetY, _p_stPickedPoint->xY))
-											 )
-								  )
-						)
-		   );
-}
-
 void SCT_fn_vTestChangeSectorWithHistory (MTH3D_tdstVector			 *_p_stBeforeAbsolutePosition,
                                           MTH3D_tdstVector			 *_p_stAfterAbsolutePosition,
                                           HIE_tdstSuperObject		**_p_hSectorSOWhereIWas)
@@ -389,38 +353,80 @@ void SCT_fn_vTestChangeSectorWithHistory (MTH3D_tdstVector			 *_p_stBeforeAbsolu
 
 }
 
-#define SCT_pc_FLT_AT(p, off)  (*(float *)((unsigned char *)(p) + (off)))
-#define SCT_pc_ABS_F(x)        MTH_M_xAbs(x)
+void __cdecl SECT_fn_vIsolateCharListNode(void *_hNode)
+{
 
-extern unsigned short GAM_g_uw5115d0_storage;
-extern void          *g_a_hTextGeoObject[10];
-extern unsigned long  AI_g_ulSpoMask;
-extern unsigned char  GLI_pc_g_cSinusEffectState;
-extern void __cdecl SHW_fn_vSentToViewPort(void *p_stVpt, void *p_stSuperObject,
-                                                           long lUnused, unsigned long ulDrawModeMask,
-                                                           void *hObject);
-extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
-extern float __cdecl GEO_xGetZFarTransparencyLevel(void);
-extern void __cdecl GEO_vSetPointOfObject(void *hObject, MTH3D_tdstVector *p_stPoint,
-                                          short xIndexOfPoint);
-extern void __cdecl GEO_vSetUVOfIndexedTriangles(void *hObject, short hElement, short xUVIdx,
-                                                 void *p_stUV);
-extern void __cdecl GEO_vSetFaceOfIndexedTriangles(void *hObject, short hElement, short xFace,
-                                                   short x1, short x2, short x3);
-extern void __cdecl GEO_vSetIndexedUVOfFaceOfIndexedTriangles(void *hObject, short hElement,
-                                                              short xFace, short xUV1, short xUV2,
-                                                              short xUV3);
-extern unsigned char __cdecl INT_fn_bDetectIntersectSegmentWithBox(MTH3D_tdstVector *p_stVertex1,
-                                                         MTH3D_tdstVector *p_stVect12,
-                                                         MTH3D_tdstVector *p_stMinPoint,
-                                                         MTH3D_tdstVector *p_stMaxPoint,
-                                                         void *p_xNull);
+    LST2_M_DynamicIsolate((SECT_tdxHandleOfElementLstCharacter)_hNode);
+}
 
-#include "GAM/PlayAnim.h"
-#include "SCT/SectExt.h"
+/* 0x0044c0d0 */
+void __cdecl SECT_fn_vAddTailCharListNode(HIE_tdstSuperObject *hSector,
+                                          SECT_tdxHandleOfElementLstCharacter hNode)
+{
+    LST2_M_DynamicAddTail(&((SECT_tdstSector *)HIE_fn_hGetSuperObjectObject(hSector))->stListOfCharacters, hNode);
+}
 
-/* 0x005040D4 */
-float SCT_pc_g_xMirrorHeightOffset;
+/* 0x0044c170 */
+void __cdecl SECT_fn_vAddHeadCharListNode(HIE_tdstSuperObject *hSector,
+                                          SECT_tdxHandleOfElementLstCharacter hNode)
+{
+    LST2_M_DynamicAddHead(&((SECT_tdstSector *)HIE_fn_hGetSuperObjectObject(hSector))->stListOfCharacters, hNode);
+}
+
+/* 0x0044c210 */
+void __cdecl SECT_fn_vAddTailDNMLightsListNode(HIE_tdstSuperObject *hSector,
+                                               SECT_tdxHandleOfElementLstDNMLights hNode)
+{
+    LST2_M_DynamicAddTail(&((SECT_tdstSector *)HIE_fn_hGetSuperObjectObject(hSector))->stListOfDNMLights, hNode);
+}
+
+/* 0x0044C2C0 */
+char __cdecl SECT_fn_bIsThisSectorVirtual(void *_hSprObjSector)
+{
+    return ((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hSprObjSector))->xVirtual;
+}
+
+/* 0x0044C2D0 */
+char __cdecl fn_cGetSectorCameraType(void *_hSprObjSector)
+{
+    return ((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hSprObjSector))->cCameraType;
+}
+
+/* 0x0044C2E0 */
+float __cdecl fn_xGetSectorZFar(void *_hSprObjSector)
+{
+    return ((SECT_tdxHandleOfSectorObject)HIE_fn_hGetSuperObjectObject((HIE_tdstSuperObject *)_hSprObjSector))->xZFar;
+}
+
+/* 0x0044C2F0 */
+void *__cdecl SECT_fn_p_stGetMinPointInBorder(void *_hSector)
+{
+    return &((SECT_tdxHandleOfSectorObject)_hSector)->stMinMaxPoints[0];
+}
+
+/* 0x0044C300 */
+void *__cdecl SECT_fn_p_stGetMaxPointInBorder(void *_hSector)
+{
+    return &((SECT_tdxHandleOfSectorObject)_hSector)->stMinMaxPoints[1];
+}
+
+/* 0x0044C540 */
+MTH_tdxReal SHW_fn_vComputeZofShadowPoint (MTH3D_tdstVector	*_p_stPickedPoint,
+										   MTH3D_tdstVector	*_p_stGlobalNormalOfPickedFace,
+										   MTH_tdxReal		_xInvGlobalNormalxZ,
+										   MTH_tdxReal		_xOffsetX,
+										   MTH_tdxReal		_xOffsetY)
+{
+	return (MTH_M_xSub (_p_stPickedPoint->xZ,
+		MTH_M_xMul(_xInvGlobalNormalxZ,
+			   MTH_M_xAdd(
+				  MTH_M_xMul(_p_stGlobalNormalOfPickedFace->xX, MTH_M_xSub(_xOffsetX, _p_stPickedPoint->xX)),
+				  MTH_M_xMul(_p_stGlobalNormalOfPickedFace->xY, MTH_M_xSub(_xOffsetY, _p_stPickedPoint->xY))
+											 )
+								  )
+						)
+		   );
+}
 
 void __cdecl SHW_fn_vDrawShadow(void *p_stVpt, void *p_stSuperObject,
                                                 void *p_stSectorSuperObject, unsigned long ulDrawMask)

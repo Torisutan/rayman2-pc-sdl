@@ -26,6 +26,22 @@ void __cdecl COL_fn_vMinMaxBox2VerticesBox ( COL_tda8st8VerticesBox a8_stBoxDest
   MTH3D_M_vSetVectorElements ( &(a8_stBoxDest[COL_C_xXMaxYMaxZMax]), p_stMaxPoint->xX, p_stMaxPoint->xY, p_stMaxPoint->xZ );
 }
 
+void __cdecl COL_fn_vComputeBoundingBoxOfSphereAndBox ( MTH3D_tdstVector *p_stMinBounding,
+                                                MTH3D_tdstVector *p_stMaxBounding,
+                                                MTH3D_tdstVector *p_stSphereCenter,
+                                                MTH_tdxReal xSphereRadius,
+                                                MTH3D_tdstVector *p_stMinPoint,
+                                                MTH3D_tdstVector *p_stMaxPoint )
+{
+  p_stMinBounding->xX = MTH_M_xMin ( MTH_M_xSub ( p_stSphereCenter->xX, xSphereRadius ), p_stMinPoint->xX );
+  p_stMinBounding->xY = MTH_M_xMin ( MTH_M_xSub ( p_stSphereCenter->xY, xSphereRadius ), p_stMinPoint->xY );
+  p_stMinBounding->xZ = MTH_M_xMin ( MTH_M_xSub ( p_stSphereCenter->xZ, xSphereRadius ), p_stMinPoint->xZ );
+
+  p_stMaxBounding->xX = MTH_M_xMax ( MTH_M_xAdd ( p_stSphereCenter->xX, xSphereRadius ), p_stMaxPoint->xX );
+  p_stMaxBounding->xY = MTH_M_xMax ( MTH_M_xAdd ( p_stSphereCenter->xY, xSphereRadius ), p_stMaxPoint->xY );
+  p_stMaxBounding->xZ = MTH_M_xMax ( MTH_M_xAdd ( p_stSphereCenter->xZ, xSphereRadius ), p_stMaxPoint->xZ );
+}
+
 ACP_tdxBool __cdecl COL_fn_bDetectCollisionBetweenTwoParallelBoxes(MTH3D_tdstVector * _p_stFirstBoxMaxPoint,
                                                                    MTH3D_tdstVector * _p_stFirstBoxMinPoint,
                                                                    MTH3D_tdstVector * _p_stSecondBoxMaxPoint,
@@ -41,20 +57,4 @@ ACP_tdxBool __cdecl COL_fn_bDetectCollisionBetweenTwoParallelBoxes(MTH3D_tdstVec
 	else
 		return FALSE;
 
-}
-
-void __cdecl COL_fn_vComputeBoundingBoxOfSphereAndBox ( MTH3D_tdstVector *p_stMinBounding,
-                                                MTH3D_tdstVector *p_stMaxBounding,
-                                                MTH3D_tdstVector *p_stSphereCenter,
-                                                MTH_tdxReal xSphereRadius,
-                                                MTH3D_tdstVector *p_stMinPoint,
-                                                MTH3D_tdstVector *p_stMaxPoint )
-{
-  p_stMinBounding->xX = MTH_M_xMin ( MTH_M_xSub ( p_stSphereCenter->xX, xSphereRadius ), p_stMinPoint->xX );
-  p_stMinBounding->xY = MTH_M_xMin ( MTH_M_xSub ( p_stSphereCenter->xY, xSphereRadius ), p_stMinPoint->xY );
-  p_stMinBounding->xZ = MTH_M_xMin ( MTH_M_xSub ( p_stSphereCenter->xZ, xSphereRadius ), p_stMinPoint->xZ );
-
-  p_stMaxBounding->xX = MTH_M_xMax ( MTH_M_xAdd ( p_stSphereCenter->xX, xSphereRadius ), p_stMaxPoint->xX );
-  p_stMaxBounding->xY = MTH_M_xMax ( MTH_M_xAdd ( p_stSphereCenter->xY, xSphereRadius ), p_stMaxPoint->xY );
-  p_stMaxBounding->xZ = MTH_M_xMax ( MTH_M_xAdd ( p_stSphereCenter->xZ, xSphereRadius ), p_stMaxPoint->xZ );
 }

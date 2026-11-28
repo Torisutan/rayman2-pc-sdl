@@ -13,6 +13,28 @@ extern void __cdecl Mmg_fn_cCheckAlignmentValidity(void);
 
 extern unsigned char __cdecl FUN_0044f4e0(void);
 
+/* 0x00449A50 */
+void __cdecl RND_fn_vFirstInitRandom(void)
+{
+    if (g_ucRNDModuleId == 0xff)
+        g_ucRNDModuleId = Erm_fn_ucInitErrMsg();
+    Mmg_fn_v_InitMmg(g_ucRNDModuleId, 1, 0x186a0);
+    Mmg_fn_cCheckAlignmentValidity();
+    RND_g_stRandomStructure.hLastUsedIndex = 0;
+}
+
+/* 0x004a1f4c */
+RND_tdxHandleToRandomIndex __cdecl RND_fn_hReserveANewHandleIndex(void)
+{
+    if (RND_g_stRandomStructure.hLastUsedIndex > RND_C_MaxIndex) {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(7, g_ucRNDModuleId, 0, 5,
+                                -1, 0xff, 0xff, (char *)0);
+    }
+    RND_g_stRandomStructure.hLastUsedIndex++;
+    return (RND_g_stRandomStructure.hLastUsedIndex - 1);
+}
+
 /* 0x00449AE0 */
 void __cdecl RND_fn_vComputeRandomTable(void)
 {
@@ -62,16 +84,16 @@ void __cdecl RND_fn_vRemapRandomTable(void)
            RND_C_MaxIndex * sizeof(unsigned long));
 }
 
-/* 0x004a1f4c */
-RND_tdxHandleToRandomIndex __cdecl RND_fn_hReserveANewHandleIndex(void)
+/* 0x00449BE0 */
+void RDN_fn_vSetRandomSeed(RND_tdxHandleToRandomIndex _lIndexNumber, long _lNewSeed)
 {
-    if (RND_g_stRandomStructure.hLastUsedIndex > RND_C_MaxIndex) {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(7, g_ucRNDModuleId, 0, 5,
-                                -1, 0xff, 0xff, (char *)0);
-    }
-    RND_g_stRandomStructure.hLastUsedIndex++;
-    return (RND_g_stRandomStructure.hLastUsedIndex - 1);
+    unsigned long ulValue;
+
+    if (_lNewSeed < 0)
+        ulValue = 0;
+    else
+        ulValue = (unsigned long)_lNewSeed % RND_g_stRandomStructure.ulSizeOfTable;
+    RND_g_stRandomStructure.a_ulIndex[_lIndexNumber] = ulValue;
 }
 
 /* 0x00449C10 */
@@ -107,26 +129,4 @@ MTH_tdxReal __cdecl RND_fn_xGetRealRandomValue(RND_tdxHandleToRandomIndex _lInde
         RND_g_stRandomStructure.a_ulIndex[_lIndexNumber] = 0;
 
     return (xValue);
-}
-
-/* 0x00449A50 */
-void __cdecl RND_fn_vFirstInitRandom(void)
-{
-    if (g_ucRNDModuleId == 0xff)
-        g_ucRNDModuleId = Erm_fn_ucInitErrMsg();
-    Mmg_fn_v_InitMmg(g_ucRNDModuleId, 1, 0x186a0);
-    Mmg_fn_cCheckAlignmentValidity();
-    RND_g_stRandomStructure.hLastUsedIndex = 0;
-}
-
-/* 0x00449BE0 */
-void RDN_fn_vSetRandomSeed(RND_tdxHandleToRandomIndex _lIndexNumber, long _lNewSeed)
-{
-    unsigned long ulValue;
-
-    if (_lNewSeed < 0)
-        ulValue = 0;
-    else
-        ulValue = (unsigned long)_lNewSeed % RND_g_stRandomStructure.ulSizeOfTable;
-    RND_g_stRandomStructure.a_ulIndex[_lIndexNumber] = ulValue;
 }

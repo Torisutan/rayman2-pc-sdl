@@ -11,93 +11,6 @@
 
 #define SNA_g_ucErrorMode       SNA_g_lProtectionGate
 
-size_t __cdecl SNA_fn_ulFRead(void   *_p_vBuffer,
-                              size_t  _ulSize,
-                              size_t  _ulCount,
-                              void   *_p_stFile)
-{
-    SNA_pc_tdstStream *p_stStream;
-    unsigned char *p_ucIn;
-    size_t         ulBytesToRead;
-
-#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
-    if (SNA_g_ucErrorMode != 0) {
-        __asm { mov dword ptr [SNA_g_pErrorFrame1], offset L_body }
-        __asm { mov dword ptr [SNA_g_pErrorFrame2], offset L_epi }
-        return 0;
-    }
-L_body:
-#endif /* RAYMAN2_NO_PROTECTION */
-    ulBytesToRead = _ulSize * _ulCount;
-    if (ulBytesToRead == 0) {
-        return 0;
-    }
-
-    p_stStream = (SNA_pc_tdstStream *)_p_stFile;
-    p_ucIn     = (unsigned char *)_p_vBuffer;
-    if (p_stStream->pfn_bRawRead(p_ucIn, ulBytesToRead, p_stStream) == 0) {
-        return 0;
-    }
-
-    /* 0x450EB0 */
-    if (SNA_pc_bGetFlagBit0(p_stStream) != 0) {
-        unsigned char ucFill;
-        unsigned char ucTrailingBytes;
-        unsigned long ulRoom;
-        unsigned long ulXorWords;
-        size_t        ulRemain = ulBytesToRead;
-
-        if (p_stStream->ucCarryUsed != 0) {
-            ulRoom = 4u - p_stStream->ucCarryUsed;
-            ucFill = (unsigned char)ulRemain;
-            if (ulRemain >= ulRoom)
-                ucFill = (unsigned char)ulRoom;
-            memcpy(&p_stStream->uCarry.a_ucByte[p_stStream->ucCarryUsed], _p_vBuffer, ucFill);
-            p_stStream->ucCarryUsed += ucFill;
-            p_ucIn = (unsigned char *)_p_vBuffer + ucFill;
-            ulRemain -= ucFill;
-            if (p_stStream->ucCarryUsed == 4) {
-                p_stStream->ucCarryUsed = 0;
-                p_stStream->ulChecksum ^= p_stStream->uCarry.ulWord;
-            }
-        }
-
-        ucTrailingBytes = (unsigned char)(ulRemain & 3u);
-        for (ulXorWords = ulRemain >> 2; ulXorWords != 0; ulXorWords--) {
-            p_stStream->ulChecksum ^= *(unsigned long *)p_ucIn;
-            p_ucIn += 4;
-        }
-
-        if (ucTrailingBytes != 0) {
-            memcpy(&p_stStream->uCarry.a_ucByte[p_stStream->ucCarryUsed], p_ucIn, ucTrailingBytes);
-            p_stStream->ucCarryUsed += ucTrailingBytes;
-        }
-    }
-
-    return _ulCount;
-#ifndef RAYMAN2_NO_PROTECTION
-L_epi:;
-#endif /* RAYMAN2_NO_PROTECTION */
-}
-
-/* 0x00450EB0 */
-unsigned char __cdecl SNA_pc_bGetFlagBit0(void *_p_stFile)
-{
-    return ((SNA_pc_tdstStream *)_p_stFile)->ucFlags & 1u;
-}
-
-/* 0x00450EC0 */
-unsigned char __cdecl SNA_pc_bGetFlagBit1(void *_p_stFile)
-{
-    return (unsigned char)((((SNA_pc_tdstStream *)_p_stFile)->ucFlags >> 1) & 1u);
-}
-
-/* 0x00450ED0 */
-unsigned char __cdecl SNA_pc_bGetFlagBit2(void *_p_stFile)
-{
-    return (unsigned char)((((SNA_pc_tdstStream *)_p_stFile)->ucFlags & 4u) >> 2);
-}
-
 #ifndef RAYMAN2_NO_PROTECTION
 unsigned char __cdecl SNA_pc_bRawReadDecodeStubbed(void *_p_vBuffer, size_t _ulBytes,
                                                    void *_p_stFile);
@@ -235,17 +148,144 @@ unsigned char __cdecl SNA_pc_bCloseFile(void *_p_stFile)
     return (unsigned char)(bOk == 0);
 }
 
-/* 0x004512C0 */
-unsigned char __cdecl SNA_pc_bRawReadPlain(void *_p_vBuffer, size_t _ulBytes,
-                                           void *_p_stFile)
+size_t __cdecl SNA_fn_ulFRead(void   *_p_vBuffer,
+                              size_t  _ulSize,
+                              size_t  _ulCount,
+                              void   *_p_stFile)
+{
+    SNA_pc_tdstStream *p_stStream;
+    unsigned char *p_ucIn;
+    size_t         ulBytesToRead;
+
+#ifndef RAYMAN2_NO_PROTECTION   /* protection gate */
+    if (SNA_g_ucErrorMode != 0) {
+        __asm { mov dword ptr [SNA_g_pErrorFrame1], offset L_body }
+        __asm { mov dword ptr [SNA_g_pErrorFrame2], offset L_epi }
+        return 0;
+    }
+L_body:
+#endif /* RAYMAN2_NO_PROTECTION */
+    ulBytesToRead = _ulSize * _ulCount;
+    if (ulBytesToRead == 0) {
+        return 0;
+    }
+
+    p_stStream = (SNA_pc_tdstStream *)_p_stFile;
+    p_ucIn     = (unsigned char *)_p_vBuffer;
+    if (p_stStream->pfn_bRawRead(p_ucIn, ulBytesToRead, p_stStream) == 0) {
+        return 0;
+    }
+
+    /* 0x450EB0 */
+    if (SNA_pc_bGetFlagBit0(p_stStream) != 0) {
+        unsigned char ucFill;
+        unsigned char ucTrailingBytes;
+        unsigned long ulRoom;
+        unsigned long ulXorWords;
+        size_t        ulRemain = ulBytesToRead;
+
+        if (p_stStream->ucCarryUsed != 0) {
+            ulRoom = 4u - p_stStream->ucCarryUsed;
+            ucFill = (unsigned char)ulRemain;
+            if (ulRemain >= ulRoom)
+                ucFill = (unsigned char)ulRoom;
+            memcpy(&p_stStream->uCarry.a_ucByte[p_stStream->ucCarryUsed], _p_vBuffer, ucFill);
+            p_stStream->ucCarryUsed += ucFill;
+            p_ucIn = (unsigned char *)_p_vBuffer + ucFill;
+            ulRemain -= ucFill;
+            if (p_stStream->ucCarryUsed == 4) {
+                p_stStream->ucCarryUsed = 0;
+                p_stStream->ulChecksum ^= p_stStream->uCarry.ulWord;
+            }
+        }
+
+        ucTrailingBytes = (unsigned char)(ulRemain & 3u);
+        for (ulXorWords = ulRemain >> 2; ulXorWords != 0; ulXorWords--) {
+            p_stStream->ulChecksum ^= *(unsigned long *)p_ucIn;
+            p_ucIn += 4;
+        }
+
+        if (ucTrailingBytes != 0) {
+            memcpy(&p_stStream->uCarry.a_ucByte[p_stStream->ucCarryUsed], p_ucIn, ucTrailingBytes);
+            p_stStream->ucCarryUsed += ucTrailingBytes;
+        }
+    }
+
+    return _ulCount;
+#ifndef RAYMAN2_NO_PROTECTION
+L_epi:;
+#endif /* RAYMAN2_NO_PROTECTION */
+}
+
+/* 0x00450EB0 */
+unsigned char __cdecl SNA_pc_bGetFlagBit0(void *_p_stFile)
+{
+    return ((SNA_pc_tdstStream *)_p_stFile)->ucFlags & 1u;
+}
+
+/* 0x00450EC0 */
+unsigned char __cdecl SNA_pc_bGetFlagBit1(void *_p_stFile)
+{
+    return (unsigned char)((((SNA_pc_tdstStream *)_p_stFile)->ucFlags >> 1) & 1u);
+}
+
+/* 0x00450ED0 */
+unsigned char __cdecl SNA_pc_bGetFlagBit2(void *_p_stFile)
+{
+    return (unsigned char)((((SNA_pc_tdstStream *)_p_stFile)->ucFlags & 4u) >> 2);
+}
+
+/* 0x00450EE0 */
+unsigned long __cdecl SNA_pc_ulSeek(void *_p_stFile, long _lDistance, int _iOrigin)
 {
     SNA_pc_tdstStream *p_stStream = (SNA_pc_tdstStream *)_p_stFile;
-    unsigned long ulBytesRead;
-    long      bOk;
+    unsigned long  ulOrigin;
+    long           lDistance = _lDistance;
+    unsigned char *p_ucStub;
+    unsigned char *p_ucEnd;
+    void          *hProcess;
+    HANDLE         hFile;
+    DWORD          dwResult;
 
-    bOk = SNA_pc_M_bReadFile(p_stStream->hFile, _p_vBuffer, (unsigned long)_ulBytes, &ulBytesRead);
-    p_stStream->ulValid = (unsigned long)bOk;
-    return (unsigned char)(ulBytesRead == (unsigned long)_ulBytes);
+    if (_iOrigin == 1 && SNA_pc_bGetFlagBit1(_p_stFile) != 0) {
+        long lCount = abs(lDistance);
+
+        if (lDistance > 0) {
+            while (lCount--) {
+                p_stStream->uKey.a_ucByte[1] += p_stStream->uKey.a_ucByte[3];
+                p_stStream->uKey.a_ucByte[0] += p_stStream->uKey.a_ucByte[2];
+            }
+        } else {
+            while (lCount--) {
+                p_stStream->uKey.a_ucByte[0] -= p_stStream->uKey.a_ucByte[2];
+                p_stStream->uKey.a_ucByte[1] -= p_stStream->uKey.a_ucByte[3];
+            }
+        }
+    }
+
+    if (_iOrigin == 0) {
+        ulOrigin = SNA_pc_C_ulSeekBegin;
+    } else {
+        ulOrigin = (_iOrigin == 2) ? SNA_pc_C_ulSeekEnd : SNA_pc_C_ulSeekCurrent;
+    }
+#ifndef RAYMAN2_NO_PROTECTION   /* flag bit 2: SetFilePointer through a code-pool stub */
+    if (SNA_pc_bGetFlagBit2(_p_stFile) != 0) {
+
+        hFile = p_stStream->hFile;
+        MMG_pc_M_vStepLcg();
+        p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
+        MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpSetFilePointer, 0x50, 0xC3);
+        MMG_pc_M_vFlushPool(hProcess);
+        dwResult = ((DWORD (__stdcall *)(HANDLE, LONG, PLONG, DWORD))p_ucStub)(
+            hFile, _lDistance, NULL, ulOrigin);
+        for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+            MMG_pc_M_vStepLcg();
+            *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+        }
+        return dwResult;
+    }
+#endif /* RAYMAN2_NO_PROTECTION */
+    return SNA_pc_M_ulSeekFile(p_stStream->hFile, _lDistance, ulOrigin);
 }
 
 /* 0x00451090 */
@@ -315,7 +355,22 @@ unsigned char __cdecl SNA_pc_bRawReadDecodeStubbed(void *_p_vBuffer, size_t _ulB
     }
     return 1;
 }
+#endif /* RAYMAN2_NO_PROTECTION */
 
+/* 0x004512C0 */
+unsigned char __cdecl SNA_pc_bRawReadPlain(void *_p_vBuffer, size_t _ulBytes,
+                                           void *_p_stFile)
+{
+    SNA_pc_tdstStream *p_stStream = (SNA_pc_tdstStream *)_p_stFile;
+    unsigned long ulBytesRead;
+    long      bOk;
+
+    bOk = SNA_pc_M_bReadFile(p_stStream->hFile, _p_vBuffer, (unsigned long)_ulBytes, &ulBytesRead);
+    p_stStream->ulValid = (unsigned long)bOk;
+    return (unsigned char)(ulBytesRead == (unsigned long)_ulBytes);
+}
+
+#ifndef RAYMAN2_NO_PROTECTION   /* reads through a code-pool stub (flag bit 2) */
 /* 0x00451300 */
 unsigned char __cdecl SNA_pc_bRawReadPlainStubbed(void *_p_vBuffer, size_t _ulBytes,
                                                   void *_p_stFile)
@@ -341,58 +396,4 @@ unsigned char __cdecl SNA_pc_bRawReadPlainStubbed(void *_p_vBuffer, size_t _ulBy
     p_stStream->ulValid = (unsigned long)bOk;
     return (unsigned char)(dwBytesRead == (DWORD)_ulBytes);
 }
-
 #endif /* RAYMAN2_NO_PROTECTION */
-
-/* 0x00450EE0 */
-unsigned long __cdecl SNA_pc_ulSeek(void *_p_stFile, long _lDistance, int _iOrigin)
-{
-    SNA_pc_tdstStream *p_stStream = (SNA_pc_tdstStream *)_p_stFile;
-    unsigned long  ulOrigin;
-    long           lDistance = _lDistance;
-    unsigned char *p_ucStub;
-    unsigned char *p_ucEnd;
-    void          *hProcess;
-    HANDLE         hFile;
-    DWORD          dwResult;
-
-    if (_iOrigin == 1 && SNA_pc_bGetFlagBit1(_p_stFile) != 0) {
-        long lCount = abs(lDistance);
-
-        if (lDistance > 0) {
-            while (lCount--) {
-                p_stStream->uKey.a_ucByte[1] += p_stStream->uKey.a_ucByte[3];
-                p_stStream->uKey.a_ucByte[0] += p_stStream->uKey.a_ucByte[2];
-            }
-        } else {
-            while (lCount--) {
-                p_stStream->uKey.a_ucByte[0] -= p_stStream->uKey.a_ucByte[2];
-                p_stStream->uKey.a_ucByte[1] -= p_stStream->uKey.a_ucByte[3];
-            }
-        }
-    }
-
-    if (_iOrigin == 0) {
-        ulOrigin = SNA_pc_C_ulSeekBegin;
-    } else {
-        ulOrigin = (_iOrigin == 2) ? SNA_pc_C_ulSeekEnd : SNA_pc_C_ulSeekCurrent;
-    }
-#ifndef RAYMAN2_NO_PROTECTION   /* flag bit 2: SetFilePointer through a code-pool stub */
-    if (SNA_pc_bGetFlagBit2(_p_stFile) != 0) {
-
-        hFile = p_stStream->hFile;
-        MMG_pc_M_vStepLcg();
-        p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
-        MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpSetFilePointer, 0x50, 0xC3);
-        MMG_pc_M_vFlushPool(hProcess);
-        dwResult = ((DWORD (__stdcall *)(HANDLE, LONG, PLONG, DWORD))p_ucStub)(
-            hFile, _lDistance, NULL, ulOrigin);
-        for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-            MMG_pc_M_vStepLcg();
-            *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-        }
-        return dwResult;
-    }
-#endif /* RAYMAN2_NO_PROTECTION */
-    return SNA_pc_M_ulSeekFile(p_stStream->hFile, _lDistance, ulOrigin);
-}

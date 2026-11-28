@@ -43,83 +43,6 @@ unsigned char __cdecl IPT_fn_bIsJustInvalidated(struct IPT_tdstEntryElement_ *_h
 /* 0x00480950 */
 extern AI_tdstNodeInterpret *__cdecl fn_p_stSwapNextParameter(AI_tdstNodeInterpret *p_stTree);
 
-/* 0x00489B40 */
-AI_tdstNodeInterpret *__cdecl fn_p_stBooleanCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stValue;
-    unsigned long      eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-
-    p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
-    *p_lValue = M_GetSetParam_lValue(&stValue);
-
-    switch (eCondId)
-    {
-    case eCond_Et:
-        if (*p_lValue == FALSE)
-        {
-
-            if (AI_M_NodeToSkip(p_stTree))
-            {
-                p_stTree += AI_M_NodeToSkip(p_stTree);
-            }
-            else
-            {
-                AI_tdstNodeInterpret *p_stTreeInit = p_stTree;
-                p_stTree = fn_p_stSwapNextParameter(p_stTree);
-                AI_M_NodeToSkip(p_stTreeInit) = (unsigned short)(p_stTree - p_stTreeInit);
-            }
-        }
-        else
-        {
-
-            p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
-            *p_lValue = M_GetSetParam_lValue(&stValue);
-        }
-        return p_stTree;
-
-    case eCond_Ou:
-        if (*p_lValue != FALSE)
-        {
-            if (AI_M_NodeToSkip(p_stTree))
-            {
-                p_stTree += AI_M_NodeToSkip(p_stTree);
-            }
-            else
-            {
-                AI_tdstNodeInterpret *p_stTreeInit = p_stTree;
-                p_stTree = fn_p_stSwapNextParameter(p_stTree);
-                AI_M_NodeToSkip(p_stTreeInit) = (unsigned short)(p_stTree - p_stTreeInit);
-            }
-        }
-        else
-        {
-            p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
-            *p_lValue = M_GetSetParam_lValue(&stValue);
-        }
-        return p_stTree;
-
-    case eCond_Not:
-        *p_lValue = (long)((*p_lValue == FALSE) ? TRUE : FALSE);
-        return p_stTree;
-
-    case eCond_XOr:
-        {
-            long l1 = *p_lValue;
-            p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
-
-            *p_lValue = (l1 ^ *p_lValue) ? TRUE : FALSE;
-            return p_stTree;
-        }
-
-    default:
-        break;
-    }
-
-    *p_lValue = (long)FALSE;
-    return p_stTree;
-}
-
 /* 0x00489830 */
 AI_tdstNodeInterpret *__cdecl fn_p_stComparisonCondition(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
@@ -242,6 +165,83 @@ AI_tdstNodeInterpret *__cdecl fn_p_stComparisonCondition(
     return(p_stTree);
 }
 
+/* 0x00489B40 */
+AI_tdstNodeInterpret *__cdecl fn_p_stBooleanCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stValue;
+    unsigned long      eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+
+    p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
+    *p_lValue = M_GetSetParam_lValue(&stValue);
+
+    switch (eCondId)
+    {
+    case eCond_Et:
+        if (*p_lValue == FALSE)
+        {
+
+            if (AI_M_NodeToSkip(p_stTree))
+            {
+                p_stTree += AI_M_NodeToSkip(p_stTree);
+            }
+            else
+            {
+                AI_tdstNodeInterpret *p_stTreeInit = p_stTree;
+                p_stTree = fn_p_stSwapNextParameter(p_stTree);
+                AI_M_NodeToSkip(p_stTreeInit) = (unsigned short)(p_stTree - p_stTreeInit);
+            }
+        }
+        else
+        {
+
+            p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
+            *p_lValue = M_GetSetParam_lValue(&stValue);
+        }
+        return p_stTree;
+
+    case eCond_Ou:
+        if (*p_lValue != FALSE)
+        {
+            if (AI_M_NodeToSkip(p_stTree))
+            {
+                p_stTree += AI_M_NodeToSkip(p_stTree);
+            }
+            else
+            {
+                AI_tdstNodeInterpret *p_stTreeInit = p_stTree;
+                p_stTree = fn_p_stSwapNextParameter(p_stTree);
+                AI_M_NodeToSkip(p_stTreeInit) = (unsigned short)(p_stTree - p_stTreeInit);
+            }
+        }
+        else
+        {
+            p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
+            *p_lValue = M_GetSetParam_lValue(&stValue);
+        }
+        return p_stTree;
+
+    case eCond_Not:
+        *p_lValue = (long)((*p_lValue == FALSE) ? TRUE : FALSE);
+        return p_stTree;
+
+    case eCond_XOr:
+        {
+            long l1 = *p_lValue;
+            p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
+
+            *p_lValue = (l1 ^ *p_lValue) ? TRUE : FALSE;
+            return p_stTree;
+        }
+
+    default:
+        break;
+    }
+
+    *p_lValue = (long)FALSE;
+    return p_stTree;
+}
+
 /* 0x00489C80 */
 AI_tdstNodeInterpret *__cdecl fn_p_stButtonCondition(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
@@ -267,79 +267,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stButtonCondition(
 
 #define AI_g_ulCurrentTimerCount GAM_g_ulAccumulatedTime  /* 0x5003EC */
 
-/* 0x0048A840 */
-AI_tdstNodeInterpret *__cdecl fn_p_stTimeCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stParam;
-    unsigned long      ulSavedTime, ulDeltaTime, ulLimitDeltaTime;
-    unsigned long      ulCurrentTime = AI_g_ulCurrentTimerCount;
-
-    p_stTree    = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    ulSavedTime = stParam.uParam.ulValue;
-
-    p_stTree         = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    ulLimitDeltaTime = stParam.uParam.ulValue;
-
-    if (ulCurrentTime >= ulSavedTime)
-        ulDeltaTime = ulCurrentTime - ulSavedTime;
-    else
-        ulDeltaTime = ulSavedTime - ulCurrentTime;
-
-    *p_lValue = (ulDeltaTime >= ulLimitDeltaTime);
-    return p_stTree;
-}
-
-/* 0x0048A8A0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stValidityCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stParam;
-    unsigned long      eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-
-    switch (eCondId)
-    {
-    case eCond_IsValidText:
-        *p_lValue = (long)(stParam.uParam.lValue != -1);
-        return p_stTree;
-
-    case eCond_IsValidObject:
-        {
-            struct tdstEngineObject_ *hObject = (struct tdstEngineObject_ *)stParam.uParam.p_stEngObjValue;
-            unsigned char            *p_ucStdGame;
-            *p_lValue = (long)(    (hObject != NULL)
-                                && ((p_ucStdGame = (unsigned char *)hObject->h_StandardGame) != NULL)
-                                && ((p_ucStdGame[0x29] & 1) == 0) );
-        }
-        return p_stTree;
-
-    case eCond_IsValidWayPoint:
-    case eCond_IsValidGMT:
-    case eCond_IsValidAction:
-        *p_lValue = (long)(stParam.uParam.lValue != 0);
-        return p_stTree;
-
-    default:
-        break;
-    }
-    *p_lValue = (long)FALSE;
-    return p_stTree;
-}
-
-/* 0x0048AE60 */
-AI_tdstNodeInterpret *__cdecl fn_p_st_HandledCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stParam;
-
-    p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    *p_lValue = (long)M_ObjectIsAlreadyTreated(
-                    (struct tdstEngineObject_ *)stParam.uParam.p_stEngObjValue);
-    return p_stTree;
-}
-
 unsigned char __cdecl fn_ucGetConditionUltraOperator(unsigned long eCondId);
 #define AI_M_pfn_fn_ucGetConditionUltraOperator  fn_ucGetConditionUltraOperator
 
@@ -348,63 +275,10 @@ unsigned char __cdecl fn_ucGetConditionUltraOperator(unsigned long eCondId);
         ? (struct tdstEngineObject_ *)0 \
         : (struct tdstEngineObject_ *)(p_stSO)->hLinkedObject.p_Void)
 
-/* 0x0048AE10 */
-AI_tdstNodeInterpret *__cdecl fn_p_st_ActivationCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-    *p_lValue = (long)M_ObjectIsActivable(AI_M_GetEngineObject(hNewSuperObjPerso));
-    return p_stTree;
-}
-
 #define AI_M_pfn_fn_pstGetDNMReport fn_pstGetDNMReport
 
-/* 0x004897B0 */
-ACP_tdxBool __cdecl fn_bTestTypeOfGameMaterial(GMT_tdxHandleToGameMaterial hGameMat,
-                                               GMT_tdxMask xTestMask)
-{
-    GMT_tdxHandleToCollideMaterial hCollMat;
-    GMT_tdxMask                    xCollMask;
-
-    if (!GMT_fn_b_ulIsValid(hGameMat))
-        return FALSE;
-    hCollMat = GMT_fn_hGetCollideMaterial(hGameMat);
-    if (hCollMat == (GMT_tdxHandleToCollideMaterial)GMT_C_InvalidCollideMaterial)
-        return FALSE;
-    xCollMask = GMT_fn_hGetCollideMaterialIdentifier(hCollMat);
-    return ((xCollMask & xTestMask) == xTestMask);
-}
+ACP_tdxBool __cdecl fn_bTestTypeOfGameMaterial(GMT_tdxHandleToGameMaterial hGameMat, GMT_tdxMask xTestMask);
 #define AI_M_pfn_fn_bTestTypeOfGameMaterial fn_bTestTypeOfGameMaterial
-
-/* 0x0048B000 */
-AI_tdstNodeInterpret *__cdecl AI_fn_p_st_pc_ReportSurfaceMaterialCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stParam;
-    long               eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    DNM_tdstReport    *p_stDynamReport;
-    unsigned long      ulSurfState;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-
-    p_stDynamReport = AI_M_pfn_fn_pstGetDNMReport(p_SuperObjPerso);
-    if (p_stDynamReport == NULL) { *p_lValue = (long)FALSE; return p_stTree; }
-
-    ulSurfState = DNM_M_ulReportGetSurfaceState(p_stDynamReport);
-    *p_lValue = (long)FALSE;
-    switch (eCondId)
-    {
-    case 0x3d: if (ulSurfState == 0)           return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetObstacle(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
-    case 0x3e: if ((ulSurfState & 0x04) == 0)  return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetWall(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
-    case 0x3f: if ((ulSurfState & 0x01) == 0)  return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
-    case 0x40: if ((ulSurfState & 0x10) == 0)  return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetCeil(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
-    default:   return p_stTree;
-    }
-}
 
 #define C_WOT_ulNoObstacle         0x00000000
 #define C_WOT_ulGround             0x00000001
@@ -418,119 +292,12 @@ AI_tdstNodeInterpret *__cdecl AI_fn_p_st_pc_ReportSurfaceMaterialCondition(
 #define eCond_ZDMCollideWithNothing  0x24
 #define eCond_ZDMCollideWithCeiling  0x25
 
-/* 0x0048A4F0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stReportOnZDMSurfaceCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam   stParam;
-    DNM_tdstReport      *p_stDynamReport;
-    unsigned long        ulSurfState;
-    GMT_tdxMask          xTestMask;
-    long                 eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    fn_vGetUltraOperatorPerso(fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    if ((p_stDynamReport = fn_pstGetDNMReport(hNewSuperObjPerso)) == NULL)
-    {
-        *p_lValue = (long)FALSE;
-        return p_stTree;
-    }
-
-    ulSurfState = DNM_M_ulReportGetSurfaceState(p_stDynamReport);
-
-    M_EvalNextParameter(&stParam);
-    xTestMask = (GMT_tdxMask) M_GetSetParam_xMaskValue(&stParam);
-
-    switch (eCondId)
-    {
-    case eCond_ZDMCollideWithGround:
-        if ((ulSurfState & C_WOT_ulGround) == C_WOT_ulGround)
-            *p_lValue = (long)fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), xTestMask);
-        else
-            *p_lValue = (long)FALSE;
-        return p_stTree;
-        break;
-
-#if !defined(_AI_EXCLUDE_NEVER_USED_)
-    case eCond_ZDMCollideWithWall:
-        if ((ulSurfState & C_WOT_ulWall) == C_WOT_ulWall)
-            *p_lValue = (long)fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetWall(p_stDynamReport)), xTestMask);
-        else
-            *p_lValue = (long)FALSE;
-        return p_stTree;
-        break;
-
-    case eCond_ZDMCollideWithNothing:
-        if (ulSurfState != C_WOT_ulNoObstacle)
-        {
-            if (   ((ulSurfState & C_WOT_ulGround) == C_WOT_ulGround)
-                  )
-                *p_lValue = (long)!fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), xTestMask);
-            else if (   ((ulSurfState & C_WOT_ulWall) == C_WOT_ulWall)   )
-                *p_lValue = (long)!fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetWall(p_stDynamReport)), xTestMask);
-      else if ((ulSurfState & C_WOT_ulCeiling) == C_WOT_ulCeiling)
-                *p_lValue = (long)!fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetCeil(p_stDynamReport)), xTestMask);
-            else
-                *p_lValue = (long)TRUE;
-        }
-        else
-            *p_lValue = (long)TRUE;
-        return p_stTree;
-        break;
-
-    case eCond_ZDMCollideWithCeiling:
-        if ((ulSurfState & C_WOT_ulCeiling) == C_WOT_ulCeiling)
-            *p_lValue = (long)fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetCeil(p_stDynamReport)), xTestMask);
-        else
-            *p_lValue = (long)FALSE;
-        return p_stTree;
-        break;
-#endif
-
-    default:
-        break;
-    }
-    *p_lValue = (long) FALSE;
-    return p_stTree;
-}
-
 #define eCond_CollideWithGround    0x1b
 #define eCond_CollideWithWall      0x1c
 #define eCond_CollideWithNothing   0x1d
 #define eCond_CollideWithCeiling   0x1e
 #define eCond_CollideWithPerso     0x1f
 #define eCond_CollideWithWater     0x20
-
-/* 0x0048A330 */
-AI_tdstNodeInterpret *__cdecl fn_p_stReportOnSurfaceCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    DNM_tdstReport      *p_stDynamReport;
-    unsigned long        ulSurfState;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    p_stDynamReport = AI_M_pfn_fn_pstGetDNMReport(hNewSuperObjPerso);
-    if (p_stDynamReport == NULL) { *p_lValue = (long)FALSE; return p_stTree; }
-
-    ulSurfState = DNM_M_ulReportGetSurfaceState(p_stDynamReport);
-    switch (eCondId)
-    {
-    case eCond_CollideWithGround:  *p_lValue = (long)((ulSurfState & C_WOT_ulGround)  == C_WOT_ulGround);  return p_stTree;
-    case eCond_CollideWithWall:    *p_lValue = (long)((ulSurfState & C_WOT_ulWall)    == C_WOT_ulWall);    return p_stTree;
-    case eCond_CollideWithNothing: *p_lValue = (long)(ulSurfState == C_WOT_ulNoObstacle);                  return p_stTree;
-    case eCond_CollideWithCeiling: *p_lValue = (long)((ulSurfState & C_WOT_ulCeiling) == C_WOT_ulCeiling); return p_stTree;
-    case eCond_CollideWithPerso:   *p_lValue = (long)((ulSurfState & C_WOT_ulMobile)  == C_WOT_ulMobile);  return p_stTree;
-    case eCond_CollideWithWater:   *p_lValue = (long)((ulSurfState & C_WOT_ulWater)   == C_WOT_ulWater);   return p_stTree;
-    default:                       break;
-    }
-    *p_lValue = (long)FALSE;
-    return p_stTree;
-}
 
 #define AI_ZDX_CHARACTER  0
 #define AI_ZDX_MODULE     1
@@ -831,6 +598,36 @@ AI_tdstNodeInterpret *__cdecl fn_p_stZDECondition(
     return p_stTree;
 }
 
+/* 0x0048A330 */
+AI_tdstNodeInterpret *__cdecl fn_p_stReportOnSurfaceCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    DNM_tdstReport      *p_stDynamReport;
+    unsigned long        ulSurfState;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    p_stDynamReport = AI_M_pfn_fn_pstGetDNMReport(hNewSuperObjPerso);
+    if (p_stDynamReport == NULL) { *p_lValue = (long)FALSE; return p_stTree; }
+
+    ulSurfState = DNM_M_ulReportGetSurfaceState(p_stDynamReport);
+    switch (eCondId)
+    {
+    case eCond_CollideWithGround:  *p_lValue = (long)((ulSurfState & C_WOT_ulGround)  == C_WOT_ulGround);  return p_stTree;
+    case eCond_CollideWithWall:    *p_lValue = (long)((ulSurfState & C_WOT_ulWall)    == C_WOT_ulWall);    return p_stTree;
+    case eCond_CollideWithNothing: *p_lValue = (long)(ulSurfState == C_WOT_ulNoObstacle);                  return p_stTree;
+    case eCond_CollideWithCeiling: *p_lValue = (long)((ulSurfState & C_WOT_ulCeiling) == C_WOT_ulCeiling); return p_stTree;
+    case eCond_CollideWithPerso:   *p_lValue = (long)((ulSurfState & C_WOT_ulMobile)  == C_WOT_ulMobile);  return p_stTree;
+    case eCond_CollideWithWater:   *p_lValue = (long)((ulSurfState & C_WOT_ulWater)   == C_WOT_ulWater);   return p_stTree;
+    default:                       break;
+    }
+    *p_lValue = (long)FALSE;
+    return p_stTree;
+}
+
 #define eCond_CmtIdentifierContainsMask  0x41
 #define eCond_HitByCollider              0x42
 #define eCond_IsTypeOfGMTCollide         0x43
@@ -843,16 +640,7 @@ AI_tdstNodeInterpret *__cdecl fn_p_stZDECondition(
 #define AI_g_eEngineMode      (*(unsigned char *)(GAM_ENGINE_BASE + 0x0))
 #define AI_EM_ModePlaying     9
 
-/* 0x00489800 */
-ACP_tdxBool __cdecl fn_bIsTypeOfGMT(HIE_tdstSuperObject *p_SuperObjPerso, GMT_tdxMask xTestMask)
-{
-    DNM_tdstReport *p_stDynamReport;
-
-    p_stDynamReport = fn_pstGetDNMReport(p_SuperObjPerso);
-    if (p_stDynamReport == NULL)
-        return FALSE;
-    return fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), xTestMask);
-}
+ACP_tdxBool __cdecl fn_bIsTypeOfGMT(HIE_tdstSuperObject *p_SuperObjPerso, GMT_tdxMask xTestMask);
 #define AI_M_pfn_fn_bIsTypeOfGMT fn_bIsTypeOfGMT
 
 /* 0x0040FF10 */
@@ -865,6 +653,145 @@ extern unsigned short __cdecl fn_uwGetNbEngineFrameSinceLastMechEvent(HIE_tdstSu
 #define AI_LME_INVALID  0xffff
 
 #include "AI/Brain.h"
+
+#define AI_M_pfn_GAM_fn_bIsCharacterActive GAM_fn_bIsCharacterActive
+
+#define eCond_IsPersoActive  0x4c
+
+/* 0x410310 */
+extern long __cdecl PLA_fn_bTestIfEndOfAnim(HIE_tdstSuperObject *p_stSuperObject);
+extern long __cdecl PLA_fn_bTestCurrentAction(HIE_tdstSuperObject *p_stSuperObject,
+                                              void *h_FirstStateOfAction);
+#define AI_M_pfn_PLA_fn_bTestIfEndOfAnim    PLA_fn_bTestIfEndOfAnim
+#define AI_M_pfn_PLA_fn_bTestCurrentAction  PLA_fn_bTestCurrentAction
+
+extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
+#define AI_M_pfn_M_AIFatalError(uwError) \
+    fn_vOnAIErm_M_UpdateLastError((unsigned short)(uwError), (char *)0)
+#define AI_E_uwAIFatalNotValidCondition  0x2b
+
+#define eCond_IsInAction      0x46
+#define eCond_CheckActionEnd  0x4d
+#define eCond_CheckAnimEnd    0x6a
+
+#define AI_M_pfn_fn_bFindPersoInList  fn_bFindPersoInList
+#define AI_M_pfn_fn_bFindModelInList  fn_bFindModelInList
+#define AI_M_pfn_fn_bFindFamilyInList fn_bFindFamilyInList
+
+#define AI_M_GetSetParam_Dsg_List(p)  ((void *)(p)->uParam.lValue)
+
+#define AI_M_bListEmptyTest(p_vList)  (*(unsigned char *)(p_vList) == 0)
+
+#define eCond_IsPersoInList   0x26
+#define eCond_IsModelInList   0x27
+#define eCond_IsFamilyInList  0x28
+#define eCond_ListEmptyTest   0x29
+
+/* 0x0048A6F0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stListCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stParam1, stParam2;
+    unsigned long      eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+
+    switch (eCondId)
+    {
+    case eCond_IsPersoInList:
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
+        *p_lValue = (long)(signed char)AI_M_pfn_fn_bFindPersoInList(
+                        AI_M_GetSetParam_Dsg_List(&stParam1),
+                        AI_M_GetSetParam_p_stSupObjValue(&stParam2));
+        return p_stTree;
+
+    case eCond_IsModelInList:
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
+        *p_lValue = (long)(signed char)AI_M_pfn_fn_bFindModelInList(
+                        AI_M_GetSetParam_Dsg_List(&stParam1),
+                        (void *)M_GetSetParam_lValue(&stParam2));
+        return p_stTree;
+
+    case eCond_IsFamilyInList:
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
+        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
+        *p_lValue = (long)(signed char)AI_M_pfn_fn_bFindFamilyInList(
+                        AI_M_GetSetParam_Dsg_List(&stParam1),
+                        (void *)M_GetSetParam_lValue(&stParam2));
+        return p_stTree;
+
+    case eCond_ListEmptyTest:
+        p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
+        *p_lValue = (long)AI_M_bListEmptyTest(AI_M_GetSetParam_Dsg_List(&stParam1));
+        return p_stTree;
+
+    default:
+        break;
+    }
+    *p_lValue = (long)FALSE;
+    return p_stTree;
+}
+
+/* 0x0048A840 */
+AI_tdstNodeInterpret *__cdecl fn_p_stTimeCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stParam;
+    unsigned long      ulSavedTime, ulDeltaTime, ulLimitDeltaTime;
+    unsigned long      ulCurrentTime = AI_g_ulCurrentTimerCount;
+
+    p_stTree    = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    ulSavedTime = stParam.uParam.ulValue;
+
+    p_stTree         = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    ulLimitDeltaTime = stParam.uParam.ulValue;
+
+    if (ulCurrentTime >= ulSavedTime)
+        ulDeltaTime = ulCurrentTime - ulSavedTime;
+    else
+        ulDeltaTime = ulSavedTime - ulCurrentTime;
+
+    *p_lValue = (ulDeltaTime >= ulLimitDeltaTime);
+    return p_stTree;
+}
+
+/* 0x0048A8A0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stValidityCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stParam;
+    unsigned long      eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+
+    switch (eCondId)
+    {
+    case eCond_IsValidText:
+        *p_lValue = (long)(stParam.uParam.lValue != -1);
+        return p_stTree;
+
+    case eCond_IsValidObject:
+        {
+            struct tdstEngineObject_ *hObject = (struct tdstEngineObject_ *)stParam.uParam.p_stEngObjValue;
+            unsigned char            *p_ucStdGame;
+            *p_lValue = (long)(    (hObject != NULL)
+                                && ((p_ucStdGame = (unsigned char *)hObject->h_StandardGame) != NULL)
+                                && ((p_ucStdGame[0x29] & 1) == 0) );
+        }
+        return p_stTree;
+
+    case eCond_IsValidWayPoint:
+    case eCond_IsValidGMT:
+    case eCond_IsValidAction:
+        *p_lValue = (long)(stParam.uParam.lValue != 0);
+        return p_stTree;
+
+    default:
+        break;
+    }
+    *p_lValue = (long)FALSE;
+    return p_stTree;
+}
 
 /* 0x0048A950 */
 AI_tdstNodeInterpret *__cdecl fn_p_stMiscCondition(
@@ -981,137 +908,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMiscCondition(
     return p_stTree;
 }
 
-#define AI_M_pfn_GAM_fn_bIsCharacterActive GAM_fn_bIsCharacterActive
-
-#define eCond_IsPersoActive  0x4c
-
-/* 0x0048B920 */
-AI_tdstNodeInterpret *__cdecl fn_p_stIsPersoActive(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stParam;
-    void              *p_stEngineObj;
-
-    p_stTree      = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    p_stEngineObj = stParam.uParam.p_stEngObjValue;
-
-    if (((struct tdstEngineObject_ *)p_stEngineObj)->h_StandardGame != (void *)0)
-    {
-        HIE_tdstSuperObject *hPerso = AI_M_GetSetParam_p_stSupObjValue(&stParam);
-        *p_lValue = (long)(AI_M_pfn_GAM_fn_bIsCharacterActive(hPerso) & 0xff);
-    }
-    else
-        *p_lValue = (long)0;
-
-    return p_stTree;
-}
-
-/* 0x410310 */
-extern long __cdecl PLA_fn_bTestIfEndOfAnim(HIE_tdstSuperObject *p_stSuperObject);
-extern long __cdecl PLA_fn_bTestCurrentAction(HIE_tdstSuperObject *p_stSuperObject,
-                                              void *h_FirstStateOfAction);
-#define AI_M_pfn_PLA_fn_bTestIfEndOfAnim    PLA_fn_bTestIfEndOfAnim
-#define AI_M_pfn_PLA_fn_bTestCurrentAction  PLA_fn_bTestCurrentAction
-
-extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
-#define AI_M_pfn_M_AIFatalError(uwError) \
-    fn_vOnAIErm_M_UpdateLastError((unsigned short)(uwError), (char *)0)
-#define AI_E_uwAIFatalNotValidCondition  0x2b
-
-#define eCond_IsInAction      0x46
-#define eCond_CheckActionEnd  0x4d
-#define eCond_CheckAnimEnd    0x6a
-
-/* 0x0048B620 */
-AI_tdstNodeInterpret *__cdecl fn_p_stCheckAnimEnd(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    AI_tdstGetSetParam   stParam;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    switch (eCondId)
-    {
-    case eCond_IsInAction:
-
-        p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-        *p_lValue = (long)AI_M_pfn_PLA_fn_bTestCurrentAction(
-                               hNewSuperObjPerso, (void *)M_GetSetParam_lValue(&stParam));
-        return p_stTree;
-    case eCond_CheckActionEnd:
-        *p_lValue = (long)PLA_fn_bTestIfEndOfAction(hNewSuperObjPerso);
-        return p_stTree;
-    case eCond_CheckAnimEnd:
-        *p_lValue = (long)AI_M_pfn_PLA_fn_bTestIfEndOfAnim(hNewSuperObjPerso);
-        return p_stTree;
-    default:
-
-        AI_M_pfn_M_AIFatalError(AI_E_uwAIFatalNotValidCondition);
-        return p_stTree;
-    }
-}
-
-#define AI_M_pfn_fn_bFindPersoInList  fn_bFindPersoInList
-#define AI_M_pfn_fn_bFindModelInList  fn_bFindModelInList
-#define AI_M_pfn_fn_bFindFamilyInList fn_bFindFamilyInList
-
-#define AI_M_GetSetParam_Dsg_List(p)  ((void *)(p)->uParam.lValue)
-
-#define AI_M_bListEmptyTest(p_vList)  (*(unsigned char *)(p_vList) == 0)
-
-#define eCond_IsPersoInList   0x26
-#define eCond_IsModelInList   0x27
-#define eCond_IsFamilyInList  0x28
-#define eCond_ListEmptyTest   0x29
-
-/* 0x0048A6F0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stListCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    AI_tdstGetSetParam stParam1, stParam2;
-    unsigned long      eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-
-    switch (eCondId)
-    {
-    case eCond_IsPersoInList:
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
-        *p_lValue = (long)(signed char)AI_M_pfn_fn_bFindPersoInList(
-                        AI_M_GetSetParam_Dsg_List(&stParam1),
-                        AI_M_GetSetParam_p_stSupObjValue(&stParam2));
-        return p_stTree;
-
-    case eCond_IsModelInList:
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
-        *p_lValue = (long)(signed char)AI_M_pfn_fn_bFindModelInList(
-                        AI_M_GetSetParam_Dsg_List(&stParam1),
-                        (void *)M_GetSetParam_lValue(&stParam2));
-        return p_stTree;
-
-    case eCond_IsFamilyInList:
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
-        p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam2);
-        *p_lValue = (long)(signed char)AI_M_pfn_fn_bFindFamilyInList(
-                        AI_M_GetSetParam_Dsg_List(&stParam1),
-                        (void *)M_GetSetParam_lValue(&stParam2));
-        return p_stTree;
-
-    case eCond_ListEmptyTest:
-        p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam1);
-        *p_lValue = (long)AI_M_bListEmptyTest(AI_M_GetSetParam_Dsg_List(&stParam1));
-        return p_stTree;
-
-    default:
-        break;
-    }
-    *p_lValue = (long)FALSE;
-    return p_stTree;
-}
-
 extern unsigned char __cdecl fn_ucMSLightGetOnOff(void *h_MSLight);
 extern unsigned char __cdecl fn_bMSLightGetPulse(void *h_MSLight);
 extern unsigned char __cdecl fn_bMSLightGetGiroPhare(void *h_MSLight);
@@ -1122,41 +918,6 @@ extern unsigned char __cdecl fn_bMSLightGetGiroPhare(void *h_MSLight);
 #define eCond_IsPersoLightOn           0x3a
 #define eCond_IsPersoLightPulseOn      0x3b
 #define eCond_IsPersoLightGyroPhareOn  0x3c
-
-/* 0x0048AD90 */
-AI_tdstNodeInterpret *__cdecl fn_p_stLightCondition(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    void                *h_MSLight;
-    long                 lValue = (long)FALSE;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    h_MSLight = AI_M_GetEngineObject(hNewSuperObjPerso)->h_MSLight;
-    if (h_MSLight != (void *)0)
-    {
-        switch (eCondId)
-        {
-        case eCond_IsPersoLightOn:
-            lValue = (long)(AI_M_pfn_fn_ucMSLightGetOnOff(h_MSLight) & 0xff);
-            break;
-        case eCond_IsPersoLightPulseOn:
-            lValue = (long)(AI_M_pfn_fn_bMSLightGetPulse(h_MSLight) & 0xff);
-            break;
-        case eCond_IsPersoLightGyroPhareOn:
-            lValue = (long)(AI_M_pfn_fn_bMSLightGetGiroPhare(h_MSLight) & 0xff);
-            break;
-        default:
-            break;
-        }
-    }
-
-    *p_lValue = lValue;
-    return p_stTree;
-}
 
 /* 0x00482A00 */
 void __cdecl fn_vGetCenterOfBoundingVolume(HIE_tdstSuperObject *hPerso, MTH3D_tdstVector *p_stVertex);
@@ -1253,6 +1014,66 @@ AI_tdstNodeInterpret *__cdecl fn_p_stSectorCondition(
     }
 }
 
+/* 0x0048AD90 */
+AI_tdstNodeInterpret *__cdecl fn_p_stLightCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    void                *h_MSLight;
+    long                 lValue = (long)FALSE;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    h_MSLight = AI_M_GetEngineObject(hNewSuperObjPerso)->h_MSLight;
+    if (h_MSLight != (void *)0)
+    {
+        switch (eCondId)
+        {
+        case eCond_IsPersoLightOn:
+            lValue = (long)(AI_M_pfn_fn_ucMSLightGetOnOff(h_MSLight) & 0xff);
+            break;
+        case eCond_IsPersoLightPulseOn:
+            lValue = (long)(AI_M_pfn_fn_bMSLightGetPulse(h_MSLight) & 0xff);
+            break;
+        case eCond_IsPersoLightGyroPhareOn:
+            lValue = (long)(AI_M_pfn_fn_bMSLightGetGiroPhare(h_MSLight) & 0xff);
+            break;
+        default:
+            break;
+        }
+    }
+
+    *p_lValue = lValue;
+    return p_stTree;
+}
+
+/* 0x0048AE10 */
+AI_tdstNodeInterpret *__cdecl fn_p_st_ActivationCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+    *p_lValue = (long)M_ObjectIsActivable(AI_M_GetEngineObject(hNewSuperObjPerso));
+    return p_stTree;
+}
+
+/* 0x0048AE60 */
+AI_tdstNodeInterpret *__cdecl fn_p_st_HandledCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stParam;
+
+    p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    *p_lValue = (long)M_ObjectIsAlreadyTreated(
+                    (struct tdstEngineObject_ *)stParam.uParam.p_stEngObjValue);
+    return p_stTree;
+}
+
 #define AI_M_pfn_fn_ucIsAlwaysGeneratedByMe fn_ucIsAlwaysGeneratedByMe
 
 #define eCond_Alw_IsMine  0x39
@@ -1279,75 +1100,39 @@ AI_tdstNodeInterpret *__cdecl fn_p_stAlw_IsMine(
     return p_stTree;
 }
 
+/* 0x0048B000 */
+AI_tdstNodeInterpret *__cdecl AI_fn_p_st_pc_ReportSurfaceMaterialCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stParam;
+    long               eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    DNM_tdstReport    *p_stDynamReport;
+    unsigned long      ulSurfState;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+
+    p_stDynamReport = AI_M_pfn_fn_pstGetDNMReport(p_SuperObjPerso);
+    if (p_stDynamReport == NULL) { *p_lValue = (long)FALSE; return p_stTree; }
+
+    ulSurfState = DNM_M_ulReportGetSurfaceState(p_stDynamReport);
+    *p_lValue = (long)FALSE;
+    switch (eCondId)
+    {
+    case 0x3d: if (ulSurfState == 0)           return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetObstacle(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
+    case 0x3e: if ((ulSurfState & 0x04) == 0)  return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetWall(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
+    case 0x3f: if ((ulSurfState & 0x01) == 0)  return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
+    case 0x40: if ((ulSurfState & 0x10) == 0)  return p_stTree; *p_lValue = (long)(AI_M_pfn_fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetCeil(p_stDynamReport)), stParam.uParam.lValue) & 0xff); return p_stTree;
+    default:   return p_stTree;
+    }
+}
+
 /* 0x00419B90 */
 extern void *__cdecl fn_p_stDynamGetDynamics(void *h_Dynam);
 #define AI_M_pfn_fn_p_stDynamGetDynamics  fn_p_stDynamGetDynamics
 
 #define eCond_HierIsSonOfActor  0x68
 
-/* 0x0048B6E0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stHierarchySon(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    AI_tdstGetSetParam   stParam;
-    HIE_tdstSuperObject *hFather;
-    HIE_tdstSuperObject *hChild;
-    int                  i;
-    DNM_tdstDynamics    *pstDynamic;
-    void                *h_Dynam;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-    *p_lValue = (long)FALSE;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    hFather  = (HIE_tdstSuperObject *)AI_M_GetSetParam_p_stSupObjValue(&stParam);
-
-    h_Dynam = ((struct tdstEngineObject_ *)(HIE_fn_hGetSuperObjectObject(hNewSuperObjPerso)))->h_Dynam;
-    if (h_Dynam != (void *)0)
-    {
-        pstDynamic = (DNM_tdstDynamics *)AI_M_pfn_fn_p_stDynamGetDynamics(h_Dynam);
-        if (DNM_M_bDynamicsIsComplexSize(pstDynamic))
-        {
-            if (DNM_M_hDynamicsGetPlatformSO(pstDynamic) == hFather)
-                *p_lValue = (long)TRUE;
-            return p_stTree;
-        }
-    }
-
-    HIE_M_ForEachChildOf(hFather, hChild, i)
-    {
-        if (hChild == hNewSuperObjPerso)
-        {
-            *p_lValue = (long)TRUE;
-            return p_stTree;
-        }
-    }
-
-    return p_stTree;
-}
-
 #define eCond_IsMorphing  0x69
-
-/* 0x00488100 */
-AI_tdstNodeInterpret *__cdecl fn_p_stIsMorphing(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
-{
-    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    AI_tdstGetSetParam   stValue;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
-    *p_lValue = (long)(MOR_fn_bIsChannelMorphed(
-                           p_SuperObjPerso, M_GetSetParam_lValue(&stValue)) & 0xff);
-
-    return p_stTree;
-}
 
 #define AI_MTH_C_EpsilonPlus  1.0e-5f
 
@@ -1493,6 +1278,82 @@ AI_tdstNodeInterpret *__cdecl fn_p_stMechanicOption(
     return p_stTree;
 }
 
+/* 0x0048B620 */
+AI_tdstNodeInterpret *__cdecl fn_p_stCheckAnimEnd(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    AI_tdstGetSetParam   stParam;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    switch (eCondId)
+    {
+    case eCond_IsInAction:
+
+        p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+        *p_lValue = (long)AI_M_pfn_PLA_fn_bTestCurrentAction(
+                               hNewSuperObjPerso, (void *)M_GetSetParam_lValue(&stParam));
+        return p_stTree;
+    case eCond_CheckActionEnd:
+        *p_lValue = (long)PLA_fn_bTestIfEndOfAction(hNewSuperObjPerso);
+        return p_stTree;
+    case eCond_CheckAnimEnd:
+        *p_lValue = (long)AI_M_pfn_PLA_fn_bTestIfEndOfAnim(hNewSuperObjPerso);
+        return p_stTree;
+    default:
+
+        AI_M_pfn_M_AIFatalError(AI_E_uwAIFatalNotValidCondition);
+        return p_stTree;
+    }
+}
+
+/* 0x0048B6E0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stHierarchySon(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    AI_tdstGetSetParam   stParam;
+    HIE_tdstSuperObject *hFather;
+    HIE_tdstSuperObject *hChild;
+    int                  i;
+    DNM_tdstDynamics    *pstDynamic;
+    void                *h_Dynam;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+    *p_lValue = (long)FALSE;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    hFather  = (HIE_tdstSuperObject *)AI_M_GetSetParam_p_stSupObjValue(&stParam);
+
+    h_Dynam = ((struct tdstEngineObject_ *)(HIE_fn_hGetSuperObjectObject(hNewSuperObjPerso)))->h_Dynam;
+    if (h_Dynam != (void *)0)
+    {
+        pstDynamic = (DNM_tdstDynamics *)AI_M_pfn_fn_p_stDynamGetDynamics(h_Dynam);
+        if (DNM_M_bDynamicsIsComplexSize(pstDynamic))
+        {
+            if (DNM_M_hDynamicsGetPlatformSO(pstDynamic) == hFather)
+                *p_lValue = (long)TRUE;
+            return p_stTree;
+        }
+    }
+
+    HIE_M_ForEachChildOf(hFather, hChild, i)
+    {
+        if (hChild == hNewSuperObjPerso)
+        {
+            *p_lValue = (long)TRUE;
+            return p_stTree;
+        }
+    }
+
+    return p_stTree;
+}
+
 #define AI_M_pfn_fn_ulGetCapabilities \
     ((unsigned long (__cdecl *)(void *))fn_ulGetCapabilities)
 
@@ -1560,6 +1421,27 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCheckCapabilities(
         *p_lValue = (long)((ubf32CapabilityToTest & ubf32BitOfCapability) != 0);
     else
         *p_lValue = (long)((ubf32CapabilityToTest & ubf32BitOfCapability) == ubf32BitOfCapability);
+
+    return p_stTree;
+}
+
+/* 0x0048B920 */
+AI_tdstNodeInterpret *__cdecl fn_p_stIsPersoActive(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam stParam;
+    void              *p_stEngineObj;
+
+    p_stTree      = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    p_stEngineObj = stParam.uParam.p_stEngObjValue;
+
+    if (((struct tdstEngineObject_ *)p_stEngineObj)->h_StandardGame != (void *)0)
+    {
+        HIE_tdstSuperObject *hPerso = AI_M_GetSetParam_p_stSupObjValue(&stParam);
+        *p_lValue = (long)(AI_M_pfn_GAM_fn_bIsCharacterActive(hPerso) & 0xff);
+    }
+    else
+        *p_lValue = (long)0;
 
     return p_stTree;
 }
@@ -1690,6 +1572,83 @@ AI_tdstNodeInterpret *__cdecl fn_p_stReportThisPerso(
     return p_stTree;
 }
 
+/* 0x0048A4F0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stReportOnZDMSurfaceCondition(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    AI_tdstGetSetParam   stParam;
+    DNM_tdstReport      *p_stDynamReport;
+    unsigned long        ulSurfState;
+    GMT_tdxMask          xTestMask;
+    long                 eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    fn_vGetUltraOperatorPerso(fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    if ((p_stDynamReport = fn_pstGetDNMReport(hNewSuperObjPerso)) == NULL)
+    {
+        *p_lValue = (long)FALSE;
+        return p_stTree;
+    }
+
+    ulSurfState = DNM_M_ulReportGetSurfaceState(p_stDynamReport);
+
+    M_EvalNextParameter(&stParam);
+    xTestMask = (GMT_tdxMask) M_GetSetParam_xMaskValue(&stParam);
+
+    switch (eCondId)
+    {
+    case eCond_ZDMCollideWithGround:
+        if ((ulSurfState & C_WOT_ulGround) == C_WOT_ulGround)
+            *p_lValue = (long)fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), xTestMask);
+        else
+            *p_lValue = (long)FALSE;
+        return p_stTree;
+        break;
+
+#if !defined(_AI_EXCLUDE_NEVER_USED_)
+    case eCond_ZDMCollideWithWall:
+        if ((ulSurfState & C_WOT_ulWall) == C_WOT_ulWall)
+            *p_lValue = (long)fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetWall(p_stDynamReport)), xTestMask);
+        else
+            *p_lValue = (long)FALSE;
+        return p_stTree;
+        break;
+
+    case eCond_ZDMCollideWithNothing:
+        if (ulSurfState != C_WOT_ulNoObstacle)
+        {
+            if (   ((ulSurfState & C_WOT_ulGround) == C_WOT_ulGround)
+                  )
+                *p_lValue = (long)!fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), xTestMask);
+            else if (   ((ulSurfState & C_WOT_ulWall) == C_WOT_ulWall)   )
+                *p_lValue = (long)!fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetWall(p_stDynamReport)), xTestMask);
+      else if ((ulSurfState & C_WOT_ulCeiling) == C_WOT_ulCeiling)
+                *p_lValue = (long)!fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetCeil(p_stDynamReport)), xTestMask);
+            else
+                *p_lValue = (long)TRUE;
+        }
+        else
+            *p_lValue = (long)TRUE;
+        return p_stTree;
+        break;
+
+    case eCond_ZDMCollideWithCeiling:
+        if ((ulSurfState & C_WOT_ulCeiling) == C_WOT_ulCeiling)
+            *p_lValue = (long)fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetMyMaterial(DNM_M_p_stReportGetCeil(p_stDynamReport)), xTestMask);
+        else
+            *p_lValue = (long)FALSE;
+        return p_stTree;
+        break;
+#endif
+
+    default:
+        break;
+    }
+    *p_lValue = (long) FALSE;
+    return p_stTree;
+}
+
 #define eCond_UserEvent_IsSet   0x2a
 #define eCond_UserEvent_IsSet2  0x2b
 
@@ -1746,6 +1705,24 @@ AI_tdstNodeInterpret *__cdecl fn_p_st_UserEvent_IsSet(
 }
 
 #define eCond_MagnetIsActivated  0x71
+
+/* 0x00488100 */
+AI_tdstNodeInterpret *__cdecl fn_p_stIsMorphing(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, long *p_lValue)
+{
+    unsigned long        eCondId = AI_M_eCondIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    AI_tdstGetSetParam   stValue;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetConditionUltraOperator(eCondId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    p_stTree  = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stValue);
+    *p_lValue = (long)(MOR_fn_bIsChannelMorphed(
+                           p_SuperObjPerso, M_GetSetParam_lValue(&stValue)) & 0xff);
+
+    return p_stTree;
+}
 
 /* 0x00488480 */
 AI_tdstNodeInterpret *__cdecl fn_p_stMagnetActivated(
@@ -2062,6 +2039,33 @@ AI_tdstNodeInterpret *__cdecl AI_fn_p_stCameraCondition(
     }
     AI_M_pfn_M_AIFatalError(0x2b);
     return p_stTree;
+}
+
+/* 0x004897B0 */
+ACP_tdxBool __cdecl fn_bTestTypeOfGameMaterial(GMT_tdxHandleToGameMaterial hGameMat,
+                                               GMT_tdxMask xTestMask)
+{
+    GMT_tdxHandleToCollideMaterial hCollMat;
+    GMT_tdxMask                    xCollMask;
+
+    if (!GMT_fn_b_ulIsValid(hGameMat))
+        return FALSE;
+    hCollMat = GMT_fn_hGetCollideMaterial(hGameMat);
+    if (hCollMat == (GMT_tdxHandleToCollideMaterial)GMT_C_InvalidCollideMaterial)
+        return FALSE;
+    xCollMask = GMT_fn_hGetCollideMaterialIdentifier(hCollMat);
+    return ((xCollMask & xTestMask) == xTestMask);
+}
+
+/* 0x00489800 */
+ACP_tdxBool __cdecl fn_bIsTypeOfGMT(HIE_tdstSuperObject *p_SuperObjPerso, GMT_tdxMask xTestMask)
+{
+    DNM_tdstReport *p_stDynamReport;
+
+    p_stDynamReport = fn_pstGetDNMReport(p_SuperObjPerso);
+    if (p_stDynamReport == NULL)
+        return FALSE;
+    return fn_bTestTypeOfGameMaterial(DNM_M_hObstacleGetCollidedMaterial(DNM_M_p_stReportGetGround(p_stDynamReport)), xTestMask);
 }
 
 /* 0x0048BBC0 */

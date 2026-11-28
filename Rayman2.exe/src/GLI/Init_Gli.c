@@ -50,10 +50,127 @@ void __cdecl GLI_pc_fn_vCompressTex1555(struct GLI_pc_tdstTexelPackSrc *p_st, un
 typedef long (__cdecl *pfn_GetDllInfo_t)(char const *, void *);
 typedef long (__cdecl *pfn_SetCommonFct_t)(char const *, void *);
 
-void * __cdecl GLI_pc_fn_p_vTmpMallocSlot(uint32_t ulSize)
+long g_lGliInit = 0;
+
+extern void __cdecl SND_fn_vReleaseDriverSound(void);
+extern void __cdecl GAM_pc_fn_vPostWindowCmd(unsigned short);   /* 0x00401650 */
+
+extern void (__cdecl *_imp__exit)(int iStatus);
+#define GLI_RT_exit (*_imp__exit)
+
+static long GLI_g_bFirstInitPending_storage = 1;   /* 0x0049FD0C */
+#define GLI_g_bFirstInitPending  GLI_g_bFirstInitPending_storage
+
+#define GLI_K_xRefreshRateMin  (40.0f)
+#define GLI_K_xRefreshRateMax  (210.0f)
+
+#include "GLI/GLI_BigGlobals.h"
+
+#define GLI_pc_M_ulPackTexel(x) \
+    ((((x) & 0xfc00ul) + ((x) & 0xf8ul) * 0x2000ul) * 0x800ul + (((x) >> 3) & 0x1f0000ul))
+
+typedef struct GLI_pc_tdstTexelPackSrc {
+    unsigned char    aucPad0[8];
+    unsigned long   *pulTexelPairs;
+    unsigned char    aucPad1[0x14 - 0x0C];
+    unsigned char    ucFlags;
+    unsigned char    aucPad1b[0x18 - 0x15];
+    short            sSizeA;
+    unsigned short   usSizeB;
+    unsigned char    aucPad2[0x2C - 0x1C];
+    unsigned long    ulKeyColour;
+} GLI_pc_tdstTexelPackSrc;
+
+void __cdecl GLI_FatalExitOrSleep(void)
 {
-    return GLI_pc_fn_p_vAlloc(ulSize);
+
+#ifdef USE_SDL
+    /* no engine thread (GAM/sdl_main.c runs the engine in the main thread, as the consoles do):
+       only the exit path below */
+#else
+    if (*(long *)GAM_pc_g_hEngineThread_ADDR != -1) {
+        if (GLI_xIsGliInit() != 0) {
+            GLI_vCloseGli();
+        }
+        SND_fn_vReleaseDriverSound();
+        GAM_pc_fn_vPostWindowCmd(1);             /* 0x00401650 */
+        SetEvent(*g_hEngineEventIsDead);
+        Sleep(0xFFFFFFFFu);
+        return;
+    }
+#endif /* USE_SDL */
+    GLI_RT_exit(-2);
 }
+
+void __cdecl GLI_xInitGli(void)
+{
+
+    g_lGliInit = 0;
+
+    if (GLI_g_bFirstInitPending != 0) {
+        GLI_g_bFirstInitPending = 0;
+
+        GLI_BIG_GLOBALS = (struct GLI_tdstInternalGlobalValuesFor3dEngine_ *)GLI_pc_fn_p_vAlloc(0x2d40c);   /* 0x0045dc60 */
+
+        GLI_BIG_GLOBALS->GLD_RenderingCounter   = -1;
+        GLI_BIG_GLOBALS->p_stActiveFog          = 0;
+        GLI_BIG_GLOBALS->p_stLastComputedFog    = 0;
+        GLI_BIG_GLOBALS->xFogIsOn               = 0;
+        GLI_BIG_GLOBALS->lAMirrorIsDetected     = 0;
+        GLI_BIG_GLOBALS->bDrawMirrorSymetric    = 0;
+        GLI_BIG_GLOBALS->lDisplayMenuIsDetected = 0;
+        GLI_BIG_GLOBALS->xGlobalAlpha           = 0.0f;
+
+        GLI_g_pfn_SetCommonData("GliBigGlobals", GLI_BIG_GLOBALS);
+
+        GLI_xCreateMaterial((void **)GLI_pc_p_hDefaultMaterial);
+        GLI_pc_fn_vEmptyTextureCache();
+        SND_PrintUsedStaticMemory();
+        FUN_00423ab0();
+        SND_PrintUsedStaticMemory();
+        GLI_vInitLensFlare();
+        GLI_xInitMatrixStack();
+        SND_PrintUsedStaticMemory();
+    }
+
+    GLI_BIG_GLOBALS->p_TheZListe = 0;
+    GLI_pc_g_stGliCaps.xRefreshRate = 0.0f;
+
+    GLI_g_pfn_xInitDriver((HWND)GAM_fn_hGetWindowHandle(), GLI_fn_lIsFullScreenMode(),
+                          GLI_fn_lDisplayModeWidth(), GLI_fn_lDisplayModeHeight(), FUN_00422090());
+
+    if ((GLI_pc_g_stGliCaps.xRefreshRate < GLI_K_xRefreshRateMin) ||
+        !(GLI_pc_g_stGliCaps.xRefreshRate < GLI_K_xRefreshRateMax)) {
+        long lCapsFlags;
+        lCapsFlags = GLI_pc_g_stGliCaps.ulDriverCaps;
+        lCapsFlags |= GLI_pc_C_ulDrvCapsRefreshRateDefaulted;
+        GLI_pc_g_stGliCaps.xRefreshRate = 60.0f;
+        GLI_pc_g_stGliCaps.ulDriverCaps = (tdeDriverCaps)lCapsFlags;
+    }
+
+    {
+        __int64 i64Ticks = (__int64)(unsigned __int64)fn_ulTimerTickPerSecond(1);
+        double  dBudget  = (double)i64Ticks / (double)GLI_pc_g_stGliCaps.xRefreshRate;
+        GLI_pc_g_lTickBudget = (long)dBudget;   /* 0x004a7218 */
+    }
+
+    FUN_00409c80();
+
+    g_lGliInit = 1;
+}
+
+void __cdecl GLI_vCloseGli(void)
+{
+    g_lGliInit = 0;
+    ((void (__cdecl *)(void))GLI_DRV_g_vCloseDriver)();
+}
+
+long __cdecl GLI_xIsGliInit(void)
+{
+    return g_lGliInit;
+}
+
+void * __cdecl GLI_pc_fn_p_vTmpMallocSlot(uint32_t ulSize);
 
 long __cdecl GLI_fnl_InitDll(void)
 {
@@ -180,109 +297,9 @@ long __cdecl GLI_fnl_InitDll(void)
     return 1;
 }
 
-long g_lGliInit = 0;
-
-long __cdecl GLI_xIsGliInit(void)
+void * __cdecl GLI_pc_fn_p_vTmpMallocSlot(uint32_t ulSize)
 {
-    return g_lGliInit;
-}
-
-void __cdecl GLI_vCloseGli(void)
-{
-    g_lGliInit = 0;
-    ((void (__cdecl *)(void))GLI_DRV_g_vCloseDriver)();
-}
-
-extern void __cdecl SND_fn_vReleaseDriverSound(void);
-extern void __cdecl GAM_pc_fn_vPostWindowCmd(unsigned short);   /* 0x00401650 */
-
-extern void (__cdecl *_imp__exit)(int iStatus);
-#define GLI_RT_exit (*_imp__exit)
-
-void __cdecl GLI_FatalExitOrSleep(void)
-{
-
-#ifdef USE_SDL
-    /* no engine thread (GAM/sdl_main.c runs the engine in the main thread, as the consoles do):
-       only the exit path below */
-#else
-    if (*(long *)GAM_pc_g_hEngineThread_ADDR != -1) {
-        if (GLI_xIsGliInit() != 0) {
-            GLI_vCloseGli();
-        }
-        SND_fn_vReleaseDriverSound();
-        GAM_pc_fn_vPostWindowCmd(1);             /* 0x00401650 */
-        SetEvent(*g_hEngineEventIsDead);
-        Sleep(0xFFFFFFFFu);
-        return;
-    }
-#endif /* USE_SDL */
-    GLI_RT_exit(-2);
-}
-
-static long GLI_g_bFirstInitPending_storage = 1;   /* 0x0049FD0C */
-#define GLI_g_bFirstInitPending  GLI_g_bFirstInitPending_storage
-
-#define GLI_K_xRefreshRateMin  (40.0f)
-#define GLI_K_xRefreshRateMax  (210.0f)
-
-#include "GLI/GLI_BigGlobals.h"
-
-void __cdecl GLI_xInitGli(void)
-{
-
-    g_lGliInit = 0;
-
-    if (GLI_g_bFirstInitPending != 0) {
-        GLI_g_bFirstInitPending = 0;
-
-        GLI_BIG_GLOBALS = (struct GLI_tdstInternalGlobalValuesFor3dEngine_ *)GLI_pc_fn_p_vAlloc(0x2d40c);   /* 0x0045dc60 */
-
-        GLI_BIG_GLOBALS->GLD_RenderingCounter   = -1;
-        GLI_BIG_GLOBALS->p_stActiveFog          = 0;
-        GLI_BIG_GLOBALS->p_stLastComputedFog    = 0;
-        GLI_BIG_GLOBALS->xFogIsOn               = 0;
-        GLI_BIG_GLOBALS->lAMirrorIsDetected     = 0;
-        GLI_BIG_GLOBALS->bDrawMirrorSymetric    = 0;
-        GLI_BIG_GLOBALS->lDisplayMenuIsDetected = 0;
-        GLI_BIG_GLOBALS->xGlobalAlpha           = 0.0f;
-
-        GLI_g_pfn_SetCommonData("GliBigGlobals", GLI_BIG_GLOBALS);
-
-        GLI_xCreateMaterial((void **)GLI_pc_p_hDefaultMaterial);
-        GLI_pc_fn_vEmptyTextureCache();
-        SND_PrintUsedStaticMemory();
-        FUN_00423ab0();
-        SND_PrintUsedStaticMemory();
-        GLI_vInitLensFlare();
-        GLI_xInitMatrixStack();
-        SND_PrintUsedStaticMemory();
-    }
-
-    GLI_BIG_GLOBALS->p_TheZListe = 0;
-    GLI_pc_g_stGliCaps.xRefreshRate = 0.0f;
-
-    GLI_g_pfn_xInitDriver((HWND)GAM_fn_hGetWindowHandle(), GLI_fn_lIsFullScreenMode(),
-                          GLI_fn_lDisplayModeWidth(), GLI_fn_lDisplayModeHeight(), FUN_00422090());
-
-    if ((GLI_pc_g_stGliCaps.xRefreshRate < GLI_K_xRefreshRateMin) ||
-        !(GLI_pc_g_stGliCaps.xRefreshRate < GLI_K_xRefreshRateMax)) {
-        long lCapsFlags;
-        lCapsFlags = GLI_pc_g_stGliCaps.ulDriverCaps;
-        lCapsFlags |= GLI_pc_C_ulDrvCapsRefreshRateDefaulted;
-        GLI_pc_g_stGliCaps.xRefreshRate = 60.0f;
-        GLI_pc_g_stGliCaps.ulDriverCaps = (tdeDriverCaps)lCapsFlags;
-    }
-
-    {
-        __int64 i64Ticks = (__int64)(unsigned __int64)fn_ulTimerTickPerSecond(1);
-        double  dBudget  = (double)i64Ticks / (double)GLI_pc_g_stGliCaps.xRefreshRate;
-        GLI_pc_g_lTickBudget = (long)dBudget;   /* 0x004a7218 */
-    }
-
-    FUN_00409c80();
-
-    g_lGliInit = 1;
+    return GLI_pc_fn_p_vAlloc(ulSize);
 }
 
 /* 0x0042BC20 */
@@ -343,21 +360,6 @@ void __cdecl GLD_fn_vBlitStretched16b(long lWDst, long lHDst, unsigned short *pu
         } while (lRow != 0);
     }
 }
-
-#define GLI_pc_M_ulPackTexel(x) \
-    ((((x) & 0xfc00ul) + ((x) & 0xf8ul) * 0x2000ul) * 0x800ul + (((x) >> 3) & 0x1f0000ul))
-
-typedef struct GLI_pc_tdstTexelPackSrc {
-    unsigned char    aucPad0[8];
-    unsigned long   *pulTexelPairs;
-    unsigned char    aucPad1[0x14 - 0x0C];
-    unsigned char    ucFlags;
-    unsigned char    aucPad1b[0x18 - 0x15];
-    short            sSizeA;
-    unsigned short   usSizeB;
-    unsigned char    aucPad2[0x2C - 0x1C];
-    unsigned long    ulKeyColour;
-} GLI_pc_tdstTexelPackSrc;
 
 void __cdecl GLI_pc_fn_vCompressTex565(GLI_pc_tdstTexelPackSrc *p_st, unsigned long *pulOut)
 {

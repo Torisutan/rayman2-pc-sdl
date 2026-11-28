@@ -88,45 +88,43 @@ SAI_tdxHandleToListEntry __cdecl SAI_fn_hCreateAListEntry(void)
 }
 
 
-/* 0x0044a190 */
 
 
 
-SAI_tdxHandleToListEntry __cdecl fn_hSearchAnElementInList(
-    SAI_tdstInternalStructure *p_stInternalStructure,
-    void *p_vData, SAI_tdeFlags eUserFlags)
+
+
+/* 0x44a090 */
+
+
+
+void __cdecl SAI_fn_vIsolateAllListEntryByMemoryLevel(
+    SAI_tdstInternalStructure *p_stInternalStructure, unsigned char ucMemoryLevel)
 {
-    SAI_tdxHandleToListEntry hListEntry = p_stInternalStructure->p_stFirstEntry;
+    SAI_tdstListEntry *p_stPreviousListEntry = NULL;
+    SAI_tdstListEntry *p_stListEntry         = p_stInternalStructure->p_stFirstEntry;
 
-    while (hListEntry)
+    while (p_stListEntry)
     {
-        if (hListEntry->p_vDataPointer == p_vData &&
-            (hListEntry->eFlags & SAI_C_UserFlags) == eUserFlags)
-            return hListEntry;
+        if (p_stListEntry->ucMemoryLevel == ucMemoryLevel)
+        {
 
-        hListEntry = hListEntry->p_stNextEntry;
+            if (p_stPreviousListEntry)
+                p_stPreviousListEntry->p_stNextEntry = p_stListEntry->p_stNextEntry;
+            else
+                p_stInternalStructure->p_stFirstEntry = p_stListEntry->p_stNextEntry;
+
+            if (p_stListEntry->p_stNextEntry == NULL)
+                p_stInternalStructure->p_stLastEntry = p_stPreviousListEntry;
+        }
+        else
+            p_stPreviousListEntry = p_stListEntry;
+
+        p_stListEntry = p_stListEntry->p_stNextEntry;
     }
 
-    return NULL;
-}
 
-
-/* 0x0044a630 */
-
-
-
-unsigned char __cdecl SAI_fn_ucComputeBitPosition(unsigned char _ucMask)
-{
-    unsigned char ucPos = 0;
-
-
-    for (ucPos = 0; ucPos < 8; ucPos++) {
-        if (_ucMask & 1)
-            return ucPos;
-        _ucMask >>= 1;
-    }
-
-    return 10;
+    Mmg_fn_vFreeBlock(ucMemoryLevel, g_ucSAIModuleId,
+                      g_a_p_stMmgModuleBlocksInfo[g_ucSAIModuleId]);
 }
 
 
@@ -169,16 +167,70 @@ SAI_tdeFlags __cdecl SAI_fn_eVerifyFlags(SAI_tdeFlags eFlags)
 }
 
 
+/* 0x0044a190 */
 
-/* 0x00403290 */
 
 
-void __cdecl SAI_fn_vMemoryLogFile(void *p_vPointer, unsigned char ucAction, char *szFile, unsigned long ulLine)
+SAI_tdxHandleToListEntry __cdecl fn_hSearchAnElementInList(
+    SAI_tdstInternalStructure *p_stInternalStructure,
+    void *p_vData, SAI_tdeFlags eUserFlags)
 {
-    (void)p_vPointer;
-    (void)ucAction;
-    (void)szFile;
-    (void)ulLine;
+    SAI_tdxHandleToListEntry hListEntry = p_stInternalStructure->p_stFirstEntry;
+
+    while (hListEntry)
+    {
+        if (hListEntry->p_vDataPointer == p_vData &&
+            (hListEntry->eFlags & SAI_C_UserFlags) == eUserFlags)
+            return hListEntry;
+
+        hListEntry = hListEntry->p_stNextEntry;
+    }
+
+    return NULL;
+}
+
+
+/* 0x0044a1d0 */
+
+
+
+
+
+unsigned char __cdecl SAI_fn_bFreeAnElementFromList(
+    SAI_tdstInternalStructure *p_stInternalStructure, void *p_stData, SAI_tdeFlags eUserFlags)
+{
+    SAI_tdstListEntry *p_stPreviousListEntry = NULL;
+    SAI_tdstListEntry *p_stListEntry         = p_stInternalStructure->p_stFirstEntry;
+    unsigned char      bFound                = SAI_FALSE;
+
+    eUserFlags = SAI_fn_eVerifyFlags(eUserFlags);
+
+    while (p_stListEntry)
+    {
+        if (p_stListEntry->p_vDataPointer == p_stData &&
+            (p_stListEntry->eFlags & SAI_C_UserFlags) == eUserFlags)
+        {
+            bFound = SAI_TRUE;
+            break;
+        }
+
+        p_stPreviousListEntry = p_stListEntry;
+        p_stListEntry         = p_stListEntry->p_stNextEntry;
+    }
+
+    if (bFound)
+    {
+
+        if (p_stPreviousListEntry)
+            p_stPreviousListEntry->p_stNextEntry = p_stListEntry->p_stNextEntry;
+        else
+            p_stInternalStructure->p_stFirstEntry = p_stListEntry->p_stNextEntry;
+
+        if (p_stListEntry->p_stNextEntry == NULL)
+            p_stInternalStructure->p_stLastEntry = p_stPreviousListEntry;
+    }
+
+    return bFound;
 }
 
 
@@ -376,85 +428,33 @@ unsigned char __cdecl SAI_fn_bInitAllTableWhen(
 }
 
 
-/* 0x0044a1d0 */
+/* 0x0044a630 */
 
 
 
-
-
-unsigned char __cdecl SAI_fn_bFreeAnElementFromList(
-    SAI_tdstInternalStructure *p_stInternalStructure, void *p_stData, SAI_tdeFlags eUserFlags)
+unsigned char __cdecl SAI_fn_ucComputeBitPosition(unsigned char _ucMask)
 {
-    SAI_tdstListEntry *p_stPreviousListEntry = NULL;
-    SAI_tdstListEntry *p_stListEntry         = p_stInternalStructure->p_stFirstEntry;
-    unsigned char      bFound                = SAI_FALSE;
+    unsigned char ucPos = 0;
 
-    eUserFlags = SAI_fn_eVerifyFlags(eUserFlags);
 
-    while (p_stListEntry)
-    {
-        if (p_stListEntry->p_vDataPointer == p_stData &&
-            (p_stListEntry->eFlags & SAI_C_UserFlags) == eUserFlags)
-        {
-            bFound = SAI_TRUE;
-            break;
-        }
-
-        p_stPreviousListEntry = p_stListEntry;
-        p_stListEntry         = p_stListEntry->p_stNextEntry;
+    for (ucPos = 0; ucPos < 8; ucPos++) {
+        if (_ucMask & 1)
+            return ucPos;
+        _ucMask >>= 1;
     }
 
-    if (bFound)
-    {
-
-        if (p_stPreviousListEntry)
-            p_stPreviousListEntry->p_stNextEntry = p_stListEntry->p_stNextEntry;
-        else
-            p_stInternalStructure->p_stFirstEntry = p_stListEntry->p_stNextEntry;
-
-        if (p_stListEntry->p_stNextEntry == NULL)
-            p_stInternalStructure->p_stLastEntry = p_stPreviousListEntry;
-    }
-
-    return bFound;
+    return 10;
 }
 
 
 
+/* 0x00403290 */
 
 
-
-
-/* 0x44a090 */
-
-
-
-void __cdecl SAI_fn_vIsolateAllListEntryByMemoryLevel(
-    SAI_tdstInternalStructure *p_stInternalStructure, unsigned char ucMemoryLevel)
+void __cdecl SAI_fn_vMemoryLogFile(void *p_vPointer, unsigned char ucAction, char *szFile, unsigned long ulLine)
 {
-    SAI_tdstListEntry *p_stPreviousListEntry = NULL;
-    SAI_tdstListEntry *p_stListEntry         = p_stInternalStructure->p_stFirstEntry;
-
-    while (p_stListEntry)
-    {
-        if (p_stListEntry->ucMemoryLevel == ucMemoryLevel)
-        {
-
-            if (p_stPreviousListEntry)
-                p_stPreviousListEntry->p_stNextEntry = p_stListEntry->p_stNextEntry;
-            else
-                p_stInternalStructure->p_stFirstEntry = p_stListEntry->p_stNextEntry;
-
-            if (p_stListEntry->p_stNextEntry == NULL)
-                p_stInternalStructure->p_stLastEntry = p_stPreviousListEntry;
-        }
-        else
-            p_stPreviousListEntry = p_stListEntry;
-
-        p_stListEntry = p_stListEntry->p_stNextEntry;
-    }
-
-
-    Mmg_fn_vFreeBlock(ucMemoryLevel, g_ucSAIModuleId,
-                      g_a_p_stMmgModuleBlocksInfo[g_ucSAIModuleId]);
+    (void)p_vPointer;
+    (void)ucAction;
+    (void)szFile;
+    (void)ulLine;
 }

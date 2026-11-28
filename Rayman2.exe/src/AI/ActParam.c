@@ -9,6 +9,26 @@
     (((AI_tduGetSetParam *)AI_M_ActionTableParam((p_stInt), \
         AI_M_ActionTableCurrentEntry(p_stInt)))[(ucN)])
 
+/* 0x00487DC0 */
+void __cdecl fn_vSetActionParamxValue(unsigned char ucN,
+                                      HIE_tdstSuperObject *p_SuperObjPerso, float xValue)
+{
+    AI_tdstIntelligence *p_stIntellOrReflex =
+        M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
+
+    M_ActionParamN(p_stIntellOrReflex, ucN).xValue = xValue;
+}
+
+/* 0x00487E10 */
+MTH_tdxReal __cdecl fn_xGetActionParamxValue(unsigned char ucN,
+                                             HIE_tdstSuperObject *p_SuperObjPerso)
+{
+    AI_tdstIntelligence *p_stIntellOrReflex =
+        M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
+
+    return M_tduGetSetParam_xValue(&M_ActionParamN(p_stIntellOrReflex, ucN));
+}
+
 /* 0x00487E60 */
 long __cdecl fn_lGetActionParamlValue(unsigned char ucN,
                                       HIE_tdstSuperObject *p_SuperObjPerso)
@@ -19,16 +39,6 @@ long __cdecl fn_lGetActionParamlValue(unsigned char ucN,
     return M_ActionParamN(p_stIntellOrReflex, ucN).lValue;
 }
 
-/* 0x00487F80 */
-MTH3D_tdstVector *__cdecl fn_p_stGetActionParamp_stVertex(unsigned char ucN,
-                                                          HIE_tdstSuperObject *p_SuperObjPerso)
-{
-    AI_tdstIntelligence *p_stIntellOrReflex =
-        M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
-
-    return (MTH3D_tdstVector *)&M_ActionParamN(p_stIntellOrReflex, ucN);
-}
-
 /* 0x00487EA0 */
 void __cdecl fn_vSetActionParamlValue(unsigned char ucN,
                                       HIE_tdstSuperObject *p_SuperObjPerso, long lValue)
@@ -37,16 +47,6 @@ void __cdecl fn_vSetActionParamlValue(unsigned char ucN,
         M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
 
     M_ActionParamN(p_stIntellOrReflex, ucN).lValue = lValue;
-}
-
-/* 0x00487DC0 */
-void __cdecl fn_vSetActionParamxValue(unsigned char ucN,
-                                      HIE_tdstSuperObject *p_SuperObjPerso, float xValue)
-{
-    AI_tdstIntelligence *p_stIntellOrReflex =
-        M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
-
-    M_ActionParamN(p_stIntellOrReflex, ucN).xValue = xValue;
 }
 
 /* 0x00487EF0 */
@@ -62,14 +62,14 @@ void __cdecl fn_vSetActionParamp_stVertex(unsigned char ucN,
     ((MTH3D_tdstVector *)&M_ActionParamN(p_stIntellOrReflex, ucN))->xZ = p_stVertex->xZ;
 }
 
-/* 0x00487E10 */
-MTH_tdxReal __cdecl fn_xGetActionParamxValue(unsigned char ucN,
-                                             HIE_tdstSuperObject *p_SuperObjPerso)
+/* 0x00487F80 */
+MTH3D_tdstVector *__cdecl fn_p_stGetActionParamp_stVertex(unsigned char ucN,
+                                                          HIE_tdstSuperObject *p_SuperObjPerso)
 {
     AI_tdstIntelligence *p_stIntellOrReflex =
         M_GetIntellOrReflex(AI_M_stGetMindOfSuperObj(p_SuperObjPerso));
 
-    return M_tduGetSetParam_xValue(&M_ActionParamN(p_stIntellOrReflex, ucN));
+    return (MTH3D_tdstVector *)&M_ActionParamN(p_stIntellOrReflex, ucN);
 }
 
 void __cdecl fn_vSetActionParamStateValue(unsigned char ucN,

@@ -118,3 +118,7 @@ unsigned char __cdecl fn_ucGetFunctionUltraOperator(unsigned long eFuncId)
 {
     return a_stFunctionTable[eFuncId].bUltraFunctionFlag;
 }
+AI_tdp_fn_p_stFunctionFunctionPtr __cdecl fn_p_fn_pGetFunctionFunctionPtr(unsigned long eFuncId)
+{
+    return a_stFunctionTable[eFuncId].p_fn_p_stFunctionFunction;
+}

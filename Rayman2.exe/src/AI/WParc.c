@@ -157,6 +157,63 @@ long __cdecl WPARCLST_fn_lChangeCapabilities(WP_tdHandleOfListOfArc hListOfArc,
     return (-1);
 }
 
+/* 0x00487B10 */
+
+long WPARCLST_fn_lGetCapabilities (WP_tdHandleOfListOfArc hListOfArc,
+															     WP_tdhGraphNode hNode, unsigned long* p_ulCapability) {
+	WP_tdHandleOfArc hElement ;
+	int i ;
+
+	if ( hListOfArc && hNode ) {
+		LST2_M_DynamicForEachElementOf(&hListOfArc->m_hArc, hElement, i) {
+			if ( hElement->m_hNode == hNode ) {
+				*p_ulCapability = hElement->m_ulCapability ;
+				return (0) ;
+			}
+		}
+	}
+	return (-1) ;
+}
+
+
+
+/* 0x00487B50 */
+
+long WPARCLST_fn_lChangeWeight (WP_tdHandleOfListOfArc hListOfArc,
+                                WP_tdhGraphNode hNode, long lWeight) {
+	WP_tdHandleOfArc hElement ;
+	int i ;
+
+	if ( hListOfArc && hNode ) {
+		LST2_M_DynamicForEachElementOf(&hListOfArc->m_hArc, hElement, i) {
+			if ( hElement->m_hNode == hNode ) {
+				hElement->m_lWeight = lWeight ;
+				return (0) ;
+			}
+		}
+	}
+	return (-1) ;
+}
+
+
+
+/* 0x00487B90 */
+long WPARCLST_fn_lGetWeight (WP_tdHandleOfListOfArc hListOfArc,
+                             WP_tdhGraphNode hNode, long *p_lWeight) {
+	WP_tdHandleOfArc hElement ;
+	int i ;
+
+	if ( hListOfArc && hNode ) {
+		LST2_M_DynamicForEachElementOf(&hListOfArc->m_hArc, hElement, i) {
+			if ( hElement->m_hNode == hNode ) {
+				*p_lWeight = hElement->m_lWeight ;
+				return (0) ;
+			}
+		}
+	}
+	return (-1) ;
+}
+
 
 
 

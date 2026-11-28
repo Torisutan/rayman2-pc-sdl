@@ -19,12 +19,76 @@ void __cdecl fn_vGenerateFoamInStreak(tdstWaterStreakEffect *_hWaterStreak, long
 void __cdecl fn_v_FootPath_Compute(HIE_tdstSuperObject *_hCharacter, ACP_tdxIndex _xType);
 
 static float            gs_fDeltaZ = 0.01f; /* 0x0049F84C */
+
+/* 0x0040C3B0 */
+void __cdecl fn_vTreatWaterStreak(tdstWaterStreakEffect *_hWaterStreak, long _lElapsedTime)
+{
+    long lIndex;
+    tdstWaterFoam *p_stFoam;
+
+    p_stFoam = _hWaterStreak->a_stFoams;
+    for (lIndex = 0; lIndex < _hWaterStreak->lNbFoams; lIndex++, p_stFoam++)
+    {
+        if (p_stFoam->bFoamIsActive != 0)
+        {
+            p_stFoam->lLifeTime = p_stFoam->lLifeTime - _lElapsedTime;
+            if (p_stFoam->lLifeTime <= 0)
+                p_stFoam->bFoamIsActive = 0;
+        }
+    }
+}
 static float            gs_fSPZ = 0.3f; /* 0x0049F850 */
 static MTH3D_tdstVector gs_stPicking = { 0, 0, -0.6f }; /* 0x0049F858 */
+
+/* 0x0040C3F0 */
+void __cdecl fn_vGenerateFoamInStreak(tdstWaterStreakEffect *_hWaterStreak, long _lElapsedTime, MTH3D_tdstVector *_p_stPosition)
+{
+    long lIndex;
+    unsigned long ulNow;
+    tdstWaterFoam *p_stFoam;
+
+    ulNow = GAM_g_ulAccumulatedTime;
+    if ((_hWaterStreak->ulLastTimeOfShift - ulNow) <= (unsigned long)_hWaterStreak->lTimeBetweenTwoShifts)
+        return;
+    _hWaterStreak->ulLastTimeOfShift = ulNow;
+
+    p_stFoam = _hWaterStreak->a_stFoams;
+    for (lIndex = 0; lIndex < _hWaterStreak->lNbFoams; lIndex++, p_stFoam++)
+    {
+        if (p_stFoam->bFoamIsActive == 0)
+        {
+            p_stFoam->lLifeTime = _hWaterStreak->lLifeTime;
+            p_stFoam->stPosition.xX = _p_stPosition->xX;
+            p_stFoam->stPosition.xY = _p_stPosition->xY;
+            p_stFoam->stPosition.xZ = _p_stPosition->xZ;
+            p_stFoam->bFoamIsActive = 1;
+            return;
+        }
+    }
+}
+
+/* 0x0040C450 */
+void __cdecl fn_vWaterStreakEffect(void *_p_stViewportAttr, void *_hCharacter, long _lDrawMask)
+{
+    void *hMSPrtSrc;
+    tdstWaterStreakEffect *hWaterStreak;
+    long lElapsedTime;
+    MTH3D_tdstVector stV;
+
+    hMSPrtSrc = M_GetMSHandle((HIE_tdstSuperObject *)_hCharacter, MSPrtSrc);
+    if (hMSPrtSrc != 0)
+    {
+        hWaterStreak = (tdstWaterStreakEffect *)fn_hMSPrtSrcGetWaterStreakGenerator(hMSPrtSrc);
+        if (hWaterStreak == 0)
+            return;
+        lElapsedTime = GAM_g_ulUsefulDeltaTime;
+        if (fn_bIsCharacterCrossingASurfaceOfWater((HIE_tdstSuperObject *)_hCharacter, &stV))
+            fn_vGenerateFoamInStreak(hWaterStreak, lElapsedTime, &stV);
+        fn_vTreatWaterStreak(hWaterStreak, lElapsedTime);
+    }
+}
 static ACP_tdxIndex     gs_a2a6_xUV[2][6] = { {0,1,3,1,2,3}, {1,0,2,0,3,2} }; /* 0x0049F868 */
 static ACP_tdxIndex     gs_a4a2_xChangeSign[4][2] = { { 0, 0}, { 1, 0}, { 0, 1}, { 1,0} }; /* 0x0049F880 */
-
-#include "GEO/GEO_types.h"
 
 /* 0x0040C4B0 */
 void __cdecl fn_v_FootPath_ReInit(tdstFootPath *_hFootPath)
@@ -91,74 +155,10 @@ void __cdecl fn_v_FootPath_Compute(HIE_tdstSuperObject *_hCharacter, ACP_tdxInde
     MTH3D_M_vAddVector(&stT2, &stT1, &gs_stPicking);
 }
 
-/* 0x0040C3B0 */
-void __cdecl fn_vTreatWaterStreak(tdstWaterStreakEffect *_hWaterStreak, long _lElapsedTime)
-{
-    long lIndex;
-    tdstWaterFoam *p_stFoam;
-
-    p_stFoam = _hWaterStreak->a_stFoams;
-    for (lIndex = 0; lIndex < _hWaterStreak->lNbFoams; lIndex++, p_stFoam++)
-    {
-        if (p_stFoam->bFoamIsActive != 0)
-        {
-            p_stFoam->lLifeTime = p_stFoam->lLifeTime - _lElapsedTime;
-            if (p_stFoam->lLifeTime <= 0)
-                p_stFoam->bFoamIsActive = 0;
-        }
-    }
-}
-
-/* 0x0040C3F0 */
-void __cdecl fn_vGenerateFoamInStreak(tdstWaterStreakEffect *_hWaterStreak, long _lElapsedTime, MTH3D_tdstVector *_p_stPosition)
-{
-    long lIndex;
-    unsigned long ulNow;
-    tdstWaterFoam *p_stFoam;
-
-    ulNow = GAM_g_ulAccumulatedTime;
-    if ((_hWaterStreak->ulLastTimeOfShift - ulNow) <= (unsigned long)_hWaterStreak->lTimeBetweenTwoShifts)
-        return;
-    _hWaterStreak->ulLastTimeOfShift = ulNow;
-
-    p_stFoam = _hWaterStreak->a_stFoams;
-    for (lIndex = 0; lIndex < _hWaterStreak->lNbFoams; lIndex++, p_stFoam++)
-    {
-        if (p_stFoam->bFoamIsActive == 0)
-        {
-            p_stFoam->lLifeTime = _hWaterStreak->lLifeTime;
-            p_stFoam->stPosition.xX = _p_stPosition->xX;
-            p_stFoam->stPosition.xY = _p_stPosition->xY;
-            p_stFoam->stPosition.xZ = _p_stPosition->xZ;
-            p_stFoam->bFoamIsActive = 1;
-            return;
-        }
-    }
-}
+#include "GEO/GEO_types.h"
 
 /* 0x00455060 */
 ACP_tdxBool __cdecl fn_bIsCharacterCrossingASurfaceOfWater(HIE_tdstSuperObject *_hCharacter, MTH3D_tdstVector *_p_stVector)
 {
     return 0;
-}
-
-/* 0x0040C450 */
-void __cdecl fn_vWaterStreakEffect(void *_p_stViewportAttr, void *_hCharacter, long _lDrawMask)
-{
-    void *hMSPrtSrc;
-    tdstWaterStreakEffect *hWaterStreak;
-    long lElapsedTime;
-    MTH3D_tdstVector stV;
-
-    hMSPrtSrc = M_GetMSHandle((HIE_tdstSuperObject *)_hCharacter, MSPrtSrc);
-    if (hMSPrtSrc != 0)
-    {
-        hWaterStreak = (tdstWaterStreakEffect *)fn_hMSPrtSrcGetWaterStreakGenerator(hMSPrtSrc);
-        if (hWaterStreak == 0)
-            return;
-        lElapsedTime = GAM_g_ulUsefulDeltaTime;
-        if (fn_bIsCharacterCrossingASurfaceOfWater((HIE_tdstSuperObject *)_hCharacter, &stV))
-            fn_vGenerateFoamInStreak(hWaterStreak, lElapsedTime, &stV);
-        fn_vTreatWaterStreak(hWaterStreak, lElapsedTime);
-    }
 }

@@ -142,6 +142,199 @@ extern void __cdecl SECT_fn_vGetMaxPointInBorder(void *_hSector, MTH3D_tdstVecto
 extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
 extern ACP_tdxBool INT_fn_bDetectIntersectSegmentWithBox(MTH3D_tdstVector *p_stVertex1, MTH3D_tdstVector *p_stVect12, MTH3D_tdstVector *p_stMinPoint, MTH3D_tdstVector *p_stMaxPoint, MTH_tdxReal *_p_xT);
 
+#define AI_DT_ulUsefulDeltaTime   GAM_g_ulUsefulDeltaTime  /* 0x500434 */
+
+#define AI_VPA_xReadReal(v)  ((v)->eType == 8 ? (v)->uParam.xValue : (float)(v)->uParam.lValue)
+
+#define AI_GCM_ulCurrentTimerCount GAM_g_ulAccumulatedTime  /* 0x5003EC */
+#define AI_C_HIE_Flag_ulNotHitByRayTrace  ((unsigned long)0x40)
+
+#define AI_M_pfn_GAM_hGetSuperObjectFromStdGame           ((void *(__cdecl *)(void *))&fn_h_StandardGameGetSuperObject)
+/* 0x00411FC0 */
+extern void *__cdecl fn_hSuperObjectGetLastCollidedCharacter(void *hCharacter);
+#define AI_M_pfn_fn_hSuperObjectGetLastCollidedCharacter  fn_hSuperObjectGetLastCollidedCharacter
+
+extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
+#define AI_M_pfn_M_AIFatalError_fn1(uwError) \
+    fn_vOnAIErm_M_UpdateLastError((unsigned short)(uwError), (char *)0)
+
+#define AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1        fn_ucGetFunctionUltraOperator
+
+static const unsigned long AI_VAA_xEpsilon_bits = 0x3727C5ACu;
+#define AI_VAA_xEpsilon              (*(const float *)&AI_VAA_xEpsilon_bits)
+#define AI_VAA_xRadToDeg             AI_K_xRadToDeg   /* 0x0049CCE4 */
+
+extern unsigned long MTH_g_a2048_fInvSquareRootTable[2048];   /* 0x0050BB60 */
+#define AI_VAA_a_lQuickInvNormTable_storage  MTH_g_a2048_fInvSquareRootTable
+#define AI_VAA_p_lQuickInvNormTable  ((const int *)AI_VAA_a_lQuickInvNormTable_storage)
+
+#define AI_M_pfn_fn_p_stSkipThisArgument  fn_p_stSkipThisArgument
+
+#define AI_VAA_vQuickNormalize(px, py, pz)   \
+    do { \
+        float         xSq_    = *(pz) * *(pz) + *(py) * *(py) + *(px) * *(px); \
+        unsigned long ulBits_ = *(unsigned long *)&xSq_; \
+        int           lInv_   = (int)(((0xBD800000u - (ulBits_ & 0x7F800000u)) >> 1) & 0x7F800000u) \
+                              + *(const int *)((const char *)AI_VAA_p_lQuickInvNormTable \
+                                               + ((ulBits_ & 0xFFE000) >> 0xB)); \
+        float         xInv_   = *(float *)&lInv_; \
+        *(px) *= xInv_; *(py) *= xInv_; *(pz) *= xInv_; \
+    } while (0)
+
+#define AI_VAA_vQuickNorm(x, y, z, xRes) \
+    do { \
+        float         xSq_    = (z) * (z) + (y) * (y) + (x) * (x); \
+        unsigned long ulBits_ = *(unsigned long *)&xSq_; \
+        int           lRes_   = (int)((((ulBits_ & 0x7F800000u) + 0x3F800000u) >> 1) & 0x7F800000u) \
+                              + *(const int *)((const char *)MTH_g_a2048_fSquareRootTable \
+                                               + ((ulBits_ & 0xFFE000) >> 0xB)); \
+        (xRes) = *(float *)&lRes_; \
+    } while (0)
+
+extern void __cdecl GEO_vGetPointOfObject(void *hObject, MTH3D_tdstVector *p_stPoint, short xIndex);
+extern void __cdecl GEO_vGetMinMaxPointOfIndexedAlignedBox(void *hObject, short hElement,
+                                                           short xBoxIdx, short *p_xMin, short *p_xMax);
+
+#define AI_M_pfn_fn_hGetGeometricZdxOfTypeAtIndex \
+    ((void *(__cdecl *)(unsigned char, unsigned short, void *))&fn_hGetGeometricZdxOfTypeAtIndex)
+
+extern float __cdecl GEO_xGetRadiusOfIndexedSphere(void *hObject, short hElement, short xSphereIdx);
+
+#define C_ucTypeZdd (unsigned char)0
+#define C_ucTypeZdm (unsigned char)1
+#define C_ucTypeZde (unsigned char)2
+#define C_ucTypeZdr (unsigned char)3
+
+#define AI_VPAX_xEpsilon  (1.0e-4f)
+
+extern unsigned char __cdecl fn_ucCollSetGetColliderType(void *hCollSet);
+
+extern float            __cdecl fn_xCollSetGetColliderReal(void *hCollSet, short wIndex);
+extern MTH3D_tdstVector __cdecl fn_stCollSetGetColliderVector(void *hCollSet, short wIndex);
+#include "AI/GSParam.h"
+
+extern unsigned char __cdecl CS_fn_eGetPrivilegedActivationZone(unsigned char ucZoneType, void *hCollSet, short wIndex);
+
+extern unsigned char __cdecl fn_ucCollSetGetCollComputeFrequency(void *hCollSet);
+
+/* 0x0047A590 */
+static __inline unsigned char AI_F1_uc3dDataGetBrainComputationFrequency(MS_tdxHandleTo3dData h_3dData)
+{
+    return (unsigned char)(h_3dData ? h_3dData->ucBrainComputationFrequency : 1);
+}
+static __inline unsigned char AI_F1_uc3dDataGetLightComputationFrequency(MS_tdxHandleTo3dData h_3dData)
+{
+    return (unsigned char)(h_3dData ? h_3dData->ucLightComputationFrequency : 1);
+}
+
+#define AI_OPT_ucNbLanguages       (*(unsigned char *)(GAM_ENGINE_BASE + 0xC29))
+
+#include "GAM/STRUCTUR/Engmode.h"
+
+extern long __cdecl SND_fn_lGetVolumeLineSound(void *pLine);
+/* 0x4FF7CC */
+extern void *GAM_g_lSoundVolumeLineMusic;
+extern void *GAM_g_lSoundVolumeLineSound;
+#define AI_OPT_p_lSoundVolumeLineMusic  (GAM_g_lSoundVolumeLineMusic)
+#define AI_OPT_p_lSoundVolumeLineSound  (GAM_g_lSoundVolumeLineSound)
+/* 0x00404E20 */
+extern unsigned char __cdecl GAM_fn_bIsSlotValid(short _wSlotdId);
+#define AI_M_pfn_GAM_fn_bIsSlotValid    GAM_fn_bIsSlotValid
+
+/* 0x0047AD80 */
+long __cdecl fn_xMSSoundGetSaturationDistance(void *h_MSSound);
+long __cdecl fn_xMSSoundGetBackGroundDistance(void *h_MSSound);
+
+/* 0x0047AE10 */
+static __inline unsigned char fn_ucStandardGameGetTransparencyZoneMin(MS_tdxHandleToStandardGame _hStdGame)
+    { return _hStdGame->ucTransparencyZoneMin; }
+
+static __inline unsigned char fn_ucStandardGameGetTransparencyZoneMax(MS_tdxHandleToStandardGame _hStdGame)
+    { return _hStdGame->ucTransparencyZoneMax; }
+
+#define AI_M_pfn_fn_pstGetDNMReport_fn1   fn_pstGetDNMReport
+
+#define AI_C_WOT_ulNoObstacle  0x00000000UL
+#define AI_C_WOT_ulGround      0x00000001UL
+#define AI_C_WOT_ulWall        0x00000004UL
+#define AI_C_WOT_ulCeiling     0x00000010UL
+#define AI_C_WOT_ulWater       0x00000040UL
+#define AI_C_WOT_ulMobile      0x00010000UL
+
+#define AI_M_AddObstacleNorm(_acc, _p_stObstacle)                                        \
+    do {                                                                                 \
+        const MTH3D_tdstVector *_p_stN = DNM_M_p_stObstacleGetNorm(_p_stObstacle);       \
+        (_acc).xX += _p_stN->xX;                                                         \
+        (_acc).xY += _p_stN->xY;                                                         \
+        (_acc).xZ += _p_stN->xZ;                                                         \
+    } while (0)
+
+#pragma optimize("y", off)
+#pragma optimize("", on)
+
+/* 0x00419B90 */
+extern void *__cdecl fn_p_stDynamGetDynamics(void *h_Dynam);
+#define AI_M_pfn_fn_p_stDynamGetDynamics_fn1  ((char *(__cdecl *)(void *))&fn_p_stDynamGetDynamics)
+/* 0x00479220 */
+extern unsigned short __cdecl fn_xMaskOfObstacle(void *_p_stObstacle);
+#define AI_M_pfn_fn_xMaskOfObstacle_fn1       fn_xMaskOfObstacle
+/* 0x0042DB40 */
+extern unsigned char __cdecl GMT_fn_xTestCollideIdentifierTypeOfGameMaterial(GMT_tdxHandleToGameMaterial _hGameMat, unsigned short _uwType);
+#define AI_M_pfn_GMT_xTestCollideIdType_fn1   ((unsigned char (__cdecl *)(void *, long))&GMT_fn_xTestCollideIdentifierTypeOfGameMaterial)
+
+#define AI_C_xDegToRad_f1   0.017453292f
+
+#define AI_DNM_OBS_xRate            0x00
+#define AI_DNM_OBS_stContact        0x10
+#define AI_DNM_OBS_hCollidedMat     0x20
+
+#define AI_M_WriteVector3(_v, _p_xSrc)                                   \
+    do {                                                                 \
+        const float *_p_xS = (const float *)(_p_xSrc);                   \
+        (_v)->uParam.a_xVectorValue[0] = _p_xS[0];                       \
+        (_v)->uParam.a_xVectorValue[1] = _p_xS[1];                       \
+        (_v)->uParam.a_xVectorValue[2] = _p_xS[2];                       \
+        (_v)->eType = E_vt_Vector;                                    \
+    } while (0)
+
+#define HIE_C_InvalidSuperObject ((HIE_tdstSuperObject *)0)
+#define HIE_fn_bIsSuperObjectValid(hSuperObject) ((hSuperObject)!=HIE_C_InvalidSuperObject)
+
+#define AI_CJI_M_Full_GetSetParam_p_stVertex(p_stValue, p_stVect)                        \
+    do { MTH3D_M_vCopyVector((MTH3D_tdstVector *)(p_stValue)->uParam.a_xVectorValue, (p_stVect)); \
+         (p_stValue)->eType = E_vt_Vector; } while (0)
+
+unsigned char __cdecl fn_ucGetDsgVar(unsigned char ucId, unsigned char ucIndex, void *p_stMind, void *p_stGetSetParam);
+#define AI_GBA_C_VALID_GET  1
+
+/* 0x00480950 */
+static __inline HIE_tdstSuperObject *fn_hGetSuperObjectInChannel(CHN_tdxHandleToChannelArray hChannelArray, unsigned short uwChannelNumber)
+{
+	return (hChannelArray) ? hChannelArray[uwChannelNumber].hSupObject : NULL;
+}
+
+extern char *__cdecl FUN_0042E540(long lHandle);
+#define AI_M_pfn_pc_szResolveButtonName  FUN_0042E540
+
+/* 0x004221F0 */
+extern long __cdecl pc_GLI_lGetNbResolutions(void);
+#define AI_M_pfn_pc_GLI_lGetNbResolutions    pc_GLI_lGetNbResolutions
+extern long __cdecl pc_GLI_lGetCurrentResolution(void);
+extern long __cdecl pc_GLI_bGetResolutionName(long lMode, char *szName);
+#define AI_M_pfn_pc_GLI_lGetCurrentResolution pc_GLI_lGetCurrentResolution
+#define AI_M_pfn_pc_GLI_vGetResolutionName   pc_GLI_bGetResolutionName
+extern long __cdecl fn_lGetNbAvailableSlots(void);
+#define AI_M_pfn_fn_lGetNbAvailableSlots     fn_lGetNbAvailableSlots
+
+char AI_pc_szResolutionNameBuf[60];
+
+/* 0x0047AC70 */
+extern long __cdecl pc_GLI_lSaveVideoModeToConfig(void);
+#define AI_M_pfn_pc_GLI_lSaveVideoModeToConfig  pc_GLI_lSaveVideoModeToConfig
+
+/* 0x0047AC90 */
+extern long __cdecl pc_GLI_lIsResolutionAvailable(long lSlot);
+
 void __cdecl fn_vComputeCollideResult(HIE_tdstSuperObject *hSender)
 {
     HIE_tdstSuperObject *hSuperObjectHit;
@@ -273,174 +466,6 @@ void __cdecl fn_vComputeCollideResult(HIE_tdstSuperObject *hSender)
     }
 }
 
-/* 0x00478E10 */
-AI_tdstNodeInterpret *__cdecl fn_p_stNamesFunc(
-    HIE_tdstSuperObject *p_SuperObjPerso,
-    AI_tdstNodeInterpret *p_stTree,
-    AI_tdstGetSetParam *p_stValue)
-{
-    long eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-
-    switch ( eFuncId )
-    {
-    case AI_eFunc_GetInputEntryName:
-        {
-            struct IPT_tdstEntryElement_ *IPT_xHandle;
-
-            M_EvalNextParameter(p_stValue);
-            IPT_xHandle = (struct IPT_tdstEntryElement_ *) M_GetSetParam_lValue(p_stValue);
-            M_Full_GetSetParam_String(p_stValue, AI_RT_IPT_fn_szGetEntryActionName(IPT_xHandle));
-        }
-        return p_stTree;
-        break;
-
-    case AI_eFunc_GetFormattedTextInfo:
-        {
-            unsigned char ucArrayStartCharId, ucArrayEndCharId, ucArrayPosVectorId, ucMaxNbLines, ucCurrentLine;
-            AI_tdstTfmtStatus stStatus;
-            AI_tdstTfmtLineResults *d_stLineResults;
-            MTH_tdxReal xScreenWidth;
-            char *pszString;
-
-            M_EvalNextParameter(p_stValue);
-            pszString = (char *)fn_szGetStringFromTextOrStringParam(p_stValue);
-            M_EvalNextParameter(p_stValue);
-            xScreenWidth = M_ReturnParam_xValue(p_stValue);
-            ucArrayStartCharId = (unsigned char) M_ucVarIdInterpret(p_stTree);
-            p_stTree ++;
-            ucArrayEndCharId = (unsigned char) M_ucVarIdInterpret(p_stTree);
-            p_stTree ++;
-            ucArrayPosVectorId = (unsigned char) M_ucVarIdInterpret(p_stTree);
-            p_stTree ++;
-            M_EvalNextParameter(p_stValue);
-            ucMaxNbLines = M_ReturnParam_lValue(p_stValue);
-
-            d_stLineResults = (AI_tdstTfmtLineResults *) _alloca(sizeof(AI_tdstTfmtLineResults) * ucMaxNbLines);
-
-            ucMaxNbLines = ucCurrentLine = AI_RT_TFMT_wPositionModulesAccordingToText(&stStatus, p_SuperObjPerso, pszString, 0, -1, xScreenWidth, d_stLineResults, ucMaxNbLines);
-
-            while ( ucCurrentLine -- )
-            {
-                M_Full_GetSetParam_Integer(p_stValue, d_stLineResults[ucCurrentLine].wStartChar);
-                if ( AI_RT_fn_ucSetDsgVar(ucArrayStartCharId, ucCurrentLine, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), p_stValue) == C_INVALID_SET )
-                    break;
-                M_Full_GetSetParam_Integer(p_stValue, d_stLineResults[ucCurrentLine].wEndChar);
-                if ( AI_RT_fn_ucSetDsgVar(ucArrayEndCharId, ucCurrentLine, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), p_stValue) == C_INVALID_SET )
-                    break;
-                M_Full_GetSetParam_p_stVertex(p_stValue, &d_stLineResults[ucCurrentLine].stLineOrigin);
-                if ( AI_RT_fn_ucSetDsgVar(ucArrayPosVectorId, ucCurrentLine, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), p_stValue) == C_INVALID_SET )
-                    break;
-            }
-
-            M_Full_GetSetParam_Integer(p_stValue, ucMaxNbLines);
-        }
-        return p_stTree;
-        break;
-
-    case AI_eFunc_GetSlotName:
-        {
-            long  lSlotId;
-            char *pszSlot;
-
-            M_EvalNextParameter(p_stValue);
-            lSlotId = M_ReturnParam_lValue(p_stValue);
-
-            if (lSlotId == 0) { AI_RT_pc_vEnsureDefaultSlot(); lSlotId = 1; }
-
-            pszSlot = AI_RT_pc_szGetSlotString(lSlotId);
-            strncpy(AI_pc_szSlotNameBuf, pszSlot, 3);
-            AI_pc_szSlotNameBuf[3] = '\0';
-            M_Full_GetSetParam_String(p_stValue, AI_pc_szSlotNameBuf);
-        }
-        return p_stTree;
-        break;
-
-    case AI_eFunc_GetSlotScore:
-        {
-            long  lSlotId;
-            char *pszSlot;
-
-            M_EvalNextParameter(p_stValue);
-            lSlotId = M_ReturnParam_lValue(p_stValue);
-
-            if (lSlotId == 0) { AI_RT_pc_vEnsureDefaultSlot(); lSlotId = 1; }
-
-            pszSlot = AI_RT_pc_szGetSlotString(lSlotId);
-            strcpy(AI_pc_szSlotScoreBuf, pszSlot + 3);
-            AI_pc_szSlotScoreBuf[5] = '\0';
-            M_Full_GetSetParam_String(p_stValue, AI_pc_szSlotScoreBuf);
-        }
-        return p_stTree;
-        break;
-
-    case AI_eFunc_GetSlotDate:
-        {
-            long  lSlotId;
-            char *pszDate;
-
-            M_EvalNextParameter(p_stValue);
-            lSlotId = M_ReturnParam_lValue(p_stValue);
-
-            if (lSlotId == 0) { AI_RT_pc_vEnsureDefaultSlot(); lSlotId = 1; }
-
-            pszDate = AI_RT_pc_szFormatSlotDate(AI_RT_pc_lGetSlotId(lSlotId));
-            strncpy(AI_pc_szSlotDateBuf, pszDate, 0x0B);
-            AI_pc_szSlotDateBuf[0x0B] = '\0';
-            M_Full_GetSetParam_String(p_stValue, AI_pc_szSlotDateBuf);
-        }
-        return p_stTree;
-        break;
-
-    case AI_eFunc_GetStringCharAt:
-        {
-            register short wCpt = 0;
-            short wIndexInString = 0;
-            char *pszString = NULL;
-
-            M_EvalNextParameter(p_stValue);
-            pszString = (char *)fn_szGetStringFromTextOrStringParam(p_stValue);
-
-            M_EvalNextParameter(p_stValue);
-            wIndexInString = M_GetSetParam_lValue(p_stValue);
-
-            while( pszString[wCpt++] == '/')
-            {
-                while( pszString[wCpt++] != ':' )
-                {}
-            }
-            wIndexInString += wCpt-1;
-
-            if ( (wIndexInString>= 0) && (wIndexInString < (short) strlen(pszString)) )
-            {
-                M_Full_GetSetParam_Integer(p_stValue, pszString[wIndexInString]);
-            }
-            else
-            {
-                M_Full_GetSetParam_Integer(p_stValue, 0);
-            }
-        }
-        return p_stTree;
-        break;
-
-    default:
-        return p_stTree;
-        break;
-    }
-}
-
-#define AI_DT_ulUsefulDeltaTime   GAM_g_ulUsefulDeltaTime  /* 0x500434 */
-
-/* 0x00478580 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetDTFunction(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    p_stValue->uParam.xValue = (float)AI_DT_ulUsefulDeltaTime;
-    p_stValue->eType         = 8;
-    return p_stTree;
-}
-
-#define AI_VPA_xReadReal(v)  ((v)->eType == 8 ? (v)->uParam.xValue : (float)(v)->uParam.lValue)
-
 /* 0x00474A00 */
 AI_tdstNodeInterpret *__cdecl fn_p_stCode4VitessePadAnalogique(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -484,284 +509,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4VitessePadAnalogique(
     }
     return(p_stTree);
 }
-
-#define AI_GCM_ulCurrentTimerCount GAM_g_ulAccumulatedTime  /* 0x5003EC */
-#define AI_C_HIE_Flag_ulNotHitByRayTrace  ((unsigned long)0x40)
-
-/* 0x00479910 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetCollisionWithCollideMaterial(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-
-	MTH3D_tdstVector *p_stPoint;
-	MTH3D_tdstVector *p_stVector,stVectorSave;
-	unsigned long ulMode;
-	unsigned long xTestedMask;
-	int	bCompute = FALSE;
-
-	M_EvalNextParameter(p_stValue);
-	p_stPoint=&M_GetSetParam_stVectorValue(p_stValue);
-	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterPoint,p_stPoint))
-	{
-		MTH3D_M_vCopyVector (&AI_g_stCollideParameterPoint,p_stPoint);
-		bCompute = TRUE;
-	}
-
-	M_EvalNextParameter(p_stValue);
-	p_stVector=&M_GetSetParam_stVectorValue(p_stValue);
-	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterVector,p_stVector))
-	{
-		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,p_stVector);
-		bCompute = TRUE;
-	}
-
-	M_EvalNextParameter(p_stValue);
-	ulMode=M_GetSetParam_ulValue (p_stValue);
-
-    M_EvalNextParameter(p_stValue);
-	 xTestedMask = (unsigned long) M_GetSetParam_xMaskValue(p_stValue);
-
-	if (bCompute ||
-		AI_g_ulCollideTimeCounter != AI_GCM_ulCurrentTimerCount ||
-		AI_g_ulMode != ulMode
-	)
-	{
-		MTH3D_M_vCopyVector (&stVectorSave,&AI_g_stCollideParameterVector);
-		AI_g_xMask = xTestedMask;
-		AI_g_ulCollideTimeCounter = AI_GCM_ulCurrentTimerCount;
-		AI_g_hSuperObjectHit = NULL;
-		AI_g_ulMode = ulMode;
-		fn_vComputeCollideResult (p_SuperObjPerso);
-		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,&stVectorSave);
-		AI_g_xMask = 0;
-	}
-
-	AI_g_ulOverRideRayTraceSpoMask = AI_C_HIE_Flag_ulNotHitByRayTrace;
-
-	M_Full_GetSetParam_p_stVertex(p_stValue,&AI_g_stCollideResultPoint);
-	return(p_stTree);
-}
-
-#define AI_M_pfn_GAM_hGetSuperObjectFromStdGame           ((void *(__cdecl *)(void *))&fn_h_StandardGameGetSuperObject)
-/* 0x00411FC0 */
-extern void *__cdecl fn_hSuperObjectGetLastCollidedCharacter(void *hCharacter);
-#define AI_M_pfn_fn_hSuperObjectGetLastCollidedCharacter  fn_hSuperObjectGetLastCollidedCharacter
-
-extern void __cdecl fn_vOnAIErm_M_UpdateLastError(unsigned short FatalErrorNum, char *szMsg);
-#define AI_M_pfn_M_AIFatalError_fn1(uwError) \
-    fn_vOnAIErm_M_UpdateLastError((unsigned short)(uwError), (char *)0)
-
-#define AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1        fn_ucGetFunctionUltraOperator
-
-/* 0x00479680 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetLastCollisionActor(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    long                 eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *p_SuperObjPersoTreated = NULL;
-    HIE_tdstSuperObject *p_SuperObjCollidedActor = NULL;
-    AI_tdstGetSetParam   stParam;
-
-    if (eFuncId == 0xd0)
-    {
-
-        M_EvalNextParameter(&stParam);
-        p_SuperObjPersoTreated = M_GetSetParam_p_stSupObjValue(&stParam);
-
-        p_SuperObjCollidedActor = fn_hSuperObjectGetLastCollidedCharacter(p_SuperObjPersoTreated);
-
-        M_Full_GetSetParam_Perso(p_stValue,p_SuperObjCollidedActor);
-
-        return (p_stTree);
-    }
-    M_AIFatalError(E_uwAIFatalNotValidFunction);
-    return(p_stTree);
-}
-
-/* 0x00479AC0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stComputeRebondVector(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    MTH3D_tdstVector stNormalVector;
-    MTH3D_tdstVector stInitVector;
-    MTH_tdxReal      xCoefAbsorption;
-    MTH_tdxReal      xReactionNorm;
-    MTH3D_tdstVector stReactionVector;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    stInitVector = *(MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    stNormalVector = *(MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    xCoefAbsorption = M_ReturnParam_xValue(p_stValue);
-
-    xReactionNorm = MTH_M_xMul(-2.0f, MTH3D_M_xDotProductVector(&stInitVector, &stNormalVector));
-
-    MTH3D_M_vMulScalarVector(&stReactionVector, xReactionNorm, &stNormalVector);
-
-    MTH3D_M_vAddVector(&stReactionVector, &stReactionVector, &stInitVector);
-
-    MTH3D_M_vMulScalarVector(&stReactionVector, xCoefAbsorption, &stReactionVector);
-
-    p_stValue->eType = 0x15;
-    *(MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue = stReactionVector;
-    return p_stTree;
-}
-
-static const unsigned long AI_VAA_xEpsilon_bits = 0x3727C5ACu;
-#define AI_VAA_xEpsilon              (*(const float *)&AI_VAA_xEpsilon_bits)
-#define AI_VAA_xRadToDeg             AI_K_xRadToDeg   /* 0x0049CCE4 */
-
-extern unsigned long MTH_g_a2048_fInvSquareRootTable[2048];   /* 0x0050BB60 */
-#define AI_VAA_a_lQuickInvNormTable_storage  MTH_g_a2048_fInvSquareRootTable
-#define AI_VAA_p_lQuickInvNormTable  ((const int *)AI_VAA_a_lQuickInvNormTable_storage)
-
-#define AI_M_pfn_fn_p_stSkipThisArgument  fn_p_stSkipThisArgument
-
-#define AI_VAA_vQuickNormalize(px, py, pz)   \
-    do { \
-        float         xSq_    = *(pz) * *(pz) + *(py) * *(py) + *(px) * *(px); \
-        unsigned long ulBits_ = *(unsigned long *)&xSq_; \
-        int           lInv_   = (int)(((0xBD800000u - (ulBits_ & 0x7F800000u)) >> 1) & 0x7F800000u) \
-                              + *(const int *)((const char *)AI_VAA_p_lQuickInvNormTable \
-                                               + ((ulBits_ & 0xFFE000) >> 0xB)); \
-        float         xInv_   = *(float *)&lInv_; \
-        *(px) *= xInv_; *(py) *= xInv_; *(pz) *= xInv_; \
-    } while (0)
-
-#define AI_VAA_vQuickNorm(x, y, z, xRes) \
-    do { \
-        float         xSq_    = (z) * (z) + (y) * (y) + (x) * (x); \
-        unsigned long ulBits_ = *(unsigned long *)&xSq_; \
-        int           lRes_   = (int)((((ulBits_ & 0x7F800000u) + 0x3F800000u) >> 1) & 0x7F800000u) \
-                              + *(const int *)((const char *)MTH_g_a2048_fSquareRootTable \
-                                               + ((ulBits_ & 0xFFE000) >> 0xB)); \
-        (xRes) = *(float *)&lRes_; \
-    } while (0)
-
-/* 0x00479BE0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stVectorAndAngle(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    unsigned long  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    ACP_tdxBool    bASourceVectorIsNull = 0;
-    float          xEps = AI_VAA_xEpsilon;
-    unsigned char  ucPlan;
-    float          Ux, Uy, Uz;
-    float          Vx, Vy, Vz;
-    float          xCos, xSin, xAngle, xResult;
-    float          xCrossX, xCrossY, xCrossZ;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    Ux = p_stValue->uParam.a_xVectorValue[0];
-    Uy = p_stValue->uParam.a_xVectorValue[1];
-    Uz = p_stValue->uParam.a_xVectorValue[2];
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    Vx = p_stValue->uParam.a_xVectorValue[0];
-    Vy = p_stValue->uParam.a_xVectorValue[1];
-    Vz = p_stValue->uParam.a_xVectorValue[2];
-
-    if (xEps <= MTH_M_xAbs(Ux) || xEps <= MTH_M_xAbs(Uy) || xEps <= MTH_M_xAbs(Uz))
-        AI_VAA_vQuickNormalize(&Ux, &Uy, &Uz);
-    else
-        bASourceVectorIsNull = 1;
-
-    if (xEps <= MTH_M_xAbs(Vx) || xEps <= MTH_M_xAbs(Vy) || xEps <= MTH_M_xAbs(Vz))
-        AI_VAA_vQuickNormalize(&Vx, &Vy, &Vz);
-    else
-        bASourceVectorIsNull = 1;
-
-    switch (eFuncId)
-    {
-    case 0xBA:
-        if (bASourceVectorIsNull)
-        {
-            p_stTree = (AI_tdstNodeInterpret *)AI_M_pfn_fn_p_stSkipThisArgument(p_stTree);
-            xResult  = 0.0f;
-        }
-        else
-        {
-            p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-            ucPlan   = p_stValue->uParam.ucValue;
-
-            xCos = Ux * Vx + Uy * Vy + Uz * Vz;
-            if (xCos > 1.0f)       xCos = 1.0f;
-            else if (xCos < -1.0f) xCos = -1.0f;
-            xAngle = (float)acos((double)xCos);
-
-            if (ucPlan == 0)      { if (Ux * Vy - Uy * Vx < 0.0f) xAngle = -xAngle; }
-            else if (ucPlan == 1) { if (Uy * Vz - Uz * Vy < 0.0f) xAngle = -xAngle; }
-            else if (ucPlan == 2) { if (Uz * Vx - Ux * Vz < 0.0f) xAngle = -xAngle; }
-
-            xResult = xAngle * AI_VAA_xRadToDeg;
-        }
-        break;
-
-    case 0xBB:
-        if (bASourceVectorIsNull)
-        {
-            xResult = 1.0f;
-        }
-        else
-        {
-            xCos = Ux * Vx + Uy * Vy + Uz * Vz;
-            if (xCos > 1.0f)       xCos = 1.0f;
-            else if (xCos < -1.0f) xCos = -1.0f;
-            xResult = xCos;
-        }
-        break;
-
-    case 0xBC:
-        if (bASourceVectorIsNull)
-        {
-            p_stTree = (AI_tdstNodeInterpret *)AI_M_pfn_fn_p_stSkipThisArgument(p_stTree);
-            xResult  = 0.0f;
-        }
-        else
-        {
-            p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-            ucPlan   = p_stValue->uParam.ucValue;
-
-            xCrossX = Uy * Vz - Uz * Vy;
-            xCrossY = Uz * Vx - Ux * Vz;
-            xCrossZ = Ux * Vy - Uy * Vx;
-            AI_VAA_vQuickNorm(xCrossX, xCrossY, xCrossZ, xSin);
-
-            if (ucPlan == 0)      { if (xCrossZ < 0.0f) xSin = -xSin; }
-            else if (ucPlan == 1) { if (xCrossX < 0.0f) xSin = -xSin; }
-            else if (ucPlan == 2) { if (xCrossY < 0.0f) xSin = -xSin; }
-
-            if (xSin > 1.0f)       xSin = 1.0f;
-            else if (xSin < -1.0f) xSin = -1.0f;
-            xResult = xSin;
-        }
-        break;
-
-    default:
-        return p_stTree;
-    }
-
-    p_stValue->uParam.xValue = xResult;
-    p_stValue->eType         = 8;
-    return p_stTree;
-}
-
-extern void __cdecl GEO_vGetPointOfObject(void *hObject, MTH3D_tdstVector *p_stPoint, short xIndex);
-extern void __cdecl GEO_vGetMinMaxPointOfIndexedAlignedBox(void *hObject, short hElement,
-                                                           short xBoxIdx, short *p_xMin, short *p_xMax);
-
-#define AI_M_pfn_fn_hGetGeometricZdxOfTypeAtIndex \
-    ((void *(__cdecl *)(unsigned char, unsigned short, void *))&fn_hGetGeometricZdxOfTypeAtIndex)
-
-extern float __cdecl GEO_xGetRadiusOfIndexedSphere(void *hObject, short hElement, short xSphereIdx);
-
-#define C_ucTypeZdd (unsigned char)0
-#define C_ucTypeZdm (unsigned char)1
-#define C_ucTypeZde (unsigned char)2
-#define C_ucTypeZdr (unsigned char)3
 
 /* 0x00474B60 */
 AI_tdstNodeInterpret *__cdecl fn_p_stCode4LitCentreZDx(
@@ -847,78 +594,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4LitCentreZDx(
 
         MTH3D_M_vNullVector( &stVectorMin );
         M_Full_GetSetParam_p_stVertex( p_stValue, &stVectorMin );
-    }
-
-    return(p_stTree);
-
-}
-
-/* 0x004754D0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stCode4LitPositionZDx(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    AI_tdstGetSetParam    stParam;
-    HIE_tdstSuperObject  *hPerso;
-    ACP_tdxHandleOfObject hGeoObj;
-    long                  lZoneNumber;
-    MTH3D_tdstVector      stVectorMin;
-    ACP_tdxIndex          xMaxPoint,
-                          xMinPoint;
-
-    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-
-    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hPerso);
-
-    M_EvalNextParameter( &stParam );
-    lZoneNumber = (long) M_GetSetParam_lZDMIdValue( &stParam );
-
-    switch( eFuncId )
-    {
-    case 0xA6:
-
-          hGeoObj = fn_hGetGeometricZdxOfTypeAtIndex( C_ucTypeZdm, (unsigned short)(lZoneNumber-1), hPerso );
-          break;
-
-    case 0xA7:
-
-          hGeoObj = fn_hGetGeometricZdxOfTypeAtIndex( C_ucTypeZde, (unsigned short)(lZoneNumber-1), hPerso );
-          break;
-
-    case 0xA8:
-
-          hGeoObj = fn_hGetGeometricZdxOfTypeAtIndex( C_ucTypeZdd, (unsigned short)(lZoneNumber-1), hPerso );
-          break;
-
-    default:
-        {
-
-          M_AIFatalError(E_uwAIFatalNotValidFunction);
-          return(p_stTree);
-          break;
-        }
-    }
-
-    if( hGeoObj )
-    {
-        switch( *hGeoObj->d_xListOfElementsTypes )
-        {
-        case GEO_C_xElementPoints:
-        case GEO_C_xElementSpheres:
-            M_Full_GetSetParam_p_stVertex( p_stValue, &hGeoObj->d_stListOfPoints[0] );
-            return(p_stTree);
-            break;
-
-        case GEO_C_xElementAlignedBoxes:
-        case GEO_C_xElementCones:
-
-            GEO_vGetMinMaxPointOfIndexedAlignedBox ( hGeoObj, 0, 0, &xMinPoint, &xMaxPoint );
-
-            GEO_vGetPointOfObject( hGeoObj, &stVectorMin, xMinPoint );
-
-            M_Full_GetSetParam_p_stVertex( p_stValue, &stVectorMin );
-            return(p_stTree);
-            break;
-        }
     }
 
     return(p_stTree);
@@ -1139,8 +814,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4LitAxeZDx(
     return(p_stTree);
 }
 
-#define AI_VPAX_xEpsilon  (1.0e-4f)
-
 /* 0x004750F0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stCode4VecteurPointAxe(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -1255,443 +928,118 @@ AI_tdstNodeInterpret *__cdecl fn_p_stCode4VecteurPointAxe(
     return(p_stTree);
 }
 
-/* 0x00479720 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetCollision(
+/* 0x004754D0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stCode4LitPositionZDx(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-	unsigned long eFuncId=AI_M_eFuncIdInterpret(p_stTree-1);
-	MTH3D_tdstVector *p_stPoint;
-	MTH3D_tdstVector *p_stVector,stVectorSave;
-	unsigned long ulMode;
-	int	bCompute = FALSE;
-
-	M_EvalNextParameter(p_stValue);
-	p_stPoint=&M_GetSetParam_stVectorValue(p_stValue);
-	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterPoint,p_stPoint))
-	{
-		MTH3D_M_vCopyVector (&AI_g_stCollideParameterPoint,p_stPoint);
-		bCompute = TRUE;
-	}
-
-	M_EvalNextParameter(p_stValue);
-	p_stVector=&M_GetSetParam_stVectorValue(p_stValue);
-	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterVector,p_stVector))
-	{
-		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,p_stVector);
-		bCompute = TRUE;
-	}
-
-	M_EvalNextParameter(p_stValue);
-	ulMode=M_GetSetParam_ulValue (p_stValue);
-
-	if (bCompute ||
-		AI_g_ulCollideTimeCounter != AI_GCM_ulCurrentTimerCount ||
-		AI_g_ulMode != ulMode
-	)
-	{
-		MTH3D_M_vCopyVector (&stVectorSave,&AI_g_stCollideParameterVector);
-		AI_g_ulCollideTimeCounter = AI_GCM_ulCurrentTimerCount;
-		AI_g_hSuperObjectHit = NULL;
-		AI_g_ulMode = ulMode;
-		AI_g_xMask = 0;
-		fn_vComputeCollideResult (p_SuperObjPerso);
-		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,&stVectorSave);
-	}
-
-	switch (eFuncId)
-	{
-		case 0xc6:
-		M_Full_GetSetParam_p_stVertex(p_stValue,&AI_g_stCollideResultPoint);
-		break;
-
-		case 0xc7:
-		M_Full_GetSetParam_p_stVertex(p_stValue,&AI_g_stCollideResultVector);
-		break;
-
-		case 0xc8:
-		M_Full_GetSetParam_Perso(p_stValue,AI_g_hSuperObjectHit);
-		break;
-
-		default:
-break;
-	}
-
-	AI_g_ulOverRideRayTraceSpoMask = AI_C_HIE_Flag_ulNotHitByRayTrace;
-
-	return(p_stTree);
-}
-
-extern unsigned char __cdecl fn_ucCollSetGetColliderType(void *hCollSet);
-
-extern float            __cdecl fn_xCollSetGetColliderReal(void *hCollSet, short wIndex);
-extern MTH3D_tdstVector __cdecl fn_stCollSetGetColliderVector(void *hCollSet, short wIndex);
-#include "AI/GSParam.h"
-
-/* 0x004788E0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stCollideCommunicationFunc(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-  unsigned long eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
-	short wIndex = 0;
-	MS_tdxHandleToCollSet _hCollSet;
-
-	HIE_tdstSuperObject *hNewSuperObjPerso;
-	fn_vGetUltraOperatorPerso(AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId),p_SuperObjPerso,&hNewSuperObjPerso);
-
-	_hCollSet = M_GetMSHandle(hNewSuperObjPerso,CollSet);
-
-	switch ( eFuncId )
-	{
-	case 0xcd:
-		if ( _hCollSet )
-			wIndex = fn_ucCollSetGetColliderType(_hCollSet);
-		M_Full_GetSetParam_Integer(p_stValue, wIndex);
-		break;
-
-	case 0xce:
-		{
-
-			MTH3D_tdstVector *p_stDstVect = &M_GetSetParam_stVertexValue(p_stValue);
-
-			M_EvalNextParameter(p_stValue);
-			wIndex = M_GetSetParam_wValue(p_stValue);
-
-			if ( _hCollSet )
-				*p_stDstVect = fn_stCollSetGetColliderVector(_hCollSet, wIndex);
-			else
-				MTH3D_M_vNullVector(p_stDstVect);
-			M_GetSetParam_Type(p_stValue) = E_vt_Vector;
-		}
-		break;
-
-	case 0xcf:
-		{
-			M_EvalNextParameter(p_stValue);
-			wIndex = M_GetSetParam_wValue(p_stValue);
-			M_Full_GetSetParam_Float(p_stValue, _hCollSet ? fn_xCollSetGetColliderReal(_hCollSet, wIndex) : MTH_C_ZERO );
-		}
-		break;
-	default:
-break;
-	}
-
-	return p_stTree;
-}
-
-extern unsigned char __cdecl CS_fn_eGetPrivilegedActivationZone(unsigned char ucZoneType, void *hCollSet, short wIndex);
-
-/* 0x0047A490 */
-AI_tdstNodeInterpret *__cdecl fn_p_GetPriviligedActivationZdx(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject  *hNewSuperObjPerso;
     AI_tdstGetSetParam    stParam;
+    HIE_tdstSuperObject  *hPerso;
+    ACP_tdxHandleOfObject hGeoObj;
     long                  lZoneNumber;
-    unsigned char         ePrivilege;
-    MS_tdxHandleToCollSet hCollSet;
+    MTH3D_tdstVector      stVectorMin;
+    ACP_tdxIndex          xMaxPoint,
+                          xMinPoint;
+
+    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+
+    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hPerso);
+
+    M_EvalNextParameter( &stParam );
+    lZoneNumber = (long) M_GetSetParam_lZDMIdValue( &stParam );
+
+    switch( eFuncId )
+    {
+    case 0xA6:
+
+          hGeoObj = fn_hGetGeometricZdxOfTypeAtIndex( C_ucTypeZdm, (unsigned short)(lZoneNumber-1), hPerso );
+          break;
+
+    case 0xA7:
+
+          hGeoObj = fn_hGetGeometricZdxOfTypeAtIndex( C_ucTypeZde, (unsigned short)(lZoneNumber-1), hPerso );
+          break;
+
+    case 0xA8:
+
+          hGeoObj = fn_hGetGeometricZdxOfTypeAtIndex( C_ucTypeZdd, (unsigned short)(lZoneNumber-1), hPerso );
+          break;
+
+    default:
+        {
+
+          M_AIFatalError(E_uwAIFatalNotValidFunction);
+          return(p_stTree);
+          break;
+        }
+    }
+
+    if( hGeoObj )
+    {
+        switch( *hGeoObj->d_xListOfElementsTypes )
+        {
+        case GEO_C_xElementPoints:
+        case GEO_C_xElementSpheres:
+            M_Full_GetSetParam_p_stVertex( p_stValue, &hGeoObj->d_stListOfPoints[0] );
+            return(p_stTree);
+            break;
+
+        case GEO_C_xElementAlignedBoxes:
+        case GEO_C_xElementCones:
+
+            GEO_vGetMinMaxPointOfIndexedAlignedBox ( hGeoObj, 0, 0, &xMinPoint, &xMaxPoint );
+
+            GEO_vGetPointOfObject( hGeoObj, &stVectorMin, xMinPoint );
+
+            M_Full_GetSetParam_p_stVertex( p_stValue, &stVectorMin );
+            return(p_stTree);
+            break;
+        }
+    }
+
+    return(p_stTree);
+
+}
+
+/* 0x00475610 */
+AI_tdstNodeInterpret *__cdecl fn_p_stCode4VitesseHorizontaleDuPerso(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    char                *p_cReport;
+    MTH_tdxReal          xValue = 0;
 
     fn_vGetUltraOperatorPerso(
         AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
 
-    hCollSet = M_GetMSHandle(hNewSuperObjPerso, CollSet);
-
-    M_EvalNextParameter(&stParam);
-    lZoneNumber = (long)M_GetSetParam_lZDMIdValue(&stParam);
-    lZoneNumber--;
+    p_cReport = AI_M_pfn_fn_pstGetDNMReport_fn1(hNewSuperObjPerso);
+    if (p_cReport == (char *)0)
+        return p_stTree;
 
     switch (eFuncId)
     {
-    case 0xf1:
-        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZdd, hCollSet, (unsigned short)lZoneNumber);
-        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
-        break;
+    case 0xa0:
+        M_Full_GetSetParam_Float(p_stValue, xValue);
+        return p_stTree;
 
-    case 0xf2:
-        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZdm, hCollSet, (unsigned short)lZoneNumber);
-        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
-        break;
-
-    case 0xf3:
-        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZde, hCollSet, (unsigned short)lZoneNumber);
-        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
-        break;
-
-    case 0xf4:
-        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZdr, hCollSet, (unsigned short)lZoneNumber);
-        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
-        break;
-
-    default:
-        AI_M_pfn_M_AIFatalError_fn1(0x27);
-        break;
-    }
-
-    return p_stTree;
-}
-
-extern unsigned char __cdecl fn_ucCollSetGetCollComputeFrequency(void *hCollSet);
-
-/* 0x0047A590 */
-static __inline unsigned char AI_F1_uc3dDataGetBrainComputationFrequency(MS_tdxHandleTo3dData h_3dData)
-{
-    return (unsigned char)(h_3dData ? h_3dData->ucBrainComputationFrequency : 1);
-}
-static __inline unsigned char AI_F1_uc3dDataGetLightComputationFrequency(MS_tdxHandleTo3dData h_3dData)
-{
-    return (unsigned char)(h_3dData ? h_3dData->ucLightComputationFrequency : 1);
-}
-
-AI_tdstNodeInterpret *__cdecl fn_p_GetComputationFrequency(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    HIE_tdstSuperObject *hPerso;
-    unsigned char        ucFrequency;
-    long                 eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-
-    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hPerso);
-
-    switch( eFuncId )
-    {
-    case 0xf6:
-        ucFrequency = AI_F1_uc3dDataGetBrainComputationFrequency( M_GetMSHandle(hPerso,3dData) );
-        M_GetSetParam_ucValue(p_stValue) = ucFrequency;
-        M_GetSetParam_Type	 (p_stValue) = E_vt_0To255;
-        break;
-
-    case 0xf5:
-        ucFrequency = fn_ucCollSetGetCollComputeFrequency( M_GetMSHandle(hPerso,CollSet) );
-        M_GetSetParam_ucValue(p_stValue) = ucFrequency;
-        M_GetSetParam_Type	 (p_stValue) = E_vt_0To255;
-        break;
-
-    case 0xf7:
-        ucFrequency = AI_F1_uc3dDataGetLightComputationFrequency( M_GetMSHandle(hPerso,3dData) );
-        M_GetSetParam_ucValue(p_stValue) = ucFrequency;
-        M_GetSetParam_Type	 (p_stValue) = E_vt_0To255;
-        break;
-
-    default:
-
-        M_AIFatalError(E_uwAIFatalNotValidFunction);
-        return(p_stTree);
-        break;
-    }
-
-    return(p_stTree);
-}
-
-#define AI_OPT_ucNbLanguages       (*(unsigned char *)(GAM_ENGINE_BASE + 0xC29))
-
-/* 0x0047AAB0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetDriversAvailable(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    (void)p_SuperObjPerso;
-    p_stValue->uParam.lValue = 0;
-    p_stValue->eType         = 6;
-    return p_stTree;
-}
-
-/* 0x0047AAD0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetCurrentLanguageId(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    (void)p_SuperObjPerso;
-    p_stValue->uParam.lValue = (long)GAM_g_ucCurrentLanguage;
-    p_stValue->eType         = 6;
-    return p_stTree;
-}
-
-/* 0x0047AAF0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetNbLanguages(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    (void)p_SuperObjPerso;
-    p_stValue->uParam.lValue = (long)AI_OPT_ucNbLanguages;
-    p_stValue->eType         = 6;
-    return p_stTree;
-}
-
-#include "GAM/STRUCTUR/Engmode.h"
-
-/* 0x0047AB10 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetLanguageText(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    AI_tdstNodeInterpret *p_stNext;
-    AI_tdstGetSetParam    stParam;
-    long                  lId;
-
-    p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    lId      = stParam.uParam.lValue;
-    p_stValue->uParam.szString = ((tdstLanguageStructure *)GAM_g_stEngineStructure.p_stLanguageTable)[lId].szLanguageText;
-    p_stValue->eType           = 9;
-    return p_stNext;
-}
-
-/* 0x0047AB50 */
-AI_tdstNodeInterpret *__cdecl fn_p_stTextToInt(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    AI_tdstNodeInterpret *p_stNext;
-    AI_tdstGetSetParam    stParam;
-
-    p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
-    p_stValue->uParam.lValue = atoi(fn_szGetStringFromTextOrStringParam(&stParam));
-    p_stValue->eType         = 6;
-    return p_stNext;
-}
-
-extern long __cdecl SND_fn_lGetVolumeLineSound(void *pLine);
-/* 0x4FF7CC */
-extern void *GAM_g_lSoundVolumeLineMusic;
-extern void *GAM_g_lSoundVolumeLineSound;
-#define AI_OPT_p_lSoundVolumeLineMusic  (GAM_g_lSoundVolumeLineMusic)
-#define AI_OPT_p_lSoundVolumeLineSound  (GAM_g_lSoundVolumeLineSound)
-/* 0x00404E20 */
-extern unsigned char __cdecl GAM_fn_bIsSlotValid(short _wSlotdId);
-#define AI_M_pfn_GAM_fn_bIsSlotValid    GAM_fn_bIsSlotValid
-
-/* 0x0047ABA0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stOptionRecupererFunc(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    unsigned long eFuncId = *(unsigned long *)((char *)p_stTree - 8);
-    long          lValue;
-    (void)p_SuperObjPerso;
-
-    switch (eFuncId)
-    {
-    case 0x100:
-        lValue = SND_fn_lGetVolumeLineSound(AI_OPT_p_lSoundVolumeLineMusic);
-        break;
-
-    case 0x101:
-        lValue = SND_fn_lGetVolumeLineSound(AI_OPT_p_lSoundVolumeLineSound);
-        break;
+    case 0xa1:
+        M_Full_GetSetParam_Float(p_stValue, xValue);
+        return p_stTree;
 
     default:
         AI_M_pfn_M_AIFatalError_fn1(0x27);
         return p_stTree;
     }
-    p_stValue->uParam.lValue = lValue;
-    p_stValue->eType         = 6;
-    return p_stTree;
 }
 
-/* 0x0047ABF0 */
-AI_tdstNodeInterpret *__cdecl fn_p_stOptionSlotIsValid(
+/* 0x00478580 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetDTFunction(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-    long lValue;
-
-    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    lValue = p_stValue->uParam.lValue;
-
-    p_stValue->uParam.lValue = (long)AI_M_pfn_GAM_fn_bIsSlotValid((short)lValue);
-    p_stValue->eType = 6;
+    p_stValue->uParam.xValue = (float)AI_DT_ulUsefulDeltaTime;
+    p_stValue->eType         = 8;
     return p_stTree;
 }
-
-/* 0x0047AD80 */
-long __cdecl fn_xMSSoundGetSaturationDistance(void *h_MSSound);
-long __cdecl fn_xMSSoundGetBackGroundDistance(void *h_MSSound);
-AI_tdstNodeInterpret *__cdecl fn_p_stGetMSSoundValues(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    HIE_tdstSuperObject  *hPerso;
-    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    MS_tdxHandleToMSSound hMSSound;
-    unsigned long         ulValue = 0;
-    long                  xSndValue;
-
-    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hPerso);
-
-    hMSSound = M_GetMSHandle(hPerso, MSSound);
-
-    if (hMSSound)
-    {
-        switch (eFuncId)
-        {
-        case 0x10c:
-            xSndValue = fn_xMSSoundGetSaturationDistance(hMSSound);
-            ulValue = M_RealToIntSnd(xSndValue);
-            break;
-        case 0x10d:
-            xSndValue = fn_xMSSoundGetBackGroundDistance(hMSSound);
-            ulValue = M_RealToIntSnd(xSndValue);
-            break;
-        default:
-            M_AIFatalError(E_uwAIFatalNotValidFunction);
-            break;
-        }
-    }
-
-    M_Full_GetSetParam_Integer(p_stValue, ulValue);
-
-    return(p_stTree);
-}
-
-/* 0x0047AE10 */
-static __inline unsigned char fn_ucStandardGameGetTransparencyZoneMin(MS_tdxHandleToStandardGame _hStdGame)
-    { return _hStdGame->ucTransparencyZoneMin; }
-
-static __inline unsigned char fn_ucStandardGameGetTransparencyZoneMax(MS_tdxHandleToStandardGame _hStdGame)
-    { return _hStdGame->ucTransparencyZoneMax; }
-
-AI_tdstNodeInterpret *__cdecl fn_p_stGetStdGameLimit(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    MS_tdxHandleToStandardGame hStdGame;
-    unsigned long        ulValue = 0;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    hStdGame = M_GetMSHandle(hNewSuperObjPerso, StandardGame);
-    if (hStdGame)
-    {
-        switch (eFuncId)
-        {
-        case 0x10e:
-            ulValue = fn_ucStandardGameGetTooFarLimit(hStdGame);
-            break;
-        case 0x10f:
-            ulValue = fn_ucStandardGameGetTransparencyZoneMin(hStdGame);
-            break;
-        case 0x110:
-            ulValue = fn_ucStandardGameGetTransparencyZoneMax(hStdGame);
-            break;
-        default:
-            AI_M_pfn_M_AIFatalError_fn1(0x27);
-            break;
-        }
-    }
-    M_Full_GetSetParam_Integer(p_stValue, ulValue);
-    return p_stTree;
-}
-
-#define AI_M_pfn_fn_pstGetDNMReport_fn1   fn_pstGetDNMReport
-
-#define AI_C_WOT_ulNoObstacle  0x00000000UL
-#define AI_C_WOT_ulGround      0x00000001UL
-#define AI_C_WOT_ulWall        0x00000004UL
-#define AI_C_WOT_ulCeiling     0x00000010UL
-#define AI_C_WOT_ulWater       0x00000040UL
-#define AI_C_WOT_ulMobile      0x00010000UL
-
-#define AI_M_AddObstacleNorm(_acc, _p_stObstacle)                                        \
-    do {                                                                                 \
-        const MTH3D_tdstVector *_p_stN = DNM_M_p_stObstacleGetNorm(_p_stObstacle);       \
-        (_acc).xX += _p_stN->xX;                                                         \
-        (_acc).xY += _p_stN->xY;                                                         \
-        (_acc).xZ += _p_stN->xZ;                                                         \
-    } while (0)
-
-#pragma optimize("y", off)
 /* 0x004785B0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stGetNormalCollideVector(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -1799,205 +1147,370 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetNormalCollideVector(
     AI_M_pfn_M_AIFatalError_fn1(0x27);
     return(p_stTree);
 }
-#pragma optimize("", on)
 
-/* 0x00419B90 */
-extern void *__cdecl fn_p_stDynamGetDynamics(void *h_Dynam);
-#define AI_M_pfn_fn_p_stDynamGetDynamics_fn1  ((char *(__cdecl *)(void *))&fn_p_stDynamGetDynamics)
-/* 0x00479220 */
-extern unsigned short __cdecl fn_xMaskOfObstacle(void *_p_stObstacle);
-#define AI_M_pfn_fn_xMaskOfObstacle_fn1       fn_xMaskOfObstacle
-/* 0x0042DB40 */
-extern unsigned char __cdecl GMT_fn_xTestCollideIdentifierTypeOfGameMaterial(GMT_tdxHandleToGameMaterial _hGameMat, unsigned short _uwType);
-#define AI_M_pfn_GMT_xTestCollideIdType_fn1   ((unsigned char (__cdecl *)(void *, long))&GMT_fn_xTestCollideIdentifierTypeOfGameMaterial)
-
-#define AI_C_xDegToRad_f1   0.017453292f
-
-#define AI_DNM_OBS_xRate            0x00
-#define AI_DNM_OBS_stContact        0x10
-#define AI_DNM_OBS_hCollidedMat     0x20
-
-#define AI_M_WriteVector3(_v, _p_xSrc)                                   \
-    do {                                                                 \
-        const float *_p_xS = (const float *)(_p_xSrc);                   \
-        (_v)->uParam.a_xVectorValue[0] = _p_xS[0];                       \
-        (_v)->uParam.a_xVectorValue[1] = _p_xS[1];                       \
-        (_v)->uParam.a_xVectorValue[2] = _p_xS[2];                       \
-        (_v)->eType = E_vt_Vector;                                    \
-    } while (0)
-
-/* 0x0047A150 */
-AI_tdstNodeInterpret *__cdecl fn_p_GetMechanicParameter(
+/* 0x004788E0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stCollideCommunicationFunc(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-    DNM_tdstDynamics     *pstDynamic;
-    MS_tdxHandleToDynam   h_Dynam;
-    HIE_tdstSuperObject  *hNewSuperObjPerso;
-    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    MTH_tdxReal           xNulValue = MTH_C_ZERO;
+  unsigned long eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
+	short wIndex = 0;
+	MS_tdxHandleToCollSet _hCollSet;
 
-    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+	HIE_tdstSuperObject *hNewSuperObjPerso;
+	fn_vGetUltraOperatorPerso(AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId),p_SuperObjPerso,&hNewSuperObjPerso);
 
-    h_Dynam = M_GetMSHandle(hNewSuperObjPerso,Dynam);
-    if (!h_Dynam)
-    {
-        M_Full_GetSetParam_Float ( p_stValue, xNulValue );
-        return (p_stTree);
+	_hCollSet = M_GetMSHandle(hNewSuperObjPerso,CollSet);
+
+	switch ( eFuncId )
+	{
+	case 0xcd:
+		if ( _hCollSet )
+			wIndex = fn_ucCollSetGetColliderType(_hCollSet);
+		M_Full_GetSetParam_Integer(p_stValue, wIndex);
+		break;
+
+	case 0xce:
+		{
+
+			MTH3D_tdstVector *p_stDstVect = &M_GetSetParam_stVertexValue(p_stValue);
+
+			M_EvalNextParameter(p_stValue);
+			wIndex = M_GetSetParam_wValue(p_stValue);
+
+			if ( _hCollSet )
+				*p_stDstVect = fn_stCollSetGetColliderVector(_hCollSet, wIndex);
+			else
+				MTH3D_M_vNullVector(p_stDstVect);
+			M_GetSetParam_Type(p_stValue) = E_vt_Vector;
+		}
+		break;
+
+	case 0xcf:
+		{
+			M_EvalNextParameter(p_stValue);
+			wIndex = M_GetSetParam_wValue(p_stValue);
+			M_Full_GetSetParam_Float(p_stValue, _hCollSet ? fn_xCollSetGetColliderReal(_hCollSet, wIndex) : MTH_C_ZERO );
+		}
+		break;
+	default:
+break;
+	}
+
+	return p_stTree;
+}
+
+/* 0x00478A20 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetPersoSighting(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    MTH3D_tdstVector    *p_stTmpV0, *p_stTmpV1, *p_stTmpV2;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    POS_fn_vGetRotationVector((POS_tdstCompletePosition *)hNewSuperObjPerso->hGlobalMatrix,
+                              &p_stTmpV0, &p_stTmpV1, &p_stTmpV2);
+
+    {   long register NegMask = 0x80000000;
+        *((long *)&p_stValue->uParam.a_xVectorValue[0]) = *((long *)&p_stTmpV1->xX) ^ NegMask;
+        *((long *)&p_stValue->uParam.a_xVectorValue[1]) = *((long *)&p_stTmpV1->xY) ^ NegMask;
+        *((long *)&p_stValue->uParam.a_xVectorValue[2]) = *((long *)&p_stTmpV1->xZ) ^ NegMask;
     }
+    p_stValue->eType = 0x15;
+    return p_stTree;
+}
 
-    pstDynamic = fn_p_stDynamGetDynamics(h_Dynam);
+/* 0x00478AA0 */
+AI_tdstNodeInterpret *__cdecl fn_p_st3DFunc(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+  long eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
+  unsigned char ucChannel;
+  long lGlobalAxis = 1;
+  MTH3D_tdstVector stDstVector;
+  POS_tdstCompletePosition *hObjectMatrix;
 
-    switch (eFuncId)
+  HIE_tdstSuperObject *hNewSuperObjPerso;
+  fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId),p_SuperObjPerso,&hNewSuperObjPerso);
+
+  MTH3D_M_vNullVector(&stDstVector);
+
+	switch ( eFuncId )
+	{
+	case 0xa2:
+
+		lGlobalAxis = 0;
+		break;
+
+	case 0xd3:
+	case 0xd4:
+
+		lGlobalAxis = 0;
+
+	case 0xd2:
+	case 0xd5:
+		{
+		  HIE_tdstSuperObject *hChannelSuperObject;
+
+			M_EvalNextParameter(p_stValue);
+			ucChannel = M_GetSetParam_lValue(p_stValue);
+
+			if ( ucChannel == C_ucUnknownChannel )
+			{
+				M_Full_GetSetParam_p_stVertex(p_stValue,&stDstVector);
+				return fn_p_stSwapNextParameter(p_stTree);
+				break;
+			}
+
+			hChannelSuperObject = fn_hGetSuperObjectInChannel(fn_h3dDataGetChannelSOList(M_GetMSHandle(hNewSuperObjPerso,3dData)), ucChannel);
+
+			if ( hChannelSuperObject )
+			{
+
+				hNewSuperObjPerso = hChannelSuperObject;
+			}
+
+			if ( eFuncId == 0xd5 )
+			{
+				M_EvalNextParameter(p_stValue);
+				lGlobalAxis = M_GetSetParam_lValue(p_stValue);
+			}
+
+		}
+
+	case 0xa5:
+	case 0xa4:
+
+		break;
+
+	default:
+		M_AIFatalError(E_uwAIFatalNotValidFunction);
+		return p_stTree;
+		break;
+	}
+
+  hObjectMatrix = lGlobalAxis ? HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso) : HIE_fn_hGetSuperObjectMatrix(hNewSuperObjPerso);
+
+  switch ( eFuncId )
+  {
+	case 0xa5:
+		{
+			MTH3D_tdstVector stV1, stV2;
+
+            DNM_tdstDynamics *      p_stDynamic;
+            MS_tdxHandleToDynam     h_Dynam;
+
+			h_Dynam = M_GetMSHandle (hNewSuperObjPerso,Dynam);
+            if ( h_Dynam != 0 )
+            {
+            	p_stDynamic = fn_p_stDynamGetDynamics (h_Dynam);
+                if (( p_stDynamic != 0 ) && DNM_M_bDynamicsIsTilt (p_stDynamic))
+                {
+                    MTH3D_M_vSetVectorElements (& stDstVector , MTH_C_ZERO , MTH_C_ZERO , MTH_C_ONE);
+                    break;
+                }
+            }
+
+			POS_fn_vGetRotationMatrix(hObjectMatrix, &stV1, &stV2, &stDstVector);
+		}
+		break;
+
+	case 0xa4:
+		{
+			MTH3D_tdstVector stV2, stV3;
+
+			POS_fn_vGetRotationMatrix(hObjectMatrix, &stDstVector, &stV2, &stV3);
+		}
+		break;
+
+	case 0xd5:
+		{
+			MTH3D_tdstVector stV1, stV3;
+			POS_fn_vGetRotationMatrix(hObjectMatrix, &stV1, &stDstVector, &stV3);
+
+			MTH3D_M_vNegVector(&stDstVector, &stDstVector);
+		}
+		break;
+
+	case 0xd4:
+	case 0xa2:
+		{
+			MTH3D_tdstVector stV1, stV2, stV3;
+
+			POS_fn_vGetScaleMatrix(hObjectMatrix, &stV1, &stV2, &stV3);
+
+			MTH3D_M_vSetVectorElements(&stDstVector, MTH3D_M_xNormVector(&stV1), MTH3D_M_xNormVector(&stV2), MTH3D_M_xNormVector(&stV3));
+		}
+		break;
+
+  case 0xd3:
+  case 0xd2:
+
+    POS_fn_vGetTranslationVector(hObjectMatrix, &stDstVector);
+		break;
+	default:
+break;
+  }
+
+  M_Full_GetSetParam_p_stVertex(p_stValue, &stDstVector);
+  return p_stTree;
+}
+
+/* 0x00478E10 */
+AI_tdstNodeInterpret *__cdecl fn_p_stNamesFunc(
+    HIE_tdstSuperObject *p_SuperObjPerso,
+    AI_tdstNodeInterpret *p_stTree,
+    AI_tdstGetSetParam *p_stValue)
+{
+    long eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+
+    switch ( eFuncId )
     {
-    case 0xdd :
+    case AI_eFunc_GetInputEntryName:
         {
-            MTH_tdxReal xGravity = DNM_M_xDynamicsGetGravityFactor (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xGravity );
+            struct IPT_tdstEntryElement_ *IPT_xHandle;
+
+            M_EvalNextParameter(p_stValue);
+            IPT_xHandle = (struct IPT_tdstEntryElement_ *) M_GetSetParam_lValue(p_stValue);
+            M_Full_GetSetParam_String(p_stValue, AI_RT_IPT_fn_szGetEntryActionName(IPT_xHandle));
         }
-        return (p_stTree);
+        return p_stTree;
         break;
 
-    case 0xde :
+    case AI_eFunc_GetFormattedTextInfo:
         {
-            MTH_tdxReal xSlide = DNM_M_xDynamicsGetSlide (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xSlide );
+            unsigned char ucArrayStartCharId, ucArrayEndCharId, ucArrayPosVectorId, ucMaxNbLines, ucCurrentLine;
+            AI_tdstTfmtStatus stStatus;
+            AI_tdstTfmtLineResults *d_stLineResults;
+            MTH_tdxReal xScreenWidth;
+            char *pszString;
+
+            M_EvalNextParameter(p_stValue);
+            pszString = (char *)fn_szGetStringFromTextOrStringParam(p_stValue);
+            M_EvalNextParameter(p_stValue);
+            xScreenWidth = M_ReturnParam_xValue(p_stValue);
+            ucArrayStartCharId = (unsigned char) M_ucVarIdInterpret(p_stTree);
+            p_stTree ++;
+            ucArrayEndCharId = (unsigned char) M_ucVarIdInterpret(p_stTree);
+            p_stTree ++;
+            ucArrayPosVectorId = (unsigned char) M_ucVarIdInterpret(p_stTree);
+            p_stTree ++;
+            M_EvalNextParameter(p_stValue);
+            ucMaxNbLines = M_ReturnParam_lValue(p_stValue);
+
+            d_stLineResults = (AI_tdstTfmtLineResults *) _alloca(sizeof(AI_tdstTfmtLineResults) * ucMaxNbLines);
+
+            ucMaxNbLines = ucCurrentLine = AI_RT_TFMT_wPositionModulesAccordingToText(&stStatus, p_SuperObjPerso, pszString, 0, -1, xScreenWidth, d_stLineResults, ucMaxNbLines);
+
+            while ( ucCurrentLine -- )
+            {
+                M_Full_GetSetParam_Integer(p_stValue, d_stLineResults[ucCurrentLine].wStartChar);
+                if ( AI_RT_fn_ucSetDsgVar(ucArrayStartCharId, ucCurrentLine, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), p_stValue) == C_INVALID_SET )
+                    break;
+                M_Full_GetSetParam_Integer(p_stValue, d_stLineResults[ucCurrentLine].wEndChar);
+                if ( AI_RT_fn_ucSetDsgVar(ucArrayEndCharId, ucCurrentLine, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), p_stValue) == C_INVALID_SET )
+                    break;
+                M_Full_GetSetParam_p_stVertex(p_stValue, &d_stLineResults[ucCurrentLine].stLineOrigin);
+                if ( AI_RT_fn_ucSetDsgVar(ucArrayPosVectorId, ucCurrentLine, AI_M_stGetMindOfSuperObj(p_SuperObjPerso), p_stValue) == C_INVALID_SET )
+                    break;
+            }
+
+            M_Full_GetSetParam_Integer(p_stValue, ucMaxNbLines);
         }
-        return (p_stTree);
+        return p_stTree;
         break;
 
-    case 0xdf :
+    case AI_eFunc_GetSlotName:
         {
-            MTH_tdxReal xRebound = DNM_M_xDynamicsGetRebound (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xRebound );
+            long  lSlotId;
+            char *pszSlot;
+
+            M_EvalNextParameter(p_stValue);
+            lSlotId = M_ReturnParam_lValue(p_stValue);
+
+            if (lSlotId == 0) { AI_RT_pc_vEnsureDefaultSlot(); lSlotId = 1; }
+
+            pszSlot = AI_RT_pc_szGetSlotString(lSlotId);
+            strncpy(AI_pc_szSlotNameBuf, pszSlot, 3);
+            AI_pc_szSlotNameBuf[3] = '\0';
+            M_Full_GetSetParam_String(p_stValue, AI_pc_szSlotNameBuf);
         }
-        return (p_stTree);
+        return p_stTree;
         break;
 
-    case 0xe0 :
+    case AI_eFunc_GetSlotScore:
         {
-            MTH_tdxReal xSlopeLimit = MTH_M_xTan (MTH_M_xDegToRad (DNM_M_xDynamicsGetSlopeLimit (pstDynamic)));
-            M_Full_GetSetParam_Float ( p_stValue, xSlopeLimit );
+            long  lSlotId;
+            char *pszSlot;
+
+            M_EvalNextParameter(p_stValue);
+            lSlotId = M_ReturnParam_lValue(p_stValue);
+
+            if (lSlotId == 0) { AI_RT_pc_vEnsureDefaultSlot(); lSlotId = 1; }
+
+            pszSlot = AI_RT_pc_szGetSlotString(lSlotId);
+            strcpy(AI_pc_szSlotScoreBuf, pszSlot + 3);
+            AI_pc_szSlotScoreBuf[5] = '\0';
+            M_Full_GetSetParam_String(p_stValue, AI_pc_szSlotScoreBuf);
         }
-        return (p_stTree);
+        return p_stTree;
         break;
 
-    case 0xe1 :
+    case AI_eFunc_GetSlotDate:
         {
-            MTH_tdxReal xInertiaX = DNM_M_xDynamicsGetInertiaFactorX (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xInertiaX );
+            long  lSlotId;
+            char *pszDate;
+
+            M_EvalNextParameter(p_stValue);
+            lSlotId = M_ReturnParam_lValue(p_stValue);
+
+            if (lSlotId == 0) { AI_RT_pc_vEnsureDefaultSlot(); lSlotId = 1; }
+
+            pszDate = AI_RT_pc_szFormatSlotDate(AI_RT_pc_lGetSlotId(lSlotId));
+            strncpy(AI_pc_szSlotDateBuf, pszDate, 0x0B);
+            AI_pc_szSlotDateBuf[0x0B] = '\0';
+            M_Full_GetSetParam_String(p_stValue, AI_pc_szSlotDateBuf);
         }
-        return (p_stTree);
+        return p_stTree;
         break;
 
-    case 0xe2 :
+    case AI_eFunc_GetStringCharAt:
         {
-            MTH_tdxReal xInertiaY = DNM_M_xDynamicsGetInertiaFactorY (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xInertiaY );
-        }
-        return (p_stTree);
-        break;
+            register short wCpt = 0;
+            short wIndexInString = 0;
+            char *pszString = NULL;
 
-    case 0xe3 :
-        {
-            MTH_tdxReal xInertiaZ = DNM_M_xDynamicsGetInertiaFactorZ (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xInertiaZ );
-        }
-        return (p_stTree);
-        break;
+            M_EvalNextParameter(p_stValue);
+            pszString = (char *)fn_szGetStringFromTextOrStringParam(p_stValue);
 
-    case 0xe4 :
-        {
-            MTH_tdxReal xTiltIntensity = DNM_M_xDynamicsGetTiltIntensity (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xTiltIntensity );
-        }
-        return (p_stTree);
-        break;
+            M_EvalNextParameter(p_stValue);
+            wIndexInString = M_GetSetParam_lValue(p_stValue);
 
-    case 0xe5 :
-        {
-            MTH_tdxReal xTiltInertia = DNM_M_xDynamicsGetTiltInertia (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xTiltInertia );
-        }
-        return (p_stTree);
-        break;
+            while( pszString[wCpt++] == '/')
+            {
+                while( pszString[wCpt++] != ':' )
+                {}
+            }
+            wIndexInString += wCpt-1;
 
-    case 0xe6 :
-        {
-            MTH_tdxReal xTiltOrigin = DNM_M_xDynamicsGetTiltOrigin (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xTiltOrigin );
+            if ( (wIndexInString>= 0) && (wIndexInString < (short) strlen(pszString)) )
+            {
+                M_Full_GetSetParam_Integer(p_stValue, pszString[wIndexInString]);
+            }
+            else
+            {
+                M_Full_GetSetParam_Integer(p_stValue, 0);
+            }
         }
-        return (p_stTree);
-        break;
-
-    case 0xe7 :
-        {
-            MTH3D_tdstVector stSpeedLimit;
-            MTH3D_M_vCopyVector ( &stSpeedLimit, DNM_M_pDynamicsGetMaxSpeed (pstDynamic) );
-            M_Full_GetSetParam_p_stVertex (p_stValue,&stSpeedLimit);
-        }
-        return (p_stTree);
-        break;
-
-    case 0xe8 :
-        {
-            MTH_tdxReal xStreamPriority = DNM_M_xDynamicsGetStreamPriority (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xStreamPriority );
-        }
-        return (p_stTree);
-        break;
-
-    case 0xe9 :
-        {
-            MTH3D_tdstVector stStreamSpeed;
-            MTH3D_M_vCopyVector ( &stStreamSpeed, DNM_M_pDynamicsGetStreamSpeed (pstDynamic) );
-            M_Full_GetSetParam_p_stVertex (p_stValue,&stStreamSpeed);
-        }
-        return (p_stTree);
-        break;
-
-    case 0xea :
-        {
-            MTH_tdxReal xStreamFactor = DNM_M_xDynamicsGetStreamFactor (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xStreamFactor );
-        }
-        return (p_stTree);
-        break;
-
-    case 0xeb :
-        {
-            MTH_tdxReal xSlideFactorX = DNM_M_xDynamicsGetSlideFactorX (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xSlideFactorX );
-        }
-        return (p_stTree);
-        break;
-
-    case 0xec :
-        {
-            MTH_tdxReal xSlideFactorY = DNM_M_xDynamicsGetSlideFactorY (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xSlideFactorY );
-        }
-        return (p_stTree);
-        break;
-
-    case 0xed :
-        {
-            MTH_tdxReal xSlideFactorZ = DNM_M_xDynamicsGetSlideFactorZ (pstDynamic);
-            M_Full_GetSetParam_Float ( p_stValue, xSlideFactorZ );
-        }
-        return (p_stTree);
-        break;
-
-    case 0xef :
-        M_Full_GetSetParam_p_stVertex (p_stValue,DNM_M_p_stDynamicsGetSpeedAnim (pstDynamic));
-        return (p_stTree);
+        return p_stTree;
         break;
 
     default:
+        return p_stTree;
         break;
     }
-
-    M_AIFatalError(E_uwAIFatalNotValidFunction);
-    return(p_stTree);
 }
 
 /* 0x00479260 */
@@ -2227,40 +1740,464 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetCollidePoint(
     return(p_stTree);
 }
 
-/* 0x00475610 */
-AI_tdstNodeInterpret *__cdecl fn_p_stCode4VitesseHorizontaleDuPerso(
+/* 0x00479680 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetLastCollisionActor(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    char                *p_cReport;
-    MTH_tdxReal          xValue = 0;
+    long                 eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *p_SuperObjPersoTreated = NULL;
+    HIE_tdstSuperObject *p_SuperObjCollidedActor = NULL;
+    AI_tdstGetSetParam   stParam;
 
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+    if (eFuncId == 0xd0)
+    {
 
-    p_cReport = AI_M_pfn_fn_pstGetDNMReport_fn1(hNewSuperObjPerso);
-    if (p_cReport == (char *)0)
-        return p_stTree;
+        M_EvalNextParameter(&stParam);
+        p_SuperObjPersoTreated = M_GetSetParam_p_stSupObjValue(&stParam);
+
+        p_SuperObjCollidedActor = fn_hSuperObjectGetLastCollidedCharacter(p_SuperObjPersoTreated);
+
+        M_Full_GetSetParam_Perso(p_stValue,p_SuperObjCollidedActor);
+
+        return (p_stTree);
+    }
+    M_AIFatalError(E_uwAIFatalNotValidFunction);
+    return(p_stTree);
+}
+
+/* 0x00479720 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetCollision(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+	unsigned long eFuncId=AI_M_eFuncIdInterpret(p_stTree-1);
+	MTH3D_tdstVector *p_stPoint;
+	MTH3D_tdstVector *p_stVector,stVectorSave;
+	unsigned long ulMode;
+	int	bCompute = FALSE;
+
+	M_EvalNextParameter(p_stValue);
+	p_stPoint=&M_GetSetParam_stVectorValue(p_stValue);
+	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterPoint,p_stPoint))
+	{
+		MTH3D_M_vCopyVector (&AI_g_stCollideParameterPoint,p_stPoint);
+		bCompute = TRUE;
+	}
+
+	M_EvalNextParameter(p_stValue);
+	p_stVector=&M_GetSetParam_stVectorValue(p_stValue);
+	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterVector,p_stVector))
+	{
+		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,p_stVector);
+		bCompute = TRUE;
+	}
+
+	M_EvalNextParameter(p_stValue);
+	ulMode=M_GetSetParam_ulValue (p_stValue);
+
+	if (bCompute ||
+		AI_g_ulCollideTimeCounter != AI_GCM_ulCurrentTimerCount ||
+		AI_g_ulMode != ulMode
+	)
+	{
+		MTH3D_M_vCopyVector (&stVectorSave,&AI_g_stCollideParameterVector);
+		AI_g_ulCollideTimeCounter = AI_GCM_ulCurrentTimerCount;
+		AI_g_hSuperObjectHit = NULL;
+		AI_g_ulMode = ulMode;
+		AI_g_xMask = 0;
+		fn_vComputeCollideResult (p_SuperObjPerso);
+		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,&stVectorSave);
+	}
+
+	switch (eFuncId)
+	{
+		case 0xc6:
+		M_Full_GetSetParam_p_stVertex(p_stValue,&AI_g_stCollideResultPoint);
+		break;
+
+		case 0xc7:
+		M_Full_GetSetParam_p_stVertex(p_stValue,&AI_g_stCollideResultVector);
+		break;
+
+		case 0xc8:
+		M_Full_GetSetParam_Perso(p_stValue,AI_g_hSuperObjectHit);
+		break;
+
+		default:
+break;
+	}
+
+	AI_g_ulOverRideRayTraceSpoMask = AI_C_HIE_Flag_ulNotHitByRayTrace;
+
+	return(p_stTree);
+}
+
+/* 0x00479910 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetCollisionWithCollideMaterial(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+
+	MTH3D_tdstVector *p_stPoint;
+	MTH3D_tdstVector *p_stVector,stVectorSave;
+	unsigned long ulMode;
+	unsigned long xTestedMask;
+	int	bCompute = FALSE;
+
+	M_EvalNextParameter(p_stValue);
+	p_stPoint=&M_GetSetParam_stVectorValue(p_stValue);
+	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterPoint,p_stPoint))
+	{
+		MTH3D_M_vCopyVector (&AI_g_stCollideParameterPoint,p_stPoint);
+		bCompute = TRUE;
+	}
+
+	M_EvalNextParameter(p_stValue);
+	p_stVector=&M_GetSetParam_stVectorValue(p_stValue);
+	if (!MTH3D_M_bEqualVector (&AI_g_stCollideParameterVector,p_stVector))
+	{
+		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,p_stVector);
+		bCompute = TRUE;
+	}
+
+	M_EvalNextParameter(p_stValue);
+	ulMode=M_GetSetParam_ulValue (p_stValue);
+
+    M_EvalNextParameter(p_stValue);
+	 xTestedMask = (unsigned long) M_GetSetParam_xMaskValue(p_stValue);
+
+	if (bCompute ||
+		AI_g_ulCollideTimeCounter != AI_GCM_ulCurrentTimerCount ||
+		AI_g_ulMode != ulMode
+	)
+	{
+		MTH3D_M_vCopyVector (&stVectorSave,&AI_g_stCollideParameterVector);
+		AI_g_xMask = xTestedMask;
+		AI_g_ulCollideTimeCounter = AI_GCM_ulCurrentTimerCount;
+		AI_g_hSuperObjectHit = NULL;
+		AI_g_ulMode = ulMode;
+		fn_vComputeCollideResult (p_SuperObjPerso);
+		MTH3D_M_vCopyVector (&AI_g_stCollideParameterVector,&stVectorSave);
+		AI_g_xMask = 0;
+	}
+
+	AI_g_ulOverRideRayTraceSpoMask = AI_C_HIE_Flag_ulNotHitByRayTrace;
+
+	M_Full_GetSetParam_p_stVertex(p_stValue,&AI_g_stCollideResultPoint);
+	return(p_stTree);
+}
+
+/* 0x00479AC0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stComputeRebondVector(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    MTH3D_tdstVector stNormalVector;
+    MTH3D_tdstVector stInitVector;
+    MTH_tdxReal      xCoefAbsorption;
+    MTH_tdxReal      xReactionNorm;
+    MTH3D_tdstVector stReactionVector;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    stInitVector = *(MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    stNormalVector = *(MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    xCoefAbsorption = M_ReturnParam_xValue(p_stValue);
+
+    xReactionNorm = MTH_M_xMul(-2.0f, MTH3D_M_xDotProductVector(&stInitVector, &stNormalVector));
+
+    MTH3D_M_vMulScalarVector(&stReactionVector, xReactionNorm, &stNormalVector);
+
+    MTH3D_M_vAddVector(&stReactionVector, &stReactionVector, &stInitVector);
+
+    MTH3D_M_vMulScalarVector(&stReactionVector, xCoefAbsorption, &stReactionVector);
+
+    p_stValue->eType = 0x15;
+    *(MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue = stReactionVector;
+    return p_stTree;
+}
+
+/* 0x00479BE0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stVectorAndAngle(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    unsigned long  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    ACP_tdxBool    bASourceVectorIsNull = 0;
+    float          xEps = AI_VAA_xEpsilon;
+    unsigned char  ucPlan;
+    float          Ux, Uy, Uz;
+    float          Vx, Vy, Vz;
+    float          xCos, xSin, xAngle, xResult;
+    float          xCrossX, xCrossY, xCrossZ;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    Ux = p_stValue->uParam.a_xVectorValue[0];
+    Uy = p_stValue->uParam.a_xVectorValue[1];
+    Uz = p_stValue->uParam.a_xVectorValue[2];
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    Vx = p_stValue->uParam.a_xVectorValue[0];
+    Vy = p_stValue->uParam.a_xVectorValue[1];
+    Vz = p_stValue->uParam.a_xVectorValue[2];
+
+    if (xEps <= MTH_M_xAbs(Ux) || xEps <= MTH_M_xAbs(Uy) || xEps <= MTH_M_xAbs(Uz))
+        AI_VAA_vQuickNormalize(&Ux, &Uy, &Uz);
+    else
+        bASourceVectorIsNull = 1;
+
+    if (xEps <= MTH_M_xAbs(Vx) || xEps <= MTH_M_xAbs(Vy) || xEps <= MTH_M_xAbs(Vz))
+        AI_VAA_vQuickNormalize(&Vx, &Vy, &Vz);
+    else
+        bASourceVectorIsNull = 1;
 
     switch (eFuncId)
     {
-    case 0xa0:
-        M_Full_GetSetParam_Float(p_stValue, xValue);
-        return p_stTree;
+    case 0xBA:
+        if (bASourceVectorIsNull)
+        {
+            p_stTree = (AI_tdstNodeInterpret *)AI_M_pfn_fn_p_stSkipThisArgument(p_stTree);
+            xResult  = 0.0f;
+        }
+        else
+        {
+            p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+            ucPlan   = p_stValue->uParam.ucValue;
 
-    case 0xa1:
-        M_Full_GetSetParam_Float(p_stValue, xValue);
-        return p_stTree;
+            xCos = Ux * Vx + Uy * Vy + Uz * Vz;
+            if (xCos > 1.0f)       xCos = 1.0f;
+            else if (xCos < -1.0f) xCos = -1.0f;
+            xAngle = (float)acos((double)xCos);
+
+            if (ucPlan == 0)      { if (Ux * Vy - Uy * Vx < 0.0f) xAngle = -xAngle; }
+            else if (ucPlan == 1) { if (Uy * Vz - Uz * Vy < 0.0f) xAngle = -xAngle; }
+            else if (ucPlan == 2) { if (Uz * Vx - Ux * Vz < 0.0f) xAngle = -xAngle; }
+
+            xResult = xAngle * AI_VAA_xRadToDeg;
+        }
+        break;
+
+    case 0xBB:
+        if (bASourceVectorIsNull)
+        {
+            xResult = 1.0f;
+        }
+        else
+        {
+            xCos = Ux * Vx + Uy * Vy + Uz * Vz;
+            if (xCos > 1.0f)       xCos = 1.0f;
+            else if (xCos < -1.0f) xCos = -1.0f;
+            xResult = xCos;
+        }
+        break;
+
+    case 0xBC:
+        if (bASourceVectorIsNull)
+        {
+            p_stTree = (AI_tdstNodeInterpret *)AI_M_pfn_fn_p_stSkipThisArgument(p_stTree);
+            xResult  = 0.0f;
+        }
+        else
+        {
+            p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+            ucPlan   = p_stValue->uParam.ucValue;
+
+            xCrossX = Uy * Vz - Uz * Vy;
+            xCrossY = Uz * Vx - Ux * Vz;
+            xCrossZ = Ux * Vy - Uy * Vx;
+            AI_VAA_vQuickNorm(xCrossX, xCrossY, xCrossZ, xSin);
+
+            if (ucPlan == 0)      { if (xCrossZ < 0.0f) xSin = -xSin; }
+            else if (ucPlan == 1) { if (xCrossX < 0.0f) xSin = -xSin; }
+            else if (ucPlan == 2) { if (xCrossY < 0.0f) xSin = -xSin; }
+
+            if (xSin > 1.0f)       xSin = 1.0f;
+            else if (xSin < -1.0f) xSin = -1.0f;
+            xResult = xSin;
+        }
+        break;
 
     default:
-        AI_M_pfn_M_AIFatalError_fn1(0x27);
         return p_stTree;
     }
+
+    p_stValue->uParam.xValue = xResult;
+    p_stValue->eType         = 8;
+    return p_stTree;
 }
 
-#define HIE_C_InvalidSuperObject ((HIE_tdstSuperObject *)0)
-#define HIE_fn_bIsSuperObjectValid(hSuperObject) ((hSuperObject)!=HIE_C_InvalidSuperObject)
+/* 0x0047A150 */
+AI_tdstNodeInterpret *__cdecl fn_p_GetMechanicParameter(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    DNM_tdstDynamics     *pstDynamic;
+    MS_tdxHandleToDynam   h_Dynam;
+    HIE_tdstSuperObject  *hNewSuperObjPerso;
+    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    MTH_tdxReal           xNulValue = MTH_C_ZERO;
+
+    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    h_Dynam = M_GetMSHandle(hNewSuperObjPerso,Dynam);
+    if (!h_Dynam)
+    {
+        M_Full_GetSetParam_Float ( p_stValue, xNulValue );
+        return (p_stTree);
+    }
+
+    pstDynamic = fn_p_stDynamGetDynamics(h_Dynam);
+
+    switch (eFuncId)
+    {
+    case 0xdd :
+        {
+            MTH_tdxReal xGravity = DNM_M_xDynamicsGetGravityFactor (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xGravity );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xde :
+        {
+            MTH_tdxReal xSlide = DNM_M_xDynamicsGetSlide (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xSlide );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xdf :
+        {
+            MTH_tdxReal xRebound = DNM_M_xDynamicsGetRebound (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xRebound );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe0 :
+        {
+            MTH_tdxReal xSlopeLimit = MTH_M_xTan (MTH_M_xDegToRad (DNM_M_xDynamicsGetSlopeLimit (pstDynamic)));
+            M_Full_GetSetParam_Float ( p_stValue, xSlopeLimit );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe1 :
+        {
+            MTH_tdxReal xInertiaX = DNM_M_xDynamicsGetInertiaFactorX (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xInertiaX );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe2 :
+        {
+            MTH_tdxReal xInertiaY = DNM_M_xDynamicsGetInertiaFactorY (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xInertiaY );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe3 :
+        {
+            MTH_tdxReal xInertiaZ = DNM_M_xDynamicsGetInertiaFactorZ (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xInertiaZ );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe4 :
+        {
+            MTH_tdxReal xTiltIntensity = DNM_M_xDynamicsGetTiltIntensity (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xTiltIntensity );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe5 :
+        {
+            MTH_tdxReal xTiltInertia = DNM_M_xDynamicsGetTiltInertia (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xTiltInertia );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe6 :
+        {
+            MTH_tdxReal xTiltOrigin = DNM_M_xDynamicsGetTiltOrigin (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xTiltOrigin );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe7 :
+        {
+            MTH3D_tdstVector stSpeedLimit;
+            MTH3D_M_vCopyVector ( &stSpeedLimit, DNM_M_pDynamicsGetMaxSpeed (pstDynamic) );
+            M_Full_GetSetParam_p_stVertex (p_stValue,&stSpeedLimit);
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe8 :
+        {
+            MTH_tdxReal xStreamPriority = DNM_M_xDynamicsGetStreamPriority (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xStreamPriority );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xe9 :
+        {
+            MTH3D_tdstVector stStreamSpeed;
+            MTH3D_M_vCopyVector ( &stStreamSpeed, DNM_M_pDynamicsGetStreamSpeed (pstDynamic) );
+            M_Full_GetSetParam_p_stVertex (p_stValue,&stStreamSpeed);
+        }
+        return (p_stTree);
+        break;
+
+    case 0xea :
+        {
+            MTH_tdxReal xStreamFactor = DNM_M_xDynamicsGetStreamFactor (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xStreamFactor );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xeb :
+        {
+            MTH_tdxReal xSlideFactorX = DNM_M_xDynamicsGetSlideFactorX (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xSlideFactorX );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xec :
+        {
+            MTH_tdxReal xSlideFactorY = DNM_M_xDynamicsGetSlideFactorY (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xSlideFactorY );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xed :
+        {
+            MTH_tdxReal xSlideFactorZ = DNM_M_xDynamicsGetSlideFactorZ (pstDynamic);
+            M_Full_GetSetParam_Float ( p_stValue, xSlideFactorZ );
+        }
+        return (p_stTree);
+        break;
+
+    case 0xef :
+        M_Full_GetSetParam_p_stVertex (p_stValue,DNM_M_p_stDynamicsGetSpeedAnim (pstDynamic));
+        return (p_stTree);
+        break;
+
+    default:
+        break;
+    }
+
+    M_AIFatalError(E_uwAIFatalNotValidFunction);
+    return(p_stTree);
+}
 
 /* 0x0047A3E0 */
 AI_tdstNodeInterpret *__cdecl fn_p_GetHierarchyLink(
@@ -2306,9 +2243,94 @@ AI_tdstNodeInterpret *__cdecl fn_p_GetHierarchyLink(
     return(p_stTree);
 }
 
-#define AI_CJI_M_Full_GetSetParam_p_stVertex(p_stValue, p_stVect)                        \
-    do { MTH3D_M_vCopyVector((MTH3D_tdstVector *)(p_stValue)->uParam.a_xVectorValue, (p_stVect)); \
-         (p_stValue)->eType = E_vt_Vector; } while (0)
+/* 0x0047A490 */
+AI_tdstNodeInterpret *__cdecl fn_p_GetPriviligedActivationZdx(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject  *hNewSuperObjPerso;
+    AI_tdstGetSetParam    stParam;
+    long                  lZoneNumber;
+    unsigned char         ePrivilege;
+    MS_tdxHandleToCollSet hCollSet;
+
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    hCollSet = M_GetMSHandle(hNewSuperObjPerso, CollSet);
+
+    M_EvalNextParameter(&stParam);
+    lZoneNumber = (long)M_GetSetParam_lZDMIdValue(&stParam);
+    lZoneNumber--;
+
+    switch (eFuncId)
+    {
+    case 0xf1:
+        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZdd, hCollSet, (unsigned short)lZoneNumber);
+        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
+        break;
+
+    case 0xf2:
+        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZdm, hCollSet, (unsigned short)lZoneNumber);
+        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
+        break;
+
+    case 0xf3:
+        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZde, hCollSet, (unsigned short)lZoneNumber);
+        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
+        break;
+
+    case 0xf4:
+        ePrivilege = CS_fn_eGetPrivilegedActivationZone(C_ucTypeZdr, hCollSet, (unsigned short)lZoneNumber);
+        M_Full_GetSetParam_Integer(p_stValue, (unsigned short)ePrivilege);
+        break;
+
+    default:
+        AI_M_pfn_M_AIFatalError_fn1(0x27);
+        break;
+    }
+
+    return p_stTree;
+}
+
+AI_tdstNodeInterpret *__cdecl fn_p_GetComputationFrequency(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    HIE_tdstSuperObject *hPerso;
+    unsigned char        ucFrequency;
+    long                 eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+
+    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hPerso);
+
+    switch( eFuncId )
+    {
+    case 0xf6:
+        ucFrequency = AI_F1_uc3dDataGetBrainComputationFrequency( M_GetMSHandle(hPerso,3dData) );
+        M_GetSetParam_ucValue(p_stValue) = ucFrequency;
+        M_GetSetParam_Type	 (p_stValue) = E_vt_0To255;
+        break;
+
+    case 0xf5:
+        ucFrequency = fn_ucCollSetGetCollComputeFrequency( M_GetMSHandle(hPerso,CollSet) );
+        M_GetSetParam_ucValue(p_stValue) = ucFrequency;
+        M_GetSetParam_Type	 (p_stValue) = E_vt_0To255;
+        break;
+
+    case 0xf7:
+        ucFrequency = AI_F1_uc3dDataGetLightComputationFrequency( M_GetMSHandle(hPerso,3dData) );
+        M_GetSetParam_ucValue(p_stValue) = ucFrequency;
+        M_GetSetParam_Type	 (p_stValue) = E_vt_0To255;
+        break;
+
+    default:
+
+        M_AIFatalError(E_uwAIFatalNotValidFunction);
+        return(p_stTree);
+        break;
+    }
+
+    return(p_stTree);
+}
 /* 0x0047A660 */
 AI_tdstNodeInterpret *__cdecl fn_p_ComputeJumpImpulsion(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -2399,9 +2421,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_ComputeJumpImpulsion(
     return (p_stTree);
 }
 
-unsigned char __cdecl fn_ucGetDsgVar(unsigned char ucId, unsigned char ucIndex, void *p_stMind, void *p_stGetSetParam);
-#define AI_GBA_C_VALID_GET  1
-
 /* 0x0047A8E0 */
 AI_tdstNodeInterpret *__cdecl fn_p_GetBooleanInArray(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -2483,174 +2502,6 @@ AI_tdstNodeInterpret *__cdecl fn_p_GetBooleanInArray(
     return (p_stTree);
 }
 
-/* 0x00478A20 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetPersoSighting(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
-    HIE_tdstSuperObject *hNewSuperObjPerso;
-    MTH3D_tdstVector    *p_stTmpV0, *p_stTmpV1, *p_stTmpV2;
-
-    fn_vGetUltraOperatorPerso(
-        AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
-
-    POS_fn_vGetRotationVector((POS_tdstCompletePosition *)hNewSuperObjPerso->hGlobalMatrix,
-                              &p_stTmpV0, &p_stTmpV1, &p_stTmpV2);
-
-    {   long register NegMask = 0x80000000;
-        *((long *)&p_stValue->uParam.a_xVectorValue[0]) = *((long *)&p_stTmpV1->xX) ^ NegMask;
-        *((long *)&p_stValue->uParam.a_xVectorValue[1]) = *((long *)&p_stTmpV1->xY) ^ NegMask;
-        *((long *)&p_stValue->uParam.a_xVectorValue[2]) = *((long *)&p_stTmpV1->xZ) ^ NegMask;
-    }
-    p_stValue->eType = 0x15;
-    return p_stTree;
-}
-
-/* 0x00480950 */
-static __inline HIE_tdstSuperObject *fn_hGetSuperObjectInChannel(CHN_tdxHandleToChannelArray hChannelArray, unsigned short uwChannelNumber)
-{
-	return (hChannelArray) ? hChannelArray[uwChannelNumber].hSupObject : NULL;
-}
-
-/* 0x00478AA0 */
-AI_tdstNodeInterpret *__cdecl fn_p_st3DFunc(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-  long eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
-  unsigned char ucChannel;
-  long lGlobalAxis = 1;
-  MTH3D_tdstVector stDstVector;
-  POS_tdstCompletePosition *hObjectMatrix;
-
-  HIE_tdstSuperObject *hNewSuperObjPerso;
-  fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId),p_SuperObjPerso,&hNewSuperObjPerso);
-
-  MTH3D_M_vNullVector(&stDstVector);
-
-	switch ( eFuncId )
-	{
-	case 0xa2:
-
-		lGlobalAxis = 0;
-		break;
-
-	case 0xd3:
-	case 0xd4:
-
-		lGlobalAxis = 0;
-
-	case 0xd2:
-	case 0xd5:
-		{
-		  HIE_tdstSuperObject *hChannelSuperObject;
-
-			M_EvalNextParameter(p_stValue);
-			ucChannel = M_GetSetParam_lValue(p_stValue);
-
-			if ( ucChannel == C_ucUnknownChannel )
-			{
-				M_Full_GetSetParam_p_stVertex(p_stValue,&stDstVector);
-				return fn_p_stSwapNextParameter(p_stTree);
-				break;
-			}
-
-			hChannelSuperObject = fn_hGetSuperObjectInChannel(fn_h3dDataGetChannelSOList(M_GetMSHandle(hNewSuperObjPerso,3dData)), ucChannel);
-
-			if ( hChannelSuperObject )
-			{
-
-				hNewSuperObjPerso = hChannelSuperObject;
-			}
-
-			if ( eFuncId == 0xd5 )
-			{
-				M_EvalNextParameter(p_stValue);
-				lGlobalAxis = M_GetSetParam_lValue(p_stValue);
-			}
-
-		}
-
-	case 0xa5:
-	case 0xa4:
-
-		break;
-
-	default:
-		M_AIFatalError(E_uwAIFatalNotValidFunction);
-		return p_stTree;
-		break;
-	}
-
-  hObjectMatrix = lGlobalAxis ? HIE_fn_hGetSuperObjectGlobalMatrix(hNewSuperObjPerso) : HIE_fn_hGetSuperObjectMatrix(hNewSuperObjPerso);
-
-  switch ( eFuncId )
-  {
-	case 0xa5:
-		{
-			MTH3D_tdstVector stV1, stV2;
-
-            DNM_tdstDynamics *      p_stDynamic;
-            MS_tdxHandleToDynam     h_Dynam;
-
-			h_Dynam = M_GetMSHandle (hNewSuperObjPerso,Dynam);
-            if ( h_Dynam != 0 )
-            {
-            	p_stDynamic = fn_p_stDynamGetDynamics (h_Dynam);
-                if (( p_stDynamic != 0 ) && DNM_M_bDynamicsIsTilt (p_stDynamic))
-                {
-                    MTH3D_M_vSetVectorElements (& stDstVector , MTH_C_ZERO , MTH_C_ZERO , MTH_C_ONE);
-                    break;
-                }
-            }
-
-			POS_fn_vGetRotationMatrix(hObjectMatrix, &stV1, &stV2, &stDstVector);
-		}
-		break;
-
-	case 0xa4:
-		{
-			MTH3D_tdstVector stV2, stV3;
-
-			POS_fn_vGetRotationMatrix(hObjectMatrix, &stDstVector, &stV2, &stV3);
-		}
-		break;
-
-	case 0xd5:
-		{
-			MTH3D_tdstVector stV1, stV3;
-			POS_fn_vGetRotationMatrix(hObjectMatrix, &stV1, &stDstVector, &stV3);
-
-			MTH3D_M_vNegVector(&stDstVector, &stDstVector);
-		}
-		break;
-
-	case 0xd4:
-	case 0xa2:
-		{
-			MTH3D_tdstVector stV1, stV2, stV3;
-
-			POS_fn_vGetScaleMatrix(hObjectMatrix, &stV1, &stV2, &stV3);
-
-			MTH3D_M_vSetVectorElements(&stDstVector, MTH3D_M_xNormVector(&stV1), MTH3D_M_xNormVector(&stV2), MTH3D_M_xNormVector(&stV3));
-		}
-		break;
-
-  case 0xd3:
-  case 0xd2:
-
-    POS_fn_vGetTranslationVector(hObjectMatrix, &stDstVector);
-		break;
-	default:
-break;
-  }
-
-  M_Full_GetSetParam_p_stVertex(p_stValue, &stDstVector);
-  return p_stTree;
-}
-
-extern char *__cdecl FUN_0042E540(long lHandle);
-#define AI_M_pfn_pc_szResolveButtonName  FUN_0042E540
-
 /* 0x0047AA70 */
 AI_tdstNodeInterpret *__cdecl fn_p_stGetButtonName(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
@@ -2664,17 +2515,104 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetButtonName(
     return p_stNext;
 }
 
-/* 0x004221F0 */
-extern long __cdecl pc_GLI_lGetNbResolutions(void);
-#define AI_M_pfn_pc_GLI_lGetNbResolutions    pc_GLI_lGetNbResolutions
-extern long __cdecl pc_GLI_lGetCurrentResolution(void);
-extern long __cdecl pc_GLI_bGetResolutionName(long lMode, char *szName);
-#define AI_M_pfn_pc_GLI_lGetCurrentResolution pc_GLI_lGetCurrentResolution
-#define AI_M_pfn_pc_GLI_vGetResolutionName   pc_GLI_bGetResolutionName
-extern long __cdecl fn_lGetNbAvailableSlots(void);
-#define AI_M_pfn_fn_lGetNbAvailableSlots     fn_lGetNbAvailableSlots
+/* 0x0047AAB0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetDriversAvailable(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    (void)p_SuperObjPerso;
+    p_stValue->uParam.lValue = 0;
+    p_stValue->eType         = 6;
+    return p_stTree;
+}
 
-char AI_pc_szResolutionNameBuf[60];
+/* 0x0047AAD0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetCurrentLanguageId(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    (void)p_SuperObjPerso;
+    p_stValue->uParam.lValue = (long)GAM_g_ucCurrentLanguage;
+    p_stValue->eType         = 6;
+    return p_stTree;
+}
+
+/* 0x0047AAF0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetNbLanguages(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    (void)p_SuperObjPerso;
+    p_stValue->uParam.lValue = (long)AI_OPT_ucNbLanguages;
+    p_stValue->eType         = 6;
+    return p_stTree;
+}
+
+/* 0x0047AB10 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetLanguageText(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    AI_tdstNodeInterpret *p_stNext;
+    AI_tdstGetSetParam    stParam;
+    long                  lId;
+
+    p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    lId      = stParam.uParam.lValue;
+    p_stValue->uParam.szString = ((tdstLanguageStructure *)GAM_g_stEngineStructure.p_stLanguageTable)[lId].szLanguageText;
+    p_stValue->eType           = 9;
+    return p_stNext;
+}
+
+/* 0x0047AB50 */
+AI_tdstNodeInterpret *__cdecl fn_p_stTextToInt(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    AI_tdstNodeInterpret *p_stNext;
+    AI_tdstGetSetParam    stParam;
+
+    p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+    p_stValue->uParam.lValue = atoi(fn_szGetStringFromTextOrStringParam(&stParam));
+    p_stValue->eType         = 6;
+    return p_stNext;
+}
+
+/* 0x0047ABA0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stOptionRecupererFunc(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    unsigned long eFuncId = *(unsigned long *)((char *)p_stTree - 8);
+    long          lValue;
+    (void)p_SuperObjPerso;
+
+    switch (eFuncId)
+    {
+    case 0x100:
+        lValue = SND_fn_lGetVolumeLineSound(AI_OPT_p_lSoundVolumeLineMusic);
+        break;
+
+    case 0x101:
+        lValue = SND_fn_lGetVolumeLineSound(AI_OPT_p_lSoundVolumeLineSound);
+        break;
+
+    default:
+        AI_M_pfn_M_AIFatalError_fn1(0x27);
+        return p_stTree;
+    }
+    p_stValue->uParam.lValue = lValue;
+    p_stValue->eType         = 6;
+    return p_stTree;
+}
+
+/* 0x0047ABF0 */
+AI_tdstNodeInterpret *__cdecl fn_p_stOptionSlotIsValid(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    long lValue;
+
+    p_stTree = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    lValue = p_stValue->uParam.lValue;
+
+    p_stValue->uParam.lValue = (long)AI_M_pfn_GAM_fn_bIsSlotValid((short)lValue);
+    p_stValue->eType = 6;
+    return p_stTree;
+}
 
 /* 0x0047AC30 */
 AI_tdstNodeInterpret *__cdecl fn_p_stGetNbAvailableResolution(
@@ -2695,6 +2633,23 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetCurrentResolution(
     p_stValue->eType = 6;
     return p_stTree;
 }
+AI_tdstNodeInterpret *__cdecl AI_pc_fn_p_stSaveVideoMode(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    (void)p_SuperObjPerso;
+    p_stValue->uParam.lValue = AI_M_pfn_pc_GLI_lSaveVideoModeToConfig();
+    p_stValue->eType = 6;
+    return p_stTree;
+}
+#define AI_M_pfn_pc_GLI_lIsResolutionAvailable  pc_GLI_lIsResolutionAvailable
+AI_tdstNodeInterpret *__cdecl AI_pc_fn_p_stIsResolutionAvailable(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
+    p_stValue->uParam.lValue = AI_M_pfn_pc_GLI_lIsResolutionAvailable(p_stValue->uParam.lValue);
+    p_stValue->eType = 6;
+    return p_stNext;
+}
 
 /* 0x0047ACD0 */
 AI_tdstNodeInterpret *__cdecl fn_p_stGetNameResolution(
@@ -2704,6 +2659,16 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetNameResolution(
     AI_M_pfn_pc_GLI_vGetResolutionName(p_stValue->uParam.lValue, AI_pc_szResolutionNameBuf);
     M_Full_GetSetParam_String(p_stValue, AI_pc_szResolutionNameBuf);
     return p_stNext;
+}
+
+/* 0x0047AD10 */
+AI_tdstNodeInterpret *__cdecl fn_p_stGetBrightness(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    (void)p_SuperObjPerso;
+    p_stValue->uParam.lValue = GLI_fn_lGetBrightness();
+    p_stValue->eType = 6;
+    return p_stTree;
 }
 
 /* 0x0047AD30 */
@@ -2725,37 +2690,72 @@ AI_tdstNodeInterpret *__cdecl fn_p_stGetVideoOptions(
     p_stValue->eType = 6;
     return p_stTree;
 }
-
-/* 0x0047AD10 */
-AI_tdstNodeInterpret *__cdecl fn_p_stGetBrightness(
+AI_tdstNodeInterpret *__cdecl fn_p_stGetMSSoundValues(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-    (void)p_SuperObjPerso;
-    p_stValue->uParam.lValue = GLI_fn_lGetBrightness();
-    p_stValue->eType = 6;
-    return p_stTree;
+    HIE_tdstSuperObject  *hPerso;
+    long                  eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    MS_tdxHandleToMSSound hMSSound;
+    unsigned long         ulValue = 0;
+    long                  xSndValue;
+
+    fn_vGetUltraOperatorPerso(fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hPerso);
+
+    hMSSound = M_GetMSHandle(hPerso, MSSound);
+
+    if (hMSSound)
+    {
+        switch (eFuncId)
+        {
+        case 0x10c:
+            xSndValue = fn_xMSSoundGetSaturationDistance(hMSSound);
+            ulValue = M_RealToIntSnd(xSndValue);
+            break;
+        case 0x10d:
+            xSndValue = fn_xMSSoundGetBackGroundDistance(hMSSound);
+            ulValue = M_RealToIntSnd(xSndValue);
+            break;
+        default:
+            M_AIFatalError(E_uwAIFatalNotValidFunction);
+            break;
+        }
+    }
+
+    M_Full_GetSetParam_Integer(p_stValue, ulValue);
+
+    return(p_stTree);
 }
 
-/* 0x0047AC70 */
-extern long __cdecl pc_GLI_lSaveVideoModeToConfig(void);
-#define AI_M_pfn_pc_GLI_lSaveVideoModeToConfig  pc_GLI_lSaveVideoModeToConfig
-AI_tdstNodeInterpret *__cdecl AI_pc_fn_p_stSaveVideoMode(
+AI_tdstNodeInterpret *__cdecl fn_p_stGetStdGameLimit(
     HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
 {
-    (void)p_SuperObjPerso;
-    p_stValue->uParam.lValue = AI_M_pfn_pc_GLI_lSaveVideoModeToConfig();
-    p_stValue->eType = 6;
-    return p_stTree;
-}
+    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree - 1);
+    HIE_tdstSuperObject *hNewSuperObjPerso;
+    MS_tdxHandleToStandardGame hStdGame;
+    unsigned long        ulValue = 0;
 
-/* 0x0047AC90 */
-extern long __cdecl pc_GLI_lIsResolutionAvailable(long lSlot);
-#define AI_M_pfn_pc_GLI_lIsResolutionAvailable  pc_GLI_lIsResolutionAvailable
-AI_tdstNodeInterpret *__cdecl AI_pc_fn_p_stIsResolutionAvailable(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, p_stValue);
-    p_stValue->uParam.lValue = AI_M_pfn_pc_GLI_lIsResolutionAvailable(p_stValue->uParam.lValue);
-    p_stValue->eType = 6;
-    return p_stNext;
+    fn_vGetUltraOperatorPerso(
+        AI_M_pfn_fn_ucGetFunctionUltraOperator_fn1(eFuncId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    hStdGame = M_GetMSHandle(hNewSuperObjPerso, StandardGame);
+    if (hStdGame)
+    {
+        switch (eFuncId)
+        {
+        case 0x10e:
+            ulValue = fn_ucStandardGameGetTooFarLimit(hStdGame);
+            break;
+        case 0x10f:
+            ulValue = fn_ucStandardGameGetTransparencyZoneMin(hStdGame);
+            break;
+        case 0x110:
+            ulValue = fn_ucStandardGameGetTransparencyZoneMax(hStdGame);
+            break;
+        default:
+            AI_M_pfn_M_AIFatalError_fn1(0x27);
+            break;
+        }
+    }
+    M_Full_GetSetParam_Integer(p_stValue, ulValue);
+    return p_stTree;
 }

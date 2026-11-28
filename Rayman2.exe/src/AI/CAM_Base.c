@@ -210,81 +210,11 @@ static void CAM_fn_vTakeCareOfFather(CAM_tdstUpdateCamera *_p_stStruct)
 extern struct tdstInternalStructurCineinfo_ gst_Ideal;
 void CAM_fn_vComputeMovePosWithDynTheta(CAM_tdstUpdateCamera *_p_stStruct);
 
-void CAM_fn_vComputeRealWantedPos(CAM_tdstUpdateCamera *_p_stStruct)
-{
-    CAM_tdstUpdateCamera    stTempStruct;
-
-    stTempStruct = *_p_stStruct;
-
-    if(_p_stStruct->hCineinfo->ucPerIAFlags & C_PerIAFlags_VisibilityCopied)
-    {
-        gst_Ideal = *_p_stStruct->hCineinfoVisibility;
-
-        gst_Ideal.xDistMin = _p_stStruct->hCineinfoWork->xDistMin;
-        gst_Ideal.xDistMax = _p_stStruct->hCineinfoWork->xDistMax;
-    }
-    else
-        gst_Ideal = *_p_stStruct->hCineinfoWork;
-
-    gst_Ideal.uwIAFlags |= C_IAFlags_NoShiftUntilPosReached;
-    stTempStruct.hCineinfoWork = &gst_Ideal;
-    CAM_fn_vComputeMovePosWithDynTheta(&stTempStruct);
-    MTH3D_M_vCopyVector(&_p_stStruct->stRealWantedCameraPos, &stTempStruct.stWantedCameraPos);
-}
-
 /* 0x00473660 */
 ACP_tdxBool CAM_fn_bPersoOnFace(HIE_tdstSuperObject *_h_SuperObjPerso, MTH3D_tdstVector *_p_stNormal);
 /* 0x004736F0 */
 void CAM_fn_vComputeProjection(MTH3D_tdstVector *_p_sDestVector, MTH3D_tdstVector *_p_sSrcVector, MTH3D_tdstVector *_p_sNormVector);
 MTH_tdxReal CAM_fn_xComputeRotation(MTH3D_tdstVector *_p_stDestVector, MTH3D_tdstVector *_p_stSrcVector, MTH3D_tdstVector *_p_stAxisVector);
-
-char CAM_fn_cDynChangeTheta(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stTestedPos)
-{
-
-	MTH3D_tdstVector		stMove, stRef, stSightAxis;
-	MTH3D_tdstVector		stNormal;
-	MTH_tdxReal				xAngle, xThetaAngle;
-	MTH_tdxReal				xCos;
-
-	if(!CAM_fn_bPersoOnFace(_p_stStruct->hCineinfoWork->hSuperObjectTargeted, &stNormal))
-		return 0;
-
-	CAM_fn_vComputeRefAxis(_p_stStruct, &stSightAxis);
-	CAM_fn_vComputeProjection(&stMove, &stSightAxis, &stNormal);
-	MTH3D_M_vNormalizeVector(&stMove, &stMove);
-
-	MTH3D_M_vSetVectorElements(&stRef, MTH_C_ZERO, MTH_C_ZERO, MTH_C_ONE);
-	xAngle = CAM_fn_xComputeRotation(&stRef, &stMove, NULL);
-	xAngle = MTH_M_xSub(xAngle, MTH_C_PiBy2);
-
-	MTH3D_M_vSubVector(&stRef, &_p_stStruct->stTargetedPersoPos, _p_stTestedPos);
-	MTH3D_M_vNormalizeVector(&stRef, &stRef);
-	xCos = MTH3D_M_xDotProductVector(&stRef, &stMove);
-	xAngle = MTH_M_xMul(xAngle, xCos);
-
-	if(_p_stStruct->hCineinfo->ucPerIAFlags & C_PerIAFlags_VisibilityCopied)
-		xThetaAngle = _p_stStruct->hCineinfoVisibility->xAngleTheta;
-	else
-
-		xThetaAngle = _p_stStruct->hCineinfoWork->xAngleTheta;
-
-	if(MTH_M_bLess(MTH_M_xMul(xThetaAngle, xAngle), MTH_C_ZERO))
-	{
-		xAngle = xAngle;
-	}
-	else if (MTH_M_bLessEqual(MTH_M_xAbs(xThetaAngle), MTH_M_xAbs(xAngle)))
-	{
-		xAngle = MTH_M_xSub(xAngle, xThetaAngle);
-	}
-	else
-	{
-		xAngle = MTH_C_ZERO;
-		return 0;
-	}
-
-	_p_stStruct->hCineinfoWork->xAngleTheta = MTH_M_xAdd(xThetaAngle, xAngle);
-	return 1;
-}
 
 #define CAM_C_xDynSpeed_LinearFactNorm		(CAM_g_stCameraConstants.xDynSpeed_LinearFactNorm)
 #define CAM_C_xDynSpeed_LinearMax			(CAM_g_stCameraConstants.xDynSpeed_LinearMax)
@@ -453,6 +383,76 @@ static void CAM_fn_vRotateCameraAxis(MTH3D_tdstVector *_p_stCameraAxis, MTH_tdxR
 	MTH3D_M_vNormalizeVector(&stRotation.m_stAxis, &stRotation.m_stAxis);
 	stRotation.m_xAngle = _xVerAngle;
 	MTH_p_stRotationMulVector(&stRotation, _p_stCameraAxis, _p_stCameraAxis);
+}
+
+void CAM_fn_vComputeRealWantedPos(CAM_tdstUpdateCamera *_p_stStruct)
+{
+    CAM_tdstUpdateCamera    stTempStruct;
+
+    stTempStruct = *_p_stStruct;
+
+    if(_p_stStruct->hCineinfo->ucPerIAFlags & C_PerIAFlags_VisibilityCopied)
+    {
+        gst_Ideal = *_p_stStruct->hCineinfoVisibility;
+
+        gst_Ideal.xDistMin = _p_stStruct->hCineinfoWork->xDistMin;
+        gst_Ideal.xDistMax = _p_stStruct->hCineinfoWork->xDistMax;
+    }
+    else
+        gst_Ideal = *_p_stStruct->hCineinfoWork;
+
+    gst_Ideal.uwIAFlags |= C_IAFlags_NoShiftUntilPosReached;
+    stTempStruct.hCineinfoWork = &gst_Ideal;
+    CAM_fn_vComputeMovePosWithDynTheta(&stTempStruct);
+    MTH3D_M_vCopyVector(&_p_stStruct->stRealWantedCameraPos, &stTempStruct.stWantedCameraPos);
+}
+
+char CAM_fn_cDynChangeTheta(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stTestedPos)
+{
+
+	MTH3D_tdstVector		stMove, stRef, stSightAxis;
+	MTH3D_tdstVector		stNormal;
+	MTH_tdxReal				xAngle, xThetaAngle;
+	MTH_tdxReal				xCos;
+
+	if(!CAM_fn_bPersoOnFace(_p_stStruct->hCineinfoWork->hSuperObjectTargeted, &stNormal))
+		return 0;
+
+	CAM_fn_vComputeRefAxis(_p_stStruct, &stSightAxis);
+	CAM_fn_vComputeProjection(&stMove, &stSightAxis, &stNormal);
+	MTH3D_M_vNormalizeVector(&stMove, &stMove);
+
+	MTH3D_M_vSetVectorElements(&stRef, MTH_C_ZERO, MTH_C_ZERO, MTH_C_ONE);
+	xAngle = CAM_fn_xComputeRotation(&stRef, &stMove, NULL);
+	xAngle = MTH_M_xSub(xAngle, MTH_C_PiBy2);
+
+	MTH3D_M_vSubVector(&stRef, &_p_stStruct->stTargetedPersoPos, _p_stTestedPos);
+	MTH3D_M_vNormalizeVector(&stRef, &stRef);
+	xCos = MTH3D_M_xDotProductVector(&stRef, &stMove);
+	xAngle = MTH_M_xMul(xAngle, xCos);
+
+	if(_p_stStruct->hCineinfo->ucPerIAFlags & C_PerIAFlags_VisibilityCopied)
+		xThetaAngle = _p_stStruct->hCineinfoVisibility->xAngleTheta;
+	else
+
+		xThetaAngle = _p_stStruct->hCineinfoWork->xAngleTheta;
+
+	if(MTH_M_bLess(MTH_M_xMul(xThetaAngle, xAngle), MTH_C_ZERO))
+	{
+		xAngle = xAngle;
+	}
+	else if (MTH_M_bLessEqual(MTH_M_xAbs(xThetaAngle), MTH_M_xAbs(xAngle)))
+	{
+		xAngle = MTH_M_xSub(xAngle, xThetaAngle);
+	}
+	else
+	{
+		xAngle = MTH_C_ZERO;
+		return 0;
+	}
+
+	_p_stStruct->hCineinfoWork->xAngleTheta = MTH_M_xAdd(xThetaAngle, xAngle);
+	return 1;
 }
 
 void CAM_fn_vTakeCareOfCameraAltitude(MS_tdxHandleToCineinfo _hCineinfo, MTH3D_tdstVector *_p_stNewCameraPosition)
@@ -673,19 +673,6 @@ void CAM_fn_vComputeSpeed(CAM_tdstUpdateCamera *_p_stStruct)
 	}
 }
 
-static MTH_tdxReal CAM_fn_xOppositeAngle(CAM_tdstUpdateCamera *_p_stStruct)
-{
-
-	MTH_tdxReal		xNewAngle;
-
-	xNewAngle = MTH_M_xMul(CAM_C_xBaseCutAngle, MTH_C_2);
-	if(MTH_M_bGreater(_p_stStruct->xAngleDeltaAlphaCut, MTH_C_ZERO))
-		xNewAngle = MTH_M_xNeg(xNewAngle);
-	xNewAngle = MTH_M_xAdd(_p_stStruct->xAngleAlphaCut, xNewAngle);
-	xNewAngle = CAM_fn_xSetAngleInInterval02Pi(xNewAngle);
-	return xNewAngle;
-}
-
 #define CONSTANT_NOVISPROJ		(CAM_g_stCameraConstants.wFlags & 0x0008)
 void CAM_fn_vComputeCineinfoCurrentForAPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition);
 
@@ -771,6 +758,19 @@ static char CAM_fn_cConstraintMoveCutTestAngle(CAM_tdstUpdateCamera *_p_stStruct
 	MTH3D_M_vCopyVector(&_p_stStruct->stWantedCameraPos, &stStruct.stWantedCameraPos);
 	MTH3D_M_vCopyVector(&_p_stStruct->stCptPos.stMovePos, &stStruct.stCptPos.stMovePos);
 	return 1;
+}
+
+static MTH_tdxReal CAM_fn_xOppositeAngle(CAM_tdstUpdateCamera *_p_stStruct)
+{
+
+	MTH_tdxReal		xNewAngle;
+
+	xNewAngle = MTH_M_xMul(CAM_C_xBaseCutAngle, MTH_C_2);
+	if(MTH_M_bGreater(_p_stStruct->xAngleDeltaAlphaCut, MTH_C_ZERO))
+		xNewAngle = MTH_M_xNeg(xNewAngle);
+	xNewAngle = MTH_M_xAdd(_p_stStruct->xAngleAlphaCut, xNewAngle);
+	xNewAngle = CAM_fn_xSetAngleInInterval02Pi(xNewAngle);
+	return xNewAngle;
 }
 
 #define CONSTANT_CUT_COL		(CAM_g_stCameraConstants.wFlags & 0x0001)

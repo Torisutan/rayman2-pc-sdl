@@ -58,17 +58,18 @@ unsigned short fn_uwGetIndexFromZdxIndexList(void *p_stZdxIndexList)
     return( ((tdstZdxIndexList *)p_stZdxIndexList)->uwZdxIndex );
 }
 
-/* 0x0040DED0 */
-long fn_lGetZdxListNumberOfElements(unsigned char ucZoneType, void *hSuperObj)
+/* 0x0040CC70 */
+ACP_tdxHandleOfObject fn_hGetGeometricZdxOfTypeAtIndex(unsigned char ucZoneType,
+                                                       unsigned short uwIndex,
+                                                       void *hSuperObj)
 {
-   ZDX_tdxHandleToZdxList hZdxList;
+    void **p_stElement = *(void ***)CS_fn_hGetZdxList(ucZoneType, hSuperObj);
+    unsigned short uwI;
 
-   hZdxList = CS_fn_hGetZdxList(ucZoneType, hSuperObj);
+    for (uwI = 0; uwI < uwIndex; uwI++)
+        p_stElement = (void **)*p_stElement;
 
-   if (hZdxList)
-       return LST2_M_StaticGetNumberOfElements( &hZdxList->hGeoZdxList );
-
-   return 0;
+    return (ACP_tdxHandleOfObject)p_stElement[1];
 }
 
 unsigned char fn_eGetPrivilegedActivationZoneOfCharacter(unsigned char ucZoneType,
@@ -93,26 +94,25 @@ ACP_tdxBool fn_bIsAllDefaultPrivilegedActivationZoneOfCharacter(unsigned char uc
    return TRUE;
 }
 
+/* 0x0040DED0 */
+long fn_lGetZdxListNumberOfElements(unsigned char ucZoneType, void *hSuperObj)
+{
+   ZDX_tdxHandleToZdxList hZdxList;
+
+   hZdxList = CS_fn_hGetZdxList(ucZoneType, hSuperObj);
+
+   if (hZdxList)
+       return LST2_M_StaticGetNumberOfElements( &hZdxList->hGeoZdxList );
+
+   return 0;
+}
+
 /* 0x0040C9D0 */
 void *fn_p_stGetCurrentZoneSetOfType2(unsigned char ucZoneType, void *hSuperObj)
 {
    if( M_GetMSHandle(hSuperObj,CollSet) )
       return( fn_hGetCurrentZoneSetOfType(ucZoneType,M_GetMSHandle(hSuperObj,CollSet)) );
    return NULL;
-}
-
-/* 0x0040CC70 */
-ACP_tdxHandleOfObject fn_hGetGeometricZdxOfTypeAtIndex(unsigned char ucZoneType,
-                                                       unsigned short uwIndex,
-                                                       void *hSuperObj)
-{
-    void **p_stElement = *(void ***)CS_fn_hGetZdxList(ucZoneType, hSuperObj);
-    unsigned short uwI;
-
-    for (uwI = 0; uwI < uwIndex; uwI++)
-        p_stElement = (void **)*p_stElement;
-
-    return (ACP_tdxHandleOfObject)p_stElement[1];
 }
 
 /* 0x0040C700 */
@@ -253,6 +253,20 @@ GMT_tdxHandleToGameMaterial fn_hIsTypeExistsInGeoObj(ACP_tdxHandleOfObject _hGeo
         }
     }
     return NULL;
+}
+
+ACP_tdxBool fn_bIsCharacterInZdd(ACP_tdxHandleOfObject _hGeoObj,POS_tdstCompletePosition * _p_stMatrix,HIE_tdstSuperObject *_hCharacter)
+{
+   POS_tdstCompletePosition stMatrix;
+   MTH3D_tdstVector stPosition;
+
+	if(!M_ObjectIsActive ((tdstEngineObject*)HIE_fn_hGetSuperObjectObject(_hCharacter)) )
+	   return FALSE;
+
+   POS_fn_vInvertMatrix(&stMatrix,_p_stMatrix);
+   POS_fn_vMulMatrixVertex(&stPosition,&stMatrix,POS_fn_p_stGetTranslationVector(HIE_fn_hGetSuperObjectGlobalMatrix(_hCharacter)));
+
+   return( INT_fn_bGetInclusionPointInGeometricObject(&stPosition,_hGeoObj) );
 }
 
 /* 0x0040D290 */
@@ -512,20 +526,6 @@ void fn_vCorrectActivationList(tdstCsaList *_p_stCsaList, long _lNumberOfState)
       ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0x40, -1, 0xff, 0xff, NULL);
       Erm_M_ClearLastError(C_ucErmDefaultChannel);
    }
-}
-
-ACP_tdxBool fn_bIsCharacterInZdd(ACP_tdxHandleOfObject _hGeoObj,POS_tdstCompletePosition * _p_stMatrix,HIE_tdstSuperObject *_hCharacter)
-{
-   POS_tdstCompletePosition stMatrix;
-   MTH3D_tdstVector stPosition;
-
-	if(!M_ObjectIsActive ((tdstEngineObject*)HIE_fn_hGetSuperObjectObject(_hCharacter)) )
-	   return FALSE;
-
-   POS_fn_vInvertMatrix(&stMatrix,_p_stMatrix);
-   POS_fn_vMulMatrixVertex(&stPosition,&stMatrix,POS_fn_p_stGetTranslationVector(HIE_fn_hGetSuperObjectGlobalMatrix(_hCharacter)));
-
-   return( INT_fn_bGetInclusionPointInGeometricObject(&stPosition,_hGeoObj) );
 }
 
 /* 0x0040D9D0 */
@@ -1038,6 +1038,88 @@ void fn_vGetAllCharactersInContactWithThisModuleZde(
     fn_vGetAllCharacterInContactWithThisGeoObj(_hSuperObj,hGeoObj,HIE_fn_hGetSuperObjectGlobalMatrix(hModule),_hSuperObjTable,_wMaterialMask,_lMaxNumberOfObjects,_p_lCurrentNumberofObjects);
 }
 
+/* 0x0040D350 */
+ACP_tdxBool fn_bThisZdeFromOneVsAllZdeFromTwo(
+            HIE_tdstSuperObject *_hCharacterONE,
+            unsigned char _ucModuleOrCharacter,
+            unsigned char _ucChannelNumber,
+            HIE_tdstSuperObject *_hCharacterTWO,
+            GMT_tdxMask _wMaterialMask)
+{
+   POS_tdstCompletePosition *p_stMatrix;
+   ACP_tdxHandleOfObject hGeoObj;
+
+   hGeoObj = ZDX_fn_hGetGeoObjOfTypeAndMatrixFromZdxInfos(_hCharacterONE,C_ucTypeZde,_ucModuleOrCharacter,_ucChannelNumber,&p_stMatrix);
+   if( !hGeoObj )
+      return FALSE;
+   return( fn_bIsThisZdeInClashWithCharacterZdeOfTypes(hGeoObj,p_stMatrix,_hCharacterTWO,_wMaterialMask) );
+}
+
+ACP_tdxBool fn_bThisTypeFromOneVsThisTypeFromTwo( HIE_tdstSuperObject *_hCharacterONE, GMT_tdxMask _wMaterialMaskOfONE, HIE_tdstSuperObject *_hCharacterTWO, GMT_tdxMask _wMaterialMaskOfTWO);
+
+/* 0x0040D410 */
+void fn_vThisTypeVsThisType(
+   HIE_tdstSuperObject *_hCharacter,
+   GMT_tdxMask _wCharacterMask,
+   GMT_tdxMask _wOthersMask,
+   HIE_tdstSuperObject **_p_hObjectTable,
+   unsigned short *_p_uwNumber)
+{
+   SECT_tdxHandleOfElementLstCharacter hCharacterList;
+   HIE_tdstSuperObject *hSOTmp;
+   SECT_tdxHandleOfElementLstCollisionInteraction hCollisionList;
+   unsigned long ulI, ulJ;
+   unsigned short uwCurrentNumber = 0;
+   unsigned short uwMaxNumber = *_p_uwNumber;
+
+   SECT_M_ForEachCharListInSector(fn_h_SectInfoGetCurrentSector(M_GetMSHandle(_hCharacter,SectInfo)),hCharacterList,ulI)
+   {
+      hSOTmp = SECT_GetCharacterInList(hCharacterList);
+      if( _hCharacter != hSOTmp )
+      {
+         if( M_ObjectIsActive ((struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject(hSOTmp)) )
+         {
+            if( uwCurrentNumber < uwMaxNumber )
+            {
+               if( fn_bThisTypeFromOneVsThisTypeFromTwo(_hCharacter, _wCharacterMask, hSOTmp, _wOthersMask) )
+               {
+                  _p_hObjectTable[uwCurrentNumber++] = hSOTmp;
+               }
+            }
+            else
+            {
+               *_p_uwNumber = uwMaxNumber;
+               return;
+            }
+         }
+      }
+   }
+
+   SECT_M_ForEachCollisionNodeInCollisionInteractionList(fn_h_SectInfoGetCurrentSector(M_GetMSHandle(_hCharacter,SectInfo)),hCollisionList,ulI)
+   {
+      SECT_M_ForEachCharListInSector(SECT_GetSectorInCollisionList(hCollisionList),hCharacterList,ulJ)
+      {
+         if( uwCurrentNumber < uwMaxNumber )
+         {
+            hSOTmp = SECT_GetCharacterInList(hCharacterList);
+            if( M_ObjectIsActive ((struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject(hSOTmp)) )
+            {
+               if( fn_bThisTypeFromOneVsThisTypeFromTwo(_hCharacter, _wCharacterMask, hSOTmp, _wOthersMask) )
+               {
+                  _p_hObjectTable[uwCurrentNumber++] = hSOTmp;
+               }
+            }
+         }
+         else
+         {
+            *_p_uwNumber = uwMaxNumber;
+            return;
+         }
+      }
+   }
+   *_p_uwNumber = uwCurrentNumber;
+}
+
 /* 0x0040D570 */
 ACP_tdxBool fn_bThisTypeFromOneVsThisTypeFromTwo(
             HIE_tdstSuperObject *_hCharacterONE,
@@ -1141,108 +1223,6 @@ ACP_tdxBool fn_bThisTypeFromOneVsThisTypeFromTwo(
     return FALSE;
 }
 
-/* 0x0040D350 */
-ACP_tdxBool fn_bThisZdeFromOneVsAllZdeFromTwo(
-            HIE_tdstSuperObject *_hCharacterONE,
-            unsigned char _ucModuleOrCharacter,
-            unsigned char _ucChannelNumber,
-            HIE_tdstSuperObject *_hCharacterTWO,
-            GMT_tdxMask _wMaterialMask)
-{
-   POS_tdstCompletePosition *p_stMatrix;
-   ACP_tdxHandleOfObject hGeoObj;
-
-   hGeoObj = ZDX_fn_hGetGeoObjOfTypeAndMatrixFromZdxInfos(_hCharacterONE,C_ucTypeZde,_ucModuleOrCharacter,_ucChannelNumber,&p_stMatrix);
-   if( !hGeoObj )
-      return FALSE;
-   return( fn_bIsThisZdeInClashWithCharacterZdeOfTypes(hGeoObj,p_stMatrix,_hCharacterTWO,_wMaterialMask) );
-}
-
-/* 0x0040CCA0 */
-void fn_vGetAllCharactersInContactWithThisZde(HIE_tdstSuperObject *_hSuperObj,unsigned char _ucModuleOrCharacter,unsigned char _ucChannelNumber,HIE_tdstSuperObject **_hSuperObjTable,unsigned short *_p_uwNumber,GMT_tdxMask _wMaterialMask)
-{
-   ACP_tdxHandleOfObject hGeoObj;
-   long lMaxNumberOfObjects;
-   long lCurrentNumberOfObjects;
-
-   lMaxNumberOfObjects = (long)(*_p_uwNumber);
-   lCurrentNumberOfObjects = 0;
-   if( _ucModuleOrCharacter )
-   {
-      fn_vGetAllCharactersInContactWithThisModuleZde(_hSuperObj,_ucChannelNumber,_hSuperObjTable,_wMaterialMask,lMaxNumberOfObjects,&lCurrentNumberOfObjects);
-   }
-   else
-   {
-      hGeoObj = fn_hIsThisZoneActive(_hSuperObj,C_ucTypeZde,(unsigned char)(_ucChannelNumber-1));
-      if( hGeoObj )
-         fn_vGetAllCharacterInContactWithThisGeoObj(_hSuperObj,hGeoObj,HIE_fn_hGetSuperObjectGlobalMatrix(_hSuperObj),_hSuperObjTable,_wMaterialMask,lMaxNumberOfObjects,&lCurrentNumberOfObjects);
-   }
-   *_p_uwNumber = (unsigned short)lCurrentNumberOfObjects;
-}
-
-/* 0x0040D410 */
-void fn_vThisTypeVsThisType(
-   HIE_tdstSuperObject *_hCharacter,
-   GMT_tdxMask _wCharacterMask,
-   GMT_tdxMask _wOthersMask,
-   HIE_tdstSuperObject **_p_hObjectTable,
-   unsigned short *_p_uwNumber)
-{
-   SECT_tdxHandleOfElementLstCharacter hCharacterList;
-   HIE_tdstSuperObject *hSOTmp;
-   SECT_tdxHandleOfElementLstCollisionInteraction hCollisionList;
-   unsigned long ulI, ulJ;
-   unsigned short uwCurrentNumber = 0;
-   unsigned short uwMaxNumber = *_p_uwNumber;
-
-   SECT_M_ForEachCharListInSector(fn_h_SectInfoGetCurrentSector(M_GetMSHandle(_hCharacter,SectInfo)),hCharacterList,ulI)
-   {
-      hSOTmp = SECT_GetCharacterInList(hCharacterList);
-      if( _hCharacter != hSOTmp )
-      {
-         if( M_ObjectIsActive ((struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject(hSOTmp)) )
-         {
-            if( uwCurrentNumber < uwMaxNumber )
-            {
-               if( fn_bThisTypeFromOneVsThisTypeFromTwo(_hCharacter, _wCharacterMask, hSOTmp, _wOthersMask) )
-               {
-                  _p_hObjectTable[uwCurrentNumber++] = hSOTmp;
-               }
-            }
-            else
-            {
-               *_p_uwNumber = uwMaxNumber;
-               return;
-            }
-         }
-      }
-   }
-
-   SECT_M_ForEachCollisionNodeInCollisionInteractionList(fn_h_SectInfoGetCurrentSector(M_GetMSHandle(_hCharacter,SectInfo)),hCollisionList,ulI)
-   {
-      SECT_M_ForEachCharListInSector(SECT_GetSectorInCollisionList(hCollisionList),hCharacterList,ulJ)
-      {
-         if( uwCurrentNumber < uwMaxNumber )
-         {
-            hSOTmp = SECT_GetCharacterInList(hCharacterList);
-            if( M_ObjectIsActive ((struct tdstEngineObject_ *)HIE_fn_hGetSuperObjectObject(hSOTmp)) )
-            {
-               if( fn_bThisTypeFromOneVsThisTypeFromTwo(_hCharacter, _wCharacterMask, hSOTmp, _wOthersMask) )
-               {
-                  _p_hObjectTable[uwCurrentNumber++] = hSOTmp;
-               }
-            }
-         }
-         else
-         {
-            *_p_uwNumber = uwMaxNumber;
-            return;
-         }
-      }
-   }
-   *_p_uwNumber = uwCurrentNumber;
-}
-
 #define C_ucTypeZdm 1u
 #define C_ucTypeZdr 3u
 
@@ -1318,4 +1298,26 @@ void __cdecl fn_vUpdateCurrentActivationForCharacter(HIE_tdstSuperObject *_hChar
    {
       fn_vSetCurrentZoneSetOfType(C_ucTypeZdm,hCollSet,(void *)NULL);
    }
+}
+
+/* 0x0040CCA0 */
+void fn_vGetAllCharactersInContactWithThisZde(HIE_tdstSuperObject *_hSuperObj,unsigned char _ucModuleOrCharacter,unsigned char _ucChannelNumber,HIE_tdstSuperObject **_hSuperObjTable,unsigned short *_p_uwNumber,GMT_tdxMask _wMaterialMask)
+{
+   ACP_tdxHandleOfObject hGeoObj;
+   long lMaxNumberOfObjects;
+   long lCurrentNumberOfObjects;
+
+   lMaxNumberOfObjects = (long)(*_p_uwNumber);
+   lCurrentNumberOfObjects = 0;
+   if( _ucModuleOrCharacter )
+   {
+      fn_vGetAllCharactersInContactWithThisModuleZde(_hSuperObj,_ucChannelNumber,_hSuperObjTable,_wMaterialMask,lMaxNumberOfObjects,&lCurrentNumberOfObjects);
+   }
+   else
+   {
+      hGeoObj = fn_hIsThisZoneActive(_hSuperObj,C_ucTypeZde,(unsigned char)(_ucChannelNumber-1));
+      if( hGeoObj )
+         fn_vGetAllCharacterInContactWithThisGeoObj(_hSuperObj,hGeoObj,HIE_fn_hGetSuperObjectGlobalMatrix(_hSuperObj),_hSuperObjTable,_wMaterialMask,lMaxNumberOfObjects,&lCurrentNumberOfObjects);
+   }
+   *_p_uwNumber = (unsigned short)lCurrentNumberOfObjects;
 }

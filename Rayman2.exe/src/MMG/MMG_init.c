@@ -29,39 +29,6 @@ void *MMG_pc_g_pvResolveImportExit;      /* 0x00510C40 */
 void *MMG_pc_g_pvIsKernel32Resume;       /* 0x00510E04 */
 void *MMG_pc_g_pvIsKernel32Exit;         /* 0x00510C44 */
 
-/* 0x004474B0 */
-MMG_pc_tdstImport *__cdecl MMG_pc_fn_p_stGetImport(unsigned long ulIndex)
-{
-    return &MMG_pc_g_a_stImport[ulIndex];
-}
-
-/* 0x004474D0 */
-char *__cdecl MMG_pc_fn_szDecryptModuleName(unsigned long ulIndex)
-{
-    unsigned long ulKey;
-    unsigned char ucLen;
-    unsigned char *p_ucKey;
-    unsigned char ucSub;
-    unsigned char ucXor;
-    char *p_cSrc;
-    char *p_cDst;
-    unsigned char ucI;
-
-    ulKey = MMG_pc_M_p_stModule(ulIndex)->ulKey;
-    p_cSrc = MMG_pc_M_p_stModule(ulIndex)->a_cName;
-    ucLen = MMG_pc_M_p_stModule(ulIndex)->ucNameLen;
-    p_cDst = MMG_pc_g_a_cModuleName;
-    ucSub = ((unsigned char *)&ulKey)[0];
-    ucXor = ((unsigned char *)&ulKey)[1];
-    for (ucI = 0; ucI < ucLen; ucI++) {
-        *p_cDst++ = (char)((unsigned char)(*p_cSrc++ - ucSub) ^ ucXor);
-        ucSub += ((unsigned char *)&ulKey)[2];
-        ucXor += ((unsigned char *)&ulKey)[3];
-    }
-    *p_cDst = '\0';
-    return MMG_pc_g_a_cModuleName;
-}
-
 static __inline long MMG_pc_fn_lCompareImportName(const unsigned char *p_ucName, unsigned char ucLen,
                                                   const unsigned char *p_ucEnc, unsigned long ulKey)
 {
@@ -151,6 +118,103 @@ static __inline unsigned long MMG_pc_fn_ulFindExportRva(unsigned long hModule,
 
 #pragma optimize("y", off)
 
+/* 0x004B72E0 */
+void *MMG_pc_g_pvKernel32Base;
+
+void *MMG_pc_g_pvFindKernel32Resume;     /* 0x00510DDC */
+void *MMG_pc_g_pvFindKernel32Exit;       /* 0x00510C1C */
+
+#pragma optimize("", on)
+
+#pragma optimize("y", off)
+
+void *MMG_pc_g_pvResolveModuleApiResume;    /* 0x00510DE0 */
+void *MMG_pc_g_pvResolveModuleApiExit;      /* 0x00510C20 */
+
+#pragma optimize("", on)
+
+void *MMG_pc_g_pvCheckToolhelpResume;    /* 0x00510DD8 */
+void *MMG_pc_g_pvCheckToolhelpExit;      /* 0x00510C18 */
+
+#endif /* RAYMAN2_NO_PROTECTION */
+
+void __cdecl GLI_FatalExitOrSleep(void);   /* 0x004011C0 */
+
+#ifndef RAYMAN2_NO_PROTECTION   /* LCG, code pool, process enumeration, CD check */
+#pragma optimize("y", off)
+#pragma optimize("", on)
+
+static __inline unsigned int lcg_next(unsigned int seed)
+{
+    unsigned int s = seed ^ 0x75bd924u;
+    unsigned int next = s * 0x41a7u + (unsigned int)((int)s / 0x1f31d * -0x7fffffff);
+
+    if ((int)next < 0) {
+        next += 0x7fffffffu;
+    }
+
+    return next;
+}
+
+void *MMG_pc_g_pvCountToolhelpResume;    /* 0x00510DD4 */
+void *MMG_pc_g_pvCountToolhelpExit;      /* 0x00510C14 */
+
+#pragma optimize("y", off)
+
+void *MMG_pc_g_pvCountPsapiResume;       /* 0x00510DD0 */
+void *MMG_pc_g_pvCountPsapiExit;         /* 0x00510C10 */
+
+void *MMG_pc_g_pvIatDeltaResume;         /* 0x00510DE4 */
+void *MMG_pc_g_pvIatDeltaExit;           /* 0x00510C24 */
+
+#pragma optimize("", on)
+
+void *MMG_pc_g_pvCountExportersResume;   /* 0x00510DCC */
+void *MMG_pc_g_pvCountExportersExit;     /* 0x00510C0C */
+
+#pragma optimize("y", off)
+
+#pragma optimize("", on)
+
+#pragma optimize("y", off)
+#pragma optimize("", on)
+
+/* 0x00511404 */
+void *MMG_pc_g_pvNopGateResume;
+
+/* 0x004474B0 */
+MMG_pc_tdstImport *__cdecl MMG_pc_fn_p_stGetImport(unsigned long ulIndex)
+{
+    return &MMG_pc_g_a_stImport[ulIndex];
+}
+
+/* 0x004474D0 */
+char *__cdecl MMG_pc_fn_szDecryptModuleName(unsigned long ulIndex)
+{
+    unsigned long ulKey;
+    unsigned char ucLen;
+    unsigned char *p_ucKey;
+    unsigned char ucSub;
+    unsigned char ucXor;
+    char *p_cSrc;
+    char *p_cDst;
+    unsigned char ucI;
+
+    ulKey = MMG_pc_M_p_stModule(ulIndex)->ulKey;
+    p_cSrc = MMG_pc_M_p_stModule(ulIndex)->a_cName;
+    ucLen = MMG_pc_M_p_stModule(ulIndex)->ucNameLen;
+    p_cDst = MMG_pc_g_a_cModuleName;
+    ucSub = ((unsigned char *)&ulKey)[0];
+    ucXor = ((unsigned char *)&ulKey)[1];
+    for (ucI = 0; ucI < ucLen; ucI++) {
+        *p_cDst++ = (char)((unsigned char)(*p_cSrc++ - ucSub) ^ ucXor);
+        ucSub += ((unsigned char *)&ulKey)[2];
+        ucXor += ((unsigned char *)&ulKey)[3];
+    }
+    *p_cDst = '\0';
+    return MMG_pc_g_a_cModuleName;
+}
+
 /* 0x00447540 */
 unsigned long __cdecl MMG_pc_fn_ulFindImportInIat(unsigned long ulIndex)
 {
@@ -212,6 +276,45 @@ L_body:
     }
 L_epi:
     return ulResult;
+}
+void *MMG_pc_g_pvNopGateExit;
+
+void *__cdecl MMG_pc_fn_pFindKernel32(void);
+
+/* 0x004478A0 */
+void __cdecl MMG_pc_fn_vResolveModuleApi(long bInit)
+{
+    unsigned long ulKey;
+    unsigned long ulAddress;
+    unsigned long hModule;
+
+    if (SNA_g_lProtectionGate != 0) {
+        __asm { mov dword ptr [MMG_pc_g_pvResolveModuleApiResume], offset L_body }
+        __asm { mov dword ptr [MMG_pc_g_pvResolveModuleApiExit], offset L_epi }
+        return;
+    }
+L_body:
+    if (bInit) {
+        g_p_ulMMGTable[0] = (unsigned int)MMG_pc_fn_pFindKernel32();
+        MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulPtrXorKey =
+            (MMG_pc_fn_ulFindImportInExports(MMG_pc_C_ImpGetModuleHandleA) + g_p_ulMMGTable[0])
+            ^ MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulKey;
+        return;
+    }
+    ulKey = MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulKey;
+    if (MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulModule
+            != MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].a_ulImporter[0]
+        && g_p_ulMMGTable[MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].a_ulImporter[0]] != 0)
+        ulAddress = MMG_pc_fn_ulFindImportInIat(MMG_pc_C_ImpGetModuleHandleA);
+    else {
+        hModule = (unsigned long)GetModuleHandleA(MMG_pc_fn_szDecryptModuleName(1));
+        ulAddress = *MMG_pc_fn_p_ulFindIatSlot(hModule, MMG_pc_fn_p_stGetImport(MMG_pc_C_ImpGetModuleHandleA));
+    }
+    ulAddress ^= ulKey;
+    if (ulAddress != MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulPtrXorKey)
+        ulAddress = 0;
+    MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulPtrXorKey = ulAddress;
+L_epi:;
 }
 
 /* 0x00447A90 */
@@ -375,12 +478,6 @@ L_unlink:
     return pResult;
 }
 
-/* 0x004B72E0 */
-void *MMG_pc_g_pvKernel32Base;
-
-void *MMG_pc_g_pvFindKernel32Resume;     /* 0x00510DDC */
-void *MMG_pc_g_pvFindKernel32Exit;       /* 0x00510C1C */
-
 /* 0x00447D10 */
 void *__cdecl MMG_pc_fn_pFindKernel32(void)
 {
@@ -414,72 +511,6 @@ L_body:
 L_epi:
     return MMG_pc_g_pvKernel32Base;
 }
-
-#pragma optimize("", on)
-
-/* 0x00448DB0 */
-void __cdecl MMG_pc_fn_vLoadAllModuleHandles(long bInit)
-{
-    unsigned long ulModule;
-
-    for (ulModule = 0; ulModule < g_ucMMGTableSize; ulModule++)
-        MMG_pc_fn_vLoadModuleHandle(ulModule, bInit);
-}
-
-/* 0x00448D80 */
-void __cdecl MMG_pc_fn_vResolveAllImports(long bInit)
-{
-    unsigned long ulIndex;
-
-    for (ulIndex = 1; ulIndex < g_ul113f0; ulIndex++)
-        MMG_pc_fn_vResolveImport(ulIndex, bInit);
-}
-
-#pragma optimize("y", off)
-
-void *MMG_pc_g_pvResolveModuleApiResume;    /* 0x00510DE0 */
-void *MMG_pc_g_pvResolveModuleApiExit;      /* 0x00510C20 */
-
-/* 0x004478A0 */
-void __cdecl MMG_pc_fn_vResolveModuleApi(long bInit)
-{
-    unsigned long ulKey;
-    unsigned long ulAddress;
-    unsigned long hModule;
-
-    if (SNA_g_lProtectionGate != 0) {
-        __asm { mov dword ptr [MMG_pc_g_pvResolveModuleApiResume], offset L_body }
-        __asm { mov dword ptr [MMG_pc_g_pvResolveModuleApiExit], offset L_epi }
-        return;
-    }
-L_body:
-    if (bInit) {
-        g_p_ulMMGTable[0] = (unsigned int)MMG_pc_fn_pFindKernel32();
-        MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulPtrXorKey =
-            (MMG_pc_fn_ulFindImportInExports(MMG_pc_C_ImpGetModuleHandleA) + g_p_ulMMGTable[0])
-            ^ MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulKey;
-        return;
-    }
-    ulKey = MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulKey;
-    if (MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulModule
-            != MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].a_ulImporter[0]
-        && g_p_ulMMGTable[MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].a_ulImporter[0]] != 0)
-        ulAddress = MMG_pc_fn_ulFindImportInIat(MMG_pc_C_ImpGetModuleHandleA);
-    else {
-        hModule = (unsigned long)GetModuleHandleA(MMG_pc_fn_szDecryptModuleName(1));
-        ulAddress = *MMG_pc_fn_p_ulFindIatSlot(hModule, MMG_pc_fn_p_stGetImport(MMG_pc_C_ImpGetModuleHandleA));
-    }
-    ulAddress ^= ulKey;
-    if (ulAddress != MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulPtrXorKey)
-        ulAddress = 0;
-    MMG_pc_g_a_stImport[MMG_pc_C_ImpGetModuleHandleA].ulPtrXorKey = ulAddress;
-L_epi:;
-}
-
-#pragma optimize("", on)
-
-void *MMG_pc_g_pvCheckToolhelpResume;    /* 0x00510DD8 */
-void *MMG_pc_g_pvCheckToolhelpExit;      /* 0x00510C18 */
 
 /* 0x00447DE0 */
 void __cdecl MMG_pc_fn_vInitProcessEnumeration(void)
@@ -543,10 +574,280 @@ L_body:
 L_epi:;
 }
 
-void __cdecl GLI_FatalExitOrSleep(void);   /* 0x004011C0 */
+/* 0x004481B0 */
+unsigned long __cdecl MMG_pc_fn_ulCountExportersPsapi(MMG_pc_tdstImport *p_stImport)
+{
+    unsigned long a_hModule[0x400];
+    unsigned long ulCount;
+    unsigned long ulNeeded;
+    unsigned long ulNbModule;
+    unsigned long ulI;
+    void *hProcess;
+    void *hFlushProcess;
+    long bOk;
+    unsigned char *p_ucStub;
+    unsigned char *p_ucEnd;
+    unsigned long hModule;
+    unsigned long ulRva;
 
-#ifndef RAYMAN2_NO_PROTECTION   /* CD check: boot-time search for the "RAYMAN2" CD volume */
-#pragma optimize("y", off)
+    ulCount = 0;
+    if (SNA_g_lProtectionGate != 0) {
+        __asm { mov dword ptr [MMG_pc_g_pvCountPsapiResume], offset L_body }
+        __asm { mov dword ptr [MMG_pc_g_pvCountPsapiExit], offset L_epi }
+        return 0;
+    }
+L_body:
+    hProcess = ((void *(__stdcall *)(void))MMG_pc_M_ulImportAddress(MMG_pc_C_ImpGetCurrentProcess))();
+    MMG_pc_M_vStepLcg();
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
+    MMG_pc_M_vWriteStub(p_ucStub, 25, 0x50, 0xC3);
+    MMG_pc_M_vFlushPool(hFlushProcess);
+    bOk = ((long (__stdcall *)(void *, unsigned long *, unsigned long, unsigned long *))p_ucStub)(
+        hProcess, a_hModule, sizeof(a_hModule), &ulNeeded);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+        MMG_pc_M_vStepLcg();
+        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    }
+    if (!bOk)
+        return 0;
+    ulNbModule = ulNeeded / sizeof(unsigned long);
+    if (ulNbModule == 1)
+        return 0;
+    for (ulI = 0; ulI < ulNbModule; ulI++) {
+        hModule = a_hModule[ulI];
+        ulRva = MMG_pc_M_ulExportRva(hModule);
+        if ((ulRva != 0 ? MMG_pc_fn_ulFindExportRva(hModule, (IMAGE_EXPORT_DIRECTORY *)(hModule + ulRva),
+                                                    p_stImport)
+                        : 0)
+            != 0)
+            ulCount++;
+    }
+L_epi:
+    return ulCount;
+}
+
+/* 0x00448480 */
+unsigned int __cdecl MMG_pc_fn_ulStepLcgState(void)
+{
+    MMG_pc_M_vStepLcg();
+    return MMG_g_ulLCGState;
+}
+
+/* 0x004484D0 */
+long __stdcall MMG_pc_fn_bFlushInstructionCache(void *hProcess, const void *p_vBase, unsigned long ulSize)
+{
+    long (__stdcall *pfn_bFlush)(void *, const void *, unsigned long);
+
+    pfn_bFlush = (long (__stdcall *)(void *, const void *, unsigned long))
+        MMG_pc_M_ulImportAddress(MMG_pc_C_ImpFlushInstructionCache);
+    return pfn_bFlush(hProcess, p_vBase, ulSize);
+}
+
+/* 0x00448500 */
+long __stdcall MMG_pc_fn_bCloseHandle(void *hObject)
+{
+    unsigned char *p_ucStub;
+    unsigned char *p_ucEnd;
+    void *hProcess;
+    long bResult;
+
+    MMG_pc_M_vStepLcg();
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
+    p_ucStub[0] = 0x68;
+    *(unsigned long *)(p_ucStub + 1) = MMG_pc_g_a_stImport[11].ulPtrXorKey ^ MMG_pc_g_a_stImport[11].ulKey;
+    p_ucStub[5] = 0xC3;
+    MMG_pc_M_vFlushPool(hProcess);
+    bResult = ((long (__stdcall *)(void *))p_ucStub)(hObject);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+        MMG_pc_M_vStepLcg();
+        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    }
+    return bResult;
+}
+
+unsigned long __cdecl MMG_pc_fn_ulFindExportRvaInDirectory(unsigned long hModule, IMAGE_EXPORT_DIRECTORY *p_stExport, MMG_pc_tdstImport *p_stImport);
+
+/* 0x00448610 */
+unsigned long __cdecl MMG_pc_fn_ulCountExportersToolhelp(MMG_pc_tdstImport *p_stImport)
+{
+    MODULEENTRY32 stEntry;
+    unsigned long ulCount;
+    void *hSnapshot;
+    long bMore;
+    unsigned char *p_ucStub;
+    unsigned char *p_ucEnd;
+    void *hProcess;
+    unsigned long hModule;
+    unsigned long ulRva;
+    long lOffset;
+
+    ulCount = 0;
+    if (SNA_g_lProtectionGate != 0) {
+        __asm { mov dword ptr [MMG_pc_g_pvCountToolhelpResume], offset L_body }
+        __asm { mov dword ptr [MMG_pc_g_pvCountToolhelpExit], offset L_epi }
+        return 0;
+    }
+L_body:
+    lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
+    MMG_pc_M_vWriteStub(&MMG_pc_g_uLcgPool.a_ucCode[lOffset], 19, 0xFF, 0xE0);
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
+    MMG_pc_M_vFlushPool(hProcess);
+    hSnapshot = ((void *(__stdcall *)(unsigned long, unsigned long))p_ucStub)(TH32CS_SNAPMODULE, 0);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+        MMG_pc_M_vStepLcg();
+        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    }
+    stEntry.dwSize = sizeof(MODULEENTRY32);
+
+    lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
+    MMG_pc_g_uLcgPool.a_ucCode[lOffset] = 0xE9;
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
+    *(unsigned long *)(p_ucStub + 1) = (MMG_pc_g_a_stImport[22].ulPtrXorKey ^ MMG_pc_g_a_stImport[22].ulKey)
+                                       - (unsigned long)p_ucStub - 5;
+    MMG_pc_M_vFlushPool(hProcess);
+    bMore = ((long (__stdcall *)(void *, MODULEENTRY32 *))p_ucStub)(hSnapshot, &stEntry);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+        MMG_pc_M_vStepLcg();
+        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    }
+    if (bMore) {
+        do {
+            hModule = (unsigned long)stEntry.hModule;
+            ulRva = MMG_pc_M_ulExportRva(hModule);
+            if ((ulRva != 0 ? MMG_pc_fn_ulFindExportRvaInDirectory(
+                                  hModule, (IMAGE_EXPORT_DIRECTORY *)(hModule + ulRva), p_stImport)
+                            : 0)
+                != 0)
+                ulCount++;
+
+            lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
+            MMG_pc_g_uLcgPool.a_ucCode[lOffset] = 0xE9;
+            p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
+            *(unsigned long *)(p_ucStub + 1) =
+                (MMG_pc_g_a_stImport[23].ulPtrXorKey ^ MMG_pc_g_a_stImport[23].ulKey) - (unsigned long)p_ucStub - 5;
+            MMG_pc_M_vFlushPool(hProcess);
+            bMore = ((long (__stdcall *)(void *, MODULEENTRY32 *))p_ucStub)(hSnapshot, &stEntry);
+            for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+                MMG_pc_M_vStepLcg();
+                *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+            }
+        } while (bMore);
+    }
+
+    lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
+    MMG_pc_g_uLcgPool.a_ucCode[lOffset] = 0x68;
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
+    *(unsigned long *)(p_ucStub + 1) = MMG_pc_g_a_stImport[11].ulPtrXorKey ^ MMG_pc_g_a_stImport[11].ulKey;
+    p_ucStub[5] = 0xC3;
+    MMG_pc_M_vFlushPool(hProcess);
+    ((long (__stdcall *)(void *))p_ucStub)(hSnapshot);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++)
+        *p_ucStub = (unsigned char)((int)MMG_pc_fn_ulStepLcgState() % 0xff);
+L_epi:
+    return ulCount;
+}
+
+/* 0x00448970 */
+unsigned long __cdecl MMG_pc_fn_ulFindExportRvaInDirectory(unsigned long hModule,
+                                                          IMAGE_EXPORT_DIRECTORY *p_stExport,
+                                                          MMG_pc_tdstImport *p_stImport)
+{
+    unsigned long *p_ulNames;
+    unsigned long *p_ulFunctions;
+    unsigned short *p_uwOrdinals;
+    long lI;
+    long lNbNames;
+    unsigned long ulFunction;
+
+    if (hModule == 0 || p_stExport == NULL)
+        return 0;
+
+    p_ulNames = (unsigned long *)(hModule + (unsigned long)p_stExport->AddressOfNames);
+    p_ulFunctions = (unsigned long *)(hModule + (unsigned long)p_stExport->AddressOfFunctions);
+    p_uwOrdinals = (unsigned short *)(hModule + (unsigned long)p_stExport->AddressOfNameOrdinals);
+    lNbNames = p_stExport->NumberOfNames;
+    for (lI = 0; lI < lNbNames; lI++, p_ulNames++, p_uwOrdinals++) {
+        ulFunction = p_ulFunctions[*p_uwOrdinals];
+        if (MMG_pc_fn_lCompareImportName((unsigned char *)(hModule + *p_ulNames), p_stImport->ucNameLen,
+                                         (unsigned char *)p_stImport->a_cName, p_stImport->ulKey) == 0)
+            return ulFunction;
+    }
+    return 0;
+}
+
+/* 0x00448AB0 */
+unsigned long __cdecl MMG_pc_fn_ulGetExeIatDelta(MMG_pc_tdstImport *p_stImport)
+{
+    MMG_pc_tdstImport *p_stRecord;
+    unsigned long ulKey;
+    unsigned char *p_ucStub;
+    unsigned char *p_ucEnd;
+    void *hProcess;
+    unsigned long hModule;
+    unsigned long *p_ulSlot;
+    unsigned long ulAddress;
+
+    p_stRecord = MMG_pc_g_a_stImport;
+    if (SNA_g_lProtectionGate != 0) {
+        __asm { mov dword ptr [MMG_pc_g_pvIatDeltaResume], offset L_body }
+        __asm { mov dword ptr [MMG_pc_g_pvIatDeltaExit], offset L_epi }
+        return 0;
+    }
+L_body:
+    ulKey = p_stImport->ulKey;
+    MMG_pc_M_vStepLcg();
+    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
+    MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpGetModuleHandleA, 0xFF, 0xE0);
+    MMG_pc_M_vFlushPool(hProcess);
+    hModule = ((unsigned long (__stdcall *)(const char *))p_ucStub)(NULL);
+    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
+        MMG_pc_M_vStepLcg();
+        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
+    }
+    p_ulSlot = MMG_pc_fn_p_ulFindIatSlot(hModule, p_stImport);
+    ulAddress = p_ulSlot != NULL ? *p_ulSlot : 0;
+    if (ulAddress != 0) {
+        while (*(char *)p_stRecord != '\0' && strcmp((char *)p_stRecord, (char *)p_stImport) != 0)
+            p_stRecord++;
+        if (*(char *)p_stRecord != '\0')
+            return ulAddress - (p_stRecord->ulPtrXorKey ^ ulKey);
+    }
+    return 0;
+L_epi:;
+}
+
+/* 0x00448D80 */
+void __cdecl MMG_pc_fn_vResolveAllImports(long bInit)
+{
+    unsigned long ulIndex;
+
+    for (ulIndex = 1; ulIndex < g_ul113f0; ulIndex++)
+        MMG_pc_fn_vResolveImport(ulIndex, bInit);
+}
+
+/* 0x00448DB0 */
+void __cdecl MMG_pc_fn_vLoadAllModuleHandles(long bInit)
+{
+    unsigned long ulModule;
+
+    for (ulModule = 0; ulModule < g_ucMMGTableSize; ulModule++)
+        MMG_pc_fn_vLoadModuleHandle(ulModule, bInit);
+}
+
+/* 0x00448DE0 */
+unsigned long __cdecl MMG_pc_fn_ulCountExporters(MMG_pc_tdstImport *p_stImport)
+{
+    if (SNA_g_lProtectionGate != 0) {
+        __asm { mov dword ptr [MMG_pc_g_pvCountExportersResume], offset L_body }
+        __asm { mov dword ptr [MMG_pc_g_pvCountExportersExit], offset L_epi }
+        return 0;
+    }
+L_body:
+    if (MMG_pc_g_ulPsapiLoaded)
+        return MMG_pc_fn_ulCountExportersPsapi(p_stImport);
+    return MMG_pc_fn_ulCountExportersToolhelp(p_stImport);
+L_epi:;
+}
 static void FUN_00448e30(void)
 {
     long lDrive;
@@ -644,298 +945,7 @@ L_cd_body:
     } while (!bFound);
 L_cd_epi:;
 }
-#pragma optimize("", on)
 #endif /* RAYMAN2_NO_PROTECTION */
-
-static __inline unsigned int lcg_next(unsigned int seed)
-{
-    unsigned int s = seed ^ 0x75bd924u;
-    unsigned int next = s * 0x41a7u + (unsigned int)((int)s / 0x1f31d * -0x7fffffff);
-
-    if ((int)next < 0) {
-        next += 0x7fffffffu;
-    }
-
-    return next;
-}
-
-/* 0x00448480 */
-unsigned int __cdecl MMG_pc_fn_ulStepLcgState(void)
-{
-    MMG_pc_M_vStepLcg();
-    return MMG_g_ulLCGState;
-}
-
-/* 0x004484D0 */
-long __stdcall MMG_pc_fn_bFlushInstructionCache(void *hProcess, const void *p_vBase, unsigned long ulSize)
-{
-    long (__stdcall *pfn_bFlush)(void *, const void *, unsigned long);
-
-    pfn_bFlush = (long (__stdcall *)(void *, const void *, unsigned long))
-        MMG_pc_M_ulImportAddress(MMG_pc_C_ImpFlushInstructionCache);
-    return pfn_bFlush(hProcess, p_vBase, ulSize);
-}
-
-/* 0x00448500 */
-long __stdcall MMG_pc_fn_bCloseHandle(void *hObject)
-{
-    unsigned char *p_ucStub;
-    unsigned char *p_ucEnd;
-    void *hProcess;
-    long bResult;
-
-    MMG_pc_M_vStepLcg();
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
-    p_ucStub[0] = 0x68;
-    *(unsigned long *)(p_ucStub + 1) = MMG_pc_g_a_stImport[11].ulPtrXorKey ^ MMG_pc_g_a_stImport[11].ulKey;
-    p_ucStub[5] = 0xC3;
-    MMG_pc_M_vFlushPool(hProcess);
-    bResult = ((long (__stdcall *)(void *))p_ucStub)(hObject);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-        MMG_pc_M_vStepLcg();
-        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-    }
-    return bResult;
-}
-
-/* 0x00448970 */
-unsigned long __cdecl MMG_pc_fn_ulFindExportRvaInDirectory(unsigned long hModule,
-                                                          IMAGE_EXPORT_DIRECTORY *p_stExport,
-                                                          MMG_pc_tdstImport *p_stImport)
-{
-    unsigned long *p_ulNames;
-    unsigned long *p_ulFunctions;
-    unsigned short *p_uwOrdinals;
-    long lI;
-    long lNbNames;
-    unsigned long ulFunction;
-
-    if (hModule == 0 || p_stExport == NULL)
-        return 0;
-
-    p_ulNames = (unsigned long *)(hModule + (unsigned long)p_stExport->AddressOfNames);
-    p_ulFunctions = (unsigned long *)(hModule + (unsigned long)p_stExport->AddressOfFunctions);
-    p_uwOrdinals = (unsigned short *)(hModule + (unsigned long)p_stExport->AddressOfNameOrdinals);
-    lNbNames = p_stExport->NumberOfNames;
-    for (lI = 0; lI < lNbNames; lI++, p_ulNames++, p_uwOrdinals++) {
-        ulFunction = p_ulFunctions[*p_uwOrdinals];
-        if (MMG_pc_fn_lCompareImportName((unsigned char *)(hModule + *p_ulNames), p_stImport->ucNameLen,
-                                         (unsigned char *)p_stImport->a_cName, p_stImport->ulKey) == 0)
-            return ulFunction;
-    }
-    return 0;
-}
-
-void *MMG_pc_g_pvCountToolhelpResume;    /* 0x00510DD4 */
-void *MMG_pc_g_pvCountToolhelpExit;      /* 0x00510C14 */
-
-#pragma optimize("y", off)
-
-/* 0x00448610 */
-unsigned long __cdecl MMG_pc_fn_ulCountExportersToolhelp(MMG_pc_tdstImport *p_stImport)
-{
-    MODULEENTRY32 stEntry;
-    unsigned long ulCount;
-    void *hSnapshot;
-    long bMore;
-    unsigned char *p_ucStub;
-    unsigned char *p_ucEnd;
-    void *hProcess;
-    unsigned long hModule;
-    unsigned long ulRva;
-    long lOffset;
-
-    ulCount = 0;
-    if (SNA_g_lProtectionGate != 0) {
-        __asm { mov dword ptr [MMG_pc_g_pvCountToolhelpResume], offset L_body }
-        __asm { mov dword ptr [MMG_pc_g_pvCountToolhelpExit], offset L_epi }
-        return 0;
-    }
-L_body:
-    lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
-    MMG_pc_M_vWriteStub(&MMG_pc_g_uLcgPool.a_ucCode[lOffset], 19, 0xFF, 0xE0);
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
-    MMG_pc_M_vFlushPool(hProcess);
-    hSnapshot = ((void *(__stdcall *)(unsigned long, unsigned long))p_ucStub)(TH32CS_SNAPMODULE, 0);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-        MMG_pc_M_vStepLcg();
-        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-    }
-    stEntry.dwSize = sizeof(MODULEENTRY32);
-
-    lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
-    MMG_pc_g_uLcgPool.a_ucCode[lOffset] = 0xE9;
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
-    *(unsigned long *)(p_ucStub + 1) = (MMG_pc_g_a_stImport[22].ulPtrXorKey ^ MMG_pc_g_a_stImport[22].ulKey)
-                                       - (unsigned long)p_ucStub - 5;
-    MMG_pc_M_vFlushPool(hProcess);
-    bMore = ((long (__stdcall *)(void *, MODULEENTRY32 *))p_ucStub)(hSnapshot, &stEntry);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-        MMG_pc_M_vStepLcg();
-        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-    }
-    if (bMore) {
-        do {
-            hModule = (unsigned long)stEntry.hModule;
-            ulRva = MMG_pc_M_ulExportRva(hModule);
-            if ((ulRva != 0 ? MMG_pc_fn_ulFindExportRvaInDirectory(
-                                  hModule, (IMAGE_EXPORT_DIRECTORY *)(hModule + ulRva), p_stImport)
-                            : 0)
-                != 0)
-                ulCount++;
-
-            lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
-            MMG_pc_g_uLcgPool.a_ucCode[lOffset] = 0xE9;
-            p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
-            *(unsigned long *)(p_ucStub + 1) =
-                (MMG_pc_g_a_stImport[23].ulPtrXorKey ^ MMG_pc_g_a_stImport[23].ulKey) - (unsigned long)p_ucStub - 5;
-            MMG_pc_M_vFlushPool(hProcess);
-            bMore = ((long (__stdcall *)(void *, MODULEENTRY32 *))p_ucStub)(hSnapshot, &stEntry);
-            for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-                MMG_pc_M_vStepLcg();
-                *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-            }
-        } while (bMore);
-    }
-
-    lOffset = (int)MMG_pc_fn_ulStepLcgState() % MMG_pc_C_PoolSlots;
-    MMG_pc_g_uLcgPool.a_ucCode[lOffset] = 0x68;
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[lOffset];
-    *(unsigned long *)(p_ucStub + 1) = MMG_pc_g_a_stImport[11].ulPtrXorKey ^ MMG_pc_g_a_stImport[11].ulKey;
-    p_ucStub[5] = 0xC3;
-    MMG_pc_M_vFlushPool(hProcess);
-    ((long (__stdcall *)(void *))p_ucStub)(hSnapshot);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++)
-        *p_ucStub = (unsigned char)((int)MMG_pc_fn_ulStepLcgState() % 0xff);
-L_epi:
-    return ulCount;
-}
-
-void *MMG_pc_g_pvCountPsapiResume;       /* 0x00510DD0 */
-void *MMG_pc_g_pvCountPsapiExit;         /* 0x00510C10 */
-
-/* 0x004481B0 */
-unsigned long __cdecl MMG_pc_fn_ulCountExportersPsapi(MMG_pc_tdstImport *p_stImport)
-{
-    unsigned long a_hModule[0x400];
-    unsigned long ulCount;
-    unsigned long ulNeeded;
-    unsigned long ulNbModule;
-    unsigned long ulI;
-    void *hProcess;
-    void *hFlushProcess;
-    long bOk;
-    unsigned char *p_ucStub;
-    unsigned char *p_ucEnd;
-    unsigned long hModule;
-    unsigned long ulRva;
-
-    ulCount = 0;
-    if (SNA_g_lProtectionGate != 0) {
-        __asm { mov dword ptr [MMG_pc_g_pvCountPsapiResume], offset L_body }
-        __asm { mov dword ptr [MMG_pc_g_pvCountPsapiExit], offset L_epi }
-        return 0;
-    }
-L_body:
-    hProcess = ((void *(__stdcall *)(void))MMG_pc_M_ulImportAddress(MMG_pc_C_ImpGetCurrentProcess))();
-    MMG_pc_M_vStepLcg();
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
-    MMG_pc_M_vWriteStub(p_ucStub, 25, 0x50, 0xC3);
-    MMG_pc_M_vFlushPool(hFlushProcess);
-    bOk = ((long (__stdcall *)(void *, unsigned long *, unsigned long, unsigned long *))p_ucStub)(
-        hProcess, a_hModule, sizeof(a_hModule), &ulNeeded);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-        MMG_pc_M_vStepLcg();
-        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-    }
-    if (!bOk)
-        return 0;
-    ulNbModule = ulNeeded / sizeof(unsigned long);
-    if (ulNbModule == 1)
-        return 0;
-    for (ulI = 0; ulI < ulNbModule; ulI++) {
-        hModule = a_hModule[ulI];
-        ulRva = MMG_pc_M_ulExportRva(hModule);
-        if ((ulRva != 0 ? MMG_pc_fn_ulFindExportRva(hModule, (IMAGE_EXPORT_DIRECTORY *)(hModule + ulRva),
-                                                    p_stImport)
-                        : 0)
-            != 0)
-            ulCount++;
-    }
-L_epi:
-    return ulCount;
-}
-
-void *MMG_pc_g_pvIatDeltaResume;         /* 0x00510DE4 */
-void *MMG_pc_g_pvIatDeltaExit;           /* 0x00510C24 */
-
-/* 0x00448AB0 */
-unsigned long __cdecl MMG_pc_fn_ulGetExeIatDelta(MMG_pc_tdstImport *p_stImport)
-{
-    MMG_pc_tdstImport *p_stRecord;
-    unsigned long ulKey;
-    unsigned char *p_ucStub;
-    unsigned char *p_ucEnd;
-    void *hProcess;
-    unsigned long hModule;
-    unsigned long *p_ulSlot;
-    unsigned long ulAddress;
-
-    p_stRecord = MMG_pc_g_a_stImport;
-    if (SNA_g_lProtectionGate != 0) {
-        __asm { mov dword ptr [MMG_pc_g_pvIatDeltaResume], offset L_body }
-        __asm { mov dword ptr [MMG_pc_g_pvIatDeltaExit], offset L_epi }
-        return 0;
-    }
-L_body:
-    ulKey = p_stImport->ulKey;
-    MMG_pc_M_vStepLcg();
-    p_ucStub = &MMG_pc_g_uLcgPool.a_ucCode[(int)MMG_g_ulLCGState % MMG_pc_C_PoolSlots];
-    MMG_pc_M_vWriteStub(p_ucStub, MMG_pc_C_ImpGetModuleHandleA, 0xFF, 0xE0);
-    MMG_pc_M_vFlushPool(hProcess);
-    hModule = ((unsigned long (__stdcall *)(const char *))p_ucStub)(NULL);
-    for (p_ucEnd = p_ucStub + MMG_pc_C_StubSize; p_ucStub < p_ucEnd; p_ucStub++) {
-        MMG_pc_M_vStepLcg();
-        *p_ucStub = (unsigned char)((int)MMG_g_ulLCGState % 0xff);
-    }
-    p_ulSlot = MMG_pc_fn_p_ulFindIatSlot(hModule, p_stImport);
-    ulAddress = p_ulSlot != NULL ? *p_ulSlot : 0;
-    if (ulAddress != 0) {
-        while (*(char *)p_stRecord != '\0' && strcmp((char *)p_stRecord, (char *)p_stImport) != 0)
-            p_stRecord++;
-        if (*(char *)p_stRecord != '\0')
-            return ulAddress - (p_stRecord->ulPtrXorKey ^ ulKey);
-    }
-    return 0;
-L_epi:;
-}
-
-#pragma optimize("", on)
-
-void *MMG_pc_g_pvCountExportersResume;   /* 0x00510DCC */
-void *MMG_pc_g_pvCountExportersExit;     /* 0x00510C0C */
-
-#pragma optimize("y", off)
-
-/* 0x00448DE0 */
-unsigned long __cdecl MMG_pc_fn_ulCountExporters(MMG_pc_tdstImport *p_stImport)
-{
-    if (SNA_g_lProtectionGate != 0) {
-        __asm { mov dword ptr [MMG_pc_g_pvCountExportersResume], offset L_body }
-        __asm { mov dword ptr [MMG_pc_g_pvCountExportersExit], offset L_epi }
-        return 0;
-    }
-L_body:
-    if (MMG_pc_g_ulPsapiLoaded)
-        return MMG_pc_fn_ulCountExportersPsapi(p_stImport);
-    return MMG_pc_fn_ulCountExportersToolhelp(p_stImport);
-L_epi:;
-}
-
-#pragma optimize("", on)
-#endif /* RAYMAN2_NO_PROTECTION */
-
-#pragma optimize("y", off)
 void __cdecl MMG_fn_vInit(int bInitMMG)
 {
     LARGE_INTEGER qpc;
@@ -1002,13 +1012,39 @@ L_body:
 L_epi:;
 #endif /* RAYMAN2_NO_PROTECTION */
 }
-#pragma optimize("", on)
+
+/* 0x510BF0 */
+void GAM_pc_fn_vFreeMmgTableAndHelperDll(void)
+{
+#ifndef RAYMAN2_NO_PROTECTION   /* table and PSAPI handle of the protection's private imports */
+    /* 0x0049C080 */
+    typedef void (__stdcall *pfn_iat_t)(void *);
+
+    unsigned int *p_ulMMGTable = g_p_ulMMGTable;   /* 0x00510BA4 */
+#ifdef RAYMAN2_FIX_BUGS
+    /* FIX(BUGS.md#6) */
+    /* the PSAPI handle was read from the table after it was freed (or through NULL) */
+    if (p_ulMMGTable != NULL)
+    {
+        if (MMG_pc_g_ulPsapiLoaded != 0)
+            FreeLibrary((HMODULE)(void *)(unsigned int)p_ulMMGTable[2]);
+        free(p_ulMMGTable);
+    }
+#else
+    if (p_ulMMGTable != NULL)
+    {
+        free(p_ulMMGTable);
+    }
+    if (MMG_pc_g_ulPsapiLoaded != 0)
+    {
+
+        FreeLibrary((HMODULE)(void *)(unsigned int)g_p_ulMMGTable[2]);
+    }
+#endif /* RAYMAN2_FIX_BUGS */
+#endif /* RAYMAN2_NO_PROTECTION */
+}
 
 #ifndef RAYMAN2_NO_PROTECTION   /* protection gate with room for a decrypted body */
-/* 0x00511404 */
-void *MMG_pc_g_pvNopGateResume;
-void *MMG_pc_g_pvNopGateExit;
-
 #define MMG_pc_M_vNop16 \
     __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 \
     __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 __asm _emit 0x90 \

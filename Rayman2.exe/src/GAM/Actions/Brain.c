@@ -20,28 +20,16 @@
 /* 0x004078C0 */
 extern void __cdecl fn_vGameFreeInHLM(void *p_vObject);
 
+extern void __cdecl fn_vReinitAIWithFlags(AI_tdstMind *p_stMind, unsigned long eObjIniType);
+extern void __cdecl AI_fn_vInsertDsgVarInSAI(AI_tdstMind *p_stMind);
+extern unsigned char __cdecl fn_bIsInFix(void *p_stObject);
+
 unsigned long __cdecl fn_ulBrainSizeOf(void)
 {
     return sizeof(AI_tdstBrain);
 }
 
-void __cdecl fn_vFirstInitBrain(MS_tdxHandleToBrain h_Brain)
-{
-    AI_tdstMind *p_stMind = fn_pstAllocMind();
-    h_Brain->p_stMind = p_stMind;
-    h_Brain->hLastCollidedGoThroughMaterial = GMT_C_ulInvalidHandle;
-    h_Brain->bWarnMechanicsFlag = 0;
-}
-
-MS_tdxHandleToBrain __cdecl fn_h_BrainRealAlloc(void)
-{
-    MS_tdxHandleToBrain h_Brain;
-
-    h_Brain = (MS_tdxHandleToBrain)fnp_vGameMallocInHLM((unsigned int)fn_ulBrainSizeOf());
-    fn_vFirstInitBrain(h_Brain);
-
-    return(h_Brain);
-}
+MS_tdxHandleToBrain __cdecl fn_h_BrainRealAlloc(void);
 
 void __cdecl fn_vBrainAlloc(HIE_tdstEngineObject *p_stObject)
 {
@@ -65,13 +53,16 @@ void __cdecl fn_vBrainAlloc(HIE_tdstEngineObject *p_stObject)
     p_stObject->h_Brain = fn_h_BrainRealAlloc();
 }
 
-void __cdecl fn_vBrainCopyClone(HIE_tdstEngineObject *p_stObjectDest,
-                                   HIE_tdstEngineObject *p_stObjectSrc)
+void __cdecl fn_vFirstInitBrain(MS_tdxHandleToBrain h_Brain);
+
+MS_tdxHandleToBrain __cdecl fn_h_BrainRealAlloc(void)
 {
-    AI_tdstMind *hMindSrc, *hMindDest;
-    hMindSrc  = AI_M_pstGetMindOfBrain((AI_tdstBrain *)p_stObjectSrc->h_Brain);
-    hMindDest = AI_M_pstGetMindOfBrain((AI_tdstBrain *)p_stObjectDest->h_Brain);
-    fn_vSimulateMindAllocationFromAnotherMind(hMindSrc, hMindDest);
+    MS_tdxHandleToBrain h_Brain;
+
+    h_Brain = (MS_tdxHandleToBrain)fnp_vGameMallocInHLM((unsigned int)fn_ulBrainSizeOf());
+    fn_vFirstInitBrain(h_Brain);
+
+    return(h_Brain);
 }
 
 void __cdecl fn_vBrainFree(HIE_tdstEngineObject *p_stObject)
@@ -96,29 +87,13 @@ void __cdecl fn_vBrainFree(HIE_tdstEngineObject *p_stObject)
     p_stObject->h_Brain = NULL;
 }
 
-void __cdecl fn_vBrainDesinit(HIE_tdstEngineObject *p_stObject, int eObjectInit)
+void __cdecl fn_vFirstInitBrain(MS_tdxHandleToBrain h_Brain)
 {
-    if (p_stObject == NULL)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructObjectNull,
-                                -1, 0xff, 0xff, NULL);
-    }
-
-    if (p_stObject->h_Brain == NULL)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructNull,
-                                -1, 0xff, 0xff, NULL);
-    }
-
+    AI_tdstMind *p_stMind = fn_pstAllocMind();
+    h_Brain->p_stMind = p_stMind;
+    h_Brain->hLastCollidedGoThroughMaterial = GMT_C_ulInvalidHandle;
+    h_Brain->bWarnMechanicsFlag = 0;
 }
-
-extern void __cdecl fn_vReinitAIWithFlags(AI_tdstMind *p_stMind, unsigned long eObjIniType);
-extern void __cdecl AI_fn_vInsertDsgVarInSAI(AI_tdstMind *p_stMind);
-extern unsigned char __cdecl fn_bIsInFix(void *p_stObject);
 
 void __cdecl fn_vBrainInit(HIE_tdstEngineObject *p_stObject, unsigned long eObjectInit)
 {
@@ -161,4 +136,33 @@ void __cdecl fn_vBrainInit(HIE_tdstEngineObject *p_stObject, unsigned long eObje
         AI_fn_vInsertDsgVarInSAI(M_pstGetMindOfBrain(p_stObject->h_Brain));
         break;
     }
+}
+
+void __cdecl fn_vBrainDesinit(HIE_tdstEngineObject *p_stObject, int eObjectInit)
+{
+    if (p_stObject == NULL)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
+                                E_uwGameMiniStructObjectNull,
+                                -1, 0xff, 0xff, NULL);
+    }
+
+    if (p_stObject->h_Brain == NULL)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
+                                E_uwGameMiniStructNull,
+                                -1, 0xff, 0xff, NULL);
+    }
+
+}
+
+void __cdecl fn_vBrainCopyClone(HIE_tdstEngineObject *p_stObjectDest,
+                                   HIE_tdstEngineObject *p_stObjectSrc)
+{
+    AI_tdstMind *hMindSrc, *hMindDest;
+    hMindSrc  = AI_M_pstGetMindOfBrain((AI_tdstBrain *)p_stObjectSrc->h_Brain);
+    hMindDest = AI_M_pstGetMindOfBrain((AI_tdstBrain *)p_stObjectDest->h_Brain);
+    fn_vSimulateMindAllocationFromAnotherMind(hMindSrc, hMindDest);
 }

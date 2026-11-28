@@ -42,372 +42,11 @@ extern unsigned char __cdecl GAM_pc_fn_ucSortSaveSlotsByDate(void);   /* 0x410A8
 
 #define GAM_RT_pvAllocZeroed(n) GLI_pc_fn_p_vAlloc(n)
 
-/* 0x004081D0 */
-long __cdecl GAM_pc_fn_lGetSaveSlotId(long lSlotId)
-{
-    GAM_tdstSaveSlot *p_stSlot = GAM_g_p_stSaveSlotHead;
-    GAM_tdstSaveSlot *p_stNext;
-    long lIndex;
-
-    for (lIndex = 1; lIndex != lSlotId; lIndex++) {
-        p_stNext = p_stSlot->pNext;
-        if (p_stNext == NULL)
-            break;
-        p_stSlot = p_stNext;
-    }
-    return p_stSlot->lSlotId;
-}
-
-/* 0x004083B0 */
-char *__cdecl GAM_pc_fn_p_szGetSaveSlotNameScore(long lSlotId)
-{
-    GAM_tdstSaveSlot *p_stSlot = GAM_g_p_stSaveSlotHead;
-
-    if (lSlotId != 1) {
-        long lCount = lSlotId - 1;
-        do {
-            p_stSlot = p_stSlot->pNext;
-            lCount--;
-        } while (lCount != 0);
-    }
-    return p_stSlot->szNameScore;
-}
-
-/* 0x00410980 */
-unsigned char __cdecl GAM_pc_fn_bBuildSaveSlotPath(char *pszOut, long lSlotId)
-{
-    char szPath[128];
-
-    sprintf(szPath, "%s\\%s%i", FUN_00492700(), "Slot", (int)lSlotId);
-    if (strlen(szPath) > 0x80)
-        return 0;
-    strcpy(pszOut, szPath);
-    return 1;
-}
-
 static unsigned long GAM_g_ulAllFilesSuffix = 0x2A2E2A5CUL; /* 0x0049F928 */
 static char GAM_g_cAllFilesSuffixNul = 0; /* 0x0049F92C */
 
-/* 0x004106A0 */
-int __cdecl GAM_pc_fn_bDeleteDirectoryTree(char *pszDir)
-{
-    char             szPattern[256];
-    WIN32_FIND_DATAA stFind;
-    HANDLE           hFind;
-    size_t           ulLen;
-    char            *pSuffix;
-
-    strcpy(szPattern, pszDir);
-    ulLen = strlen(szPattern);
-    pSuffix = &szPattern[ulLen];
-
-    if (pSuffix[-1] == '\\')
-        pSuffix[-1] = '\0';
-    *(unsigned long *)pSuffix = GAM_g_ulAllFilesSuffix;
-    pSuffix[4] = GAM_g_cAllFilesSuffixNul;
-
-    hFind = FindFirstFileA(szPattern, &stFind);
-    if (hFind != INVALID_HANDLE_VALUE) {
-        do {
-            if ((stFind.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-
-                strcpy(pSuffix + 1, stFind.cFileName);
-                if (!DeleteFileA(szPattern))
-                    return 0;
-            } else if (strcmp(stFind.cFileName, ".") != 0 &&
-                       strcmp(stFind.cFileName, "..") != 0) {
-
-                strcpy(pSuffix + 1, stFind.cFileName);
-                if (!GAM_pc_fn_bDeleteDirectoryTree(szPattern))
-                    return 0;
-                RemoveDirectoryA(szPattern);
-            }
-        } while (FindNextFileA(hFind, &stFind));
-        FindClose(hFind);
-    }
-    return 1;
-}
-
-/* 0x410510 */
-int __cdecl GAM_pc_fn_bCopyDirectoryTree(char *pszSrc, char *pszDst)
-{
-    char             szSrc[256];
-    char             szDst[256];
-    WIN32_FIND_DATAA stFind;
-    HANDLE           hFind;
-    size_t           ulSrcLen;
-    size_t           ulDstLen;
-    unsigned long    ulSuffix;
-
-    strcpy(szSrc, pszSrc);
-    ulSuffix = GAM_g_ulAllFilesSuffix;
-    strcpy(szDst, pszDst);
-    ulSrcLen = strlen(szSrc);
-    ulDstLen = strlen(szDst);
-    *(unsigned long *)&szSrc[ulSrcLen] = ulSuffix;
-    szSrc[ulSrcLen + 4] = GAM_g_cAllFilesSuffixNul;
-
-    hFind = FindFirstFileA(szSrc, &stFind);
-    if (hFind == INVALID_HANDLE_VALUE)
-        return 0;
-    do {
-        szSrc[ulSrcLen] = '\\';
-        szDst[ulDstLen] = '\\';
-        if ((stFind.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-            strcpy(&szSrc[ulSrcLen + 1], stFind.cFileName);
-            strcpy(&szDst[ulDstLen + 1], stFind.cFileName);
-            if (!CopyFileA(szSrc, szDst, FALSE))
-                return 0;
-        }
-        szDst[ulDstLen] = '\0';
-        szSrc[ulSrcLen] = '\0';
-    } while (FindNextFileA(hFind, &stFind));
-    FindClose(hFind);
-    return 1;
-}
-
-/* 0x004082E0 */
-int __cdecl GAM_pc_fn_lEnsureDefaultSaveSlot(void)
-{
-    GAM_tdstSaveSlot *p_stOldHead;
-    GAM_tdstSaveSlot *p_stHead;
-    char              szPath[260];
-    int               bResult = 0;
-
-    *(unsigned long *)GAM_g_szSlotNameWork = *(unsigned long *)GAM_g_szDefaultSlotName;
-
-    p_stOldHead = GAM_g_p_stSaveSlotHead;
-    if (GAM_g_lNbSaveSlots < 1) {
-        GAM_g_p_stSaveSlotHead = (GAM_tdstSaveSlot *)GAM_RT_pvAllocZeroed(0x20);
-        GAM_g_p_stSaveSlotHead->pNext   = p_stOldHead;
-        GAM_g_lNbSaveSlots              = GAM_g_lNbSaveSlots + 1;
-        GAM_g_p_stSaveSlotHead->lSlotId = GAM_g_lNbSaveSlots;
-    }
-    p_stHead = GAM_g_p_stSaveSlotHead;
-
-    GAM_g_lSaveSlotDirty = 1;
-
-    strcpy(p_stHead->szScoreTail, p_stHead->szNameScore);
-
-    sprintf(p_stHead->szNameScore, "%3s 0%2.1f", GAM_g_szSlotNameWork, 0.0);
-
-    if (GAM_pc_fn_bBuildSaveSlotPath(szPath, p_stHead->lSlotId))
-        bResult = GAM_pc_fn_bDeleteDirectoryTree(szPath);
-
-    return bResult;
-}
-
 /* 0x0049F780 */
 static const char GAM_g_szSlotScoreTail_storage[] = "\\";
-
-long __cdecl GAM_pc_fn_lCountSaveSlotDirs(char *pszPath)
-{
-    struct _finddata_t stFind;
-    long               lCount = 0;
-    intptr_t           hFind;
-
-    if (_chdir(pszPath) != 0)
-        return 0;
-
-    hFind = _findfirst("*.*", &stFind);
-    if (hFind != -1) {
-        do {
-            if (stFind.attrib & _A_SUBDIR) {
-                if (stFind.name[0] != '.' && strncmp(stFind.name, "Slot", 4) == 0)
-                    lCount++;
-            }
-        } while (_findnext(hFind, &stFind) == 0);
-        _findclose(hFind);
-    }
-    return lCount;
-}
-
-/* 0x00408290 */
-long __cdecl fn_lGetNbAvailableSlots(void)
-{
-    char szCwd[0x100];
-    long lNbSlots;
-
-    GetCurrentDirectoryA(0x100, szCwd);
-    lNbSlots = GAM_pc_fn_lCountSaveSlotDirs(FUN_00492700());
-    SetCurrentDirectoryA(szCwd);
-    GAM_pc_fn_ucGrowSaveSlotList(lNbSlots);
-    return lNbSlots;
-}
-
-/* 0x408460 */
-unsigned char __cdecl GAM_pc_fn_ucGrowSaveSlotList(long lCount)
-{
-    long lNbSlots = GAM_g_lNbSaveSlots;
-    unsigned char ucRet = 0;
-
-    if (lCount != lNbSlots) {
-    if (lCount > lNbSlots) {
-        do {
-            GAM_tdstSaveSlot *p_stOldHead = GAM_g_p_stSaveSlotHead;
-
-            GAM_g_p_stSaveSlotHead = (GAM_tdstSaveSlot *)GAM_RT_pvAllocZeroed(0x20);
-            GAM_g_p_stSaveSlotHead->pNext = p_stOldHead;
-            GAM_g_lNbSaveSlots = GAM_g_lNbSaveSlots + 1;
-            GAM_g_p_stSaveSlotHead->lSlotId = GAM_g_lNbSaveSlots;
-            strncpy(GAM_g_p_stSaveSlotHead->szNameScore, GAM_g_szSlotNameWork, 3);
-            *(unsigned short *)GAM_g_p_stSaveSlotHead->szScoreTail =
-                *(unsigned short *)GAM_g_szSlotScoreTail_storage;
-        } while (lCount > GAM_g_lNbSaveSlots);
-    }
-
-    ucRet = GAM_pc_fn_ucSortSaveSlotsByDate();
-    }
-
-    return ucRet;
-}
-
-/* 0x410C50 */
-long __cdecl GAM_pc_fn_lCompareSaveSlotDates(char *pszDirA, char *pszDirB)
-{
-    struct _finddata_t stFindA;
-    struct _finddata_t stFindB;
-    char               szFileA[260];
-    char               szFileB[260];
-    intptr_t           hFindA;
-    intptr_t           hFindB;
-    long               lResult = 1;
-
-    sprintf(szFileA, "%s\\General.sav", pszDirA);
-    sprintf(szFileB, "%s\\General.sav", pszDirB);
-
-    if (_access(szFileA, 0) == 0) {
-        hFindA = _findfirst(szFileA, &stFindA);
-    } else {
-        hFindA = _findfirst(pszDirA, &stFindA);
-        if (hFindA == -1)
-            return -1;
-        if ((stFindA.attrib & _A_RDONLY) == _A_RDONLY)
-            _chmod(pszDirA, _S_IREAD | _S_IWRITE);
-    }
-
-    if (_access(szFileB, 0) == 0) {
-        hFindB = _findfirst(szFileB, &stFindB);
-    } else {
-        hFindB = _findfirst(pszDirB, &stFindB);
-        if (hFindB == -1) {
-            _findclose(hFindA);
-            return hFindB;
-        }
-    }
-
-    if (!(difftime(stFindA.time_write, stFindB.time_write) > 0.0))
-        lResult = 0;
-    _findclose(hFindA);
-    _findclose(hFindB);
-    return lResult;
-}
-
-/* 0x4A7064 */
-unsigned char __cdecl GAM_pc_fn_ucSortSaveSlotsByDate(void)
-{
-    char              szPathA[128];
-    char              szPathB[128];
-    char              szTmpName[12];
-    char              szTmpScore[12];
-    long              lPass = 0;
-    long              lIdx;
-    long              lSlotId;
-    GAM_tdstSaveSlot *p_stNodeB = NULL;
-    GAM_tdstSaveSlot *p_stNodeA;
-    int               bSwapped = 1;
-
-    if (GAM_g_lNbSaveSlots > 0) {
-        do {
-            if (!bSwapped)
-                break;
-            bSwapped = 0;
-            p_stNodeA = p_stNodeB;
-            lIdx = GAM_g_lNbSaveSlots;
-            while (p_stNodeB = p_stNodeA, --lIdx, lPass < lIdx) {
-                if (lIdx == GAM_g_lNbSaveSlots - 1) {
-                    p_stNodeA = p_stNodeB = GAM_g_p_stSaveSlotHead;
-                    p_stNodeA = p_stNodeA->pNext;
-                } else {
-                    p_stNodeA = p_stNodeB->pNext;
-                }
-                sprintf(szPathA, "%s\\%s%i", FUN_00492700(), "Slot", (int)p_stNodeA->lSlotId);
-                sprintf(szPathB, "%s\\%s%i", FUN_00492700(), "Slot", (int)p_stNodeB->lSlotId);
-                if (GAM_pc_fn_lCompareSaveSlotDates(szPathA, szPathB) != 0) {
-                    lSlotId = p_stNodeA->lSlotId;
-                    strcpy(szTmpName, p_stNodeA->szNameScore);
-                    strcpy(szTmpScore, p_stNodeA->szScoreTail);
-                    p_stNodeA->lSlotId = p_stNodeB->lSlotId;
-                    strcpy(p_stNodeA->szNameScore, p_stNodeB->szNameScore);
-                    p_stNodeB->lSlotId = lSlotId;
-                    strcpy(p_stNodeB->szNameScore, szTmpName);
-                    strcpy(p_stNodeB->szScoreTail, szTmpScore);
-                    bSwapped = 1;
-                }
-            }
-            lPass++;
-        } while (lPass < GAM_g_lNbSaveSlots);
-    }
-    return 1;
-}
-
-/* 0x00410DB0 */
-char *__cdecl GAM_pc_fn_szFormatSaveSlotDate(long lSlotId)
-{
-
-    static char        szResult[128];
-    char               szDir[128];
-    char               szFile[128];
-    struct _finddata_t stFind;
-    intptr_t           hFind;
-    struct tm         *p_stTime;
-
-    if (!(unsigned char)GAM_pc_fn_bBuildSaveSlotPath(szDir, lSlotId))
-        return NULL;
-
-    sprintf(szFile, "%s\\%s", szDir, "general.sav");
-    hFind = _findfirst(szFile, &stFind);
-    if (hFind == -1) {
-        hFind = _findfirst(szDir, &stFind);
-        if (hFind == -1)
-            return NULL;
-    }
-    if ((stFind.attrib & _A_RDONLY) == _A_RDONLY)
-        _chmod(szDir, _S_IREAD | _S_IWRITE);
-
-    p_stTime = localtime(&stFind.time_write);
-    sprintf(szResult, "%02i;%02i %i=%02i",
-            p_stTime->tm_mday, p_stTime->tm_mon + 1,
-            p_stTime->tm_hour, p_stTime->tm_min);
-    _findclose(hFind);
-    return szResult;
-}
-
-/* 0x00410A00 */
-unsigned char __cdecl GAM_pc_fn_ucUpdateSaveSlotList(void *unused, unsigned long lSlotId)
-{
-    GAM_tdstSaveSlot *p_stOldHead;
-
-    if (lSlotId >= 1 && lSlotId <= (unsigned long)GAM_g_lNbSaveSlots)
-    {
-        GAM_pc_fn_ucSortSaveSlotsByDate();
-    }
-    else
-    {
-        p_stOldHead = GAM_g_p_stSaveSlotHead;
-        if (p_stOldHead != NULL)
-        {
-            GAM_g_p_stSaveSlotHead          = (GAM_tdstSaveSlot *)GLI_pc_fn_p_vAlloc(0x20);
-            GAM_g_p_stSaveSlotHead->pNext   = p_stOldHead;
-            GAM_g_lNbSaveSlots              = GAM_g_lNbSaveSlots + 1;
-            GAM_g_p_stSaveSlotHead->lSlotId = GAM_g_lNbSaveSlots;
-        }
-    }
-
-    strncpy(GAM_g_p_stSaveSlotHead->szNameScore, GAM_g_szSlotNameWork, 3);
-    *(short *)GAM_g_p_stSaveSlotHead->szScoreTail = *(short *)"\\";
-    return 1;
-}
 
 extern char *GAM_gs_pszHiddenSlot;                  /* 0x49F8C0 */
 #define GAM_SS_pszHiddenSlot   GAM_gs_pszHiddenSlot
@@ -434,6 +73,21 @@ static char GAM_SS_szOptionsVersion[] = "V1";
 
 /* 0x500020 */
 static char GAM_pc_szLoadFileName[0x104];
+
+extern void fn_vValidateAllOption(void);
+extern unsigned char __cdecl IPT_fn_bLoadOptionsFromFile(FILE *p_stFile);
+extern void *_alloca(unsigned int);                        /* 0x0045FE80 */
+
+char GAM_g_a_szOptionsSlotNames[3][9];
+
+unsigned char __cdecl GAM_pc_fn_bLoadSaveStateFromLoadFile(void);
+
+/* 0x0049F8D4 */
+extern unsigned char GAM_pc_g_ucMode6SaveFlag_storage;
+#define GAM_pc_g_ucMode6SaveFlag  GAM_pc_g_ucMode6SaveFlag_storage
+
+/* 0x004104A0 */
+unsigned char __cdecl GAM_pc_fn_bDeleteSaveSlot(unsigned int uSlot);
 
 void __cdecl GAM_pc_fn_vSetLoadFileName(char *pszSrc)
 {
@@ -503,9 +157,43 @@ unsigned char __cdecl fn_bSaveCurrentGameOptions(void)
     return bResult;
 }
 
-extern void fn_vValidateAllOption(void);
-extern unsigned char __cdecl IPT_fn_bLoadOptionsFromFile(FILE *p_stFile);
-extern void *_alloca(unsigned int);                        /* 0x0045FE80 */
+unsigned char __cdecl fn_bLoadGameOptions(char *pszFileName);
+
+/* 0x00407DD0 */
+unsigned char fn_bLoadCurrentGameOptions(void)
+{
+    unsigned char ucReturn = 1;
+    int uwFileNode;
+
+    if (!fn_bLoadGameOptions(GAM_g_szCurrentGameOptionsFileName))
+    {
+        if (!GAM_pc_fn_bLoadSaveStateFromLoadFile())
+            ucReturn = 0;
+    }
+    if (!ucReturn)
+    {
+        GAM_g_ul500248_storage = 0;
+        GAM_g_ul500250_storage = 127;
+        GAM_g_ul500258 = 127;
+        GAM_g_ul500254_storage = 127;
+        GAM_g_ul50024c = 0;
+        for (uwFileNode = 0; uwFileNode < 3; uwFileNode++)
+        {
+            memset(GAM_g_a_szOptionsSlotNames[uwFileNode], ' ', 8);
+            GAM_g_a_szOptionsSlotNames[uwFileNode][8] = '\0';
+        }
+    }
+    return ucReturn;
+}
+
+/* 0x00407E50 */
+unsigned char __cdecl GAM_pc_fn_bLoadSaveStateFromLoadFile(void)
+{
+    return fn_bLoadGameOptions(GAM_pc_szLoadFileName);
+}
+
+unsigned char __cdecl GAM_pc_fn_bBuildSaveSlotPath(char *pszOut, long lSlotId);
+long __cdecl fn_lGetNbAvailableSlots(void);
 
 /* 0x00407E60 */
 unsigned char __cdecl fn_bLoadGameOptions(char *pszFileName)
@@ -652,42 +340,250 @@ unsigned char __cdecl fn_bLoadGameOptions(char *pszFileName)
     return bResult;
 }
 
-char GAM_g_a_szOptionsSlotNames[3][9];
-
-unsigned char __cdecl GAM_pc_fn_bLoadSaveStateFromLoadFile(void);
-
-/* 0x00407DD0 */
-unsigned char fn_bLoadCurrentGameOptions(void)
+/* 0x004081D0 */
+long __cdecl GAM_pc_fn_lGetSaveSlotId(long lSlotId)
 {
-    unsigned char ucReturn = 1;
-    int uwFileNode;
+    GAM_tdstSaveSlot *p_stSlot = GAM_g_p_stSaveSlotHead;
+    GAM_tdstSaveSlot *p_stNext;
+    long lIndex;
 
-    if (!fn_bLoadGameOptions(GAM_g_szCurrentGameOptionsFileName))
-    {
-        if (!GAM_pc_fn_bLoadSaveStateFromLoadFile())
-            ucReturn = 0;
+    for (lIndex = 1; lIndex != lSlotId; lIndex++) {
+        p_stNext = p_stSlot->pNext;
+        if (p_stNext == NULL)
+            break;
+        p_stSlot = p_stNext;
     }
-    if (!ucReturn)
+    return p_stSlot->lSlotId;
+}
+
+long __cdecl GAM_pc_fn_lCountSaveSlotDirs(char *pszPath)
+{
+    struct _finddata_t stFind;
+    long               lCount = 0;
+    intptr_t           hFind;
+
+    if (_chdir(pszPath) != 0)
+        return 0;
+
+    hFind = _findfirst("*.*", &stFind);
+    if (hFind != -1) {
+        do {
+            if (stFind.attrib & _A_SUBDIR) {
+                if (stFind.name[0] != '.' && strncmp(stFind.name, "Slot", 4) == 0)
+                    lCount++;
+            }
+        } while (_findnext(hFind, &stFind) == 0);
+        _findclose(hFind);
+    }
+    return lCount;
+}
+
+/* 0x00408290 */
+long __cdecl fn_lGetNbAvailableSlots(void)
+{
+    char szCwd[0x100];
+    long lNbSlots;
+
+    GetCurrentDirectoryA(0x100, szCwd);
+    lNbSlots = GAM_pc_fn_lCountSaveSlotDirs(FUN_00492700());
+    SetCurrentDirectoryA(szCwd);
+    GAM_pc_fn_ucGrowSaveSlotList(lNbSlots);
+    return lNbSlots;
+}
+
+int __cdecl GAM_pc_fn_bDeleteDirectoryTree(char *pszDir);
+
+/* 0x004082E0 */
+int __cdecl GAM_pc_fn_lEnsureDefaultSaveSlot(void)
+{
+    GAM_tdstSaveSlot *p_stOldHead;
+    GAM_tdstSaveSlot *p_stHead;
+    char              szPath[260];
+    int               bResult = 0;
+
+    *(unsigned long *)GAM_g_szSlotNameWork = *(unsigned long *)GAM_g_szDefaultSlotName;
+
+    p_stOldHead = GAM_g_p_stSaveSlotHead;
+    if (GAM_g_lNbSaveSlots < 1) {
+        GAM_g_p_stSaveSlotHead = (GAM_tdstSaveSlot *)GAM_RT_pvAllocZeroed(0x20);
+        GAM_g_p_stSaveSlotHead->pNext   = p_stOldHead;
+        GAM_g_lNbSaveSlots              = GAM_g_lNbSaveSlots + 1;
+        GAM_g_p_stSaveSlotHead->lSlotId = GAM_g_lNbSaveSlots;
+    }
+    p_stHead = GAM_g_p_stSaveSlotHead;
+
+    GAM_g_lSaveSlotDirty = 1;
+
+    strcpy(p_stHead->szScoreTail, p_stHead->szNameScore);
+
+    sprintf(p_stHead->szNameScore, "%3s 0%2.1f", GAM_g_szSlotNameWork, 0.0);
+
+    if (GAM_pc_fn_bBuildSaveSlotPath(szPath, p_stHead->lSlotId))
+        bResult = GAM_pc_fn_bDeleteDirectoryTree(szPath);
+
+    return bResult;
+}
+
+/* 0x004083B0 */
+char *__cdecl GAM_pc_fn_p_szGetSaveSlotNameScore(long lSlotId)
+{
+    GAM_tdstSaveSlot *p_stSlot = GAM_g_p_stSaveSlotHead;
+
+    if (lSlotId != 1) {
+        long lCount = lSlotId - 1;
+        do {
+            p_stSlot = p_stSlot->pNext;
+            lCount--;
+        } while (lCount != 0);
+    }
+    return p_stSlot->szNameScore;
+}
+
+/* 0x004083D0 */
+unsigned long __cdecl GAM_pc_fn_ulRemoveSaveSlotNode(long lSlotIndex)
+{
+    GAM_tdstSaveSlot *p_stHead;
+    GAM_tdstSaveSlot *p_stPrev;
+    GAM_tdstSaveSlot *p_stCursor;
+    long              lWalk;
+    long              lLast;
+
+    lWalk = 0;
+    if (lSlotIndex > 1)
     {
-        GAM_g_ul500248_storage = 0;
-        GAM_g_ul500250_storage = 127;
-        GAM_g_ul500258 = 127;
-        GAM_g_ul500254_storage = 127;
-        GAM_g_ul50024c = 0;
-        for (uwFileNode = 0; uwFileNode < 3; uwFileNode++)
+        lLast = lSlotIndex - 1;
+        p_stCursor = GAM_g_p_stSaveSlotHead;
+        p_stPrev = p_stCursor;
+        while (lWalk != lLast)
         {
-            memset(GAM_g_a_szOptionsSlotNames[uwFileNode], ' ', 8);
-            GAM_g_a_szOptionsSlotNames[uwFileNode][8] = '\0';
+            if (p_stCursor == NULL)
+            {
+                break;
+            }
+            p_stPrev = p_stCursor;
+            p_stCursor = p_stPrev->pNext;
+            lWalk = lWalk + 1;
         }
+
+        p_stPrev->pNext = p_stCursor->pNext;
+        GLI_pc_fn_vFree((void **)&p_stCursor);
+        GAM_g_lNbSaveSlots = GAM_g_lNbSaveSlots - 1;
+        return 1;
     }
-    return ucReturn;
+
+    p_stHead = GAM_g_p_stSaveSlotHead;
+    GLI_pc_fn_vFree((void **)&GAM_gs_pSaveSlotHead);
+    GAM_g_lNbSaveSlots = GAM_g_lNbSaveSlots - 1;
+    GAM_g_p_stSaveSlotHead = p_stHead->pNext;
+    return 1;
 }
 
-/* 0x00407E50 */
-unsigned char __cdecl GAM_pc_fn_bLoadSaveStateFromLoadFile(void)
+/* 0x408460 */
+unsigned char __cdecl GAM_pc_fn_ucGrowSaveSlotList(long lCount)
 {
-    return fn_bLoadGameOptions(GAM_pc_szLoadFileName);
+    long lNbSlots = GAM_g_lNbSaveSlots;
+    unsigned char ucRet = 0;
+
+    if (lCount != lNbSlots) {
+    if (lCount > lNbSlots) {
+        do {
+            GAM_tdstSaveSlot *p_stOldHead = GAM_g_p_stSaveSlotHead;
+
+            GAM_g_p_stSaveSlotHead = (GAM_tdstSaveSlot *)GAM_RT_pvAllocZeroed(0x20);
+            GAM_g_p_stSaveSlotHead->pNext = p_stOldHead;
+            GAM_g_lNbSaveSlots = GAM_g_lNbSaveSlots + 1;
+            GAM_g_p_stSaveSlotHead->lSlotId = GAM_g_lNbSaveSlots;
+            strncpy(GAM_g_p_stSaveSlotHead->szNameScore, GAM_g_szSlotNameWork, 3);
+            *(unsigned short *)GAM_g_p_stSaveSlotHead->szScoreTail =
+                *(unsigned short *)GAM_g_szSlotScoreTail_storage;
+        } while (lCount > GAM_g_lNbSaveSlots);
+    }
+
+    ucRet = GAM_pc_fn_ucSortSaveSlotsByDate();
+    }
+
+    return ucRet;
 }
+
+/* 0x410510 */
+int __cdecl GAM_pc_fn_bCopyDirectoryTree(char *pszSrc, char *pszDst)
+{
+    char             szSrc[256];
+    char             szDst[256];
+    WIN32_FIND_DATAA stFind;
+    HANDLE           hFind;
+    size_t           ulSrcLen;
+    size_t           ulDstLen;
+    unsigned long    ulSuffix;
+
+    strcpy(szSrc, pszSrc);
+    ulSuffix = GAM_g_ulAllFilesSuffix;
+    strcpy(szDst, pszDst);
+    ulSrcLen = strlen(szSrc);
+    ulDstLen = strlen(szDst);
+    *(unsigned long *)&szSrc[ulSrcLen] = ulSuffix;
+    szSrc[ulSrcLen + 4] = GAM_g_cAllFilesSuffixNul;
+
+    hFind = FindFirstFileA(szSrc, &stFind);
+    if (hFind == INVALID_HANDLE_VALUE)
+        return 0;
+    do {
+        szSrc[ulSrcLen] = '\\';
+        szDst[ulDstLen] = '\\';
+        if ((stFind.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+            strcpy(&szSrc[ulSrcLen + 1], stFind.cFileName);
+            strcpy(&szDst[ulDstLen + 1], stFind.cFileName);
+            if (!CopyFileA(szSrc, szDst, FALSE))
+                return 0;
+        }
+        szDst[ulDstLen] = '\0';
+        szSrc[ulSrcLen] = '\0';
+    } while (FindNextFileA(hFind, &stFind));
+    FindClose(hFind);
+    return 1;
+}
+
+/* 0x004106A0 */
+int __cdecl GAM_pc_fn_bDeleteDirectoryTree(char *pszDir)
+{
+    char             szPattern[256];
+    WIN32_FIND_DATAA stFind;
+    HANDLE           hFind;
+    size_t           ulLen;
+    char            *pSuffix;
+
+    strcpy(szPattern, pszDir);
+    ulLen = strlen(szPattern);
+    pSuffix = &szPattern[ulLen];
+
+    if (pSuffix[-1] == '\\')
+        pSuffix[-1] = '\0';
+    *(unsigned long *)pSuffix = GAM_g_ulAllFilesSuffix;
+    pSuffix[4] = GAM_g_cAllFilesSuffixNul;
+
+    hFind = FindFirstFileA(szPattern, &stFind);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            if ((stFind.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+
+                strcpy(pSuffix + 1, stFind.cFileName);
+                if (!DeleteFileA(szPattern))
+                    return 0;
+            } else if (strcmp(stFind.cFileName, ".") != 0 &&
+                       strcmp(stFind.cFileName, "..") != 0) {
+
+                strcpy(pSuffix + 1, stFind.cFileName);
+                if (!GAM_pc_fn_bDeleteDirectoryTree(szPattern))
+                    return 0;
+                RemoveDirectoryA(szPattern);
+            }
+        } while (FindNextFileA(hFind, &stFind));
+        FindClose(hFind);
+    }
+    return 1;
+}
+
+unsigned char __cdecl GAM_pc_fn_ucUpdateSaveSlotList(void *unused, unsigned long lSlotId);
 
 unsigned char __cdecl fn_bSaveGameInSlot(unsigned long ulSlotId)
 {
@@ -728,9 +624,166 @@ unsigned char __cdecl fn_bSaveGameInSlot(unsigned long ulSlotId)
     return 0;
 }
 
-/* 0x0049F8D4 */
-extern unsigned char GAM_pc_g_ucMode6SaveFlag_storage;
-#define GAM_pc_g_ucMode6SaveFlag  GAM_pc_g_ucMode6SaveFlag_storage
+/* 0x00410980 */
+unsigned char __cdecl GAM_pc_fn_bBuildSaveSlotPath(char *pszOut, long lSlotId)
+{
+    char szPath[128];
+
+    sprintf(szPath, "%s\\%s%i", FUN_00492700(), "Slot", (int)lSlotId);
+    if (strlen(szPath) > 0x80)
+        return 0;
+    strcpy(pszOut, szPath);
+    return 1;
+}
+
+/* 0x00410A00 */
+unsigned char __cdecl GAM_pc_fn_ucUpdateSaveSlotList(void *unused, unsigned long lSlotId)
+{
+    GAM_tdstSaveSlot *p_stOldHead;
+
+    if (lSlotId >= 1 && lSlotId <= (unsigned long)GAM_g_lNbSaveSlots)
+    {
+        GAM_pc_fn_ucSortSaveSlotsByDate();
+    }
+    else
+    {
+        p_stOldHead = GAM_g_p_stSaveSlotHead;
+        if (p_stOldHead != NULL)
+        {
+            GAM_g_p_stSaveSlotHead          = (GAM_tdstSaveSlot *)GLI_pc_fn_p_vAlloc(0x20);
+            GAM_g_p_stSaveSlotHead->pNext   = p_stOldHead;
+            GAM_g_lNbSaveSlots              = GAM_g_lNbSaveSlots + 1;
+            GAM_g_p_stSaveSlotHead->lSlotId = GAM_g_lNbSaveSlots;
+        }
+    }
+
+    strncpy(GAM_g_p_stSaveSlotHead->szNameScore, GAM_g_szSlotNameWork, 3);
+    *(short *)GAM_g_p_stSaveSlotHead->szScoreTail = *(short *)"\\";
+    return 1;
+}
+
+long __cdecl GAM_pc_fn_lCompareSaveSlotDates(char *pszDirA, char *pszDirB);
+
+/* 0x4A7064 */
+unsigned char __cdecl GAM_pc_fn_ucSortSaveSlotsByDate(void)
+{
+    char              szPathA[128];
+    char              szPathB[128];
+    char              szTmpName[12];
+    char              szTmpScore[12];
+    long              lPass = 0;
+    long              lIdx;
+    long              lSlotId;
+    GAM_tdstSaveSlot *p_stNodeB = NULL;
+    GAM_tdstSaveSlot *p_stNodeA;
+    int               bSwapped = 1;
+
+    if (GAM_g_lNbSaveSlots > 0) {
+        do {
+            if (!bSwapped)
+                break;
+            bSwapped = 0;
+            p_stNodeA = p_stNodeB;
+            lIdx = GAM_g_lNbSaveSlots;
+            while (p_stNodeB = p_stNodeA, --lIdx, lPass < lIdx) {
+                if (lIdx == GAM_g_lNbSaveSlots - 1) {
+                    p_stNodeA = p_stNodeB = GAM_g_p_stSaveSlotHead;
+                    p_stNodeA = p_stNodeA->pNext;
+                } else {
+                    p_stNodeA = p_stNodeB->pNext;
+                }
+                sprintf(szPathA, "%s\\%s%i", FUN_00492700(), "Slot", (int)p_stNodeA->lSlotId);
+                sprintf(szPathB, "%s\\%s%i", FUN_00492700(), "Slot", (int)p_stNodeB->lSlotId);
+                if (GAM_pc_fn_lCompareSaveSlotDates(szPathA, szPathB) != 0) {
+                    lSlotId = p_stNodeA->lSlotId;
+                    strcpy(szTmpName, p_stNodeA->szNameScore);
+                    strcpy(szTmpScore, p_stNodeA->szScoreTail);
+                    p_stNodeA->lSlotId = p_stNodeB->lSlotId;
+                    strcpy(p_stNodeA->szNameScore, p_stNodeB->szNameScore);
+                    p_stNodeB->lSlotId = lSlotId;
+                    strcpy(p_stNodeB->szNameScore, szTmpName);
+                    strcpy(p_stNodeB->szScoreTail, szTmpScore);
+                    bSwapped = 1;
+                }
+            }
+            lPass++;
+        } while (lPass < GAM_g_lNbSaveSlots);
+    }
+    return 1;
+}
+
+/* 0x410C50 */
+long __cdecl GAM_pc_fn_lCompareSaveSlotDates(char *pszDirA, char *pszDirB)
+{
+    struct _finddata_t stFindA;
+    struct _finddata_t stFindB;
+    char               szFileA[260];
+    char               szFileB[260];
+    intptr_t           hFindA;
+    intptr_t           hFindB;
+    long               lResult = 1;
+
+    sprintf(szFileA, "%s\\General.sav", pszDirA);
+    sprintf(szFileB, "%s\\General.sav", pszDirB);
+
+    if (_access(szFileA, 0) == 0) {
+        hFindA = _findfirst(szFileA, &stFindA);
+    } else {
+        hFindA = _findfirst(pszDirA, &stFindA);
+        if (hFindA == -1)
+            return -1;
+        if ((stFindA.attrib & _A_RDONLY) == _A_RDONLY)
+            _chmod(pszDirA, _S_IREAD | _S_IWRITE);
+    }
+
+    if (_access(szFileB, 0) == 0) {
+        hFindB = _findfirst(szFileB, &stFindB);
+    } else {
+        hFindB = _findfirst(pszDirB, &stFindB);
+        if (hFindB == -1) {
+            _findclose(hFindA);
+            return hFindB;
+        }
+    }
+
+    if (!(difftime(stFindA.time_write, stFindB.time_write) > 0.0))
+        lResult = 0;
+    _findclose(hFindA);
+    _findclose(hFindB);
+    return lResult;
+}
+
+/* 0x00410DB0 */
+char *__cdecl GAM_pc_fn_szFormatSaveSlotDate(long lSlotId)
+{
+
+    static char        szResult[128];
+    char               szDir[128];
+    char               szFile[128];
+    struct _finddata_t stFind;
+    intptr_t           hFind;
+    struct tm         *p_stTime;
+
+    if (!(unsigned char)GAM_pc_fn_bBuildSaveSlotPath(szDir, lSlotId))
+        return NULL;
+
+    sprintf(szFile, "%s\\%s", szDir, "general.sav");
+    hFind = _findfirst(szFile, &stFind);
+    if (hFind == -1) {
+        hFind = _findfirst(szDir, &stFind);
+        if (hFind == -1)
+            return NULL;
+    }
+    if ((stFind.attrib & _A_RDONLY) == _A_RDONLY)
+        _chmod(szDir, _S_IREAD | _S_IWRITE);
+
+    p_stTime = localtime(&stFind.time_write);
+    sprintf(szResult, "%02i;%02i %i=%02i",
+            p_stTime->tm_mday, p_stTime->tm_mon + 1,
+            p_stTime->tm_hour, p_stTime->tm_min);
+    _findclose(hFind);
+    return szResult;
+}
 
 /* 0x00410EC0 */
 unsigned char __cdecl GAM_pc_fn_ucIsSaveSlotPathValid(unsigned long ulSlotId)
@@ -796,48 +849,6 @@ unsigned char __cdecl GAM_pc_fn_ucErasePrepSaveSlot(unsigned long ulSlotId)
     }
     return ucResult;
 }
-
-/* 0x004083D0 */
-unsigned long __cdecl GAM_pc_fn_ulRemoveSaveSlotNode(long lSlotIndex)
-{
-    GAM_tdstSaveSlot *p_stHead;
-    GAM_tdstSaveSlot *p_stPrev;
-    GAM_tdstSaveSlot *p_stCursor;
-    long              lWalk;
-    long              lLast;
-
-    lWalk = 0;
-    if (lSlotIndex > 1)
-    {
-        lLast = lSlotIndex - 1;
-        p_stCursor = GAM_g_p_stSaveSlotHead;
-        p_stPrev = p_stCursor;
-        while (lWalk != lLast)
-        {
-            if (p_stCursor == NULL)
-            {
-                break;
-            }
-            p_stPrev = p_stCursor;
-            p_stCursor = p_stPrev->pNext;
-            lWalk = lWalk + 1;
-        }
-
-        p_stPrev->pNext = p_stCursor->pNext;
-        GLI_pc_fn_vFree((void **)&p_stCursor);
-        GAM_g_lNbSaveSlots = GAM_g_lNbSaveSlots - 1;
-        return 1;
-    }
-
-    p_stHead = GAM_g_p_stSaveSlotHead;
-    GLI_pc_fn_vFree((void **)&GAM_gs_pSaveSlotHead);
-    GAM_g_lNbSaveSlots = GAM_g_lNbSaveSlots - 1;
-    GAM_g_p_stSaveSlotHead = p_stHead->pNext;
-    return 1;
-}
-
-/* 0x004104A0 */
-unsigned char __cdecl GAM_pc_fn_bDeleteSaveSlot(unsigned int uSlot);
 
 /* 0x004110E0 */
 unsigned long __cdecl GAM_pc_fn_ulEraseSaveSlotDir(long lSlotIndex)

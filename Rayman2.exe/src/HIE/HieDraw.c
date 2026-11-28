@@ -60,6 +60,146 @@ typedef struct HIE_pc_tdstFrameTable_
     HIE_pc_tdstFrameEntry *pEntries;
 } HIE_pc_tdstFrameTable;
 
+short *HIE_pc_fn_p_stCreateFrameTable(short sCount);
+
+/* 0x0042B2D0 */
+short *GLI_hComputeBlendRLI(void *hVS, long lShadowIdx, long lMirrorIdx,
+                                           void *p_vIndex, float xBlend);
+
+/* 0x0042a980 */
+extern void __cdecl FUN_0042a980(unsigned long arg, unsigned long argExtra);
+/* 0x00506b00 */
+extern struct POS_tdstCompletePosition_ *GLI_g_p_stCurrentMatrix;
+
+#include "GLI/VisuS_st.h"
+
+struct HIE_pc_tdstStdGameView_
+{
+    unsigned char  _pad00[0x24];
+    unsigned long  ulCustomBits;
+    unsigned char  ucPlatFormType;
+    unsigned char  ucMiscFlags;
+};
+
+struct tdstFogParams_
+{
+    MTH_tdxReal xDepthStart;
+    MTH_tdxReal xDepthEnd;
+    MTH_tdxReal xInfinite;
+};
+
+/* 0x0042b1d0 */
+static void HIE_pc_fn_vRenderLODFrameAtDistance(void *_hVpt, GEO_tdstVisualSet *_hVS, float _xDistance,
+                                                long _lDrawMask)
+{
+    int    iLastIndex;
+    int    iIndex;
+    float *pfThreshold;
+    void  *hFrame;
+
+    FUN_0042a980(0, 0);
+    iLastIndex = _hVS->xNbLodDefinitions - 1;
+    iIndex = 0;
+    if (0 < iLastIndex) {
+        pfThreshold = _hVS->d_xThresholdsTable;
+        do {
+            pfThreshold = pfThreshold + 1;
+            if (_xDistance < *pfThreshold) {
+                break;
+            }
+            iIndex = iIndex + 1;
+        } while (iIndex < iLastIndex);
+    }
+    hFrame = ((void **)(_hVS->d_p_stLodDefinitions))[iIndex];
+    if (hFrame != NULL) {
+        GLI_xSendObjectToViewportWithLights((struct GLD_tdstViewportAttributes *)_hVpt, hFrame,
+                                            _lDrawMask);
+    }
+}
+
+/* 0x0042b230 */
+static void HIE_pc_fn_vRenderLODByCenterDistance(void *_hVpt, GEO_tdstVisualSet *_hVS,
+                                                 MTH3D_tdstVector *_p_stCenter, long _lDrawMask)
+{
+    MTH3D_tdstVector stVector;
+
+    POS_fn_vMulMatrixVertex(&stVector, GLI_g_p_stCurrentMatrix, _p_stCenter);
+    POS_fn_vMulMatrixVertex(&stVector,
+                            &((GLI_tdstSpecificAttributesFor3D *)
+                              ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam->stMatrix,
+                            &stVector);
+    HIE_pc_fn_vRenderLODFrameAtDistance(_hVpt, _hVS,
+        MTH_M_xSqrt(stVector.xX * stVector.xX + stVector.xY * stVector.xY + stVector.xZ * stVector.xZ),
+        _lDrawMask);
+}
+
+/* 0x00430E30 */
+unsigned long *HIE_pc_fn_pulSetFrameTableEntry(void *p_stTable, short sIndex, long lCount)
+{
+    HIE_pc_tdstFrameEntry *pstEntry;
+    short          sCount;
+    unsigned long  ulCount;
+    unsigned long  ulBytes;
+    unsigned long *pulResult;
+    unsigned long *pulWrite;
+    unsigned short *pusWrite;
+    long           lDwords;
+
+    pstEntry = ((HIE_pc_tdstFrameTable *)p_stTable)->pEntries + sIndex;
+    sCount = (short)lCount;
+    pstEntry->sSubCount = sCount;
+    ulCount = (unsigned long)(long)sCount;
+    ulBytes = ulCount * 8;
+    pulResult = (unsigned long *)lCount;
+
+    if (ulBytes != 0)
+    {
+        if (GEO_g_bDynamicAllocation != 2) {
+            Mmg_fn_v_SetModeAlloc(g_ucGEOModuleId, g_ucGEOMMemMallocMode, 0);
+            pulResult = (unsigned long *)fn_p_vGenAlloc(ulBytes, 0);
+        }
+        if (GEO_g_bDynamicAllocation == 2) {
+dynamic_alloc:
+            ERM_fn_vClearLastError(0);
+            if (GEO_g_bDynamicAllocation == 1) {
+                ERM_fn_vUpdateLastError(4, g_ucGEOModuleId, 0, 8, -1, 0xff, 0xff, NULL);
+                ERM_fn_vClearLastError(0);
+                GEO_g_bDynamicAllocation = 2;
+            }
+            Mmg_fn_v_SetModeAlloc(g_ucGEOModuleId, 0xff, 0);
+            pulResult = (unsigned long *)fn_p_vGenAlloc(ulBytes, 0);
+check_null:
+            if (pulResult == NULL) {
+                ERM_fn_vClearLastError(0);
+                ERM_fn_vUpdateLastError(4, g_ucGEOModuleId, 0, 1, -1, 0xff, 0xff, NULL);
+            }
+        } else {
+            if (GEO_g_bDynamicAllocation != 1) goto check_null;
+            if (pulResult == NULL) goto dynamic_alloc;
+        }
+
+        pulWrite = pulResult;
+        for (lDwords = (long)((ulCount & 0x1fffffffUL) << 1); lDwords != 0; lDwords--) {
+            *pulWrite = 0;
+            pulWrite++;
+        }
+    }
+
+    pstEntry->pSubArray = pulResult;
+    if (0 < sCount) {
+        pusWrite = (unsigned short *)pulResult;
+        do {
+            pusWrite[0] = 0;
+            pusWrite[1] = 0;
+            pusWrite[2] = 0;
+            pusWrite[3] = 0;
+            pusWrite += 4;
+            ulCount--;
+        } while (ulCount != 0);
+    }
+    return pulResult;
+}
+
 /* 0x00430F90 */
 short *HIE_pc_fn_p_stCreateFrameTable(short sCount)
 {
@@ -217,6 +357,79 @@ void HIE_pc_fn_vFreeFrameTable(HIE_pc_tdstFrameTable *psTable)
     }
 }
 
+/* 0x00431400 */
+void HIE_pc_fn_vLoadScaledShortRecords(float *pfDst, const short *psSrc, long lCount)
+{
+    float       *pfEnd;
+    float       *pf;
+    const short *ps;
+
+    pfEnd = pfDst + lCount * 4;
+    pf    = pfDst;
+    ps    = psSrc;
+    if (pf < pfEnd)
+    {
+        do
+        {
+            *pf++ = (float)*ps++ * 0.00390625f;
+            *pf++ = (float)*ps++ * 0.00390625f;
+            *pf++ = (float)*ps++ * 0.00390625f;
+            *pf++ = (float)*ps++ * 0.00390625f;
+        } while (pf < pfEnd);
+    }
+}
+
+/* 0x00431490 */
+void HIE_pc_fn_vStoreScaledShortRecords(short *psDst, const float *pfSrc, long lCount)
+{
+    long lX;
+    long lY;
+    long lZ;
+    long lW;
+    long lLeft;
+
+    lLeft = lCount;
+    if (lLeft != 0)
+    {
+        do
+        {
+            lX = (long)(pfSrc[0] * 256.0f);
+            lY = (long)(pfSrc[1] * 256.0f);
+            lZ = (long)(pfSrc[2] * 256.0f);
+            lW = (long)(pfSrc[3] * 256.0f);
+            if (lX < -0x8000) lX = -0x8000; else if (lX > 0x7fff) lX = 0x7fff;
+            if (lY < -0x8000) lY = -0x8000; else if (lY > 0x7fff) lY = 0x7fff;
+            if (lZ < -0x8000) lZ = -0x8000; else if (lZ > 0x7fff) lZ = 0x7fff;
+            if (lW < -0x8000) lW = -0x8000; else if (lW > 0x7fff) lW = 0x7fff;
+            psDst[0] = (short)lX;
+            psDst[1] = (short)lY;
+            psDst[2] = (short)lZ;
+            psDst[3] = (short)lW;
+            psDst += 4;
+            pfSrc += 4;
+            lLeft--;
+        } while (lLeft != 0);
+    }
+}
+
+/* 0x004315a0 */
+static short HIE_pc_fn_sGetFrameTableCount(short *p_sTable)
+{
+    return *p_sTable;
+}
+
+/* 0x004315B0 */
+short __cdecl HIE_pc_fn_sGetFrameTableEntryCount(void *p_stTable, short sIndex)
+{
+    return ((HIE_pc_tdstFrameTable *)p_stTable)->pEntries[sIndex].sSubCount;
+}
+
+/* 0x004315d0 */
+unsigned long HIE_pc_fn_ulGetFrameTableEntry(void *p_stTable, short sIndex)
+{
+    return *(unsigned long *)&((HIE_pc_tdstFrameTable *)p_stTable)->pEntries[sIndex].pSubArray;
+}
+
 /* 0x004315F0 */
 short *ISI_hComputeBlendRLI(short *psSrcA, short *psSrcB, void *p_vIndex, float xBlend)
 {
@@ -300,217 +513,6 @@ zero_blend:
         }
     }
     return psDst;
-}
-
-/* 0x0042B2D0 */
-short *GLI_hComputeBlendRLI(void *hVS, long lShadowIdx, long lMirrorIdx,
-                                           void *p_vIndex, float xBlend);
-
-/* 0x0042a980 */
-extern void __cdecl FUN_0042a980(unsigned long arg, unsigned long argExtra);
-/* 0x00506b00 */
-extern struct POS_tdstCompletePosition_ *GLI_g_p_stCurrentMatrix;
-
-#include "GLI/VisuS_st.h"
-
-struct HIE_pc_tdstStdGameView_
-{
-    unsigned char  _pad00[0x24];
-    unsigned long  ulCustomBits;
-    unsigned char  ucPlatFormType;
-    unsigned char  ucMiscFlags;
-};
-
-struct tdstFogParams_
-{
-    MTH_tdxReal xDepthStart;
-    MTH_tdxReal xDepthEnd;
-    MTH_tdxReal xInfinite;
-};
-
-/* 0x0042b1d0 */
-static void HIE_pc_fn_vRenderLODFrameAtDistance(void *_hVpt, GEO_tdstVisualSet *_hVS, float _xDistance,
-                                                long _lDrawMask)
-{
-    int    iLastIndex;
-    int    iIndex;
-    float *pfThreshold;
-    void  *hFrame;
-
-    FUN_0042a980(0, 0);
-    iLastIndex = _hVS->xNbLodDefinitions - 1;
-    iIndex = 0;
-    if (0 < iLastIndex) {
-        pfThreshold = _hVS->d_xThresholdsTable;
-        do {
-            pfThreshold = pfThreshold + 1;
-            if (_xDistance < *pfThreshold) {
-                break;
-            }
-            iIndex = iIndex + 1;
-        } while (iIndex < iLastIndex);
-    }
-    hFrame = ((void **)(_hVS->d_p_stLodDefinitions))[iIndex];
-    if (hFrame != NULL) {
-        GLI_xSendObjectToViewportWithLights((struct GLD_tdstViewportAttributes *)_hVpt, hFrame,
-                                            _lDrawMask);
-    }
-}
-
-/* 0x0042b230 */
-static void HIE_pc_fn_vRenderLODByCenterDistance(void *_hVpt, GEO_tdstVisualSet *_hVS,
-                                                 MTH3D_tdstVector *_p_stCenter, long _lDrawMask)
-{
-    MTH3D_tdstVector stVector;
-
-    POS_fn_vMulMatrixVertex(&stVector, GLI_g_p_stCurrentMatrix, _p_stCenter);
-    POS_fn_vMulMatrixVertex(&stVector,
-                            &((GLI_tdstSpecificAttributesFor3D *)
-                              ((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam->stMatrix,
-                            &stVector);
-    HIE_pc_fn_vRenderLODFrameAtDistance(_hVpt, _hVS,
-        MTH_M_xSqrt(stVector.xX * stVector.xX + stVector.xY * stVector.xY + stVector.xZ * stVector.xZ),
-        _lDrawMask);
-}
-
-/* 0x004315a0 */
-static short HIE_pc_fn_sGetFrameTableCount(short *p_sTable)
-{
-    return *p_sTable;
-}
-
-/* 0x004315d0 */
-unsigned long HIE_pc_fn_ulGetFrameTableEntry(void *p_stTable, short sIndex)
-{
-    return *(unsigned long *)&((HIE_pc_tdstFrameTable *)p_stTable)->pEntries[sIndex].pSubArray;
-}
-
-/* 0x00430E30 */
-unsigned long *HIE_pc_fn_pulSetFrameTableEntry(void *p_stTable, short sIndex, long lCount)
-{
-    HIE_pc_tdstFrameEntry *pstEntry;
-    short          sCount;
-    unsigned long  ulCount;
-    unsigned long  ulBytes;
-    unsigned long *pulResult;
-    unsigned long *pulWrite;
-    unsigned short *pusWrite;
-    long           lDwords;
-
-    pstEntry = ((HIE_pc_tdstFrameTable *)p_stTable)->pEntries + sIndex;
-    sCount = (short)lCount;
-    pstEntry->sSubCount = sCount;
-    ulCount = (unsigned long)(long)sCount;
-    ulBytes = ulCount * 8;
-    pulResult = (unsigned long *)lCount;
-
-    if (ulBytes != 0)
-    {
-        if (GEO_g_bDynamicAllocation != 2) {
-            Mmg_fn_v_SetModeAlloc(g_ucGEOModuleId, g_ucGEOMMemMallocMode, 0);
-            pulResult = (unsigned long *)fn_p_vGenAlloc(ulBytes, 0);
-        }
-        if (GEO_g_bDynamicAllocation == 2) {
-dynamic_alloc:
-            ERM_fn_vClearLastError(0);
-            if (GEO_g_bDynamicAllocation == 1) {
-                ERM_fn_vUpdateLastError(4, g_ucGEOModuleId, 0, 8, -1, 0xff, 0xff, NULL);
-                ERM_fn_vClearLastError(0);
-                GEO_g_bDynamicAllocation = 2;
-            }
-            Mmg_fn_v_SetModeAlloc(g_ucGEOModuleId, 0xff, 0);
-            pulResult = (unsigned long *)fn_p_vGenAlloc(ulBytes, 0);
-check_null:
-            if (pulResult == NULL) {
-                ERM_fn_vClearLastError(0);
-                ERM_fn_vUpdateLastError(4, g_ucGEOModuleId, 0, 1, -1, 0xff, 0xff, NULL);
-            }
-        } else {
-            if (GEO_g_bDynamicAllocation != 1) goto check_null;
-            if (pulResult == NULL) goto dynamic_alloc;
-        }
-
-        pulWrite = pulResult;
-        for (lDwords = (long)((ulCount & 0x1fffffffUL) << 1); lDwords != 0; lDwords--) {
-            *pulWrite = 0;
-            pulWrite++;
-        }
-    }
-
-    pstEntry->pSubArray = pulResult;
-    if (0 < sCount) {
-        pusWrite = (unsigned short *)pulResult;
-        do {
-            pusWrite[0] = 0;
-            pusWrite[1] = 0;
-            pusWrite[2] = 0;
-            pusWrite[3] = 0;
-            pusWrite += 4;
-            ulCount--;
-        } while (ulCount != 0);
-    }
-    return pulResult;
-}
-
-/* 0x00431400 */
-void HIE_pc_fn_vLoadScaledShortRecords(float *pfDst, const short *psSrc, long lCount)
-{
-    float       *pfEnd;
-    float       *pf;
-    const short *ps;
-
-    pfEnd = pfDst + lCount * 4;
-    pf    = pfDst;
-    ps    = psSrc;
-    if (pf < pfEnd)
-    {
-        do
-        {
-            *pf++ = (float)*ps++ * 0.00390625f;
-            *pf++ = (float)*ps++ * 0.00390625f;
-            *pf++ = (float)*ps++ * 0.00390625f;
-            *pf++ = (float)*ps++ * 0.00390625f;
-        } while (pf < pfEnd);
-    }
-}
-
-/* 0x00431490 */
-void HIE_pc_fn_vStoreScaledShortRecords(short *psDst, const float *pfSrc, long lCount)
-{
-    long lX;
-    long lY;
-    long lZ;
-    long lW;
-    long lLeft;
-
-    lLeft = lCount;
-    if (lLeft != 0)
-    {
-        do
-        {
-            lX = (long)(pfSrc[0] * 256.0f);
-            lY = (long)(pfSrc[1] * 256.0f);
-            lZ = (long)(pfSrc[2] * 256.0f);
-            lW = (long)(pfSrc[3] * 256.0f);
-            if (lX < -0x8000) lX = -0x8000; else if (lX > 0x7fff) lX = 0x7fff;
-            if (lY < -0x8000) lY = -0x8000; else if (lY > 0x7fff) lY = 0x7fff;
-            if (lZ < -0x8000) lZ = -0x8000; else if (lZ > 0x7fff) lZ = 0x7fff;
-            if (lW < -0x8000) lW = -0x8000; else if (lW > 0x7fff) lW = 0x7fff;
-            psDst[0] = (short)lX;
-            psDst[1] = (short)lY;
-            psDst[2] = (short)lZ;
-            psDst[3] = (short)lW;
-            psDst += 4;
-            pfSrc += 4;
-            lLeft--;
-        } while (lLeft != 0);
-    }
-}
-
-/* 0x004315B0 */
-short __cdecl HIE_pc_fn_sGetFrameTableEntryCount(void *p_stTable, short sIndex)
-{
-    return ((HIE_pc_tdstFrameTable *)p_stTable)->pEntries[sIndex].sSubCount;
 }
 
 /* 0x0042af70 */
@@ -787,6 +789,48 @@ void HIE_fn_vSendStaticWorldToViewport(void *_hVpt,
 }
 #pragma optimize("", on)
 
+/* 0x00413700 */
+extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
+
+/* 0x00413770 */
+extern unsigned char __cdecl fn_ucStandardGameGetTransparencyZoneMaxSO(struct HIE_tdstSuperObject *hSupObj);
+extern unsigned char __cdecl fn_ucStandardGameGetTransparencyZoneMinSO(struct HIE_tdstSuperObject *hSupObj);
+
+/* 0x00416D40 */
+extern unsigned char fn_ucGetNumberOfRLIFromCharacter(HIE_tdstSuperObject *hSprObj,
+                                                      unsigned char *p_ucIndex1,
+                                                      unsigned char *p_ucIndex2,
+                                                      MTH_tdxReal *p_xPercent);
+
+/* 0x00418920 */
+static void HIE_pc_fn_vStepWrappingCounter(HIE_tdstSuperObject *hSprObj)
+{
+    signed char *pcObj;
+    char         cVar2;
+
+    if (hSprObj != NULL) {
+        pcObj = (signed char *)*(void **)hSprObj->hLinkedObject.p_Void;
+        if (pcObj != NULL) {
+            cVar2 = (char)(pcObj[0x104] + 1);
+            pcObj[0x104] = cVar2;
+            if ((int)cVar2 == (unsigned int)(unsigned char)pcObj[0x103]) {
+                pcObj[0x104] = 0;
+            }
+        }
+    }
+}
+
+/* 0x00418960 */
+char __cdecl FUN_00418960(void)
+{
+    return 1;
+}
+
+POS_tdstCompletePosition *HIE_hRetrieveCurrentMatrix(void)
+{
+    return HIE_g_p_stCurrentInCamCoordsMatrix;
+}
+
 void HIE_fn_vSendCharacterModulesToViewPort(void *hVpt,
                                              HIE_tdstSuperObject *hSprObj,
                                              long DrawMask)
@@ -834,48 +878,6 @@ void HIE_vSetCharactereRLI ( unsigned char ucNbRLI, unsigned char ucIndex1, unsi
     HIE_g_ucShadowIdx  = (unsigned char)(ucIndex1 - 1);
     HIE_g_ucMirrorIdx  = (unsigned char)(ucIndex2 - 1);
     HIE_g_xMirrorBlend = xPercent;
-}
-
-POS_tdstCompletePosition *HIE_hRetrieveCurrentMatrix(void)
-{
-    return HIE_g_p_stCurrentInCamCoordsMatrix;
-}
-
-/* 0x00413700 */
-extern unsigned long __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);
-
-/* 0x00413770 */
-extern unsigned char __cdecl fn_ucStandardGameGetTransparencyZoneMaxSO(struct HIE_tdstSuperObject *hSupObj);
-extern unsigned char __cdecl fn_ucStandardGameGetTransparencyZoneMinSO(struct HIE_tdstSuperObject *hSupObj);
-
-/* 0x00416D40 */
-extern unsigned char fn_ucGetNumberOfRLIFromCharacter(HIE_tdstSuperObject *hSprObj,
-                                                      unsigned char *p_ucIndex1,
-                                                      unsigned char *p_ucIndex2,
-                                                      MTH_tdxReal *p_xPercent);
-
-/* 0x00418920 */
-static void HIE_pc_fn_vStepWrappingCounter(HIE_tdstSuperObject *hSprObj)
-{
-    signed char *pcObj;
-    char         cVar2;
-
-    if (hSprObj != NULL) {
-        pcObj = (signed char *)*(void **)hSprObj->hLinkedObject.p_Void;
-        if (pcObj != NULL) {
-            cVar2 = (char)(pcObj[0x104] + 1);
-            pcObj[0x104] = cVar2;
-            if ((int)cVar2 == (unsigned int)(unsigned char)pcObj[0x103]) {
-                pcObj[0x104] = 0;
-            }
-        }
-    }
-}
-
-/* 0x00418960 */
-char __cdecl FUN_00418960(void)
-{
-    return 1;
 }
 
 /* 0x00426A80 */

@@ -44,6 +44,27 @@ void *SND_CALL SND_fn_pvMallocSndEx(unsigned char id_block, unsigned int ulNbByt
 void *SND_CALL SND_fn_pvReAllocSndEx(unsigned char id_block, void *pvPtr, unsigned int ulNbBytes);
 void SND_CALL SND_fn_vFreeSndEx(unsigned char id_block, void *pvPtr);
 
+static active_theme	g_stTheme;
+
+tduRefRes SND_fn_tduGetLowestResourceSnd(tduRefRes uHighRes, struct SoundParam_ *par, SndBool eval);
+long SND_fn_lPlayTransitionSnd(tduRefRes FirstRes, tduRefRes NextRes, SND_td_pfn_vSoundCallback transition_callback, long param_callback, struct SoundParam_ *par);
+SndBool SND_fn_bSetNextTransitionSnd(long voice, tduRefRes new_res);
+SndBool SND_fn_bDoTransitionWithFadeSnd(long voice, tduRefRes new_res);
+SndBool SND_fn_bDoTransitionWithFadeSnd2(long voice, tduRefRes new_res, SndReal rDuration);
+void raj_soundparam_theme(active_theme* theme, struct SoundParam_* par);
+extern long SND_pc_g_lSoundFixedValue;		/* 0x004B74A4 */
+extern unsigned long SND_pc_g_ul4A2438;		/* 0x004A2438 */
+
+void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
+
+SndBool SND_fn_bSetParamTransitionSnd(long voice, struct SoundParam_ *par);	/* 0x004582C0 */
+
+void __cdecl SND_fn_vStopTransitionSnd(long voice);	/* 0x00458410 */
+extern tduRefRes SND_RES_FANTOME;
+
+void __cdecl SND_fn_vPauseTransitionSnd(long voice);	/* 0x004584A0 */
+void __cdecl SND_fn_vResumeTransitionSnd(long voice);	/* 0x00458470 */
+
 /* 0x00459460 */
 SndBool	raj_next_part(active_theme *theme)
 {
@@ -256,17 +277,6 @@ void start_new_theme(active_theme *theme,tduRefRes theme_res)
     raj_next_part(theme);
 }
 
-static active_theme	g_stTheme;
-
-tduRefRes SND_fn_tduGetLowestResourceSnd(tduRefRes uHighRes, struct SoundParam_ *par, SndBool eval);
-long SND_fn_lPlayTransitionSnd(tduRefRes FirstRes, tduRefRes NextRes, SND_td_pfn_vSoundCallback transition_callback, long param_callback, struct SoundParam_ *par);
-SndBool SND_fn_bSetNextTransitionSnd(long voice, tduRefRes new_res);
-SndBool SND_fn_bDoTransitionWithFadeSnd(long voice, tduRefRes new_res);
-SndBool SND_fn_bDoTransitionWithFadeSnd2(long voice, tduRefRes new_res, SndReal rDuration);
-void raj_soundparam_theme(active_theme* theme, struct SoundParam_* par);
-extern long SND_pc_g_lSoundFixedValue;		/* 0x004B74A4 */
-extern unsigned long SND_pc_g_ul4A2438;		/* 0x004A2438 */
-
 static void SND_CALL fn_Transition(long par)
 {
 	active_theme *theme=(active_theme*)par;
@@ -291,6 +301,117 @@ static void SND_CALL fn_Transition(long par)
 	{
 		NextRes=SND_fn_tduGetLowestResourceSnd(theme->uNextRes,theme->pstParam,TRUE);
 		SND_fn_bSetNextTransitionSnd(theme->lVoice,NextRes);
+	}
+}
+
+long __cdecl SND_fn_bGetThemePosition(unsigned long *pulOut1,unsigned long *pulOut2,unsigned long *pulOut3)
+{
+	if (g_stTheme.bActive == 0)
+	{
+		return 0;
+	}
+	*pulOut1 = (unsigned long)g_stTheme.uCurrentThemeRes.pstPtr;
+	*pulOut2 = (unsigned long)g_stTheme.lCurrentPartIndice;
+	*pulOut3 = (unsigned long)g_stTheme.lNbLoopLeft;
+	return 1;
+}
+
+long __cdecl SND_fn_bGetAskedTheme(unsigned long *pulOut1,unsigned long *pulOut2)
+{
+	if (g_stTheme.bActive == 0 || g_stTheme.lReserved_08 == 0)
+	{
+		return 0;
+	}
+	*pulOut1 = (unsigned long)g_stTheme.uAskedThemeRes.pstPtr;
+	*pulOut2 = (unsigned long)g_stTheme.bTransiting;
+	return 1;
+}
+
+void SND_fn_vInitTheme(void)
+{
+	active_theme *theme=&g_stTheme;
+
+	theme->pstParam=NULL;
+	theme->lSizeParam=0;
+	theme->bActive=FALSE;
+}
+
+/* 0x00459800 */
+static void SND_fn_vConvertResDiskToMemTheme(tdstBlockResourceDisk* disk
+                                      ,tdstBlockResourceMem *mem
+                                      ,void* ptrBegin)
+{
+    mem->Id=disk->Id;
+    mem->eType=disk->eType;
+    mem->eStorage=disk->eStorage;
+    mem->ucVolume=disk->ucVolume;
+    mem->bIsLoaded=TRUE;
+
+    mem->uRes.stTheme.ulStartLoop = disk->uRes.stTheme.ulStartLoop;
+    mem->uRes.stTheme.ulNbParts= disk->uRes.stTheme.ulNbParts;
+    mem->uRes.stTheme.ulNbLoops = disk->uRes.stTheme.ulNbLoops;
+    mem->uRes.stTheme.rFadeDuration = disk->uRes.stTheme.rFadeDuration;
+}
+
+/* 0x00459840 */
+SndBool SND_fn_bLoadResBinaryTheme(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc)
+{
+
+    tdstThemePart *pPartArray,*pPart;
+
+    int iPos;
+
+    pPartArray=(tdstThemePart *)(pDataBloc + _pBRDisk->ulDataOffset);
+
+    SNDLST2_M_StaticSetFirstElement(&_pBRMem->uRes.stTheme,pPartArray);
+    SNDLST2_M_StaticSetNumberOfElements(&_pBRMem->uRes.stTheme, _pBRDisk->uRes.stTheme.ulNbParts);
+
+    SNDLST2_M_StaticForEachElementOf( &_pBRMem->uRes.stTheme, pPart, iPos)
+    {
+        pPart->uRes.pstPtr=SND_fn_pGetBinRes(pPart->uRes.Id);
+    }
+
+    if (_pBRDisk->uRes.stTheme.lOffsetPartOutro != -1)
+    {
+        _pBRMem->uRes.stTheme.pstPartOutro=(tdstThemePartOutro *)((char *)pPartArray + _pBRDisk->uRes.stTheme.lOffsetPartOutro);
+        _pBRMem->uRes.stTheme.pstPartOutro->uRes.pstPtr=SND_fn_pGetBinRes(_pBRMem->uRes.stTheme.pstPartOutro->uRes.Id);
+    }
+    else
+        _pBRMem->uRes.stTheme.pstPartOutro=NULL;
+
+    SND_fn_vConvertResDiskToMemTheme(_pBRDisk,_pBRMem,NULL);
+    return TRUE;
+}
+
+void raj_soundparam_theme(active_theme* theme,struct SoundParam_* par)
+{
+	int size;
+
+	if (par)
+		size=SND_M_lGetSizeOfSoundParam(par);
+	else
+		size=0;
+
+	if (size)
+	{
+		if (size!=theme->lSizeParam)
+		{
+			if (theme->pstParam)
+				theme->pstParam=SND_fn_pvReAllocSndEx(E_ucSndBlockMain,theme->pstParam,size);
+			else
+				theme->pstParam=SND_fn_pvMallocSndEx(E_ucSndBlockMain,size);
+		}
+		theme->lSizeParam=size;
+		memcpy(theme->pstParam,par,size);
+	}
+	else
+	{
+		if (theme->pstParam)
+		{
+			SND_fn_vFreeSndEx(E_ucSndBlockMain,theme->pstParam);
+			theme->pstParam=NULL;
+			theme->lSizeParam=0;
+		}
 	}
 }
 
@@ -373,121 +494,6 @@ L_return_theme:
 	return C_PLAY_FAILED;
 }
 
-void raj_soundparam_theme(active_theme* theme,struct SoundParam_* par)
-{
-	int size;
-
-	if (par)
-		size=SND_M_lGetSizeOfSoundParam(par);
-	else
-		size=0;
-
-	if (size)
-	{
-		if (size!=theme->lSizeParam)
-		{
-			if (theme->pstParam)
-				theme->pstParam=SND_fn_pvReAllocSndEx(E_ucSndBlockMain,theme->pstParam,size);
-			else
-				theme->pstParam=SND_fn_pvMallocSndEx(E_ucSndBlockMain,size);
-		}
-		theme->lSizeParam=size;
-		memcpy(theme->pstParam,par,size);
-	}
-	else
-	{
-		if (theme->pstParam)
-		{
-			SND_fn_vFreeSndEx(E_ucSndBlockMain,theme->pstParam);
-			theme->pstParam=NULL;
-			theme->lSizeParam=0;
-		}
-	}
-}
-
-long __cdecl SND_fn_bGetThemePosition(unsigned long *pulOut1,unsigned long *pulOut2,unsigned long *pulOut3)
-{
-	if (g_stTheme.bActive == 0)
-	{
-		return 0;
-	}
-	*pulOut1 = (unsigned long)g_stTheme.uCurrentThemeRes.pstPtr;
-	*pulOut2 = (unsigned long)g_stTheme.lCurrentPartIndice;
-	*pulOut3 = (unsigned long)g_stTheme.lNbLoopLeft;
-	return 1;
-}
-
-long __cdecl SND_fn_bGetAskedTheme(unsigned long *pulOut1,unsigned long *pulOut2)
-{
-	if (g_stTheme.bActive == 0 || g_stTheme.lReserved_08 == 0)
-	{
-		return 0;
-	}
-	*pulOut1 = (unsigned long)g_stTheme.uAskedThemeRes.pstPtr;
-	*pulOut2 = (unsigned long)g_stTheme.bTransiting;
-	return 1;
-}
-
-void SND_fn_vInitTheme(void)
-{
-	active_theme *theme=&g_stTheme;
-
-	theme->pstParam=NULL;
-	theme->lSizeParam=0;
-	theme->bActive=FALSE;
-}
-
-/* 0x00459800 */
-static void SND_fn_vConvertResDiskToMemTheme(tdstBlockResourceDisk* disk
-                                      ,tdstBlockResourceMem *mem
-                                      ,void* ptrBegin)
-{
-    mem->Id=disk->Id;
-    mem->eType=disk->eType;
-    mem->eStorage=disk->eStorage;
-    mem->ucVolume=disk->ucVolume;
-    mem->bIsLoaded=TRUE;
-
-    mem->uRes.stTheme.ulStartLoop = disk->uRes.stTheme.ulStartLoop;
-    mem->uRes.stTheme.ulNbParts= disk->uRes.stTheme.ulNbParts;
-    mem->uRes.stTheme.ulNbLoops = disk->uRes.stTheme.ulNbLoops;
-    mem->uRes.stTheme.rFadeDuration = disk->uRes.stTheme.rFadeDuration;
-}
-
-void *SND_CALL SND_fn_pGetBinRes(unsigned long _ulBinId);
-
-/* 0x00459840 */
-SndBool SND_fn_bLoadResBinaryTheme(tdstBlockResourceDisk *_pBRDisk,tdstBlockResourceMem *_pBRMem,char *pDataBloc)
-{
-
-    tdstThemePart *pPartArray,*pPart;
-
-    int iPos;
-
-    pPartArray=(tdstThemePart *)(pDataBloc + _pBRDisk->ulDataOffset);
-
-    SNDLST2_M_StaticSetFirstElement(&_pBRMem->uRes.stTheme,pPartArray);
-    SNDLST2_M_StaticSetNumberOfElements(&_pBRMem->uRes.stTheme, _pBRDisk->uRes.stTheme.ulNbParts);
-
-    SNDLST2_M_StaticForEachElementOf( &_pBRMem->uRes.stTheme, pPart, iPos)
-    {
-        pPart->uRes.pstPtr=SND_fn_pGetBinRes(pPart->uRes.Id);
-    }
-
-    if (_pBRDisk->uRes.stTheme.lOffsetPartOutro != -1)
-    {
-        _pBRMem->uRes.stTheme.pstPartOutro=(tdstThemePartOutro *)((char *)pPartArray + _pBRDisk->uRes.stTheme.lOffsetPartOutro);
-        _pBRMem->uRes.stTheme.pstPartOutro->uRes.pstPtr=SND_fn_pGetBinRes(_pBRMem->uRes.stTheme.pstPartOutro->uRes.Id);
-    }
-    else
-        _pBRMem->uRes.stTheme.pstPartOutro=NULL;
-
-    SND_fn_vConvertResDiskToMemTheme(_pBRDisk,_pBRMem,NULL);
-    return TRUE;
-}
-
-SndBool SND_fn_bSetParamTransitionSnd(long voice, struct SoundParam_ *par);	/* 0x004582C0 */
-
 SndBool SND_CALL SND_fn_bSetParamTheme(long canal,struct SoundParam_* par)
 {
 	struct SoundParam_ *pstSoundPar;
@@ -523,9 +529,6 @@ SndBool SND_CALL SND_fn_bAnyPlayingTheme(void)
 	return g_stTheme.bActive;
 }
 
-void __cdecl SND_fn_vStopTransitionSnd(long voice);	/* 0x00458410 */
-extern tduRefRes SND_RES_FANTOME;
-
 void SND_CALL SND_fn_vStopTheme(long canal)
 {
 	active_theme *pTheme;
@@ -546,9 +549,6 @@ void SND_CALL SND_fn_vStopTheme(long canal)
 
 	g_bWorkingTheme=FALSE;
 }
-
-void __cdecl SND_fn_vPauseTransitionSnd(long voice);	/* 0x004584A0 */
-void __cdecl SND_fn_vResumeTransitionSnd(long voice);	/* 0x00458470 */
 
 /* 0x00459C40 */
 void SND_CALL SND_fn_vPauseTheme(long canal)

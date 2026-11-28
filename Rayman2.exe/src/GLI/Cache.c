@@ -5,42 +5,17 @@
 #include <string.h>
 #include <stdio.h>
 
-void __cdecl GLI_pc_fn_vResetTextureSlotTables(void)
-{
-    int i;
+/* 0x004A06C0 */
+static const char GLI_CD_szInsertMsg[] = "Please insert the CD";
 
-    for (i = 0; i < 0x400; i++) {
-        ((unsigned long *)GLI_gs_aDEFTableOfTextureAlreadyRead)[i] = 0;
-    }
-    for (i = 0; i < 0x400; i++) {
-        GLI_gs_aDEFTableOfTextureMemoryChannels[i] = 0xc0de0005;
-    }
-}
+extern int  __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
+extern void __cdecl GLI_FatalExitOrSleep(void);
 
 void __cdecl GLI_pc_fn_vEmptyTextureCache(void)
 {
     GLI_pc_fn_vResetTextureSlotTables();
     GLI_gs_lNumberOfTextureToCreate = 0;
 }
-
-/* 0x0042c670 */
-void __cdecl GLI_pc_fn_vReleaseTextureSlotsOfKey(unsigned long ulKey)
-{
-    int i;
-
-    for (i = 0; i < 0x400; i++) {
-        if (GLI_gs_aDEFTableOfTextureMemoryChannels[i] == (ulKey & 0xffu)) {
-            GLI_gs_aDEFTableOfTextureMemoryChannels[i] = 0xc0de0005;
-            ((unsigned long *)GLI_gs_aDEFTableOfTextureAlreadyRead)[i] = 0;
-        }
-    }
-}
-
-/* 0x004A06C0 */
-static const char GLI_CD_szInsertMsg[] = "Please insert the CD";
-
-extern int  __cdecl Erm_fn_iMessageBox(const char *, const char *, int);
-extern void __cdecl GLI_FatalExitOrSleep(void);
 void __cdecl GLI_fn_vOpenBigFileTextures(char *p_szArchivePath)
 {
     char szOriginalPath[256];
@@ -66,5 +41,30 @@ void __cdecl GLI_fn_vOpenBigFileTextures(char *p_szArchivePath)
         }
 
         strcpy(p_szArchivePath, szOriginalPath);
+    }
+}
+
+/* 0x0042c670 */
+void __cdecl GLI_pc_fn_vReleaseTextureSlotsOfKey(unsigned long ulKey)
+{
+    int i;
+
+    for (i = 0; i < 0x400; i++) {
+        if (GLI_gs_aDEFTableOfTextureMemoryChannels[i] == (ulKey & 0xffu)) {
+            GLI_gs_aDEFTableOfTextureMemoryChannels[i] = 0xc0de0005;
+            ((unsigned long *)GLI_gs_aDEFTableOfTextureAlreadyRead)[i] = 0;
+        }
+    }
+}
+
+void __cdecl GLI_pc_fn_vResetTextureSlotTables(void)
+{
+    int i;
+
+    for (i = 0; i < 0x400; i++) {
+        ((unsigned long *)GLI_gs_aDEFTableOfTextureAlreadyRead)[i] = 0;
+    }
+    for (i = 0; i < 0x400; i++) {
+        GLI_gs_aDEFTableOfTextureMemoryChannels[i] = 0xc0de0005;
     }
 }

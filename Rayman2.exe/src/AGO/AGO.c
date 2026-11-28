@@ -1198,16 +1198,6 @@ LAB_undo:
 
 #define AGO_call_CompareVector AGO_CompareVector
 
-int __cdecl AGO_CompareVector(MTH3D_tdstVector *v1, MTH3D_tdstVector *v2)
-{
-
-	int i;
-	for (i = 0; i < 3; i++)
-		if (((float *)v1)[i] != ((float *)v2)[i])
-			return 0;
-	return 1;
-}
-
 #define AGO_FALLING               0x00000001
 #define AGO_MOVING                0x00000003
 #define AGO_FALLING_SLOW          0x00000005
@@ -1242,6 +1232,545 @@ int __cdecl AGO_CompareVector(MTH3D_tdstVector *v1, MTH3D_tdstVector *v2)
 #undef FLOAT_RANGED_RANDOM
 #define FLOAT_RANGED_RANDOM(mn, mx) \
     ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN - (-(mn)))
+
+#undef FLOAT_RANGED_RANDOM
+#define FLOAT_RANGED_RANDOM(mn, mx) \
+    ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN + (mn))
+
+#ifndef AGO_SHADE_TWOFRAMES
+#define AGO_SHADE_TWOFRAMES 0x00006000
+#endif
+#ifndef AGO_LOOPANIM
+#define AGO_LOOPANIM        0x04000000
+#endif
+#ifndef AGO_REMANANCE2
+#define AGO_REMANANCE2      0x50000000
+#endif
+#ifndef AGO_SHADE_MEGAFAST
+#define AGO_SHADE_MEGAFAST  0x00005000
+#endif
+#ifndef AGO_SCALING_FASTEST
+#define AGO_SCALING_FASTEST 0x00000400
+#endif
+
+void AddGauge(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num, void *EmptyMat, void *FullMat);
+void AddIcone(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num, void *Mat);
+void CreateType72AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                     void *hVisualMaterial, MTH_tdxReal parameter);
+void CreateType83AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                     void *hVisualMaterial, MTH_tdxReal parameter);
+void CreateType104AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                      void *hVisualMaterial, MTH_tdxReal parameter);
+void CreateType158AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                      void *hVisualMaterial, MTH_tdxReal parameter);
+void AGO_vAddLogoPart(MTH_tdxReal parameter, void *hVisualMaterial);
+void AGO_vActivateLogoDisplay(MTH3D_tdstVector *pPosition, MTH3D_tdstVector *pDirection, MTH_tdxReal parameter);
+
+void CreateType5AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir,
+                      void *hVisualMaterial, float parameter)
+{
+    float pp[3], dd[3];
+    (void)pDir;
+    pPos->xZ = pPos->xZ - AGO_k_fMinus0_6;
+
+    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
+    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_fMinus0_5; pp[2] = pPos->xZ - AGO_k_fMinus0_8;
+    dd[0] = AGO_k_f1; dd[1] = AGO_k_f0_56; dd[2] = AGO_k_fMinus0_53;
+    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 0.8f, 0.8f, hVisualMaterial);
+
+    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
+    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_f0_5; pp[2] = pPos->xZ - AGO_k_fMinus1_5;
+    dd[0] = AGO_k_fMinus0_5; dd[1] = AGO_k_fMinus0_98; dd[2] = AGO_k_f0_23;
+    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 0.5f, 0.6f, hVisualMaterial);
+
+    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
+    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_fMinus0_5; pp[2] = pPos->xZ - AGO_k_f0_5;
+    dd[0] = AGO_k_f0_5; dd[1] = AGO_k_f0_16; dd[2] = AGO_k_f0_13;
+    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 0.3f, 0.3f, hVisualMaterial);
+
+    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
+    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_f0_5; pp[2] = pPos->xZ;
+    dd[0] = AGO_k_f1; dd[1] = AGO_k_fMinus0_29; dd[2] = AGO_k_fMinus0_63;
+    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 1.0f, 1.0f, hVisualMaterial);
+}
+
+#define FLOAT_RANGED_RANDOM_RETAIL(mn, mx) \
+    ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN - (-(mn)))
+
+/* 0x00461D80 */
+void CreateType8AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	MTH3D_tdstVector Pos2;
+	MTH_tdxReal fNorm;
+	MTH_tdxReal vx,vy;
+
+	MTH3D_M_vCopyVector(&Pos, p_stPosition);
+	Pos.xZ = MTH_M_xAdd(Pos.xZ, MTH_M_xConstFloatToReal(0.2f));
+	MTH3D_M_vCopyVector(&Pos2, &Pos);
+	MTH3D_M_vCopyVector(&Direction, p_stDirection);
+
+	/* 0x461D9D */
+	vx = -(Direction.xY);
+	vy = Direction.xX;
+
+	fNorm = MTH_M_xSqrt(MTH_M_xSqrAddSqr(vx, vy));
+
+	if (fNorm >= 0.01f)
+	{
+		fNorm = MTH_M_xDiv(MTH_M_xConstFloatToReal(0.4f), fNorm);
+		vx = MTH_M_xMul(vx, fNorm);
+		vy = MTH_M_xMul(vy, fNorm);
+
+		fNorm = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.9f), MTH_M_xConstFloatToReal(0.0f));
+
+ 		Pos.xX = Pos.xX + -(vx) + MTH_M_xMul(fNorm, Direction.xX);
+ 		Pos.xY = Pos.xY + -(vy) + MTH_M_xMul(fNorm, Direction.xY);
+
+		fNorm = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.9f), MTH_M_xConstFloatToReal(0.0f));
+		Pos2.xX = Pos2.xX + vx + MTH_M_xMul(fNorm, Direction.xX);
+		Pos2.xY = Pos2.xY + vy + MTH_M_xMul(fNorm, Direction.xY);
+
+		AGO_vCreatePart( AGO_RAYMAN_PLOUF_SKI ,  &Pos,   &Direction, MTH_M_xLongToReal(200), MTH_M_xConstFloatToReal(0.2f), MTH_M_xConstFloatToReal(0.8f), hVisualMaterial );
+		AGO_vCreatePart( AGO_RAYMAN_PLOUF_SKI ,  &Pos2,  &Direction, MTH_M_xLongToReal(200), MTH_M_xConstFloatToReal(0.2f), MTH_M_xConstFloatToReal(0.8f), hVisualMaterial );
+	}
+}
+
+void CreateType16AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter)
+{
+    float dvx = pDir->xX - AGO_g_Type16PrevX;
+    float dvy = pDir->xY - AGO_g_Type16PrevY;
+    float mag2;
+    AGO_g_Type16PrevX = pDir->xX;
+    mag2 = dvy * dvy + dvx * dvx;
+    AGO_g_Type16PrevY = pDir->xY;
+    if (AGO_k_f0_0004 <= mag2)
+    {
+        float dx = pDir->xX, dy = pDir->xY;
+        float ny = -dy;
+        float flag = 0.0f;
+        float mag = (float)sqrt(dx * dx + ny * ny);
+        float pz  = pPos->xZ - AGO_k_fMinus0_2;
+        if (AGO_k_f0 <= (dvx + dvy) * mag2) flag = 1.0f;
+        if (AGO_k_f0_01 <= mag)
+        {
+            float posA[3], posB[3], outDir[3];
+            float A  = mag * ny;
+            float B  = mag * dx;
+            float fA = A * AGO_k_f0_4_b;
+            float fB = B * AGO_k_f0_4_b;
+            float r1 = (float)rand() * AGO_k_f1_5 * AGO_k_f3_05185em05;
+            float r2;
+            posB[0] = (r1 * dx - fA) + pPos->xX;
+            posB[1] = (r1 * dy - fB) + pPos->xY;
+            r2 = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05;
+            posB[0] = posB[0] - fA;
+            posB[1] = posB[1] - fB;
+            posB[2] = pz;
+            posA[0] = ((r2 * dx - A * AGO_k_fMinus0_4) + pPos->xX) - A * AGO_k_fMinus0_4;
+            posA[1] = ((r2 * dy - B * AGO_k_fMinus0_4) + pPos->xY) - B * AGO_k_fMinus0_4;
+            posA[2] = pz;
+            outDir[0] = dy * AGO_k_fMinus0_6;
+            outDir[1] = dx * AGO_k_f0_6;
+            outDir[2] = A * dy - dx * B;
+            if (flag == AGO_k_f0)
+                AGO_call_vCreatePart(0x22005300, (MTH3D_tdstVector *)posA,
+                                     (MTH3D_tdstVector *)outDir, 200.0f, mag2, mag2, hVisualMaterial);
+            else {
+                outDir[2] = -outDir[2];
+                AGO_call_vCreatePart(0x22005300, (MTH3D_tdstVector *)posB,
+                                     (MTH3D_tdstVector *)outDir, 200.0f, mag2, mag2, hVisualMaterial);
+            }
+        }
+    }
+}
+
+/* 0x00462230 */
+void CreateType72AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                     void *hVisualMaterial, MTH_tdxReal parameter)
+{
+    MTH3D_tdstVector Pos;
+    MTH3D_tdstVector Direction;
+    int i;
+    MTH_tdxReal scale;
+
+    MTH3D_M_vCopyVector(&Direction, p_stDirection);
+
+    for (i = 0 ; i < 3 ; i++)
+    {
+        MTH_tdxReal x = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.05f), MTH_M_xConstFloatToReal(0.95f));
+
+        MTH3D_M_vLinearInterpolVectorORG(&Pos, p_stPosition, p_stDirection, x);
+        scale = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.2f), MTH_M_xConstFloatToReal(1.0f));
+        AGO_vCreatePart(AGO_STILL | AGO_SHADE_MEGAFAST | AGO_SCALING_FASTEST, &Pos, &Direction, parameter, scale, scale, hVisualMaterial);
+    }
+}
+
+void CreateType52AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter)
+{
+    float v[6];
+    const float *ex1 = AGO_gExtraParameter1;
+    float pin[3], din[3];
+    float scale;
+    int j;
+    pin[0] = pPos->xX; pin[1] = pPos->xY; pin[2] = pPos->xZ;
+    din[0] = pDir->xX; din[1] = pDir->xY; din[2] = pDir->xZ;
+    for (j = 0; j < 3; j++)
+    {
+        v[3 + j] = ((float)rand() * AGO_k_f8 * AGO_k_f3_05185em05 - AGO_k_f4)
+                   - (ex1[j] * AGO_k_fMinus0_3 + din[j] * AGO_k_fMinus4) + pin[j];
+        v[j]     = ((float)rand() * AGO_k_f0_4_b * AGO_k_f3_05185em05 - AGO_k_f0_2)
+                   + ex1[j];
+    }
+    scale = (float)rand() * AGO_k_f0_05_b * AGO_k_f3_05185em05 - AGO_k_fMinus0_4;
+    AGO_call_vCreatePart(0x90003, (MTH3D_tdstVector *)&v[3], (MTH3D_tdstVector *)&v[0],
+                         1.0f, scale, scale, hVisualMaterial);
+}
+
+#define AGO_FALLING             0x00000001
+
+void CreateType60AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	int i;
+	MTH_tdxReal scale;
+
+	/* 0x4B9AF8 */
+	if (AGO_g_SplashFlag)
+		return;
+
+	MTH3D_M_vCopyVector(&Pos, p_stPosition);
+	MTH3D_M_vCopyVector(&Direction, p_stDirection);
+
+	for (i = 0 ; i < 10 ; i++)
+	{
+		Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-3.0f), MTH_M_xConstFloatToReal(3.0f));
+		Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-3.0f), MTH_M_xConstFloatToReal(3.0f));
+		Direction.xZ = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(2.0f), MTH_M_xConstFloatToReal(6.0f));
+		scale = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.03f), MTH_M_xConstFloatToReal(0.05f));
+		AGO_vCreatePart( AGO_FALLING | AGO_SHADE_SLOW | AGO_ENDASPLOUF,  &Pos,  &Direction,  Pos.xZ, scale, scale, hVisualMaterial);
+	}
+}
+
+/* 0x00462580 */
+void CreateType62AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	int i;
+	MTH_tdxReal scale;
+	MTH_tdxReal time;
+	MTH_tdxReal *p_xSrc;
+	int lRand;
+
+	p_xSrc = &p_stPosition->xX;
+	Pos.xX = *p_xSrc++; Pos.xY = *p_xSrc++; Pos.xZ = *p_xSrc;
+	p_xSrc = &p_stDirection->xX;
+	Direction.xX = *p_xSrc++; Direction.xY = *p_xSrc++; Direction.xZ = *p_xSrc;
+
+	for (i = 10 ; i != 0 ; i--)
+	{
+
+		lRand = rand(); Direction.xX = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_f1;
+		lRand = rand();
+		Direction.xZ = MTH_C_ZERO;
+		Direction.xY = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_f1;
+
+		scale = (float)rand() * AGO_k_f0_09 * AGO_k_f3_05185em05 - AGO_k_fMinus0_01;
+		/* 0x4B9AF8 */
+		if (AGO_g_SplashFlag)
+		{
+
+			time = (float)rand() * AGO_k_f0_8 * AGO_k_f3_05185em05 - AGO_k_fMinus0_2;
+		}
+		else
+		{
+
+			lRand = rand(); time = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_fMinus1;
+		}
+
+		AGO_vCreatePart( AGO_MOVING | AGO_TIMELIMITED,  &Pos,  &Direction,  time, scale, scale, hVisualMaterial );
+	}
+}
+
+/* 0x004626B0 */
+void CreateType35AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                       void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	MTH3D_tdstVector stV1,stV2,stV3;
+	MTH_tdxReal Mul1,Mul2;
+	MTH_tdxReal cos1,sin1;
+
+	MTH3D_M_vSubVector(&stV3, p_stPosition, p_stDirection);
+	MTH3D_M_vNormalizeVector(&stV3, &stV3);
+
+	AGO_Define_OrthogonalVectors(&stV3, &stV1, &stV2);
+
+	Mul1 = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-6.28f), MTH_M_xConstFloatToReal(6.28f));
+
+	cos1 = (MTH_tdxReal)cos((double)Mul1);
+	sin1 = (MTH_tdxReal)sin((double)Mul1);
+
+	stV3.xX = MTH_M_xMulAddMul(cos1, stV1.xX, sin1, stV2.xX);
+	stV3.xY = MTH_M_xMulAddMul(cos1, stV1.xY, sin1, stV2.xY);
+	stV3.xZ = MTH_M_xMulAddMul(cos1, stV1.xZ, sin1, stV2.xZ);
+
+	Mul2 = MTH3D_M_xSqrVector(&stV3);
+
+	if ((Mul2 < MTH_C_ONE) && (AGO_g_OddFrame))
+	{
+		Mul2 = MTH_M_xMul(Mul2, parameter);
+	}
+	else
+	{
+		Mul2 = MTH_M_xMul(MTH_M_xInvSqrt(Mul2), parameter);
+	}
+	MTH3D_M_vMulScalarVector(&Pos, Mul2, &stV3);
+	MTH3D_M_vAddVector(&Pos, &Pos, p_stDirection);
+
+	MTH3D_M_vCopyVector(&Direction, p_stPosition);
+
+	AGO_vCreatePart( AGO_REMANANCE | AGO_GOINGTO ,  &Pos,  &Direction,  MTH_C_2 , MTH_M_xConstFloatToReal(0.9f), MTH_M_xConstFloatToReal(0.9f), hVisualMaterial );
+}
+
+/* 0x00462860 */
+void CreateType15AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir,
+                       void *hVisualMaterial, float parameter)
+{
+    float pin[3], din[3];
+    int i, j;
+    for (i = 8; i != 0; i--)
+    {
+        float v[6];
+        float off, off2, sc;
+        AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f2_8 * AGO_k_f3_05185em05 - AGO_k_fMinus0_2;
+        off  = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_f0_5;
+        off2 = ((float)rand() * AGO_k_f1_7 * AGO_k_f3_05185em05 - AGO_k_fMinus0_5) * parameter;
+        sc   = (float)rand() * AGO_k_f0_7 * AGO_k_f3_05185em05 - AGO_k_fMinus0_8;
+        for (j = 0; j < 3; j++) {
+            v[j]     = off2 * ((float *)pDir)[j];
+            v[3 + j] = off * ((float *)pDir)[j] + ((float *)pPos)[j];
+        }
+        AGO_call_vCreatePart(0x3009, (MTH3D_tdstVector *)&v[3], (MTH3D_tdstVector *)&v[0],
+                             off2, sc, sc, hVisualMaterial);
+    }
+}
+
+/* 0x00462980 */
+void CreateType158AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                      void *hVisualMaterial, MTH_tdxReal parameter)
+{
+    float pos[3], dir[3];
+    MTH_tdxReal scale;
+    MTH_tdxReal offset2;
+    int i, j;
+
+#define FLOAT_RANGED_RANDOM_158(mn, mx) \
+    ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN - (-(mn)))
+    for (i = 8; i; i--)
+    {
+        AGO_g_AGO_AnimTimeScale = FLOAT_RANGED_RANDOM_158(0.2f, 3.0f);
+        offset2 = FLOAT_RANGED_RANDOM_158(4.0f, 6.5f);
+        scale = parameter;
+        for (j = 0; j < 3; j++)
+        {
+            dir[j] = (FLOAT_RANGED_RANDOM_158(-1.5f, 1.5f) + offset2) * ((float *)p_stDirection)[j];
+            pos[j] = ((float)rand() * 0.3f * AGO_C_xRandN) * ((float *)p_stDirection)[j] + ((float *)p_stPosition)[j];
+        }
+        AGO_vCreatePart(0x2103, (MTH3D_tdstVector *)pos, (MTH3D_tdstVector *)dir,
+                        offset2, scale, scale, hVisualMaterial);
+    }
+}
+
+void CreateType21AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                       void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	int i;
+	MTH_tdxReal fi;
+	/* 0x4B9B18 */
+	MTH_tdxReal xTemp;
+
+	xTemp = MTH_M_xInv(parameter);
+
+	Direction.xX = MTH_M_xMul(MTH_M_xSub(p_stDirection->xX, p_stPosition->xX), xTemp);
+	Direction.xY = MTH_M_xMul(MTH_M_xSub(p_stDirection->xY, p_stPosition->xY), xTemp);
+	Direction.xZ = MTH_M_xMul(MTH_M_xSub(p_stDirection->xZ, p_stPosition->xZ), xTemp);
+
+	i = 0;
+	fi = AGO_asm_K_c9dc;
+	while (fi < parameter)
+	{
+		AGO_Part *p;
+
+		Pos.xX = MTH_M_xAdd(p_stPosition->xX, MTH_M_xMul(MTH_M_xAdd(fi, AGO_g_Type21Offset), Direction.xX));
+		Pos.xY = MTH_M_xAdd(p_stPosition->xY, MTH_M_xMul(MTH_M_xAdd(fi, AGO_g_Type21Offset), Direction.xY));
+		Pos.xZ = MTH_M_xAdd(p_stPosition->xZ, MTH_M_xMul(MTH_M_xAdd(fi, AGO_g_Type21Offset), Direction.xZ));
+
+		p = AGO_vCreatePart( AGO_STILL |  AGO_SHADE_TWOFRAMES,  &Pos,  NULL,  MTH_C_2 , MTH_M_xConstFloatToReal(0.7f), MTH_M_xConstFloatToReal(0.7f), hVisualMaterial);
+		if (p)
+			p->Transparency = MTH_M_xLongToReal(400);
+	}
+
+	AGO_g_Type21Offset = AGO_g_Type21Offset - AGO_g_fTimeDifference * AGO_k_fMinus6_12346;
+	while (AGO_g_Type21Offset >= MTH_C_ONE)
+		AGO_g_Type21Offset -= MTH_C_ONE;
+}
+
+/* 0x00462BB0 */
+void CreateType65AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                     void *hVisualMaterial, MTH_tdxReal parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	MTH_tdxReal scale;
+
+	MTH3D_M_vCopyVector(&Pos, p_stPosition);
+	MTH3D_M_vCopyVector(&Direction, p_stDirection);
+
+	/* 0x49c9dc */
+	MTH3D_M_vSetVectorElements(&Direction, AGO_asm_K_c9dc, AGO_asm_K_ca2c, AGO_asm_K_c9dc);
+
+	scale = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.100f), MTH_M_xConstFloatToReal(0.150f));
+
+	AGO_vCreatePart(AGO_2DSPIRALE, &Pos, &Direction, MTH_M_xMul(MTH_M_xLongToReal(3), parameter), scale, scale, hVisualMaterial);
+}
+
+void CreateType28AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                       void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	MTH_tdxReal scale;
+
+	/* 0x4B9B1C */
+	AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();
+	if ((AGO_g_MustReinitStaticVars != 0) || (AGO_g_Timer28 == AGO_k_f0))
+		AGO_g_Timer28 = AGO_g_ffFrameTime;
+	if (AGO_g_Timer28 > AGO_g_ffFrameTime)
+		return;
+	AGO_g_Timer28 = AGO_g_ffFrameTime - AGO_k_fMinus0_05;
+
+	Pos.xX = FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4) - p_stDirection->xX * AGO_k_fMinus8 + p_stPosition->xX;
+	Pos.xY = (p_stPosition->xY - p_stDirection->xY * AGO_k_fMinus8) + FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4);
+	Pos.xZ = (p_stPosition->xZ - p_stDirection->xZ * AGO_k_fMinus8) + FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_5, -MTH_C_4);
+	scale = FLOAT_RANGED_RANDOM(MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.20f)), MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.25f)));
+	Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
+	Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
+	{ int rr = rand(); Direction.xZ = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_fMinus2_5; }
+	AGO_vCreatePart( AGO_ZELDA |  AGO_MOVINGSINXYUP |  AGO_APPEAR,  &Pos,  &Direction,  MTH_C_Inv2, scale, scale, hVisualMaterial );
+}
+
+/* 0x00462E30 */
+void CreateType67AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                       void *hVisualMaterial, float parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	MTH_tdxReal scale;
+	MTH_tdxReal ftmp;
+
+	/* 0x4B9B20 */
+	AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();
+	if ((AGO_g_MustReinitStaticVars != 0) || (AGO_g_Timer67 == AGO_k_f0))
+		AGO_g_Timer67 = AGO_g_ffFrameTime;
+	if (AGO_g_Timer67 > AGO_g_ffFrameTime)
+		return;
+	AGO_g_Timer67 = AGO_g_ffFrameTime - AGO_k_fMinus0_05;
+
+	Pos.xX = p_stPosition->xX - (p_stDirection->xX * AGO_k_fMinus8 + FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4) * AGO_k_fMinus2);
+	Pos.xY = (p_stPosition->xY - p_stDirection->xY * AGO_k_fMinus8) - FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4) * AGO_k_fMinus2;
+	ftmp = parameter * AGO_k_f0_1;
+	Pos.xZ = (p_stPosition->xZ - p_stDirection->xZ * AGO_k_fMinus8) - FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_5, -MTH_C_4) * AGO_k_fMinus2;
+	scale = (parameter * AGO_k_f0_15 - ftmp) * (float)rand() * AGO_k_f3_05185em05 + ftmp;
+	Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
+	Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
+	{ int rr = rand(); Direction.xZ = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_fMinus2_5; }
+	AGO_vCreatePart( AGO_ENDASPLOUF | AGO_ZELDA |  AGO_MOVINGSINXYUP |  AGO_APPEAR,  &Pos,  &Direction,  MTH_C_Inv2, scale, scale, hVisualMaterial );
+}
+
+#define LIMIT_AGO_TO_EVERY(timelimit) \
+{ \
+	static MTH_tdxReal NextBubble = MTH_C_ZERO;					 \
+	AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();			 \
+	if ((AGO_g_MustReinitStaticVars) || (NextBubble == MTH_C_ZERO)) NextBubble = AGO_g_ffFrameTime;	 \
+	if (NextBubble > AGO_g_ffFrameTime) return;			 \
+	NextBubble = AGO_g_ffFrameTime + timelimit;				 \
+}
+
+void CreateType83AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                     void *hVisualMaterial, MTH_tdxReal parameter)
+{
+    MTH3D_tdstVector Pos;
+    MTH3D_tdstVector Direction;
+    MTH_tdxReal scale;
+
+    LIMIT_AGO_TO_EVERY(MTH_M_xConstFloatToReal(0.05f));
+
+    Pos.xX = p_stPosition->xX - (p_stDirection->xX * AGO_C_xN5 + FLOAT_RANGED_RANDOM(-2.0f, 2.0f) * -2.0f);
+    Pos.xY = (p_stPosition->xY - p_stDirection->xY * AGO_C_xN5) - FLOAT_RANGED_RANDOM(-2.0f, 2.0f) * -2.0f;
+    Pos.xZ = (p_stPosition->xZ - p_stDirection->xZ * AGO_C_xN5) - MTH_M_xLongToReal(4);
+    scale = FLOAT_RANGED_RANDOM(MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.20f)), MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.25f)));
+    Direction.xX = FLOAT_RANGED_RANDOM(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
+    Direction.xY = FLOAT_RANGED_RANDOM(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
+    Direction.xZ = FLOAT_RANGED_RANDOM(MTH_M_xConstFloatToReal(2.5f), MTH_M_xConstFloatToReal(4.5f));
+
+    AGO_vCreatePart(AGO_ZELDA | AGO_MOVINGSINXY | AGO_APPEAR, &Pos, &Direction, MTH_C_Inv2, scale, scale, hVisualMaterial);
+}
+
+/* 0x00463210 */
+void CreateType104AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
+                      void *hVisualMaterial, MTH_tdxReal parameter)
+{
+	MTH3D_tdstVector Pos;
+	MTH3D_tdstVector Direction;
+	int i;
+
+	MTH3D_M_vCopyVector(&Pos, p_stPosition);
+	MTH3D_M_vCopyVector(&Direction, p_stDirection);
+
+	for (i = 0 ; i < 10 ; i++)
+	{
+		Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_C_MinusONE, MTH_C_ONE);
+		Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_C_MinusONE, MTH_C_ONE);
+		Direction.xZ = MTH_C_ZERO;
+		AGO_vCreatePart( AGO_FALLING | AGO_TIMELIMITED,  &Pos,  &Direction,  FLOAT_RANGED_RANDOM_RETAIL(MTH_C_ONE, MTH_C_3), MTH_C_ZERO, MTH_C_ZERO, hVisualMaterial );
+	}
+}
+
+int __cdecl AGO_CompareVector(MTH3D_tdstVector *v1, MTH3D_tdstVector *v2)
+{
+
+	int i;
+	for (i = 0; i < 3; i++)
+		if (((float *)v1)[i] != ((float *)v2)[i])
+			return 0;
+	return 1;
+}
+
+/* 0x00463320 */
+void AGO_vTransformHandVector(MTH3D_tdstVector *Position, MTH3D_tdstVector *Direction)
+{
+
+    float other[3];
+    Position->xX = Position->xX - Direction->xX * -0.129999995f;
+    Position->xY = Position->xY - Direction->xY * -0.129999995f;
+    Position->xZ = (Position->xZ - Direction->xZ * -0.100000001f) - -0.200000003f;
+
+    other[0] = Direction->xY;
+    other[1] = -Direction->xX;
+    other[2] = 0.0f;
+
+    Position->xX = Position->xX - other[0] * -0.300000012f;
+    Position->xY = Position->xY - other[1] * -0.300000012f;
+}
+
+void AGO_vAddParticleContd(unsigned long PartType, MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter);
 
 void AGO_vAddParticle(unsigned long PartType,
 					  MTH3D_tdstVector *p_stPosition,
@@ -1692,39 +2221,6 @@ void AGO_vAddParticle(unsigned long PartType,
 	}
 }
 
-#undef FLOAT_RANGED_RANDOM
-#define FLOAT_RANGED_RANDOM(mn, mx) \
-    ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN + (mn))
-
-#ifndef AGO_SHADE_TWOFRAMES
-#define AGO_SHADE_TWOFRAMES 0x00006000
-#endif
-#ifndef AGO_LOOPANIM
-#define AGO_LOOPANIM        0x04000000
-#endif
-#ifndef AGO_REMANANCE2
-#define AGO_REMANANCE2      0x50000000
-#endif
-#ifndef AGO_SHADE_MEGAFAST
-#define AGO_SHADE_MEGAFAST  0x00005000
-#endif
-#ifndef AGO_SCALING_FASTEST
-#define AGO_SCALING_FASTEST 0x00000400
-#endif
-
-void AddGauge(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num, void *EmptyMat, void *FullMat);
-void AddIcone(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num, void *Mat);
-void CreateType72AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                     void *hVisualMaterial, MTH_tdxReal parameter);
-void CreateType83AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                     void *hVisualMaterial, MTH_tdxReal parameter);
-void CreateType104AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                      void *hVisualMaterial, MTH_tdxReal parameter);
-void CreateType158AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                      void *hVisualMaterial, MTH_tdxReal parameter);
-void AGO_vAddLogoPart(MTH_tdxReal parameter, void *hVisualMaterial);
-void AGO_vActivateLogoDisplay(MTH3D_tdstVector *pPosition, MTH3D_tdstVector *pDirection, MTH_tdxReal parameter);
-
 void AGO_vAddParticleContd(unsigned long PartType, MTH3D_tdstVector *pPos,
                            MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter)
 {
@@ -2022,628 +2518,7 @@ void AGO_vAddParticleContd(unsigned long PartType, MTH3D_tdstVector *pPos,
     }
 }
 
-void CreateType5AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir,
-                      void *hVisualMaterial, float parameter)
-{
-    float pp[3], dd[3];
-    (void)pDir;
-    pPos->xZ = pPos->xZ - AGO_k_fMinus0_6;
-
-    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
-    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_fMinus0_5; pp[2] = pPos->xZ - AGO_k_fMinus0_8;
-    dd[0] = AGO_k_f1; dd[1] = AGO_k_f0_56; dd[2] = AGO_k_fMinus0_53;
-    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 0.8f, 0.8f, hVisualMaterial);
-
-    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
-    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_f0_5; pp[2] = pPos->xZ - AGO_k_fMinus1_5;
-    dd[0] = AGO_k_fMinus0_5; dd[1] = AGO_k_fMinus0_98; dd[2] = AGO_k_f0_23;
-    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 0.5f, 0.6f, hVisualMaterial);
-
-    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
-    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_fMinus0_5; pp[2] = pPos->xZ - AGO_k_f0_5;
-    dd[0] = AGO_k_f0_5; dd[1] = AGO_k_f0_16; dd[2] = AGO_k_f0_13;
-    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 0.3f, 0.3f, hVisualMaterial);
-
-    AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_fMinus0_7;
-    pp[0] = pPos->xX; pp[1] = pPos->xY - AGO_k_f0_5; pp[2] = pPos->xZ;
-    dd[0] = AGO_k_f1; dd[1] = AGO_k_fMinus0_29; dd[2] = AGO_k_fMinus0_63;
-    AGO_call_vCreatePart(0x1103, (MTH3D_tdstVector *)pp, (MTH3D_tdstVector *)dd, parameter, 1.0f, 1.0f, hVisualMaterial);
-}
-
-#define FLOAT_RANGED_RANDOM_RETAIL(mn, mx) \
-    ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN - (-(mn)))
-
-/* 0x00461D80 */
-void CreateType8AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	MTH3D_tdstVector Pos2;
-	MTH_tdxReal fNorm;
-	MTH_tdxReal vx,vy;
-
-	MTH3D_M_vCopyVector(&Pos, p_stPosition);
-	Pos.xZ = MTH_M_xAdd(Pos.xZ, MTH_M_xConstFloatToReal(0.2f));
-	MTH3D_M_vCopyVector(&Pos2, &Pos);
-	MTH3D_M_vCopyVector(&Direction, p_stDirection);
-
-	/* 0x461D9D */
-	vx = -(Direction.xY);
-	vy = Direction.xX;
-
-	fNorm = MTH_M_xSqrt(MTH_M_xSqrAddSqr(vx, vy));
-
-	if (fNorm >= 0.01f)
-	{
-		fNorm = MTH_M_xDiv(MTH_M_xConstFloatToReal(0.4f), fNorm);
-		vx = MTH_M_xMul(vx, fNorm);
-		vy = MTH_M_xMul(vy, fNorm);
-
-		fNorm = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.9f), MTH_M_xConstFloatToReal(0.0f));
-
- 		Pos.xX = Pos.xX + -(vx) + MTH_M_xMul(fNorm, Direction.xX);
- 		Pos.xY = Pos.xY + -(vy) + MTH_M_xMul(fNorm, Direction.xY);
-
-		fNorm = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.9f), MTH_M_xConstFloatToReal(0.0f));
-		Pos2.xX = Pos2.xX + vx + MTH_M_xMul(fNorm, Direction.xX);
-		Pos2.xY = Pos2.xY + vy + MTH_M_xMul(fNorm, Direction.xY);
-
-		AGO_vCreatePart( AGO_RAYMAN_PLOUF_SKI ,  &Pos,   &Direction, MTH_M_xLongToReal(200), MTH_M_xConstFloatToReal(0.2f), MTH_M_xConstFloatToReal(0.8f), hVisualMaterial );
-		AGO_vCreatePart( AGO_RAYMAN_PLOUF_SKI ,  &Pos2,  &Direction, MTH_M_xLongToReal(200), MTH_M_xConstFloatToReal(0.2f), MTH_M_xConstFloatToReal(0.8f), hVisualMaterial );
-	}
-}
-
-void CreateType16AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter)
-{
-    float dvx = pDir->xX - AGO_g_Type16PrevX;
-    float dvy = pDir->xY - AGO_g_Type16PrevY;
-    float mag2;
-    AGO_g_Type16PrevX = pDir->xX;
-    mag2 = dvy * dvy + dvx * dvx;
-    AGO_g_Type16PrevY = pDir->xY;
-    if (AGO_k_f0_0004 <= mag2)
-    {
-        float dx = pDir->xX, dy = pDir->xY;
-        float ny = -dy;
-        float flag = 0.0f;
-        float mag = (float)sqrt(dx * dx + ny * ny);
-        float pz  = pPos->xZ - AGO_k_fMinus0_2;
-        if (AGO_k_f0 <= (dvx + dvy) * mag2) flag = 1.0f;
-        if (AGO_k_f0_01 <= mag)
-        {
-            float posA[3], posB[3], outDir[3];
-            float A  = mag * ny;
-            float B  = mag * dx;
-            float fA = A * AGO_k_f0_4_b;
-            float fB = B * AGO_k_f0_4_b;
-            float r1 = (float)rand() * AGO_k_f1_5 * AGO_k_f3_05185em05;
-            float r2;
-            posB[0] = (r1 * dx - fA) + pPos->xX;
-            posB[1] = (r1 * dy - fB) + pPos->xY;
-            r2 = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05;
-            posB[0] = posB[0] - fA;
-            posB[1] = posB[1] - fB;
-            posB[2] = pz;
-            posA[0] = ((r2 * dx - A * AGO_k_fMinus0_4) + pPos->xX) - A * AGO_k_fMinus0_4;
-            posA[1] = ((r2 * dy - B * AGO_k_fMinus0_4) + pPos->xY) - B * AGO_k_fMinus0_4;
-            posA[2] = pz;
-            outDir[0] = dy * AGO_k_fMinus0_6;
-            outDir[1] = dx * AGO_k_f0_6;
-            outDir[2] = A * dy - dx * B;
-            if (flag == AGO_k_f0)
-                AGO_call_vCreatePart(0x22005300, (MTH3D_tdstVector *)posA,
-                                     (MTH3D_tdstVector *)outDir, 200.0f, mag2, mag2, hVisualMaterial);
-            else {
-                outDir[2] = -outDir[2];
-                AGO_call_vCreatePart(0x22005300, (MTH3D_tdstVector *)posB,
-                                     (MTH3D_tdstVector *)outDir, 200.0f, mag2, mag2, hVisualMaterial);
-            }
-        }
-    }
-}
-
-void CreateType52AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir, void *hVisualMaterial, float parameter)
-{
-    float v[6];
-    const float *ex1 = AGO_gExtraParameter1;
-    float pin[3], din[3];
-    float scale;
-    int j;
-    pin[0] = pPos->xX; pin[1] = pPos->xY; pin[2] = pPos->xZ;
-    din[0] = pDir->xX; din[1] = pDir->xY; din[2] = pDir->xZ;
-    for (j = 0; j < 3; j++)
-    {
-        v[3 + j] = ((float)rand() * AGO_k_f8 * AGO_k_f3_05185em05 - AGO_k_f4)
-                   - (ex1[j] * AGO_k_fMinus0_3 + din[j] * AGO_k_fMinus4) + pin[j];
-        v[j]     = ((float)rand() * AGO_k_f0_4_b * AGO_k_f3_05185em05 - AGO_k_f0_2)
-                   + ex1[j];
-    }
-    scale = (float)rand() * AGO_k_f0_05_b * AGO_k_f3_05185em05 - AGO_k_fMinus0_4;
-    AGO_call_vCreatePart(0x90003, (MTH3D_tdstVector *)&v[3], (MTH3D_tdstVector *)&v[0],
-                         1.0f, scale, scale, hVisualMaterial);
-}
-
-#define AGO_FALLING             0x00000001
-
-void CreateType60AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	int i;
-	MTH_tdxReal scale;
-
-	/* 0x4B9AF8 */
-	if (AGO_g_SplashFlag)
-		return;
-
-	MTH3D_M_vCopyVector(&Pos, p_stPosition);
-	MTH3D_M_vCopyVector(&Direction, p_stDirection);
-
-	for (i = 0 ; i < 10 ; i++)
-	{
-		Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-3.0f), MTH_M_xConstFloatToReal(3.0f));
-		Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-3.0f), MTH_M_xConstFloatToReal(3.0f));
-		Direction.xZ = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(2.0f), MTH_M_xConstFloatToReal(6.0f));
-		scale = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.03f), MTH_M_xConstFloatToReal(0.05f));
-		AGO_vCreatePart( AGO_FALLING | AGO_SHADE_SLOW | AGO_ENDASPLOUF,  &Pos,  &Direction,  Pos.xZ, scale, scale, hVisualMaterial);
-	}
-}
-
-/* 0x00462580 */
-void CreateType62AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection, void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	int i;
-	MTH_tdxReal scale;
-	MTH_tdxReal time;
-	MTH_tdxReal *p_xSrc;
-	int lRand;
-
-	p_xSrc = &p_stPosition->xX;
-	Pos.xX = *p_xSrc++; Pos.xY = *p_xSrc++; Pos.xZ = *p_xSrc;
-	p_xSrc = &p_stDirection->xX;
-	Direction.xX = *p_xSrc++; Direction.xY = *p_xSrc++; Direction.xZ = *p_xSrc;
-
-	for (i = 10 ; i != 0 ; i--)
-	{
-
-		lRand = rand(); Direction.xX = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_f1;
-		lRand = rand();
-		Direction.xZ = MTH_C_ZERO;
-		Direction.xY = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_f1;
-
-		scale = (float)rand() * AGO_k_f0_09 * AGO_k_f3_05185em05 - AGO_k_fMinus0_01;
-		/* 0x4B9AF8 */
-		if (AGO_g_SplashFlag)
-		{
-
-			time = (float)rand() * AGO_k_f0_8 * AGO_k_f3_05185em05 - AGO_k_fMinus0_2;
-		}
-		else
-		{
-
-			lRand = rand(); time = ((float)lRand + (float)lRand) * AGO_k_f3_05185em05 - AGO_k_fMinus1;
-		}
-
-		AGO_vCreatePart( AGO_MOVING | AGO_TIMELIMITED,  &Pos,  &Direction,  time, scale, scale, hVisualMaterial );
-	}
-}
-
-/* 0x004626B0 */
-void CreateType35AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                       void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	MTH3D_tdstVector stV1,stV2,stV3;
-	MTH_tdxReal Mul1,Mul2;
-	MTH_tdxReal cos1,sin1;
-
-	MTH3D_M_vSubVector(&stV3, p_stPosition, p_stDirection);
-	MTH3D_M_vNormalizeVector(&stV3, &stV3);
-
-	AGO_Define_OrthogonalVectors(&stV3, &stV1, &stV2);
-
-	Mul1 = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-6.28f), MTH_M_xConstFloatToReal(6.28f));
-
-	cos1 = (MTH_tdxReal)cos((double)Mul1);
-	sin1 = (MTH_tdxReal)sin((double)Mul1);
-
-	stV3.xX = MTH_M_xMulAddMul(cos1, stV1.xX, sin1, stV2.xX);
-	stV3.xY = MTH_M_xMulAddMul(cos1, stV1.xY, sin1, stV2.xY);
-	stV3.xZ = MTH_M_xMulAddMul(cos1, stV1.xZ, sin1, stV2.xZ);
-
-	Mul2 = MTH3D_M_xSqrVector(&stV3);
-
-	if ((Mul2 < MTH_C_ONE) && (AGO_g_OddFrame))
-	{
-		Mul2 = MTH_M_xMul(Mul2, parameter);
-	}
-	else
-	{
-		Mul2 = MTH_M_xMul(MTH_M_xInvSqrt(Mul2), parameter);
-	}
-	MTH3D_M_vMulScalarVector(&Pos, Mul2, &stV3);
-	MTH3D_M_vAddVector(&Pos, &Pos, p_stDirection);
-
-	MTH3D_M_vCopyVector(&Direction, p_stPosition);
-
-	AGO_vCreatePart( AGO_REMANANCE | AGO_GOINGTO ,  &Pos,  &Direction,  MTH_C_2 , MTH_M_xConstFloatToReal(0.9f), MTH_M_xConstFloatToReal(0.9f), hVisualMaterial );
-}
-
-/* 0x00462860 */
-void CreateType15AGO(MTH3D_tdstVector *pPos, MTH3D_tdstVector *pDir,
-                       void *hVisualMaterial, float parameter)
-{
-    float pin[3], din[3];
-    int i, j;
-    for (i = 8; i != 0; i--)
-    {
-        float v[6];
-        float off, off2, sc;
-        AGO_g_CurrentAnimTime = (float)rand() * AGO_k_f2_8 * AGO_k_f3_05185em05 - AGO_k_fMinus0_2;
-        off  = (float)rand() * AGO_k_f1_3 * AGO_k_f3_05185em05 - AGO_k_f0_5;
-        off2 = ((float)rand() * AGO_k_f1_7 * AGO_k_f3_05185em05 - AGO_k_fMinus0_5) * parameter;
-        sc   = (float)rand() * AGO_k_f0_7 * AGO_k_f3_05185em05 - AGO_k_fMinus0_8;
-        for (j = 0; j < 3; j++) {
-            v[j]     = off2 * ((float *)pDir)[j];
-            v[3 + j] = off * ((float *)pDir)[j] + ((float *)pPos)[j];
-        }
-        AGO_call_vCreatePart(0x3009, (MTH3D_tdstVector *)&v[3], (MTH3D_tdstVector *)&v[0],
-                             off2, sc, sc, hVisualMaterial);
-    }
-}
-
-void CreateType21AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                       void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	int i;
-	MTH_tdxReal fi;
-	/* 0x4B9B18 */
-	MTH_tdxReal xTemp;
-
-	xTemp = MTH_M_xInv(parameter);
-
-	Direction.xX = MTH_M_xMul(MTH_M_xSub(p_stDirection->xX, p_stPosition->xX), xTemp);
-	Direction.xY = MTH_M_xMul(MTH_M_xSub(p_stDirection->xY, p_stPosition->xY), xTemp);
-	Direction.xZ = MTH_M_xMul(MTH_M_xSub(p_stDirection->xZ, p_stPosition->xZ), xTemp);
-
-	i = 0;
-	fi = AGO_asm_K_c9dc;
-	while (fi < parameter)
-	{
-		AGO_Part *p;
-
-		Pos.xX = MTH_M_xAdd(p_stPosition->xX, MTH_M_xMul(MTH_M_xAdd(fi, AGO_g_Type21Offset), Direction.xX));
-		Pos.xY = MTH_M_xAdd(p_stPosition->xY, MTH_M_xMul(MTH_M_xAdd(fi, AGO_g_Type21Offset), Direction.xY));
-		Pos.xZ = MTH_M_xAdd(p_stPosition->xZ, MTH_M_xMul(MTH_M_xAdd(fi, AGO_g_Type21Offset), Direction.xZ));
-
-		p = AGO_vCreatePart( AGO_STILL |  AGO_SHADE_TWOFRAMES,  &Pos,  NULL,  MTH_C_2 , MTH_M_xConstFloatToReal(0.7f), MTH_M_xConstFloatToReal(0.7f), hVisualMaterial);
-		if (p)
-			p->Transparency = MTH_M_xLongToReal(400);
-	}
-
-	AGO_g_Type21Offset = AGO_g_Type21Offset - AGO_g_fTimeDifference * AGO_k_fMinus6_12346;
-	while (AGO_g_Type21Offset >= MTH_C_ONE)
-		AGO_g_Type21Offset -= MTH_C_ONE;
-}
-
-/* 0x00462BB0 */
-void CreateType65AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                     void *hVisualMaterial, MTH_tdxReal parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	MTH_tdxReal scale;
-
-	MTH3D_M_vCopyVector(&Pos, p_stPosition);
-	MTH3D_M_vCopyVector(&Direction, p_stDirection);
-
-	/* 0x49c9dc */
-	MTH3D_M_vSetVectorElements(&Direction, AGO_asm_K_c9dc, AGO_asm_K_ca2c, AGO_asm_K_c9dc);
-
-	scale = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.100f), MTH_M_xConstFloatToReal(0.150f));
-
-	AGO_vCreatePart(AGO_2DSPIRALE, &Pos, &Direction, MTH_M_xMul(MTH_M_xLongToReal(3), parameter), scale, scale, hVisualMaterial);
-}
-
-void CreateType28AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                       void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	MTH_tdxReal scale;
-
-	/* 0x4B9B1C */
-	AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();
-	if ((AGO_g_MustReinitStaticVars != 0) || (AGO_g_Timer28 == AGO_k_f0))
-		AGO_g_Timer28 = AGO_g_ffFrameTime;
-	if (AGO_g_Timer28 > AGO_g_ffFrameTime)
-		return;
-	AGO_g_Timer28 = AGO_g_ffFrameTime - AGO_k_fMinus0_05;
-
-	Pos.xX = FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4) - p_stDirection->xX * AGO_k_fMinus8 + p_stPosition->xX;
-	Pos.xY = (p_stPosition->xY - p_stDirection->xY * AGO_k_fMinus8) + FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4);
-	Pos.xZ = (p_stPosition->xZ - p_stDirection->xZ * AGO_k_fMinus8) + FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_5, -MTH_C_4);
-	scale = FLOAT_RANGED_RANDOM(MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.20f)), MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.25f)));
-	Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
-	Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
-	{ int rr = rand(); Direction.xZ = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_fMinus2_5; }
-	AGO_vCreatePart( AGO_ZELDA |  AGO_MOVINGSINXYUP |  AGO_APPEAR,  &Pos,  &Direction,  MTH_C_Inv2, scale, scale, hVisualMaterial );
-}
-
-/* 0x00462E30 */
-void CreateType67AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                       void *hVisualMaterial, float parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	MTH_tdxReal scale;
-	MTH_tdxReal ftmp;
-
-	/* 0x4B9B20 */
-	AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();
-	if ((AGO_g_MustReinitStaticVars != 0) || (AGO_g_Timer67 == AGO_k_f0))
-		AGO_g_Timer67 = AGO_g_ffFrameTime;
-	if (AGO_g_Timer67 > AGO_g_ffFrameTime)
-		return;
-	AGO_g_Timer67 = AGO_g_ffFrameTime - AGO_k_fMinus0_05;
-
-	Pos.xX = p_stPosition->xX - (p_stDirection->xX * AGO_k_fMinus8 + FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4) * AGO_k_fMinus2);
-	Pos.xY = (p_stPosition->xY - p_stDirection->xY * AGO_k_fMinus8) - FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_4, MTH_C_4) * AGO_k_fMinus2;
-	ftmp = parameter * AGO_k_f0_1;
-	Pos.xZ = (p_stPosition->xZ - p_stDirection->xZ * AGO_k_fMinus8) - FLOAT_RANGED_RANDOM_RETAIL(-MTH_C_5, -MTH_C_4) * AGO_k_fMinus2;
-	scale = (parameter * AGO_k_f0_15 - ftmp) * (float)rand() * AGO_k_f3_05185em05 + ftmp;
-	Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
-	Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
-	{ int rr = rand(); Direction.xZ = ((float)rr + (float)rr) * AGO_k_f3_05185em05 - AGO_k_fMinus2_5; }
-	AGO_vCreatePart( AGO_ENDASPLOUF | AGO_ZELDA |  AGO_MOVINGSINXYUP |  AGO_APPEAR,  &Pos,  &Direction,  MTH_C_Inv2, scale, scale, hVisualMaterial );
-}
-
-/* 0x00460530 */
-void AddGauge(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num,
-                      void *EmptyMat, void *FullMat)
-{
-    long lIdx;
-
-    lIdx = (long)Num;
-    AGO_g_TheGauges[lIdx].Coords[0] = V1[0];
-    AGO_g_TheGauges[lIdx].Coords[1] = V1[1];
-    AGO_g_TheGauges[lIdx].Coords[2] = V2[0];
-    AGO_g_TheGauges[lIdx].Coords[3] = V2[1];
-    AGO_g_TheGauges[lIdx].EmptyMaterial = EmptyMat;
-    AGO_g_TheGauges[lIdx].FullMaterial = FullMat;
-    AGO_g_TheGauges[lIdx].Position = V1[2];
-    AGO_g_TheGauges[lIdx].Transparency = (long)V2[2];
-}
-
-/* 0x004605A0 */
-void AddIcone(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num, void *Mat)
-{
-    long lIdx;
-
-    lIdx = (long)Num;
-    AGO_g_TheIcones[lIdx].Coords[0] = V1[0];
-    AGO_g_TheIcones[lIdx].Coords[1] = V1[1];
-    AGO_g_TheIcones[lIdx].Coords[2] = V2[0];
-    AGO_g_TheIcones[lIdx].Coords[3] = V2[1];
-    AGO_g_TheIcones[lIdx].Material = Mat;
-    AGO_g_TheIcones[lIdx].Transparency = (long)V2[2];
-}
-
-/* 0x00462230 */
-void CreateType72AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                     void *hVisualMaterial, MTH_tdxReal parameter)
-{
-    MTH3D_tdstVector Pos;
-    MTH3D_tdstVector Direction;
-    int i;
-    MTH_tdxReal scale;
-
-    MTH3D_M_vCopyVector(&Direction, p_stDirection);
-
-    for (i = 0 ; i < 3 ; i++)
-    {
-        MTH_tdxReal x = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.05f), MTH_M_xConstFloatToReal(0.95f));
-
-        MTH3D_M_vLinearInterpolVectorORG(&Pos, p_stPosition, p_stDirection, x);
-        scale = FLOAT_RANGED_RANDOM_RETAIL(MTH_M_xConstFloatToReal(0.2f), MTH_M_xConstFloatToReal(1.0f));
-        AGO_vCreatePart(AGO_STILL | AGO_SHADE_MEGAFAST | AGO_SCALING_FASTEST, &Pos, &Direction, parameter, scale, scale, hVisualMaterial);
-    }
-}
-
-/* 0x00462980 */
-void CreateType158AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                      void *hVisualMaterial, MTH_tdxReal parameter)
-{
-    float pos[3], dir[3];
-    MTH_tdxReal scale;
-    MTH_tdxReal offset2;
-    int i, j;
-
-#define FLOAT_RANGED_RANDOM_158(mn, mx) \
-    ((float)rand() * ((mx) - (mn)) * AGO_C_xRandN - (-(mn)))
-    for (i = 8; i; i--)
-    {
-        AGO_g_AGO_AnimTimeScale = FLOAT_RANGED_RANDOM_158(0.2f, 3.0f);
-        offset2 = FLOAT_RANGED_RANDOM_158(4.0f, 6.5f);
-        scale = parameter;
-        for (j = 0; j < 3; j++)
-        {
-            dir[j] = (FLOAT_RANGED_RANDOM_158(-1.5f, 1.5f) + offset2) * ((float *)p_stDirection)[j];
-            pos[j] = ((float)rand() * 0.3f * AGO_C_xRandN) * ((float *)p_stDirection)[j] + ((float *)p_stPosition)[j];
-        }
-        AGO_vCreatePart(0x2103, (MTH3D_tdstVector *)pos, (MTH3D_tdstVector *)dir,
-                        offset2, scale, scale, hVisualMaterial);
-    }
-}
-
-#define LIMIT_AGO_TO_EVERY(timelimit) \
-{ \
-	static MTH_tdxReal NextBubble = MTH_C_ZERO;					 \
-	AGO_g_ffFrameTime = AGO_fGetTimeInSeconds();			 \
-	if ((AGO_g_MustReinitStaticVars) || (NextBubble == MTH_C_ZERO)) NextBubble = AGO_g_ffFrameTime;	 \
-	if (NextBubble > AGO_g_ffFrameTime) return;			 \
-	NextBubble = AGO_g_ffFrameTime + timelimit;				 \
-}
-
-void CreateType83AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                     void *hVisualMaterial, MTH_tdxReal parameter)
-{
-    MTH3D_tdstVector Pos;
-    MTH3D_tdstVector Direction;
-    MTH_tdxReal scale;
-
-    LIMIT_AGO_TO_EVERY(MTH_M_xConstFloatToReal(0.05f));
-
-    Pos.xX = p_stPosition->xX - (p_stDirection->xX * AGO_C_xN5 + FLOAT_RANGED_RANDOM(-2.0f, 2.0f) * -2.0f);
-    Pos.xY = (p_stPosition->xY - p_stDirection->xY * AGO_C_xN5) - FLOAT_RANGED_RANDOM(-2.0f, 2.0f) * -2.0f;
-    Pos.xZ = (p_stPosition->xZ - p_stDirection->xZ * AGO_C_xN5) - MTH_M_xLongToReal(4);
-    scale = FLOAT_RANGED_RANDOM(MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.20f)), MTH_M_xMul(parameter, MTH_M_xConstFloatToReal(0.25f)));
-    Direction.xX = FLOAT_RANGED_RANDOM(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
-    Direction.xY = FLOAT_RANGED_RANDOM(MTH_M_xConstFloatToReal(-0.2f), MTH_M_xConstFloatToReal(0.2f));
-    Direction.xZ = FLOAT_RANGED_RANDOM(MTH_M_xConstFloatToReal(2.5f), MTH_M_xConstFloatToReal(4.5f));
-
-    AGO_vCreatePart(AGO_ZELDA | AGO_MOVINGSINXY | AGO_APPEAR, &Pos, &Direction, MTH_C_Inv2, scale, scale, hVisualMaterial);
-}
-
-/* 0x00463210 */
-void CreateType104AGO(MTH3D_tdstVector *p_stPosition, MTH3D_tdstVector *p_stDirection,
-                      void *hVisualMaterial, MTH_tdxReal parameter)
-{
-	MTH3D_tdstVector Pos;
-	MTH3D_tdstVector Direction;
-	int i;
-
-	MTH3D_M_vCopyVector(&Pos, p_stPosition);
-	MTH3D_M_vCopyVector(&Direction, p_stDirection);
-
-	for (i = 0 ; i < 10 ; i++)
-	{
-		Direction.xX = FLOAT_RANGED_RANDOM_RETAIL(MTH_C_MinusONE, MTH_C_ONE);
-		Direction.xY = FLOAT_RANGED_RANDOM_RETAIL(MTH_C_MinusONE, MTH_C_ONE);
-		Direction.xZ = MTH_C_ZERO;
-		AGO_vCreatePart( AGO_FALLING | AGO_TIMELIMITED,  &Pos,  &Direction,  FLOAT_RANGED_RANDOM_RETAIL(MTH_C_ONE, MTH_C_3), MTH_C_ZERO, MTH_C_ZERO, hVisualMaterial );
-	}
-}
-
-/* 0x00463320 */
-void AGO_vTransformHandVector(MTH3D_tdstVector *Position, MTH3D_tdstVector *Direction)
-{
-
-    float other[3];
-    Position->xX = Position->xX - Direction->xX * -0.129999995f;
-    Position->xY = Position->xY - Direction->xY * -0.129999995f;
-    Position->xZ = (Position->xZ - Direction->xZ * -0.100000001f) - -0.200000003f;
-
-    other[0] = Direction->xY;
-    other[1] = -Direction->xX;
-    other[2] = 0.0f;
-
-    Position->xX = Position->xX - other[0] * -0.300000012f;
-    Position->xY = Position->xY - other[1] * -0.300000012f;
-}
-
 AGO_Triangles AGO_g_pAGO_Triangles[AGO_MAX_TRIANGLES];   /* 0x004E1620 */
-
-/* 0x00466520 */
-void AGO_vTrianglesInit(void)
-{
-    AGO_g_NbAGO_Triangles = 0;
-}
-
-void AGO_vCreateTriangle(float c1[3], float c2[3], float c3[3], void *VisualMat,
-                         float U1, float V1, float U2, float V2, float U3, float V3,
-                         float DelayTime, unsigned long Parameter)
-{
-    AGO_Triangles *p;
-    int            i;
-
-    if (AGO_g_NbAGO_Triangles == AGO_MAX_TRIANGLES)
-    {
-        unsigned long Least = AGO_g_pAGO_Triangles[0].CreationTime;
-        int           LeastIndex = 0;
-        for (i = 0; i < AGO_MAX_TRIANGLES; i++)
-            if (AGO_g_pAGO_Triangles[i].CreationTime < Least)
-            {
-                Least = AGO_g_pAGO_Triangles[i].CreationTime;
-                LeastIndex = i;
-            }
-        p = &AGO_g_pAGO_Triangles[LeastIndex];
-    }
-    else
-    {
-        p = &AGO_g_pAGO_Triangles[AGO_g_NbAGO_Triangles++];
-    }
-
-    p->CreationTime = AGO_g_NbEngineFramesSinceStart;
-    for (i = 0; i < 3; i++)
-    {
-        p->c[0][i] = c1[i];
-        p->c[1][i] = c2[i];
-        p->c[2][i] = c3[i];
-    }
-    p->uv[0][0] = U1; p->uv[0][1] = V1;
-    p->uv[1][0] = U2; p->uv[1][1] = V2;
-    p->uv[2][0] = U3; p->uv[2][1] = V3;
-    p->fTransparency  = 255.0f;
-    p->VisualMaterial = VisualMat;
-    p->DelayTime      = (unsigned long)DelayTime;
-    p->type           = 0;
-    if (Parameter & 0x02)
-        p->type |= AGO_TRI_FADE;
-}
-
-void AGO_vDisplayTriangles(GLD_tdstViewportAttributes *p_stVpt)
-{
-    AGO_Triangles *p;
-    unsigned long  i;
-
-    AGO_g_NbEngineFramesSinceStart++;
-
-    for (i = 0; i < AGO_g_NbAGO_Triangles; i++)
-    {
-        p = &AGO_g_pAGO_Triangles[i];
-
-        if (p->type & AGO_TRI_FADE)
-        {
-            p->fTransparency=255.0f-255.0f*((float)(AGO_g_NbEngineFramesSinceStart-p->CreationTime-1))/((float)(p->DelayTime));
-        }
-
-        GLI_vSetGlobalAlpha(p->fTransparency);
-
-        GLI_vDisplayWorldTriangle(
-            p_stVpt,
-            p->c,
-            p->uv,
-            p->VisualMaterial);
-
-        if (AGO_g_NbEngineFramesSinceStart-p->CreationTime>=p->DelayTime)
-        {
-            p->type|=0x80000000;
-        }
-    }
-
-    i = 0;
-    while (i < AGO_g_NbAGO_Triangles)
-    {
-        p = &AGO_g_pAGO_Triangles[i];
-        if (p->type & 0x80000000)
-        {
-            unsigned long j;
-            for (j = i + 1; j < AGO_g_NbAGO_Triangles; j++)
-                AGO_g_pAGO_Triangles[j - 1] = AGO_g_pAGO_Triangles[j];
-            AGO_g_NbAGO_Triangles--;
-        }
-        else
-        {
-            i++;
-        }
-    }
-}
 
 struct GLD_tdstViewportAttributes_
 {
@@ -2809,6 +2684,37 @@ void __cdecl InitIcones(void)
         AGO_g_TheIcones[i].Transparency = 0;
 }
 
+/* 0x00460530 */
+void AddGauge(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num,
+                      void *EmptyMat, void *FullMat)
+{
+    long lIdx;
+
+    lIdx = (long)Num;
+    AGO_g_TheGauges[lIdx].Coords[0] = V1[0];
+    AGO_g_TheGauges[lIdx].Coords[1] = V1[1];
+    AGO_g_TheGauges[lIdx].Coords[2] = V2[0];
+    AGO_g_TheGauges[lIdx].Coords[3] = V2[1];
+    AGO_g_TheGauges[lIdx].EmptyMaterial = EmptyMat;
+    AGO_g_TheGauges[lIdx].FullMaterial = FullMat;
+    AGO_g_TheGauges[lIdx].Position = V1[2];
+    AGO_g_TheGauges[lIdx].Transparency = (long)V2[2];
+}
+
+/* 0x004605A0 */
+void AddIcone(MTH_tdxReal *V1, MTH_tdxReal *V2, MTH_tdxReal Num, void *Mat)
+{
+    long lIdx;
+
+    lIdx = (long)Num;
+    AGO_g_TheIcones[lIdx].Coords[0] = V1[0];
+    AGO_g_TheIcones[lIdx].Coords[1] = V1[1];
+    AGO_g_TheIcones[lIdx].Coords[2] = V2[0];
+    AGO_g_TheIcones[lIdx].Coords[3] = V2[1];
+    AGO_g_TheIcones[lIdx].Material = Mat;
+    AGO_g_TheIcones[lIdx].Transparency = (long)V2[2];
+}
+
 void __cdecl JFFTXT_vInit(void)
 {
     int i;
@@ -2820,21 +2726,6 @@ void __cdecl JFFTXT_vInit(void)
         AGO_g_JFFTXT[i].bWaveEffect      = 0;
         AGO_g_JFFTXT[i].bOther           = 0;
         AGO_g_JFFTXT[i].xEffectParameter = 0;
-    }
-}
-
-void __cdecl JFFTXT_vModifyCaracter(int StringNumber, int Position, unsigned char newcar)
-{
-    AGO_JFFTXT *p;
-
-    if (StringNumber < MAX_JFFTXT)
-    {
-        p = &(AGO_g_JFFTXT[StringNumber]);
-
-        if (p->pString != NULL)
-        {
-            p->pString[Position] = newcar;
-        }
     }
 }
 
@@ -2930,6 +2821,21 @@ void __cdecl JFFTXT_vExtendText(int StringNumber, int ID, MTH_tdxReal xParameter
                 }
             }
             break;
+        }
+    }
+}
+
+void __cdecl JFFTXT_vModifyCaracter(int StringNumber, int Position, unsigned char newcar)
+{
+    AGO_JFFTXT *p;
+
+    if (StringNumber < MAX_JFFTXT)
+    {
+        p = &(AGO_g_JFFTXT[StringNumber]);
+
+        if (p->pString != NULL)
+        {
+            p->pString[Position] = newcar;
         }
     }
 }
@@ -3318,7 +3224,6 @@ void __cdecl JFFTXT_vDrawString(GLD_tdstViewportAttributes *p_stVpt, AGO_JFFTXT 
         c = JFFTXT_toupper(pt[++i]);
     }
 }
-
 #ifdef RAYMAN2_WIDESCREEN
 /*
  ----------------------------------------------------------------------------------------
@@ -3357,6 +3262,102 @@ static void AGO_fn_vComputeSafeAreaAnchors(void)
     GLI_fn_vComputeSafeAreaAnchors(MTH_M_xConstFloatToReal(100.0f));
 }
 #endif /* RAYMAN2_WIDESCREEN */
+
+/* 0x00466520 */
+void AGO_vTrianglesInit(void)
+{
+    AGO_g_NbAGO_Triangles = 0;
+}
+
+void AGO_vCreateTriangle(float c1[3], float c2[3], float c3[3], void *VisualMat,
+                         float U1, float V1, float U2, float V2, float U3, float V3,
+                         float DelayTime, unsigned long Parameter)
+{
+    AGO_Triangles *p;
+    int            i;
+
+    if (AGO_g_NbAGO_Triangles == AGO_MAX_TRIANGLES)
+    {
+        unsigned long Least = AGO_g_pAGO_Triangles[0].CreationTime;
+        int           LeastIndex = 0;
+        for (i = 0; i < AGO_MAX_TRIANGLES; i++)
+            if (AGO_g_pAGO_Triangles[i].CreationTime < Least)
+            {
+                Least = AGO_g_pAGO_Triangles[i].CreationTime;
+                LeastIndex = i;
+            }
+        p = &AGO_g_pAGO_Triangles[LeastIndex];
+    }
+    else
+    {
+        p = &AGO_g_pAGO_Triangles[AGO_g_NbAGO_Triangles++];
+    }
+
+    p->CreationTime = AGO_g_NbEngineFramesSinceStart;
+    for (i = 0; i < 3; i++)
+    {
+        p->c[0][i] = c1[i];
+        p->c[1][i] = c2[i];
+        p->c[2][i] = c3[i];
+    }
+    p->uv[0][0] = U1; p->uv[0][1] = V1;
+    p->uv[1][0] = U2; p->uv[1][1] = V2;
+    p->uv[2][0] = U3; p->uv[2][1] = V3;
+    p->fTransparency  = 255.0f;
+    p->VisualMaterial = VisualMat;
+    p->DelayTime      = (unsigned long)DelayTime;
+    p->type           = 0;
+    if (Parameter & 0x02)
+        p->type |= AGO_TRI_FADE;
+}
+
+void AGO_vDisplayTriangles(GLD_tdstViewportAttributes *p_stVpt)
+{
+    AGO_Triangles *p;
+    unsigned long  i;
+
+    AGO_g_NbEngineFramesSinceStart++;
+
+    for (i = 0; i < AGO_g_NbAGO_Triangles; i++)
+    {
+        p = &AGO_g_pAGO_Triangles[i];
+
+        if (p->type & AGO_TRI_FADE)
+        {
+            p->fTransparency=255.0f-255.0f*((float)(AGO_g_NbEngineFramesSinceStart-p->CreationTime-1))/((float)(p->DelayTime));
+        }
+
+        GLI_vSetGlobalAlpha(p->fTransparency);
+
+        GLI_vDisplayWorldTriangle(
+            p_stVpt,
+            p->c,
+            p->uv,
+            p->VisualMaterial);
+
+        if (AGO_g_NbEngineFramesSinceStart-p->CreationTime>=p->DelayTime)
+        {
+            p->type|=0x80000000;
+        }
+    }
+
+    i = 0;
+    while (i < AGO_g_NbAGO_Triangles)
+    {
+        p = &AGO_g_pAGO_Triangles[i];
+        if (p->type & 0x80000000)
+        {
+            unsigned long j;
+            for (j = i + 1; j < AGO_g_NbAGO_Triangles; j++)
+                AGO_g_pAGO_Triangles[j - 1] = AGO_g_pAGO_Triangles[j];
+            AGO_g_NbAGO_Triangles--;
+        }
+        else
+        {
+            i++;
+        }
+    }
+}
 
 void __cdecl JFFTXT_vAffiche(GLD_tdstViewportAttributes *p_stVpt)
 {

@@ -87,8 +87,30 @@ static void MEC_fn_vInertiaCoeff(DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT,
 	MTH3D_M_vAddVector(p_stCurrentPosition, p_stPreviousPosition, &stBlend);
 }
 
+/* 0x0043DF70 */
+void __cdecl MEC_fn_vInertia(DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT,
+	POS_tdxHandleToPosition hMatrix, POS_tdxHandleToPosition hInvMatrix)
+{
+	if (DNM_M_bDynamicsIsInertia(p_stDynamic))
+	{
+		MTH_tdxReal xInertiaX = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetInertiaFactorX(p_stDynamic), 1);
+		MTH_tdxReal xInertiaY = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetInertiaFactorY(p_stDynamic), 1);
+		MTH_tdxReal xInertiaZ = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetInertiaFactorZ(p_stDynamic), 1);
+		MEC_fn_vInertiaCoeff(p_stDynamic, xDT, xInertiaX, xInertiaY, xInertiaZ, hMatrix, hInvMatrix);
+	}
+
+	if (DNM_M_bDynamicsIsOnGround(p_stDynamic) && DNM_M_bDynamicsIsSlidingGround(p_stDynamic))
+	{
+		MTH_tdxReal xSlide = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetPreviousSlide(p_stDynamic), 1);
+		MTH_tdxReal xSlideFactorX = MTH_M_xMul(s_xConvertScaleFrameComp(DNM_M_xDynamicsGetSlideFactorX(p_stDynamic), 0), xSlide);
+		MTH_tdxReal xSlideFactorY = MTH_M_xMul(s_xConvertScaleFrameComp(DNM_M_xDynamicsGetSlideFactorY(p_stDynamic), 0), xSlide);
+		MTH_tdxReal xSlideFactorZ = MTH_M_xMul(s_xConvertScaleFrameComp(DNM_M_xDynamicsGetSlideFactorZ(p_stDynamic), 0), xSlide);
+		MEC_fn_vInertiaCoeff(p_stDynamic, xDT, xSlideFactorX, xSlideFactorY, xSlideFactorZ, hMatrix, hInvMatrix);
+	}
+}
+
 /* 0x0043E0A0 */
-void __cdecl MEC_fn_vAddTiltSpeed ( DNM_tdstDynamics *p_stDynamic )
+void __cdecl MEC_fn_vAddTiltSpeed ( DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDt )
 {
 	MTH3D_tdstVector *p_stPreviousI, *p_stPreviousJ, *p_stPreviousK;
 	MTH3D_tdstVector *p_stCurrentI, *p_stCurrentJ, *p_stCurrentK;
@@ -136,28 +158,6 @@ void __cdecl MEC_fn_vAddTiltSpeed ( DNM_tdstDynamics *p_stDynamic )
 		MTH3D_M_vSubVector (&stVector, p_stCurrentTranslation, &stOriginTranslation);
 
 		MTH3D_M_vAddVector (p_stCurrentTranslation, &stInitialTranslation, &stVector);
-	}
-}
-
-/* 0x0043DF70 */
-void __cdecl MEC_fn_vInertia(DNM_tdstDynamics *p_stDynamic, MTH_tdxReal xDT,
-	POS_tdxHandleToPosition hMatrix, POS_tdxHandleToPosition hInvMatrix)
-{
-	if (DNM_M_bDynamicsIsInertia(p_stDynamic))
-	{
-		MTH_tdxReal xInertiaX = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetInertiaFactorX(p_stDynamic), 1);
-		MTH_tdxReal xInertiaY = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetInertiaFactorY(p_stDynamic), 1);
-		MTH_tdxReal xInertiaZ = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetInertiaFactorZ(p_stDynamic), 1);
-		MEC_fn_vInertiaCoeff(p_stDynamic, xDT, xInertiaX, xInertiaY, xInertiaZ, hMatrix, hInvMatrix);
-	}
-
-	if (DNM_M_bDynamicsIsOnGround(p_stDynamic) && DNM_M_bDynamicsIsSlidingGround(p_stDynamic))
-	{
-		MTH_tdxReal xSlide = s_xConvertScaleFrameComp(DNM_M_xDynamicsGetPreviousSlide(p_stDynamic), 1);
-		MTH_tdxReal xSlideFactorX = MTH_M_xMul(s_xConvertScaleFrameComp(DNM_M_xDynamicsGetSlideFactorX(p_stDynamic), 0), xSlide);
-		MTH_tdxReal xSlideFactorY = MTH_M_xMul(s_xConvertScaleFrameComp(DNM_M_xDynamicsGetSlideFactorY(p_stDynamic), 0), xSlide);
-		MTH_tdxReal xSlideFactorZ = MTH_M_xMul(s_xConvertScaleFrameComp(DNM_M_xDynamicsGetSlideFactorZ(p_stDynamic), 0), xSlide);
-		MEC_fn_vInertiaCoeff(p_stDynamic, xDT, xSlideFactorX, xSlideFactorY, xSlideFactorZ, hMatrix, hInvMatrix);
 	}
 }
 
@@ -325,6 +325,32 @@ void __cdecl MEC_fn_vAddStream (
 	(void)hPreviousMatrix;
 }
 
+void __cdecl MEC_fn_vImposeRotation	( DNM_tdstDynamics *p_stDynamic )
+{
+	MTH3D_tdstMatrix* p_stImposeRotationMatrix;
+	POS_tdxHandleToPosition hCurrentMatrix;
+	MTH3D_tdstVector stI, stJ, stK;
+
+	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
+	p_stImposeRotationMatrix = DNM_M_p_stDynamicsGetImposeRotationMatrix (p_stDynamic);
+
+	MTH3D_M_vGetVectorsInMatrix ( &stI, &stJ, &stK, p_stImposeRotationMatrix );
+	POS_fn_vSetRotationMatrix ( hCurrentMatrix, &stI, &stJ, &stK );
+}
+
+void __cdecl MEC_fn_vAdditionnalTranslation ( DNM_tdstDynamics *p_stDynamic )
+{
+	POS_tdxHandleToPosition hCurrentMatrix;
+	MTH3D_tdstVector *p_stTranslation;
+	MTH3D_tdstVector* p_stAdditionnalTranslation;
+
+	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
+	p_stAdditionnalTranslation = DNM_M_pDynamicsGetAddTranslation (p_stDynamic);
+
+	p_stTranslation = POS_fn_p_stGetTranslationVector ( hCurrentMatrix );
+	MTH3D_M_vAddVector ( p_stTranslation, p_stTranslation, p_stAdditionnalTranslation);
+}
+
 void __cdecl MEC_fn_vPositionLimit ( DNM_tdstDynamics *p_stDynamic, MTH3D_tdstVector *p_stSafePreviousPosition )
 {
 	POS_tdxHandleToPosition hPreviousMatrix, hCurrentMatrix;
@@ -462,30 +488,4 @@ void __cdecl MEC_fn_vAdjustScaleData
 	MEC_fn_vAdjustScaleVector ( p_stDynamic, &stTranslation );
 	if (!DNM_M_bDynamicsIsRelativeImposeSpeed(p_stDynamic)) POS_fn_vRotateVector ( &stTranslation, hMatrix, &stTranslation );
 	DNM_M_vDynamicsSetAddSpeed (p_stDynamic,&stTranslation);
-}
-
-void __cdecl MEC_fn_vImposeRotation	( DNM_tdstDynamics *p_stDynamic )
-{
-	MTH3D_tdstMatrix* p_stImposeRotationMatrix;
-	POS_tdxHandleToPosition hCurrentMatrix;
-	MTH3D_tdstVector stI, stJ, stK;
-
-	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
-	p_stImposeRotationMatrix = DNM_M_p_stDynamicsGetImposeRotationMatrix (p_stDynamic);
-
-	MTH3D_M_vGetVectorsInMatrix ( &stI, &stJ, &stK, p_stImposeRotationMatrix );
-	POS_fn_vSetRotationMatrix ( hCurrentMatrix, &stI, &stJ, &stK );
-}
-
-void __cdecl MEC_fn_vAdditionnalTranslation ( DNM_tdstDynamics *p_stDynamic )
-{
-	POS_tdxHandleToPosition hCurrentMatrix;
-	MTH3D_tdstVector *p_stTranslation;
-	MTH3D_tdstVector* p_stAdditionnalTranslation;
-
-	hCurrentMatrix = DNM_M_p_stDynamicsGetCurrentMatrix (p_stDynamic);
-	p_stAdditionnalTranslation = DNM_M_pDynamicsGetAddTranslation (p_stDynamic);
-
-	p_stTranslation = POS_fn_p_stGetTranslationVector ( hCurrentMatrix );
-	MTH3D_M_vAddVector ( p_stTranslation, p_stTranslation, p_stAdditionnalTranslation);
 }

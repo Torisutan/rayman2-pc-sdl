@@ -113,6 +113,85 @@ char CAM_fn_cSendMultiSegment(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVecto
 char CAM_fn_cCameraCantGo(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stSourcePos, MTH3D_tdstVector *_p_stTargetPos);
 char CAM_fn_cCameraCantSee(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stSourcePos, MTH3D_tdstVector *_p_stTargetPos);
 
+#define C_mode_MUSTSEE					1
+#define C_mode_MUSTGO					2
+#define C_mode_FAILURE					4
+#define C_mode_MORE_CORRECT				8
+
+#define CAM_C_xMinDistPerso							(_p_stStruct->hCineinfoWork->xBoundDistMin)
+#define CAM_C_xMinDistPersoToComputePos				(MTH_M_xAdd(CAM_C_xMinDistPerso, CAM_g_stCameraConstants.xOffsetMinDistPerso))
+
+#define C_PerIAFlags_ConstraintMoveVisFailure   0x08
+
+#define CAM_C_xTickTimeFindBetterPosIfNoMove \
+    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickFindBetterPosIfNoMove),MTH_M_xConstFloatToReal(1000)),GAM_g_xFrameLength))
+
+#pragma optimize("y", off)
+#pragma optimize("", on)
+
+#define C_PerIAFlags_NoShift                    0x04
+
+void CAM_fn_vComputeMovePosWithDynTheta(CAM_tdstUpdateCamera *_p_stStruct);
+
+#define CAM_C_xEpsilonLastMove  ((MTH_tdxReal)1.0e-4f)
+
+#define CAM_C_xEpsilonForEqualVectors       (CAM_g_stCameraConstants.xEpsilonForEqualVectors)
+
+ACP_tdxBool CAM_fn_bEqualVectorWithEpsilon(MTH3D_tdstVector *_p_stVector1, MTH3D_tdstVector *_p_stVector2, MTH_tdxReal _xEpsilon);
+
+void CAM_fn_vComputeAnglesBetweenTwoVectors(MS_tdxHandleToInternalCineinfo _hIntCineInfo, MTH3D_tdstVector *_p_stSourceVector, MTH3D_tdstVector *_p_stTargetVector, MTH_tdxReal *_p_xHorizontalAngle, MTH_tdxReal *_p_xVerticalAngle, MTH3D_tdstVector *_p_stRefAxisZ);
+void CAM_fn_vComputeRefAxis(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stRefAxis);
+
+/* 0x004E9280 */
+struct tdstInternalStructurCineinfo_		gst_Ideal;
+
+#undef MTH_M_xRealToLongRound
+#define MTH_M_xRealToLongRound(A)               \
+ (long) ( (long)(A*2.0F)-(long)(A) )
+
+void CAM_fn_vSetCineinfoVisibilityFromCurrent(MS_tdxHandleToCineinfo _hCineinfo);
+void CAM_fn_vComputeMovePos(CAM_tdstUpdateCamera *_p_stStruct);
+
+unsigned short		guw_NbVectorArrayCpt = 0;
+typedef struct
+{
+	MTH3D_tdstVector	stDir;
+	MTH_tdxReal			xPound;
+} tdst_PosPound;
+tdst_PosPound gast_VectorArrayCpt[256];
+
+#define C_IAFlags_NoVisibility                  0x0008
+#define C_IAFlags_TargetIsAlreadyComputed       0x1000
+#define C_IAFlags_NoShiftUntilPosReached        0x0040
+#ifndef C_IAFlags_PositionIsAlreadyComputed
+#define C_IAFlags_PositionIsAlreadyComputed     0x2000
+#endif
+
+#define CONSTANT_FORCEBESTPOS                   (CAM_g_stCameraConstants.wFlags & 0x0004)
+#define CONSTANT_NOBETTERPOS                    (CAM_g_stCameraConstants.wFlags & 0x0020)
+#define CONSTANT_NODISTVIS                      (CAM_g_stCameraConstants.wFlags & 0x0040)
+
+#define CAM_C_xBaseAngleComputePosNormal        (CAM_g_stCameraConstants.xBaseAngleComputePosNormal)
+#define CAM_C_xBaseAngleComputePosFailure       (CAM_g_stCameraConstants.xBaseAngleComputePosFailure)
+
+#define CAM_C_xTickTimeTestVisibility \
+    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickTestVisibility),MTH_C_1000F),GAM_g_xFrameLength))
+#define CAM_C_xTickTimeFindBetterPos \
+    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickFindBetterPos),MTH_C_1000F),GAM_g_xFrameLength))
+#define CAM_C_xTickTimeFailureCantSee \
+    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickFailureCantSee),MTH_C_1000F),GAM_g_xFrameLength))
+#define MTH_C_1000F                             (MTH_M_xConstFloatToReal(1000))
+
+#include "MEC/DNMRepor.h"
+
+extern char cJustBetterPos;
+void CAM_fn_vInitCameraStructure(HIE_tdstSuperObject *_hSuperObjPerso, CAM_tdstUpdateCamera *_p_stStruct);
+ACP_tdxBool CAM_fn_bPersoOnFace(HIE_tdstSuperObject *_h_SuperObjPerso, MTH3D_tdstVector *_p_stNormal);
+MTH_tdxReal CAM_fn_xSetAngleInInterval02Pi(MTH_tdxReal _xAngle);
+char CAM_fn_cFindNewGoodIdealPos(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stComputeVector, char _cMode);
+
+void CAM_fn_vForceCameraPos(HIE_tdstSuperObject *_hSuperObjCamera, MTH3D_tdstVector *_p_stPosition);
+
 char CAM_fn_cIsSectorInCollisionList(HIE_tdxHandleToSuperObject	_hFirstSector, HIE_tdxHandleToSuperObject _hTestSector)
 {
 
@@ -126,6 +205,7 @@ char CAM_fn_cIsSectorInCollisionList(HIE_tdxHandleToSuperObject	_hFirstSector, H
 	}
 	return 0;
 }
+void CAM_fn_vForceCameraTgt(HIE_tdstSuperObject *_hSuperObjCamera, MTH3D_tdstVector *_p_stPosition, MTH3D_tdstVector *_p_stRefAxisZ);
 
 char CAM_fn_cSendSegmentInDynamicWorld
 (
@@ -466,24 +546,6 @@ char CAM_fn_cCameraCantGo
 	);
 }
 
-char CAM_fn_cCameraCantSee
-(
-	CAM_tdstUpdateCamera	*_p_stStruct,
-	MTH3D_tdstVector		*_p_stSourcePos,
-	MTH3D_tdstVector		*_p_stTargetPos
-)
-{
-	return CAM_fn_cSendMultiSegment
-	(
-		_p_stStruct,
-		_p_stSourcePos,
-		_p_stTargetPos,
-		CAM_C_xRayCameraSphereToSee1,
-		CAM_C_xRayCameraSphereToSee2,
-		CAM_C_xNumRayCameraCanSee
-	);
-}
-
 static char CAM_fn_cCameraCantGoFailure
 (
 	CAM_tdstUpdateCamera	*_p_stStruct,
@@ -513,13 +575,23 @@ static char CAM_fn_cCameraCantGoFailure
 	);
 }
 
-#define C_mode_MUSTSEE					1
-#define C_mode_MUSTGO					2
-#define C_mode_FAILURE					4
-#define C_mode_MORE_CORRECT				8
-
-#define CAM_C_xMinDistPerso							(_p_stStruct->hCineinfoWork->xBoundDistMin)
-#define CAM_C_xMinDistPersoToComputePos				(MTH_M_xAdd(CAM_C_xMinDistPerso, CAM_g_stCameraConstants.xOffsetMinDistPerso))
+char CAM_fn_cCameraCantSee
+(
+	CAM_tdstUpdateCamera	*_p_stStruct,
+	MTH3D_tdstVector		*_p_stSourcePos,
+	MTH3D_tdstVector		*_p_stTargetPos
+)
+{
+	return CAM_fn_cSendMultiSegment
+	(
+		_p_stStruct,
+		_p_stSourcePos,
+		_p_stTargetPos,
+		CAM_C_xRayCameraSphereToSee1,
+		CAM_C_xRayCameraSphereToSee2,
+		CAM_C_xNumRayCameraCanSee
+	);
+}
 
 char CAM_fn_cIsWantedPosIncorrect
 (
@@ -579,73 +651,56 @@ char CAM_fn_cFindCorrectPosWithDir
 	}
 }
 
-#define C_PerIAFlags_ConstraintMoveVisFailure   0x08
+void CAM_fn_vComputeCineinfoWorkForAPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition);
 
-#define CAM_C_xTickTimeFindBetterPosIfNoMove \
-    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickFindBetterPosIfNoMove),MTH_M_xConstFloatToReal(1000)),GAM_g_xFrameLength))
-
-#pragma optimize("y", off)
-char CAM_fn_cCanResetConstraintMoveVisFailure(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stWanted)
+MTH_tdxReal	CAM_fnx_ComputePosPound(CAM_tdstUpdateCamera *_pst_Struct, MTH3D_tdstVector *_pst_Dir)
 {
 
-	MTH3D_tdstVector	stTempVector, stTempVector1;
-	MTH_tdxReal			xNorm, xNorm1;
+	MTH_tdxReal								x_Pound, x_Angle, x_Angle1;
+	MTH_tdxReal								x_P1, x_P2, x_P3;
+	MTH3D_tdstVector						st_TempVector;
+	struct tdstInternalStructurCineinfo_	*pst_Memo;
+	struct tdstInternalStructurCineinfo_	st_Temp;
 
-	if(_p_stStruct->hCineinfo->eState == CAM_e_State_GoToOptimal)
-		return 1;
+	MTH3D_M_vAddVector(&st_TempVector, &_pst_Struct->stTargetedPersoPos, _pst_Dir);
 
-	if(MTH_M_bGreaterEqual(_p_stStruct->hCineinfo->xCounter4,CAM_C_xTickTimeFindBetterPosIfNoMove))
-		return 1;
+	pst_Memo = _pst_Struct->hCineinfoWork;
 
-	if(!(_p_stStruct->hCineinfo->ucPerIAFlags & C_PerIAFlags_ConstraintMoveVisFailure))
-		return 1;
+	st_Temp.hSuperObjectTargeted = _pst_Struct->hCineinfoWork->hSuperObjectTargeted;
+	st_Temp.hSecondSuperObjectTargeted = _pst_Struct->hCineinfoWork->hSecondSuperObjectTargeted;
+	st_Temp.cChannel = _pst_Struct->hCineinfoWork->cChannel;
 
-	MTH3D_M_vSubVector
-	(
-		&stTempVector,
-		_p_stWanted,
-		&_p_stStruct->hCineinfo->stLastFailedOrigin
-	);
-	xNorm = MTH3D_M_xNormVector(&stTempVector);
+	_pst_Struct->hCineinfoWork = &st_Temp;
+	CAM_fn_vComputeCineinfoWorkForAPosition(_pst_Struct, &st_TempVector);
+	_pst_Struct->hCineinfoWork = pst_Memo;
 
-	MTH3D_M_vSubVector
-	(
-		&stTempVector1,
-		&_p_stStruct->hCineinfo->stLastFailedWanted,
-		&_p_stStruct->hCineinfo->stLastFailedOrigin
-	);
-	xNorm1 = MTH3D_M_xNormVector(&stTempVector1);
+	x_Angle = MTH_M_bGreater(gst_Ideal.xAngleAlpha, MTH_C_Pi) ? MTH_M_xSub(MTH_C_2Pi, gst_Ideal.xAngleAlpha) : gst_Ideal.xAngleAlpha;
+	x_Angle1 = MTH_M_bGreater(st_Temp.xAngleAlpha, MTH_C_Pi) ? MTH_M_xSub(MTH_C_2Pi, st_Temp.xAngleAlpha) : st_Temp.xAngleAlpha;
+	x_P1 = MTH_M_xAbs(MTH_M_xSub(x_Angle, x_Angle1));
 
-	if(MTH_M_bLessEqual(xNorm, MTH_M_xAdd(xNorm1, (double)MTH_C_Inv2)))
-		return 0;
+	x_P1 = MTH_M_xLongToReal(MTH_M_xRealToLongRound(MTH_M_xMul(x_P1, MTH_M_xLongToReal(100))));
+	x_P1 = MTH_M_xMul(x_P1, MTH_M_xConstFloatToReal(0.01f));
 
-	return 1;
-}
-#pragma optimize("", on)
+	x_Angle = MTH_M_bGreater(gst_Ideal.xAngleTheta, MTH_C_Pi) ? MTH_M_xSub(MTH_C_2Pi, gst_Ideal.xAngleTheta) : gst_Ideal.xAngleTheta;
+	x_Angle1 = MTH_M_bGreater(st_Temp.xAngleTheta, MTH_C_Pi) ? MTH_M_xSub(st_Temp.xAngleTheta, MTH_C_2Pi) : st_Temp.xAngleTheta;
+	x_P2 = MTH_M_xAbs(MTH_M_xSub(x_Angle, x_Angle1));
 
-#define C_PerIAFlags_NoShift                    0x04
+	x_P2 = MTH_M_xLongToReal(MTH_M_xRealToLongRound(MTH_M_xMul(x_P2, MTH_M_xLongToReal(100))));
 
-void CAM_fn_vComputeMovePosWithDynTheta(CAM_tdstUpdateCamera *_p_stStruct);
+	x_P2 = MTH_M_xMul(x_P2, MTH_M_xConstFloatToReal(0.10f));
 
-void CAM_fn_vRestoreNormalState(CAM_tdstUpdateCamera *_p_stStruct)
-{
+	x_P3 = MTH_M_xAbs(MTH_M_xSub(gst_Ideal.xDistMin, st_Temp.xDistMin));
 
-	_p_stStruct->hCineinfo->eState = CAM_e_State_GoToOptimal;
+	x_P3 = MTH_M_xLongToReal(MTH_M_xRealToLongRound(MTH_M_xMul(x_P3, MTH_M_xLongToReal(100))));
+	x_P3 = MTH_M_xMul(x_P3, MTH_M_xConstFloatToReal(0.01f));
 
-	CAM_fn_vSetCineinfoCurrentFromVisibility(_p_stStruct->hCineinfo);
-	CAM_fn_vSetCineinfoWorkFromVisibility(_p_stStruct->hCineinfo);
+	x_Pound = MTH_M_xAdd(x_P1, x_P2);
+	x_Pound = MTH_M_xAdd(x_Pound, MTH_M_xMul(x_P3, MTH_M_xConstFloatToReal(0.1f)));
 
-	_p_stStruct->hCineinfo->ucPerIAFlags |= C_PerIAFlags_NoShift;
-	_p_stStruct->hCineinfo->ucPerIAFlags &= ~C_PerIAFlags_ConstraintMoveVisFailure;
-
-	CAM_fn_vComputeMovePosWithDynTheta(_p_stStruct);
+	return x_Pound;
 }
 
-#define CAM_C_xEpsilonLastMove  ((MTH_tdxReal)1.0e-4f)
-
-#define CAM_C_xEpsilonForEqualVectors       (CAM_g_stCameraConstants.xEpsilonForEqualVectors)
-
-ACP_tdxBool CAM_fn_bEqualVectorWithEpsilon(MTH3D_tdstVector *_p_stVector1, MTH3D_tdstVector *_p_stVector2, MTH_tdxReal _xEpsilon);
+char CAM_fn_cCanResetConstraintMoveVisFailure(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stWanted);
 
 char CAM_fnc_IsDirectionCorrect
 (
@@ -704,169 +759,6 @@ char CAM_fnc_IsDirectionCorrect
 
 	return 1;
 }
-
-void CAM_fn_vComputeAnglesBetweenTwoVectors(MS_tdxHandleToInternalCineinfo _hIntCineInfo, MTH3D_tdstVector *_p_stSourceVector, MTH3D_tdstVector *_p_stTargetVector, MTH_tdxReal *_p_xHorizontalAngle, MTH_tdxReal *_p_xVerticalAngle, MTH3D_tdstVector *_p_stRefAxisZ);
-void CAM_fn_vComputeRefAxis(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stRefAxis);
-
-void CAM_fn_vComputeCineinfoWorkForAPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition)
-{
-
-	MTH3D_tdstVector				stDir;
-	MTH3D_tdstVector				stCamTargetVector;
-	MTH_tdxReal						xAlphaAngle, xThetaAngle;
-	MTH_tdxReal						xNorm;
-
-	CAM_fn_vComputeRefAxis(_p_stStruct, &stDir);
-
-	MTH3D_M_vSubVector(&stCamTargetVector, _p_stPosition, &_p_stStruct->stTargetedPersoPos);
-	xNorm = MTH3D_M_xNormVector(&stCamTargetVector);
-
-	CAM_fn_vComputeAnglesBetweenTwoVectors
-	(
-		_p_stStruct->hCineinfoWork,
-		&stDir,
-		&stCamTargetVector,
-		&xAlphaAngle,
-		&xThetaAngle,
-		&_p_stStruct->stCptPos.stRefAxisZ
-	);
-
-	_p_stStruct->hCineinfoWork->xDistMin = xNorm;
-	_p_stStruct->hCineinfoWork->xDistMax = xNorm;
-	_p_stStruct->hCineinfoWork->xAngleAlpha = xAlphaAngle;
-	_p_stStruct->hCineinfoWork->xAngleTheta = xThetaAngle;
-}
-
-/* 0x004874F0 */
-void CAM_fn_vComputeCineinfoCurrentForAPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition)
-{
-
-	struct tdstInternalStructurCineinfo_	*p_stMemo;
-
-	p_stMemo = _p_stStruct->hCineinfoWork;
-	_p_stStruct->hCineinfoWork = _p_stStruct->hCineinfoCurrent;
-	CAM_fn_vComputeCineinfoWorkForAPosition(_p_stStruct, _p_stPosition);
-	_p_stStruct->hCineinfoWork = p_stMemo;
-}
-
-/* 0x004E9280 */
-struct tdstInternalStructurCineinfo_		gst_Ideal;
-
-#undef MTH_M_xRealToLongRound
-#define MTH_M_xRealToLongRound(A)               \
- (long) ( (long)(A*2.0F)-(long)(A) )
-
-MTH_tdxReal	CAM_fnx_ComputePosPound(CAM_tdstUpdateCamera *_pst_Struct, MTH3D_tdstVector *_pst_Dir)
-{
-
-	MTH_tdxReal								x_Pound, x_Angle, x_Angle1;
-	MTH_tdxReal								x_P1, x_P2, x_P3;
-	MTH3D_tdstVector						st_TempVector;
-	struct tdstInternalStructurCineinfo_	*pst_Memo;
-	struct tdstInternalStructurCineinfo_	st_Temp;
-
-	MTH3D_M_vAddVector(&st_TempVector, &_pst_Struct->stTargetedPersoPos, _pst_Dir);
-
-	pst_Memo = _pst_Struct->hCineinfoWork;
-
-	st_Temp.hSuperObjectTargeted = _pst_Struct->hCineinfoWork->hSuperObjectTargeted;
-	st_Temp.hSecondSuperObjectTargeted = _pst_Struct->hCineinfoWork->hSecondSuperObjectTargeted;
-	st_Temp.cChannel = _pst_Struct->hCineinfoWork->cChannel;
-
-	_pst_Struct->hCineinfoWork = &st_Temp;
-	CAM_fn_vComputeCineinfoWorkForAPosition(_pst_Struct, &st_TempVector);
-	_pst_Struct->hCineinfoWork = pst_Memo;
-
-	x_Angle = MTH_M_bGreater(gst_Ideal.xAngleAlpha, MTH_C_Pi) ? MTH_M_xSub(MTH_C_2Pi, gst_Ideal.xAngleAlpha) : gst_Ideal.xAngleAlpha;
-	x_Angle1 = MTH_M_bGreater(st_Temp.xAngleAlpha, MTH_C_Pi) ? MTH_M_xSub(MTH_C_2Pi, st_Temp.xAngleAlpha) : st_Temp.xAngleAlpha;
-	x_P1 = MTH_M_xAbs(MTH_M_xSub(x_Angle, x_Angle1));
-
-	x_P1 = MTH_M_xLongToReal(MTH_M_xRealToLongRound(MTH_M_xMul(x_P1, MTH_M_xLongToReal(100))));
-	x_P1 = MTH_M_xMul(x_P1, MTH_M_xConstFloatToReal(0.01f));
-
-	x_Angle = MTH_M_bGreater(gst_Ideal.xAngleTheta, MTH_C_Pi) ? MTH_M_xSub(MTH_C_2Pi, gst_Ideal.xAngleTheta) : gst_Ideal.xAngleTheta;
-	x_Angle1 = MTH_M_bGreater(st_Temp.xAngleTheta, MTH_C_Pi) ? MTH_M_xSub(st_Temp.xAngleTheta, MTH_C_2Pi) : st_Temp.xAngleTheta;
-	x_P2 = MTH_M_xAbs(MTH_M_xSub(x_Angle, x_Angle1));
-
-	x_P2 = MTH_M_xLongToReal(MTH_M_xRealToLongRound(MTH_M_xMul(x_P2, MTH_M_xLongToReal(100))));
-
-	x_P2 = MTH_M_xMul(x_P2, MTH_M_xConstFloatToReal(0.10f));
-
-	x_P3 = MTH_M_xAbs(MTH_M_xSub(gst_Ideal.xDistMin, st_Temp.xDistMin));
-
-	x_P3 = MTH_M_xLongToReal(MTH_M_xRealToLongRound(MTH_M_xMul(x_P3, MTH_M_xLongToReal(100))));
-	x_P3 = MTH_M_xMul(x_P3, MTH_M_xConstFloatToReal(0.01f));
-
-	x_Pound = MTH_M_xAdd(x_P1, x_P2);
-	x_Pound = MTH_M_xAdd(x_Pound, MTH_M_xMul(x_P3, MTH_M_xConstFloatToReal(0.1f)));
-
-	return x_Pound;
-}
-
-void CAM_fn_vSetCineinfoVisibilityFromCurrent(MS_tdxHandleToCineinfo _hCineinfo);
-void CAM_fn_vComputeMovePos(CAM_tdstUpdateCamera *_p_stStruct);
-
-void CAM_fn_vMakeAsNewIdealPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition)
-{
-
-	_p_stStruct->hCineinfo->cLastCutAngleSens = 0;
-
-	CAM_fn_vSetCineinfoVisibilityFromCurrent(_p_stStruct->hCineinfo);
-
-	CAM_fn_vComputeCineinfoCurrentForAPosition(_p_stStruct, _p_stPosition);
-
-	_p_stStruct->hCineinfo->eState = CAM_e_State_GoToComputedOptimal;
-
-	_p_stStruct->hCineinfo->ucPerIAFlags |= C_PerIAFlags_NoShift;
-
-	_p_stStruct->hCineinfoWork->xAngleAlpha = _p_stStruct->hCineinfoCurrent->xAngleAlpha;
-	_p_stStruct->hCineinfoWork->xAngleTheta = _p_stStruct->hCineinfoCurrent->xAngleTheta;
-	_p_stStruct->hCineinfoWork->xDistMin = _p_stStruct->hCineinfoCurrent->xDistMin;
-	_p_stStruct->hCineinfoWork->xDistMax = _p_stStruct->hCineinfoCurrent->xDistMax;
-
-	CAM_fn_vComputeMovePos(_p_stStruct);
-
-	MTH3D_M_vCopyVector(&_p_stStruct->hCineinfo->stLastFailedOrigin, &_p_stStruct->stCurrentCameraPos);
-	MTH3D_M_vCopyVector(&_p_stStruct->hCineinfo->stLastFailedWanted, _p_stPosition);
-}
-
-unsigned short		guw_NbVectorArrayCpt = 0;
-typedef struct
-{
-	MTH3D_tdstVector	stDir;
-	MTH_tdxReal			xPound;
-} tdst_PosPound;
-tdst_PosPound gast_VectorArrayCpt[256];
-
-#define C_IAFlags_NoVisibility                  0x0008
-#define C_IAFlags_TargetIsAlreadyComputed       0x1000
-#define C_IAFlags_NoShiftUntilPosReached        0x0040
-#ifndef C_IAFlags_PositionIsAlreadyComputed
-#define C_IAFlags_PositionIsAlreadyComputed     0x2000
-#endif
-
-#define CONSTANT_FORCEBESTPOS                   (CAM_g_stCameraConstants.wFlags & 0x0004)
-#define CONSTANT_NOBETTERPOS                    (CAM_g_stCameraConstants.wFlags & 0x0020)
-#define CONSTANT_NODISTVIS                      (CAM_g_stCameraConstants.wFlags & 0x0040)
-
-#define CAM_C_xBaseAngleComputePosNormal        (CAM_g_stCameraConstants.xBaseAngleComputePosNormal)
-#define CAM_C_xBaseAngleComputePosFailure       (CAM_g_stCameraConstants.xBaseAngleComputePosFailure)
-
-#define CAM_C_xTickTimeTestVisibility \
-    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickTestVisibility),MTH_C_1000F),GAM_g_xFrameLength))
-#define CAM_C_xTickTimeFindBetterPos \
-    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickFindBetterPos),MTH_C_1000F),GAM_g_xFrameLength))
-#define CAM_C_xTickTimeFailureCantSee \
-    (MTH_M_xMul(MTH_M_xMul(MTH_M_xLongToReal(CAM_g_stCameraConstants.xTickFailureCantSee),MTH_C_1000F),GAM_g_xFrameLength))
-#define MTH_C_1000F                             (MTH_M_xConstFloatToReal(1000))
-
-#include "MEC/DNMRepor.h"
-
-extern char cJustBetterPos;
-void CAM_fn_vInitCameraStructure(HIE_tdstSuperObject *_hSuperObjPerso, CAM_tdstUpdateCamera *_p_stStruct);
-ACP_tdxBool CAM_fn_bPersoOnFace(HIE_tdstSuperObject *_h_SuperObjPerso, MTH3D_tdstVector *_p_stNormal);
-MTH_tdxReal CAM_fn_xSetAngleInInterval02Pi(MTH_tdxReal _xAngle);
-char CAM_fn_cFindNewGoodIdealPos(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stComputeVector, char _cMode);
 
 static int CAM_fni_ComparePositions(const void *_pv_Elem1, const void *_pv_Elem2)
 {
@@ -1070,8 +962,7 @@ void CAM_fn_vForceFailureVisibility(CAM_tdstUpdateCamera *_p_stStruct)
 	MTH3D_M_vCopyVector(&_p_stStruct->hCineinfo->stLastFailedWanted, &stComputeVector);
 }
 
-void CAM_fn_vForceCameraPos(HIE_tdstSuperObject *_hSuperObjCamera, MTH3D_tdstVector *_p_stPosition);
-void CAM_fn_vForceCameraTgt(HIE_tdstSuperObject *_hSuperObjCamera, MTH3D_tdstVector *_p_stPosition, MTH3D_tdstVector *_p_stRefAxisZ);
+void CAM_fn_vMakeAsNewIdealPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition);
 
 /* 0x00486F40 */
 void CAM_fn_vComputeFailureVisibility(CAM_tdstUpdateCamera *_p_stStruct)
@@ -1267,13 +1158,128 @@ void CAM_fn_vTestOppositeCollision(CAM_tdstUpdateCamera *_p_stStruct)
 		CAM_fn_vMakeAsNewIdealPosition(_p_stStruct, &stCameraMove);
 }
 
+void CAM_fn_vComputeCineinfoWorkForAPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition)
+{
+
+	MTH3D_tdstVector				stDir;
+	MTH3D_tdstVector				stCamTargetVector;
+	MTH_tdxReal						xAlphaAngle, xThetaAngle;
+	MTH_tdxReal						xNorm;
+
+	CAM_fn_vComputeRefAxis(_p_stStruct, &stDir);
+
+	MTH3D_M_vSubVector(&stCamTargetVector, _p_stPosition, &_p_stStruct->stTargetedPersoPos);
+	xNorm = MTH3D_M_xNormVector(&stCamTargetVector);
+
+	CAM_fn_vComputeAnglesBetweenTwoVectors
+	(
+		_p_stStruct->hCineinfoWork,
+		&stDir,
+		&stCamTargetVector,
+		&xAlphaAngle,
+		&xThetaAngle,
+		&_p_stStruct->stCptPos.stRefAxisZ
+	);
+
+	_p_stStruct->hCineinfoWork->xDistMin = xNorm;
+	_p_stStruct->hCineinfoWork->xDistMax = xNorm;
+	_p_stStruct->hCineinfoWork->xAngleAlpha = xAlphaAngle;
+	_p_stStruct->hCineinfoWork->xAngleTheta = xThetaAngle;
+}
+
+/* 0x004874F0 */
+void CAM_fn_vComputeCineinfoCurrentForAPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition)
+{
+
+	struct tdstInternalStructurCineinfo_	*p_stMemo;
+
+	p_stMemo = _p_stStruct->hCineinfoWork;
+	_p_stStruct->hCineinfoWork = _p_stStruct->hCineinfoCurrent;
+	CAM_fn_vComputeCineinfoWorkForAPosition(_p_stStruct, _p_stPosition);
+	_p_stStruct->hCineinfoWork = p_stMemo;
+}
+
+void CAM_fn_vMakeAsNewIdealPosition(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stPosition)
+{
+
+	_p_stStruct->hCineinfo->cLastCutAngleSens = 0;
+
+	CAM_fn_vSetCineinfoVisibilityFromCurrent(_p_stStruct->hCineinfo);
+
+	CAM_fn_vComputeCineinfoCurrentForAPosition(_p_stStruct, _p_stPosition);
+
+	_p_stStruct->hCineinfo->eState = CAM_e_State_GoToComputedOptimal;
+
+	_p_stStruct->hCineinfo->ucPerIAFlags |= C_PerIAFlags_NoShift;
+
+	_p_stStruct->hCineinfoWork->xAngleAlpha = _p_stStruct->hCineinfoCurrent->xAngleAlpha;
+	_p_stStruct->hCineinfoWork->xAngleTheta = _p_stStruct->hCineinfoCurrent->xAngleTheta;
+	_p_stStruct->hCineinfoWork->xDistMin = _p_stStruct->hCineinfoCurrent->xDistMin;
+	_p_stStruct->hCineinfoWork->xDistMax = _p_stStruct->hCineinfoCurrent->xDistMax;
+
+	CAM_fn_vComputeMovePos(_p_stStruct);
+
+	MTH3D_M_vCopyVector(&_p_stStruct->hCineinfo->stLastFailedOrigin, &_p_stStruct->stCurrentCameraPos);
+	MTH3D_M_vCopyVector(&_p_stStruct->hCineinfo->stLastFailedWanted, _p_stPosition);
+}
+char CAM_fn_cCanResetConstraintMoveVisFailure(CAM_tdstUpdateCamera *_p_stStruct, MTH3D_tdstVector *_p_stWanted)
+{
+
+	MTH3D_tdstVector	stTempVector, stTempVector1;
+	MTH_tdxReal			xNorm, xNorm1;
+
+	if(_p_stStruct->hCineinfo->eState == CAM_e_State_GoToOptimal)
+		return 1;
+
+	if(MTH_M_bGreaterEqual(_p_stStruct->hCineinfo->xCounter4,CAM_C_xTickTimeFindBetterPosIfNoMove))
+		return 1;
+
+	if(!(_p_stStruct->hCineinfo->ucPerIAFlags & C_PerIAFlags_ConstraintMoveVisFailure))
+		return 1;
+
+	MTH3D_M_vSubVector
+	(
+		&stTempVector,
+		_p_stWanted,
+		&_p_stStruct->hCineinfo->stLastFailedOrigin
+	);
+	xNorm = MTH3D_M_xNormVector(&stTempVector);
+
+	MTH3D_M_vSubVector
+	(
+		&stTempVector1,
+		&_p_stStruct->hCineinfo->stLastFailedWanted,
+		&_p_stStruct->hCineinfo->stLastFailedOrigin
+	);
+	xNorm1 = MTH3D_M_xNormVector(&stTempVector1);
+
+	if(MTH_M_bLessEqual(xNorm, MTH_M_xAdd(xNorm1, (double)MTH_C_Inv2)))
+		return 0;
+
+	return 1;
+}
+
+void CAM_fn_vRestoreNormalState(CAM_tdstUpdateCamera *_p_stStruct)
+{
+
+	_p_stStruct->hCineinfo->eState = CAM_e_State_GoToOptimal;
+
+	CAM_fn_vSetCineinfoCurrentFromVisibility(_p_stStruct->hCineinfo);
+	CAM_fn_vSetCineinfoWorkFromVisibility(_p_stStruct->hCineinfo);
+
+	_p_stStruct->hCineinfo->ucPerIAFlags |= C_PerIAFlags_NoShift;
+	_p_stStruct->hCineinfo->ucPerIAFlags &= ~C_PerIAFlags_ConstraintMoveVisFailure;
+
+	CAM_fn_vComputeMovePosWithDynTheta(_p_stStruct);
+}
+
 void CAM_fn_vCheckForABetterPos(CAM_tdstUpdateCamera *_p_stStruct)
 {
 
 	MTH3D_tdstVector	stComputeVector;
 	char				cRes;
 
-	_p_stStruct->hCineinfo->xCounter1 = MTH_M_xAdd(_p_stStruct->hCineinfo->xCounter1,MTH_M_xLongToReal(GAM_g_ulUsefulDeltaTime));
+	_p_stStruct->hCineinfo->xCounter1 = MTH_M_xAdd((_p_stStruct->hCineinfo->xCounter1),MTH_M_xLongToReal(GAM_g_ulUsefulDeltaTime));
 
 	if(MTH_M_bGreaterEqual(_p_stStruct->hCineinfo->xCounter1 , CAM_C_xTickTimeFindBetterPos) && (!(CONSTANT_NOBETTERPOS)) && _p_stStruct->hCineinfo->bCanDoBestPos)
 	{

@@ -74,9 +74,6 @@ void CAM_fn_vForceFailureVisibility(struct CAM_tdstUpdateCamera_ *_p_stStruct);
 #define AI_CAM_c_CanTestStatic            (*(char *)AI_CAM_gp_cCanTestStatic)
 
 extern char cRefAxisIsAlreadyComputed;   /* 0x004E92FD */
-extern char cNoDynChangeTheta;           /* 0x004E92FC */
-#define AI_CAM_c_RefAxisIsAlreadyComputed cRefAxisIsAlreadyComputed
-#define AI_CAM_c_NoDynChangeTheta         cNoDynChangeTheta
 
 /* 0x00488500 */
 MTH_tdxReal __cdecl CAM_fn_xGetARealParameter
@@ -441,6 +438,29 @@ AI_tdstNodeInterpret *__cdecl CAM_fn_p_stGetTypeOfViewport(
     M_Full_GetSetParam_Integer(p_stValue, lTypeOfViewport);
     return p_stNext;
 }
+extern char cNoDynChangeTheta;           /* 0x004E92FC */
+
+/* 0x00488B50 */
+AI_tdstNodeInterpret *__cdecl CAM_fn_p_stGetSectorCameraType(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
+    HIE_tdstSuperObject *hCamera;
+    MS_tdxHandleToSectInfo hCamCineinfo;
+    HIE_tdstSuperObject *hCurrentSectorCamera;
+    long                 lType;
+
+    fn_vGetUltraOperatorPerso(
+        AI_CAM_M_pfn_fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hCamera);
+
+    hCamCineinfo = M_GetMSHandle(hCamera, SectInfo);
+    hCurrentSectorCamera = (HIE_tdstSuperObject *)fn_h_SectInfoGetCurrentSector(hCamCineinfo);
+
+    lType = (long)fn_cGetSectorCameraType((void *)hCurrentSectorCamera);
+    p_stValue->uParam.lValue = lType;
+    p_stValue->eType = 6;
+    return p_stTree;
+}
 
 /* 0x00488BB0 */
 AI_tdstNodeInterpret *__cdecl CAM_fn_p_stGetCameraOfViewport(
@@ -468,58 +488,6 @@ AI_tdstNodeInterpret *__cdecl CAM_fn_p_stGetCameraOfViewport(
     }
 #undef CAM_M_vFullGetSetParamPerso
     AI_M_pfn_M_AIFatalError_fn1(0x27);
-    return p_stTree;
-}
-
-/* 0x00488B50 */
-AI_tdstNodeInterpret *__cdecl CAM_fn_p_stGetSectorCameraType(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
-    HIE_tdstSuperObject *hCamera;
-    MS_tdxHandleToSectInfo hCamCineinfo;
-    HIE_tdstSuperObject *hCurrentSectorCamera;
-    long                 lType;
-
-    fn_vGetUltraOperatorPerso(
-        AI_CAM_M_pfn_fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hCamera);
-
-    hCamCineinfo = M_GetMSHandle(hCamera, SectInfo);
-    hCurrentSectorCamera = (HIE_tdstSuperObject *)fn_h_SectInfoGetCurrentSector(hCamCineinfo);
-
-    lType = (long)fn_cGetSectorCameraType((void *)hCurrentSectorCamera);
-    p_stValue->uParam.lValue = lType;
-    p_stValue->eType = 6;
-    return p_stTree;
-}
-
-#define DNM_M_p_stCPDGetTarget(_p_stParsingDatas)           (&(_p_stParsingDatas)->stVector)
-
-/* 0x00488DC0 */
-AI_tdstNodeInterpret *__cdecl CAM_fn_p_stComputeCurrentTarget(
-    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
-{
-    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
-    HIE_tdstSuperObject *hCamera;
-    MS_tdxHandleToDynam  h_Dynam;
-    DNM_tdstParsingDatas *p_stParsingDatas;
-
-    fn_vGetUltraOperatorPerso(
-        AI_CAM_M_pfn_fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hCamera);
-
-    h_Dynam = M_GetMSHandle(hCamera, Dynam);
-    if (h_Dynam != NULL)
-    {
-        p_stParsingDatas = AI_CAM_M_pfn_p_stDynamGetParsingDatas(h_Dynam);
-        if (p_stParsingDatas != NULL)
-        {
-            MTH3D_tdstVector *p_stTarget = DNM_M_p_stCPDGetTarget(p_stParsingDatas);
-            p_stValue->uParam.a_xVectorValue[0] = p_stTarget->xX;
-            p_stValue->uParam.a_xVectorValue[1] = p_stTarget->xY;
-            p_stValue->uParam.a_xVectorValue[2] = p_stTarget->xZ;
-            p_stValue->eType = 0x15;
-        }
-    }
     return p_stTree;
 }
 
@@ -558,6 +526,38 @@ AI_tdstNodeInterpret *__cdecl CAM_fn_p_stComputeTargetWithTgtPerso(
 
     MTH3D_M_vCopyVector((MTH3D_tdstVector *)p_stValue->uParam.a_xVectorValue, &stStruct.stCptPos.stTarget);
     p_stValue->eType = 0x15;
+    return p_stTree;
+}
+#define AI_CAM_c_RefAxisIsAlreadyComputed cRefAxisIsAlreadyComputed
+#define AI_CAM_c_NoDynChangeTheta         cNoDynChangeTheta
+
+#define DNM_M_p_stCPDGetTarget(_p_stParsingDatas)           (&(_p_stParsingDatas)->stVector)
+
+/* 0x00488DC0 */
+AI_tdstNodeInterpret *__cdecl CAM_fn_p_stComputeCurrentTarget(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree, AI_tdstGetSetParam *p_stValue)
+{
+    unsigned long        eFuncId = AI_M_eFuncIdInterpret(p_stTree-1);
+    HIE_tdstSuperObject *hCamera;
+    MS_tdxHandleToDynam  h_Dynam;
+    DNM_tdstParsingDatas *p_stParsingDatas;
+
+    fn_vGetUltraOperatorPerso(
+        AI_CAM_M_pfn_fn_ucGetFunctionUltraOperator(eFuncId), p_SuperObjPerso, &hCamera);
+
+    h_Dynam = M_GetMSHandle(hCamera, Dynam);
+    if (h_Dynam != NULL)
+    {
+        p_stParsingDatas = AI_CAM_M_pfn_p_stDynamGetParsingDatas(h_Dynam);
+        if (p_stParsingDatas != NULL)
+        {
+            MTH3D_tdstVector *p_stTarget = DNM_M_p_stCPDGetTarget(p_stParsingDatas);
+            p_stValue->uParam.a_xVectorValue[0] = p_stTarget->xX;
+            p_stValue->uParam.a_xVectorValue[1] = p_stTarget->xY;
+            p_stValue->uParam.a_xVectorValue[2] = p_stTarget->xZ;
+            p_stValue->eType = 0x15;
+        }
+    }
     return p_stTree;
 }
 

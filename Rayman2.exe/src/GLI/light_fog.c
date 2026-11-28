@@ -23,24 +23,6 @@ long __cdecl GLI_lGetLightType(void *p_stLight)
 
 #include "GLI/GLI_BigGlobals.h"
 
-/* 0x00424180 */
-void __cdecl GLI_vFogOn(void)
-{
-    struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals = GLI_BIG_GLOBALS;
-    p_stGlobals->xFogIsOn = 1;
-}
-
-/* 0x00424190 */
-void __cdecl GLI_vFogOff(void)
-{
-    /* 0x005036ac */
-    GLI_BIG_GLOBALS->p_stLastComputedFog = 0;
-    /* 0x005036ac */
-    GLI_BIG_GLOBALS->p_stActiveFog = 0;
-    /* 0x005036ac */
-    GLI_BIG_GLOBALS->xFogIsOn = 0;
-}
-
 typedef struct GLI_pc_tdstFogColor_ { unsigned long a_ulRGBA[4]; } GLI_pc_tdstFogColor;
 
 struct tdstFogParams_
@@ -105,4 +87,22 @@ void __cdecl GLI_vSetFog2(float xBlendStart, float xDepthStart, float xBlendEnd,
         GLI_pc_p_cFogRingCursor = GLI_pc_a_ucFogRing;
     }
 #undef p_stEntry
+}
+
+/* 0x00424180 */
+void __cdecl GLI_vFogOn(void)
+{
+    struct GLI_tdstInternalGlobalValuesFor3dEngine_ *p_stGlobals = GLI_BIG_GLOBALS;
+    p_stGlobals->xFogIsOn = 1;
+}
+
+/* 0x00424190 */
+void __cdecl GLI_vFogOff(void)
+{
+    /* 0x005036ac */
+    GLI_BIG_GLOBALS->p_stLastComputedFog = 0;
+    /* 0x005036ac */
+    GLI_BIG_GLOBALS->p_stActiveFog = 0;
+    /* 0x005036ac */
+    GLI_BIG_GLOBALS->xFogIsOn = 0;
 }

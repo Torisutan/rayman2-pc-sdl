@@ -42,172 +42,53 @@ static __inline void fn_v3dDataSetShadowScaleY(MS_tdxHandleTo3dData _h3dData, MT
 /* 0x004078C0 */
 extern void __cdecl fn_vGameFreeInHLM(void *p_vObject);
 
-ACP_tdxBool __cdecl fn_b3dDataCanComputeBrain(HIE_tdstSuperObject *_hCharacter)
+static __inline unsigned short fn_w3dDataGetSizeOfArrayOfElts3d(MS_tdxHandleTo3dData h_3dData)
 {
-    if (_hCharacter && M_GetMSHandle(_hCharacter, 3dData))
-    {
-        MS_tdxHandleTo3dData h_3dData = M_GetMSHandle(_hCharacter, 3dData);
-
-        return (ACP_tdxBool)(h_3dData->cBrainCounter == 0);
-    }
-    return TRUE;
+    return(h_3dData->wSizeOfArrayOfElts3d);
 }
 
-/* 0x00418880 */
-void __cdecl fn_v3dDataUpdateBrainCounter(HIE_tdstSuperObject *_hCharacter)
+/* 0x004194B0 */
+void *__cdecl GAM_pc_fn_pvGetInitObjectsTable(tdstObjectsTablesList *p_stList)
 {
-    if (_hCharacter && M_GetMSHandle(_hCharacter, 3dData))
-    {
-        MS_tdxHandleTo3dData h_3dData = M_GetMSHandle(_hCharacter, 3dData);
-
-        h_3dData->cBrainCounter++;
-        if (h_3dData->cBrainCounter >= h_3dData->ucBrainComputationFrequency)
-            h_3dData->cBrainCounter = 0;
-    }
+    return p_stList->d_stInitObjectsTable;
 }
 
-/* 0x00418850 */
-void __cdecl fn_v3dDataSetBrainComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency)
+MS_tdxHandleTo3dData __cdecl fn_h_3dDataRealAlloc(void);
+
+/* 0x00403290 */
+void __cdecl fn_v3dDataSavedValueSAI(MS_tdxHandleTo3dData h_3dData)
 {
-    h_3dData->ucBrainComputationFrequency = _ucFrequency;
-    if (h_3dData->cBrainCounter >= h_3dData->ucBrainComputationFrequency)
-        h_3dData->cBrainCounter = 0;
 }
 
-/* 0x004188F0 */
-void __cdecl fn_v3dDataSetLightComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency)
-{
-    h_3dData->ucLightComputationFrequency = _ucFrequency;
-    if (h_3dData->cLightCounter >= h_3dData->ucLightComputationFrequency)
-        h_3dData->cLightCounter = 0;
-}
+extern void __cdecl fn_vInitMorphList(CHN_tdxHandleToMorphList *p_hMorphList);
+extern long __cdecl PLA_fn_vInitNewState(HIE_tdstSuperObject *p_stSuperObject, tdxHandleToState h_State);
 
-/* 0x004187E0 */
-void __cdecl fn_v3dDataFactorFrameRate(MS_tdxHandleTo3dData _h3dData, unsigned long _ulFactor100)
-{
-    unsigned long ulNbFrames;
-    unsigned char ucFrameRate =
-        (unsigned char)(fn_scGetSpeedInState(fn_h3dDataGetCurrentState(_h3dData)) * _ulFactor100 / 100L);
+void __cdecl fn_v3dDataInitValueSAI(MS_tdxHandleTo3dData h_3dData);
 
-    if (ucFrameRate > 1)
-    {
-        ulNbFrames = (GAM_g_ulAccumulatedTime - _h3dData->ulStartTime) * _h3dData->ucFrameRate;
-        _h3dData->ulStartTime = GAM_g_ulAccumulatedTime - ulNbFrames / ucFrameRate;
-        _h3dData->ucFrameRate = ucFrameRate;
-    }
-}
-
-/* 0x00418790 */
-void __cdecl fn_v3dDataSetFrameRate(MS_tdxHandleTo3dData h_3dData, unsigned char ucFrameRate)
-{
-    unsigned long ulNbFrames;
-
-    if (ucFrameRate > 1)
-    {
-        ulNbFrames = (GAM_g_ulAccumulatedTime - h_3dData->ulStartTime) * h_3dData->ucFrameRate;
-        h_3dData->ulStartTime = GAM_g_ulAccumulatedTime - ulNbFrames / ucFrameRate;
-    }
-    h_3dData->ucFrameRate = ucFrameRate;
-}
-
-/* 0x004186B0 */
-void __cdecl fn_v3dDataInitValueSAI(MS_tdxHandleTo3dData h_3dData)
-{
-    SAI_fn_bInsertArrayInTable((void *)&h_3dData->stGLIObjectMatrix,
-                               sizeof(POS_tdstCompletePosition), M_3dData_SAIFlags);
-}
-
-/* 0x004186D0 */
-void __cdecl fn_v3dDataFreeInitValueSAI(MS_tdxHandleTo3dData h_3dData)
-{
-    SAI_fn_bRemoveValueFromTable((void *)&h_3dData->stGLIObjectMatrix, M_3dData_SAIFlags);
-}
-
-/* 0x004182A0 */
-void __cdecl fn_v3dDataFree(HIE_tdstEngineObject *p_stObject)
+/* 0x004180F0 */
+void __cdecl fn_v3dDataAlloc(struct tdstEngineObject_ *p_stObject)
 {
     if (p_stObject == NULL)
     {
         ERM_fn_vClearLastError(0);
         ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructObjectNull,
-                                -1, 0xff, 0xff, NULL);
+                                E_uwGameMiniStructObjectNull, -1, 0xff, 0xff, NULL);
     }
 
-    if (p_stObject->h3dData == NULL)
+    if (p_stObject->h_3dData != NULL)
     {
         ERM_fn_vClearLastError(0);
         ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructNull,
-                                -1, 0xff, 0xff, NULL);
+                                E_uwGameMiniStructAllocAlreadyAlloc, -1, 0xff, 0xff, NULL);
     }
 
-    fn_v3dDataFreeInitValueSAI((MS_tdxHandleTo3dData)p_stObject->h3dData);
-
-    PLA_fn_vDesInitAllChildOfCharacter(NULL, (struct tdstEngineObject_ *)p_stObject);
-    fn_vFreeMorphList((void *)&(((MS_tdxHandleTo3dData)p_stObject->h3dData)->hMorphChannelList));
-
-    fn_vGameFreeInHLM(p_stObject->h3dData);
-    p_stObject->h3dData = NULL;
+    p_stObject->h_3dData = fn_h_3dDataRealAlloc();
+    fn_v3dDataInitValueSAI((MS_tdxHandleTo3dData)p_stObject->h_3dData);
 }
 
-/* 0x00418600 */
-void __cdecl fn_v3dDataDesinit(HIE_tdstEngineObject *p_stObject, int eObjectInit)
-{
-    if (p_stObject == NULL)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructObjectNull,
-                                -1, 0xff, 0xff, NULL);
-    }
-
-    if (p_stObject->h3dData == NULL)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructNull,
-                                -1, 0xff, 0xff, NULL);
-    }
-
-    switch (eObjectInit)
-    {
-    case 1:
-        PLA_fn_vDesInitAllChildOfCharacter(
-            fn_h_StandardGameGetSuperObject((MS_tdxHandleToStandardGame)p_stObject->hStandardGame),
-            (struct tdstEngineObject_ *)p_stObject);
-        fn_vFreeMorphList((void *)&(((MS_tdxHandleTo3dData)p_stObject->h3dData)->hMorphChannelList));
-        break;
-    default:
-        break;
-    }
-}
-
-void __cdecl fn_v3dDataSetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFlagIndex, int _bSet, MTH3D_tdstVector *_p_stPosition)
-{
-    unsigned char ucMask = (unsigned char) (1 << _ucFlagIndex);
-    if (_bSet)
-        h_3dData->ucUserEventFlags |= ucMask;
-    else
-        h_3dData->ucUserEventFlags &= ~ucMask;
-    if ( _p_stPosition )
-        h_3dData->stLastEventGlobalPosition = *_p_stPosition;
-}
-
-/* 0x00418970 */
-long __cdecl fn_b3dDataGetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFlagIndex,
-                                        MTH3D_tdstVector *_p_stPosition)
-{
-    unsigned char ucMask = (unsigned char) (1 << _ucFlagIndex);
-    if ( _p_stPosition )
-        *_p_stPosition = h_3dData->stLastEventGlobalPosition;
-    return (h_3dData->ucUserEventFlags & ucMask);
-}
-
-unsigned long __cdecl fn_ul3dDataSizeOf(void)
-{
-    return (unsigned long)0x118;
-}
+void __cdecl fn_v3dDataSetBrainComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency);
+void __cdecl fn_v3dDataSetLightComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency);
+unsigned long __cdecl fn_ul3dDataSizeOf(void);
 
 /* 0x00418170 */
 MS_tdxHandleTo3dData __cdecl fn_h_3dDataRealAlloc(void)
@@ -268,88 +149,37 @@ MS_tdxHandleTo3dData __cdecl fn_h_3dDataRealAlloc(void)
     return(h_3dData);
 }
 
-/* 0x004180F0 */
-void __cdecl fn_v3dDataAlloc(struct tdstEngineObject_ *p_stObject)
+void __cdecl fn_v3dDataFreeInitValueSAI(MS_tdxHandleTo3dData h_3dData);
+
+/* 0x004182A0 */
+void __cdecl fn_v3dDataFree(HIE_tdstEngineObject *p_stObject)
 {
     if (p_stObject == NULL)
     {
         ERM_fn_vClearLastError(0);
         ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructObjectNull, -1, 0xff, 0xff, NULL);
+                                E_uwGameMiniStructObjectNull,
+                                -1, 0xff, 0xff, NULL);
     }
 
-    if (p_stObject->h_3dData != NULL)
+    if (p_stObject->h3dData == NULL)
     {
         ERM_fn_vClearLastError(0);
         ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
-                                E_uwGameMiniStructAllocAlreadyAlloc, -1, 0xff, 0xff, NULL);
+                                E_uwGameMiniStructNull,
+                                -1, 0xff, 0xff, NULL);
     }
 
-    p_stObject->h_3dData = fn_h_3dDataRealAlloc();
-    fn_v3dDataInitValueSAI((MS_tdxHandleTo3dData)p_stObject->h_3dData);
+    fn_v3dDataFreeInitValueSAI((MS_tdxHandleTo3dData)p_stObject->h3dData);
+
+    PLA_fn_vDesInitAllChildOfCharacter(NULL, (struct tdstEngineObject_ *)p_stObject);
+    fn_vFreeMorphList((void *)&(((MS_tdxHandleTo3dData)p_stObject->h3dData)->hMorphChannelList));
+
+    fn_vGameFreeInHLM(p_stObject->h3dData);
+    p_stObject->h3dData = NULL;
 }
 
-static __inline unsigned short fn_w3dDataGetSizeOfArrayOfElts3d(MS_tdxHandleTo3dData h_3dData)
-{
-    return(h_3dData->wSizeOfArrayOfElts3d);
-}
-
-/* 0x004186F0 */
-void __cdecl fn_v3dDataCopyClone(struct tdstEngineObject_ *_p_stObjectDest,
-                                 struct tdstEngineObject_ *_p_stObjectSrc)
-{
-    void *pv_tmp1 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hArrayOfChannels;
-    void *pv_tmp2 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->stFrame3d.p_stArrayOfElts3d;
-    void *pv_tmp3 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hFirstActiveChannel;
-    void *pv_tmp4 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hMorphChannelList;
-    unsigned short wSize = fn_w3dDataGetSizeOfArrayOfElts3d((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData);
-
-    memcpy(_p_stObjectDest->h_3dData, _p_stObjectSrc->h_3dData, fn_ul3dDataSizeOf());
-
-    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hArrayOfChannels = pv_tmp1;
-    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->stFrame3d.p_stArrayOfElts3d = pv_tmp2;
-    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hFirstActiveChannel = pv_tmp3;
-    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hMorphChannelList = pv_tmp4;
-    fn_v3dDataSetSizeOfArrayOfElts3d((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData, wSize);
-}
-
-/* 0x004194B0 */
-void *__cdecl GAM_pc_fn_pvGetInitObjectsTable(tdstObjectsTablesList *p_stList)
-{
-    return p_stList->d_stInitObjectsTable;
-}
-
-/* 0x00419480 */
-void __cdecl GAM_pc_fn_vCopyArrayOfElts20(tdstObjectsTablesList *p_stList)
-{
-    memcpy(p_stList->d_stObjectsTable, p_stList->d_stInitObjectsTable,
-           (unsigned int)p_stList->wNumberOfElement * 20);
-}
-
-/* 0x00418A20 */
-void __cdecl fn_vAllocArrayOfElts3d(MS_tdxHandleTo3dData h_3dData, unsigned short _wNumberOfElts3d)
-{
-    unsigned short wCurrentSize = h_3dData->wSizeOfArrayOfElts3d;
-
-    if (_wNumberOfElts3d > wCurrentSize)
-    {
-        if (fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d)
-        {
-            TMP_M_Free(fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d);
-        }
-        fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d =
-            (struct tdstElement3d_ *)TMP_M_p_Malloc(sizeof(struct tdstElement3d_) * _wNumberOfElts3d);
-        fn_v3dDataSetSizeOfArrayOfElts3d(h_3dData, _wNumberOfElts3d);
-    }
-}
-
-/* 0x00403290 */
-void __cdecl fn_v3dDataSavedValueSAI(MS_tdxHandleTo3dData h_3dData)
-{
-}
-
-extern void __cdecl fn_vInitMorphList(CHN_tdxHandleToMorphList *p_hMorphList);
-extern long __cdecl PLA_fn_vInitNewState(HIE_tdstSuperObject *p_stSuperObject, tdxHandleToState h_State);
+void __cdecl GAM_pc_fn_vCopyArrayOfElts20(tdstObjectsTablesList *p_stList);
 
 /* 0x00418340 */
 void __cdecl fn_v3dDataInit(struct tdstEngineObject_ *p_stObject, int eObjectInit)
@@ -459,4 +289,198 @@ void __cdecl fn_v3dDataInit(struct tdstEngineObject_ *p_stObject, int eObjectIni
         PLA_fn_vInitNewState(M_GetSuperObject(p_stObject), fn_h3dDataGetInitialState(C3D_M_h3dData(p_stObject)));
         HIE_fn_vSetSuperObjectDrawMask(M_GetSuperObject(p_stObject), C3D_M_h3dData(p_stObject)->lDrawMask);
     }
+}
+
+/* 0x00418600 */
+void __cdecl fn_v3dDataDesinit(HIE_tdstEngineObject *p_stObject, int eObjectInit)
+{
+    if (p_stObject == NULL)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
+                                E_uwGameMiniStructObjectNull,
+                                -1, 0xff, 0xff, NULL);
+    }
+
+    if (p_stObject->h3dData == NULL)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0,
+                                E_uwGameMiniStructNull,
+                                -1, 0xff, 0xff, NULL);
+    }
+
+    switch (eObjectInit)
+    {
+    case 1:
+        PLA_fn_vDesInitAllChildOfCharacter(
+            fn_h_StandardGameGetSuperObject((MS_tdxHandleToStandardGame)p_stObject->hStandardGame),
+            (struct tdstEngineObject_ *)p_stObject);
+        fn_vFreeMorphList((void *)&(((MS_tdxHandleTo3dData)p_stObject->h3dData)->hMorphChannelList));
+        break;
+    default:
+        break;
+    }
+}
+
+unsigned long __cdecl fn_ul3dDataSizeOf(void)
+{
+    return (unsigned long)0x118;
+}
+
+/* 0x004186B0 */
+void __cdecl fn_v3dDataInitValueSAI(MS_tdxHandleTo3dData h_3dData)
+{
+    SAI_fn_bInsertArrayInTable((void *)&h_3dData->stGLIObjectMatrix,
+                               sizeof(POS_tdstCompletePosition), M_3dData_SAIFlags);
+}
+
+/* 0x004186D0 */
+void __cdecl fn_v3dDataFreeInitValueSAI(MS_tdxHandleTo3dData h_3dData)
+{
+    SAI_fn_bRemoveValueFromTable((void *)&h_3dData->stGLIObjectMatrix, M_3dData_SAIFlags);
+}
+
+/* 0x004186F0 */
+void __cdecl fn_v3dDataCopyClone(struct tdstEngineObject_ *_p_stObjectDest,
+                                 struct tdstEngineObject_ *_p_stObjectSrc)
+{
+    void *pv_tmp1 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hArrayOfChannels;
+    void *pv_tmp2 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->stFrame3d.p_stArrayOfElts3d;
+    void *pv_tmp3 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hFirstActiveChannel;
+    void *pv_tmp4 = ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hMorphChannelList;
+    unsigned short wSize = fn_w3dDataGetSizeOfArrayOfElts3d((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData);
+
+    memcpy(_p_stObjectDest->h_3dData, _p_stObjectSrc->h_3dData, fn_ul3dDataSizeOf());
+
+    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hArrayOfChannels = pv_tmp1;
+    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->stFrame3d.p_stArrayOfElts3d = pv_tmp2;
+    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hFirstActiveChannel = pv_tmp3;
+    ((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData)->hMorphChannelList = pv_tmp4;
+    fn_v3dDataSetSizeOfArrayOfElts3d((MS_tdxHandleTo3dData)_p_stObjectDest->h_3dData, wSize);
+}
+
+/* 0x00418790 */
+void __cdecl fn_v3dDataSetFrameRate(MS_tdxHandleTo3dData h_3dData, unsigned char ucFrameRate)
+{
+    unsigned long ulNbFrames;
+
+    if (ucFrameRate > 1)
+    {
+        ulNbFrames = (GAM_g_ulAccumulatedTime - h_3dData->ulStartTime) * h_3dData->ucFrameRate;
+        h_3dData->ulStartTime = GAM_g_ulAccumulatedTime - ulNbFrames / ucFrameRate;
+    }
+    h_3dData->ucFrameRate = ucFrameRate;
+}
+
+/* 0x004187E0 */
+void __cdecl fn_v3dDataFactorFrameRate(MS_tdxHandleTo3dData _h3dData, unsigned long _ulFactor100)
+{
+    unsigned long ulNbFrames;
+    unsigned char ucFrameRate =
+        (unsigned char)(fn_scGetSpeedInState(fn_h3dDataGetCurrentState(_h3dData)) * _ulFactor100 / 100L);
+
+    if (ucFrameRate > 1)
+    {
+        ulNbFrames = (GAM_g_ulAccumulatedTime - _h3dData->ulStartTime) * _h3dData->ucFrameRate;
+        _h3dData->ulStartTime = GAM_g_ulAccumulatedTime - ulNbFrames / ucFrameRate;
+        _h3dData->ucFrameRate = ucFrameRate;
+    }
+}
+
+/* 0x00418850 */
+void __cdecl fn_v3dDataSetBrainComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency)
+{
+    h_3dData->ucBrainComputationFrequency = _ucFrequency;
+    if (h_3dData->cBrainCounter >= h_3dData->ucBrainComputationFrequency)
+        h_3dData->cBrainCounter = 0;
+}
+
+/* 0x00418880 */
+void __cdecl fn_v3dDataUpdateBrainCounter(HIE_tdstSuperObject *_hCharacter)
+{
+    if (_hCharacter && M_GetMSHandle(_hCharacter, 3dData))
+    {
+        MS_tdxHandleTo3dData h_3dData = M_GetMSHandle(_hCharacter, 3dData);
+
+        h_3dData->cBrainCounter++;
+        if (h_3dData->cBrainCounter >= h_3dData->ucBrainComputationFrequency)
+            h_3dData->cBrainCounter = 0;
+    }
+}
+
+ACP_tdxBool __cdecl fn_b3dDataCanComputeBrain(HIE_tdstSuperObject *_hCharacter)
+{
+    if (_hCharacter && M_GetMSHandle(_hCharacter, 3dData))
+    {
+        MS_tdxHandleTo3dData h_3dData = M_GetMSHandle(_hCharacter, 3dData);
+
+        return (ACP_tdxBool)(h_3dData->cBrainCounter == 0);
+    }
+    return TRUE;
+}
+
+/* 0x004188F0 */
+void __cdecl fn_v3dDataSetLightComputationFrequency(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFrequency)
+{
+    h_3dData->ucLightComputationFrequency = _ucFrequency;
+    if (h_3dData->cLightCounter >= h_3dData->ucLightComputationFrequency)
+        h_3dData->cLightCounter = 0;
+}
+
+/* 0x00418970 */
+long __cdecl fn_b3dDataGetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFlagIndex,
+                                        MTH3D_tdstVector *_p_stPosition)
+{
+    unsigned char ucMask = (unsigned char) (1 << _ucFlagIndex);
+    if ( _p_stPosition )
+        *_p_stPosition = h_3dData->stLastEventGlobalPosition;
+    return (h_3dData->ucUserEventFlags & ucMask);
+}
+
+void __cdecl fn_v3dDataSetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFlagIndex, int _bSet, MTH3D_tdstVector *_p_stPosition)
+{
+    unsigned char ucMask = (unsigned char) (1 << _ucFlagIndex);
+    if (_bSet)
+        h_3dData->ucUserEventFlags |= ucMask;
+    else
+        h_3dData->ucUserEventFlags &= ~ucMask;
+    if ( _p_stPosition )
+        h_3dData->stLastEventGlobalPosition = *_p_stPosition;
+}
+
+/* 0x00418A20 */
+void __cdecl fn_vAllocArrayOfElts3d(MS_tdxHandleTo3dData h_3dData, unsigned short _wNumberOfElts3d)
+{
+    unsigned short wCurrentSize = h_3dData->wSizeOfArrayOfElts3d;
+
+    if (_wNumberOfElts3d > wCurrentSize)
+    {
+        if (fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d)
+        {
+            TMP_M_Free(fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d);
+        }
+        fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d =
+            (struct tdstElement3d_ *)TMP_M_p_Malloc(sizeof(struct tdstElement3d_) * _wNumberOfElts3d);
+        fn_v3dDataSetSizeOfArrayOfElts3d(h_3dData, _wNumberOfElts3d);
+    }
+}
+
+/* 0x00418A70 */
+void __cdecl fn_vFreeArrayOfElts3d(MS_tdxHandleTo3dData h_3dData)
+{
+    struct tdstElement3d_ *p_stElts3d = fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d;
+
+    if (p_stElts3d)
+        TMP_M_Free(p_stElts3d);
+
+    fn_p_st3dDataGetCurrentFrame(h_3dData)->p_stArrayOfElts3d = NULL;
+    fn_v3dDataSetSizeOfArrayOfElts3d(h_3dData, 0);
+}
+
+/* 0x00419480 */
+void __cdecl GAM_pc_fn_vCopyArrayOfElts20(tdstObjectsTablesList *p_stList)
+{
+    memcpy(p_stList->d_stObjectsTable, p_stList->d_stInitObjectsTable,
+           (unsigned int)p_stList->wNumberOfElement * 20);
 }

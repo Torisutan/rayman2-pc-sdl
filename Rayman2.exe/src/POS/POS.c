@@ -134,86 +134,7 @@ void POS_fn_vRotateVector(MTH3D_tdstVector *_p_stDest,
     }
 }
 
-void POS_fn_vNormalizeMatrix(POS_tdstCompletePosition *_hMatrix)
-{
-	if ( _hMatrix->ulType >= POS_C_ulRotationMatrixFlag )
-	{
-		MTH3D_tdstVector *p_stI , *p_stJ , *p_stK ;
-
-		POS_fn_vGetRotationVector( _hMatrix , &p_stI , &p_stJ , &p_stK ) ;
-
-		MTH3D_M_vCrossProductVectorWithoutBuffer( p_stJ , p_stK , p_stI ) ;
-		MTH3D_M_vNormalizeVector( p_stI,p_stI ) ;
-		MTH3D_M_vNormalizeVector( p_stJ,p_stJ ) ;
-		MTH3D_M_vCrossProductVectorWithoutBuffer( p_stK , p_stI , p_stJ ) ;
-
-		MTH3D_M_vCopyMatrix( &_hMatrix->stTransformMatrix, &_hMatrix->stRotationMatrix);
-		_hMatrix->ulType = POS_C_ulRotationMatrixFlag;
-	}
-}
-
-void POS_fn_vGetRotationVector(POS_tdstCompletePosition *_hMatrix,
-                               MTH3D_tdstVector **_p_p_stI,
-                               MTH3D_tdstVector **_p_p_stJ,
-                               MTH3D_tdstVector **_p_p_stK)
-{
-    *_p_p_stI = &_hMatrix->stRotationMatrix.stCol_0;
-    *_p_p_stJ = &_hMatrix->stRotationMatrix.stCol_1;
-    *_p_p_stK = &_hMatrix->stRotationMatrix.stCol_2;
-}
-
-/* 0x00445F20 */
-void POS_fn_vGetRotationMatrix(POS_tdstCompletePosition *_hMatrix,
-                               MTH3D_tdstVector *_p_stI,
-                               MTH3D_tdstVector *_p_stJ,
-                               MTH3D_tdstVector *_p_stK)
-{
-    /* 0x00445F20 */
-    _p_stI->xX = _hMatrix->stRotationMatrix.stCol_0.xX;
-    _p_stI->xY = _hMatrix->stRotationMatrix.stCol_0.xY;
-    _p_stI->xZ = _hMatrix->stRotationMatrix.stCol_0.xZ;
-    _p_stJ->xX = _hMatrix->stRotationMatrix.stCol_1.xX;
-    _p_stJ->xY = _hMatrix->stRotationMatrix.stCol_1.xY;
-    _p_stJ->xZ = _hMatrix->stRotationMatrix.stCol_1.xZ;
-    _p_stK->xX = _hMatrix->stRotationMatrix.stCol_2.xX;
-    _p_stK->xY = _hMatrix->stRotationMatrix.stCol_2.xY;
-    _p_stK->xZ = _hMatrix->stRotationMatrix.stCol_2.xZ;
-}
-
-void POS_fn_vGetRotationMatrixCol2(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stCol2)
-{
-    MTH3D_M_vGetColumnInMatrix(_p_stCol2, &_hMatrix->stRotationMatrix, 2);
-}
-
-void POS_fn_vSetRotationMatrix(POS_tdstCompletePosition *_hMatrix,
-                               MTH3D_tdstVector *_p_stI,
-                               MTH3D_tdstVector *_p_stJ,
-                               MTH3D_tdstVector *_p_stK)
-{
-
-	switch(_hMatrix->ulType)
-	{
-	case POS_C_ulIdentityMatrixFlag:
-	case POS_C_ulTranslationMatrixFlag:
-	case POS_C_ulRotationMatrixFlag:
-		MTH3D_M_vSetVectorsInMatrix( &_hMatrix->stRotationMatrix, _p_stI, _p_stJ, _p_stK );
-		MTH3D_M_vCopyMatrix(&_hMatrix->stTransformMatrix, &_hMatrix->stRotationMatrix);
-		_hMatrix->ulType = POS_C_ulRotationMatrixFlag;
-		break;
-
-	default:
-	    {
-			MTH3D_tdstMatrix stScaleMatrix;
-
-			POS_fn_vGetScaleMatrix(_hMatrix, &stScaleMatrix.stCol_0, &stScaleMatrix.stCol_1, &stScaleMatrix.stCol_2);
-
-			MTH3D_M_vSetVectorsInMatrix( &_hMatrix->stRotationMatrix, _p_stI, _p_stJ, _p_stK );
-
-			MTH3D_M_vMulMatrixMatrixWithoutBuffer(&_hMatrix->stTransformMatrix, &_hMatrix->stRotationMatrix, &stScaleMatrix);
-	    }
-		break;
-	}
-}
+void POS_fn_vSetRotationMatrix(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stI, MTH3D_tdstVector *_p_stJ, MTH3D_tdstVector *_p_stK);
 
 void fn_vTurnMatrixX(POS_tdstCompletePosition *_p_stMatrix, MTH_tdxReal _xAngle)
 {
@@ -275,22 +196,6 @@ void fn_vTurnMatrixZ(POS_tdstCompletePosition *_p_stMatrix, MTH_tdxReal _xAngle)
     POS_fn_vMulMatrixMatrix(_p_stMatrix, &TmpMatrix, _p_stMatrix);
 }
 
-/* 0x00445BE0 */
-void POS_fn_vRotateX(POS_tdstCompletePosition *hMatrix, MTH_tdxReal xXAngle)
-{
-    MTH3D_tdstVector stI;
-    MTH3D_tdstVector stJ;
-    MTH3D_tdstVector stK;
-    MTH_tdxReal xSin = MTH_M_xSin(xXAngle);
-    MTH_tdxReal xCos = MTH_M_xCos(xXAngle);
-
-    MTH3D_M_vSetVectorElements(&stI, MTH_C_ONE, MTH_C_ZERO, MTH_C_ZERO);
-    MTH3D_M_vSetVectorElements(&stJ, MTH_C_ZERO, xCos, xSin);
-    MTH3D_M_vSetVectorElements(&stK, MTH_C_ZERO, MTH_M_xNeg(xSin), xCos);
-
-    POS_fn_vSetRotationMatrix(hMatrix, &stI, &stJ, &stK);
-}
-
 /* 0x00445C70 */
 void POS_fn_vRotateZ(POS_tdstCompletePosition *hMatrix, MTH_tdxReal xZAngle)
 {
@@ -305,6 +210,69 @@ void POS_fn_vRotateZ(POS_tdstCompletePosition *hMatrix, MTH_tdxReal xZAngle)
     MTH3D_M_vSetVectorElements(&stK, MTH_C_ZERO, MTH_C_ZERO, MTH_C_ONE);
 
     POS_fn_vSetRotationMatrix(hMatrix, &stI, &stJ, &stK);
+}
+
+void POS_fn_vSetRotationMatrix(POS_tdstCompletePosition *_hMatrix,
+                               MTH3D_tdstVector *_p_stI,
+                               MTH3D_tdstVector *_p_stJ,
+                               MTH3D_tdstVector *_p_stK)
+{
+
+	switch(_hMatrix->ulType)
+	{
+	case POS_C_ulIdentityMatrixFlag:
+	case POS_C_ulTranslationMatrixFlag:
+	case POS_C_ulRotationMatrixFlag:
+		MTH3D_M_vSetVectorsInMatrix( &_hMatrix->stRotationMatrix, _p_stI, _p_stJ, _p_stK );
+		MTH3D_M_vCopyMatrix(&_hMatrix->stTransformMatrix, &_hMatrix->stRotationMatrix);
+		_hMatrix->ulType = POS_C_ulRotationMatrixFlag;
+		break;
+
+	default:
+	    {
+			MTH3D_tdstMatrix stScaleMatrix;
+
+			POS_fn_vGetScaleMatrix(_hMatrix, &stScaleMatrix.stCol_0, &stScaleMatrix.stCol_1, &stScaleMatrix.stCol_2);
+
+			MTH3D_M_vSetVectorsInMatrix( &_hMatrix->stRotationMatrix, _p_stI, _p_stJ, _p_stK );
+
+			MTH3D_M_vMulMatrixMatrixWithoutBuffer(&_hMatrix->stTransformMatrix, &_hMatrix->stRotationMatrix, &stScaleMatrix);
+	    }
+		break;
+	}
+}
+
+void POS_fn_vGetRotationMatrixCol2(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stCol2)
+{
+    MTH3D_M_vGetColumnInMatrix(_p_stCol2, &_hMatrix->stRotationMatrix, 2);
+}
+
+/* 0x00445F20 */
+void POS_fn_vGetRotationMatrix(POS_tdstCompletePosition *_hMatrix,
+                               MTH3D_tdstVector *_p_stI,
+                               MTH3D_tdstVector *_p_stJ,
+                               MTH3D_tdstVector *_p_stK)
+{
+    /* 0x00445F20 */
+    _p_stI->xX = _hMatrix->stRotationMatrix.stCol_0.xX;
+    _p_stI->xY = _hMatrix->stRotationMatrix.stCol_0.xY;
+    _p_stI->xZ = _hMatrix->stRotationMatrix.stCol_0.xZ;
+    _p_stJ->xX = _hMatrix->stRotationMatrix.stCol_1.xX;
+    _p_stJ->xY = _hMatrix->stRotationMatrix.stCol_1.xY;
+    _p_stJ->xZ = _hMatrix->stRotationMatrix.stCol_1.xZ;
+    _p_stK->xX = _hMatrix->stRotationMatrix.stCol_2.xX;
+    _p_stK->xY = _hMatrix->stRotationMatrix.stCol_2.xY;
+    _p_stK->xZ = _hMatrix->stRotationMatrix.stCol_2.xZ;
+}
+
+void POS_fn_vGetRotationVector(POS_tdstCompletePosition *_hMatrix,
+                               MTH3D_tdstVector **_p_p_stI,
+                               MTH3D_tdstVector **_p_p_stJ,
+                               MTH3D_tdstVector **_p_p_stK)
+{
+    *_p_p_stI = &_hMatrix->stRotationMatrix.stCol_0;
+    *_p_p_stJ = &_hMatrix->stRotationMatrix.stCol_1;
+    *_p_p_stK = &_hMatrix->stRotationMatrix.stCol_2;
 }
 
 void POS_fn_vSetScaleMatrix(POS_tdstCompletePosition *_hMatrix,
@@ -360,6 +328,29 @@ void POS_fn_vGetScaleMatrix(POS_tdstCompletePosition *_hMatrix,
 													&_hMatrix->stTransformMatrix);
 		MTH3D_M_vGetVectorsInMatrix(_p_stI,_p_stJ,_p_stK,&stScaleMatrix);
 	}
+}
+
+void POS_fn_vSetZoomMatrix(POS_tdstCompletePosition *_hMatrix, MTH_tdxReal _xZoom)
+{
+    MTH_tdxReal xA = _hMatrix->stRotationMatrix.stCol_0.xX * _xZoom;
+    MTH_tdxReal xB = _hMatrix->stRotationMatrix.stCol_0.xY * _xZoom;
+    MTH_tdxReal xC = _hMatrix->stRotationMatrix.stCol_0.xZ * _xZoom;
+    MTH_tdxReal xD = _hMatrix->stRotationMatrix.stCol_1.xX * _xZoom;
+    MTH_tdxReal xE = _hMatrix->stRotationMatrix.stCol_1.xY * _xZoom;
+    MTH_tdxReal xF = _hMatrix->stRotationMatrix.stCol_1.xZ * _xZoom;
+    MTH_tdxReal xG = _hMatrix->stRotationMatrix.stCol_2.xX * _xZoom;
+    MTH_tdxReal xH = _hMatrix->stRotationMatrix.stCol_2.xY * _xZoom;
+    MTH_tdxReal xI = _hMatrix->stRotationMatrix.stCol_2.xZ * _xZoom;
+    _hMatrix->stTransformMatrix.stCol_0.xX = xA;
+    _hMatrix->stTransformMatrix.stCol_0.xY = xB;
+    _hMatrix->stTransformMatrix.stCol_0.xZ = xC;
+    _hMatrix->stTransformMatrix.stCol_1.xX = xD;
+    _hMatrix->stTransformMatrix.stCol_1.xY = xE;
+    _hMatrix->stTransformMatrix.stCol_1.xZ = xF;
+    _hMatrix->stTransformMatrix.stCol_2.xX = xG;
+    _hMatrix->stTransformMatrix.stCol_2.xY = xH;
+    _hMatrix->stTransformMatrix.stCol_2.xZ = xI;
+    _hMatrix->ulType = POS_C_ulCompleteMatrixFlag;
 }
 
 void POS_fn_vGetTransformMatrix(POS_tdstCompletePosition *_hMatrix,
@@ -459,6 +450,24 @@ void POS_fn_vInvertMatrix(POS_tdstCompletePosition *_hDest, POS_tdstCompletePosi
 	}
 }
 
+void POS_fn_vNormalizeMatrix(POS_tdstCompletePosition *_hMatrix)
+{
+	if ( _hMatrix->ulType >= POS_C_ulRotationMatrixFlag )
+	{
+		MTH3D_tdstVector *p_stI , *p_stJ , *p_stK ;
+
+		POS_fn_vGetRotationVector( _hMatrix , &p_stI , &p_stJ , &p_stK ) ;
+
+		MTH3D_M_vCrossProductVectorWithoutBuffer( p_stJ , p_stK , p_stI ) ;
+		MTH3D_M_vNormalizeVector( p_stI,p_stI ) ;
+		MTH3D_M_vNormalizeVector( p_stJ,p_stJ ) ;
+		MTH3D_M_vCrossProductVectorWithoutBuffer( p_stK , p_stI , p_stJ ) ;
+
+		MTH3D_M_vCopyMatrix( &_hMatrix->stTransformMatrix, &_hMatrix->stRotationMatrix);
+		_hMatrix->ulType = POS_C_ulRotationMatrixFlag;
+	}
+}
+
 void POS_fn_vMulMatrixMatrix(POS_tdstCompletePosition *_hDest,
                              POS_tdstCompletePosition *_hA,
                              POS_tdstCompletePosition *_hB)
@@ -505,111 +514,6 @@ void POS_fn_vMulMatrixMatrix(POS_tdstCompletePosition *_hDest,
 		POS_fn_vCopyMatrix(_hDest, p_stResult);
 
 	_hDest->ulType = ulResultType;
-}
-
-void POS_fn_vGetTranslationVector(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stTrs)
-{
-
-    _p_stTrs->xX = _hMatrix->stTranslationVector.xX;
-    _p_stTrs->xY = _hMatrix->stTranslationVector.xY;
-    _p_stTrs->xZ = _hMatrix->stTranslationVector.xZ;
-}
-
-void POS_fn_vSetTranslationVector(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stTrs)
-{
-
-    _hMatrix->stTranslationVector.xX = _p_stTrs->xX;
-    _hMatrix->stTranslationVector.xY = _p_stTrs->xY;
-    _hMatrix->stTranslationVector.xZ = _p_stTrs->xZ;
-    if (_hMatrix->ulType == POS_C_ulIdentityMatrixFlag)
-        _hMatrix->ulType = POS_C_ulTranslationMatrixFlag;
-}
-
-void POS_fn_vSetTransformMatrix(POS_tdstCompletePosition *_hMatrix,
-                                MTH3D_tdstVector *_p_stI,
-                                MTH3D_tdstVector *_p_stJ,
-                                MTH3D_tdstVector *_p_stK)
-{
-
-    _hMatrix->stTransformMatrix.stCol_0.xX = _p_stI->xX;
-    _hMatrix->stTransformMatrix.stCol_0.xY = _p_stI->xY;
-    _hMatrix->stTransformMatrix.stCol_0.xZ = _p_stI->xZ;
-    _hMatrix->stTransformMatrix.stCol_1.xX = _p_stJ->xX;
-    _hMatrix->stTransformMatrix.stCol_1.xY = _p_stJ->xY;
-    _hMatrix->stTransformMatrix.stCol_1.xZ = _p_stJ->xZ;
-    _hMatrix->stTransformMatrix.stCol_2.xX = _p_stK->xX;
-    _hMatrix->stTransformMatrix.stCol_2.xY = _p_stK->xY;
-    _hMatrix->stTransformMatrix.stCol_2.xZ = _p_stK->xZ;
-    _hMatrix->ulType = POS_C_ulCompleteMatrixFlag;
-}
-
-void POS_fn_vSetZoomMatrix(POS_tdstCompletePosition *_hMatrix, MTH_tdxReal _xZoom)
-{
-    MTH_tdxReal xA = _hMatrix->stRotationMatrix.stCol_0.xX * _xZoom;
-    MTH_tdxReal xB = _hMatrix->stRotationMatrix.stCol_0.xY * _xZoom;
-    MTH_tdxReal xC = _hMatrix->stRotationMatrix.stCol_0.xZ * _xZoom;
-    MTH_tdxReal xD = _hMatrix->stRotationMatrix.stCol_1.xX * _xZoom;
-    MTH_tdxReal xE = _hMatrix->stRotationMatrix.stCol_1.xY * _xZoom;
-    MTH_tdxReal xF = _hMatrix->stRotationMatrix.stCol_1.xZ * _xZoom;
-    MTH_tdxReal xG = _hMatrix->stRotationMatrix.stCol_2.xX * _xZoom;
-    MTH_tdxReal xH = _hMatrix->stRotationMatrix.stCol_2.xY * _xZoom;
-    MTH_tdxReal xI = _hMatrix->stRotationMatrix.stCol_2.xZ * _xZoom;
-    _hMatrix->stTransformMatrix.stCol_0.xX = xA;
-    _hMatrix->stTransformMatrix.stCol_0.xY = xB;
-    _hMatrix->stTransformMatrix.stCol_0.xZ = xC;
-    _hMatrix->stTransformMatrix.stCol_1.xX = xD;
-    _hMatrix->stTransformMatrix.stCol_1.xY = xE;
-    _hMatrix->stTransformMatrix.stCol_1.xZ = xF;
-    _hMatrix->stTransformMatrix.stCol_2.xX = xG;
-    _hMatrix->stTransformMatrix.stCol_2.xY = xH;
-    _hMatrix->stTransformMatrix.stCol_2.xZ = xI;
-    _hMatrix->ulType = POS_C_ulCompleteMatrixFlag;
-}
-
-MTH_tdxReal POS_fn_xGetXScale(POS_tdstCompletePosition *_hMatrix)
-{
-
-    MTH_tdxReal xResult = MTH_C_ONE;
-    if (_hMatrix->ulType > POS_C_ulRotationMatrixFlag)
-    {
-        MTH_tdxReal xX = _hMatrix->stTransformMatrix.stCol_0.xX;
-        MTH_tdxReal xY = _hMatrix->stTransformMatrix.stCol_1.xX;
-        MTH_tdxReal xZ = _hMatrix->stTransformMatrix.stCol_2.xX;
-        xResult = MTH_M_xSqrt(xX * xX + xY * xY + xZ * xZ);
-    }
-    return xResult;
-}
-
-MTH_tdxReal POS_fn_xGetYScale(POS_tdstCompletePosition *_hMatrix)
-{
-
-    MTH_tdxReal xResult = MTH_C_ONE;
-    if (_hMatrix->ulType > POS_C_ulRotationMatrixFlag)
-    {
-        MTH_tdxReal xX = _hMatrix->stTransformMatrix.stCol_0.xY;
-        MTH_tdxReal xY = _hMatrix->stTransformMatrix.stCol_1.xY;
-        MTH_tdxReal xZ = _hMatrix->stTransformMatrix.stCol_2.xY;
-        xResult = MTH_M_xSqrt(xX * xX + xY * xY + xZ * xZ);
-    }
-    return xResult;
-}
-
-MTH_tdxReal POS_fn_xGetMaxScale(POS_tdstCompletePosition *_hMatrix)
-{
-
-	MTH_tdxReal xRet;
-	MTH_tdxReal xL1,xL2,xL3;
-
-	if ( _hMatrix->ulType <= POS_C_ulRotationMatrixFlag )
-		return MTH_C_ONE;
-
-	xL1 = MTH3D_M_xSqrVector(&_hMatrix->stTransformMatrix.stCol_0);
-	xL2 = MTH3D_M_xSqrVector(&_hMatrix->stTransformMatrix.stCol_1);
-	xL3 = MTH3D_M_xSqrVector(&_hMatrix->stTransformMatrix.stCol_2);
-	xRet = MTH_M_xMax(xL1, xL2);
-	xRet = MTH_M_xMax(xRet, xL3);
-	xRet = MTH_M_xSqrt(xRet);
-	return xRet;
 }
 
 void POS_fn_vRotatePositionAroundAxis(POS_tdxHandleToPosition _hPos,
@@ -670,6 +574,104 @@ void POS_fn_vRotatePositionAroundAxisNoTranslation(POS_tdxHandleToPosition _hPos
         MTH3D_M_vMulMatrixMatrix(&_hPos->stTransformMatrix, &_hPos->stTransformMatrix, &stMatrix);
 
     _hPos->ulType = (_hPos->ulType > POS_C_ulRotationMatrixFlag) ? _hPos->ulType : POS_C_ulRotationMatrixFlag;
+}
+
+/* 0x00445BE0 */
+void POS_fn_vRotateX(POS_tdstCompletePosition *hMatrix, MTH_tdxReal xXAngle)
+{
+    MTH3D_tdstVector stI;
+    MTH3D_tdstVector stJ;
+    MTH3D_tdstVector stK;
+    MTH_tdxReal xSin = MTH_M_xSin(xXAngle);
+    MTH_tdxReal xCos = MTH_M_xCos(xXAngle);
+
+    MTH3D_M_vSetVectorElements(&stI, MTH_C_ONE, MTH_C_ZERO, MTH_C_ZERO);
+    MTH3D_M_vSetVectorElements(&stJ, MTH_C_ZERO, xCos, xSin);
+    MTH3D_M_vSetVectorElements(&stK, MTH_C_ZERO, MTH_M_xNeg(xSin), xCos);
+
+    POS_fn_vSetRotationMatrix(hMatrix, &stI, &stJ, &stK);
+}
+
+void POS_fn_vSetTransformMatrix(POS_tdstCompletePosition *_hMatrix,
+                                MTH3D_tdstVector *_p_stI,
+                                MTH3D_tdstVector *_p_stJ,
+                                MTH3D_tdstVector *_p_stK)
+{
+
+    _hMatrix->stTransformMatrix.stCol_0.xX = _p_stI->xX;
+    _hMatrix->stTransformMatrix.stCol_0.xY = _p_stI->xY;
+    _hMatrix->stTransformMatrix.stCol_0.xZ = _p_stI->xZ;
+    _hMatrix->stTransformMatrix.stCol_1.xX = _p_stJ->xX;
+    _hMatrix->stTransformMatrix.stCol_1.xY = _p_stJ->xY;
+    _hMatrix->stTransformMatrix.stCol_1.xZ = _p_stJ->xZ;
+    _hMatrix->stTransformMatrix.stCol_2.xX = _p_stK->xX;
+    _hMatrix->stTransformMatrix.stCol_2.xY = _p_stK->xY;
+    _hMatrix->stTransformMatrix.stCol_2.xZ = _p_stK->xZ;
+    _hMatrix->ulType = POS_C_ulCompleteMatrixFlag;
+}
+
+void POS_fn_vSetTranslationVector(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stTrs)
+{
+
+    _hMatrix->stTranslationVector.xX = _p_stTrs->xX;
+    _hMatrix->stTranslationVector.xY = _p_stTrs->xY;
+    _hMatrix->stTranslationVector.xZ = _p_stTrs->xZ;
+    if (_hMatrix->ulType == POS_C_ulIdentityMatrixFlag)
+        _hMatrix->ulType = POS_C_ulTranslationMatrixFlag;
+}
+
+void POS_fn_vGetTranslationVector(POS_tdstCompletePosition *_hMatrix, MTH3D_tdstVector *_p_stTrs)
+{
+
+    _p_stTrs->xX = _hMatrix->stTranslationVector.xX;
+    _p_stTrs->xY = _hMatrix->stTranslationVector.xY;
+    _p_stTrs->xZ = _hMatrix->stTranslationVector.xZ;
+}
+
+MTH_tdxReal POS_fn_xGetXScale(POS_tdstCompletePosition *_hMatrix)
+{
+
+    MTH_tdxReal xResult = MTH_C_ONE;
+    if (_hMatrix->ulType > POS_C_ulRotationMatrixFlag)
+    {
+        MTH_tdxReal xX = _hMatrix->stTransformMatrix.stCol_0.xX;
+        MTH_tdxReal xY = _hMatrix->stTransformMatrix.stCol_1.xX;
+        MTH_tdxReal xZ = _hMatrix->stTransformMatrix.stCol_2.xX;
+        xResult = MTH_M_xSqrt(xX * xX + xY * xY + xZ * xZ);
+    }
+    return xResult;
+}
+
+MTH_tdxReal POS_fn_xGetYScale(POS_tdstCompletePosition *_hMatrix)
+{
+
+    MTH_tdxReal xResult = MTH_C_ONE;
+    if (_hMatrix->ulType > POS_C_ulRotationMatrixFlag)
+    {
+        MTH_tdxReal xX = _hMatrix->stTransformMatrix.stCol_0.xY;
+        MTH_tdxReal xY = _hMatrix->stTransformMatrix.stCol_1.xY;
+        MTH_tdxReal xZ = _hMatrix->stTransformMatrix.stCol_2.xY;
+        xResult = MTH_M_xSqrt(xX * xX + xY * xY + xZ * xZ);
+    }
+    return xResult;
+}
+
+MTH_tdxReal POS_fn_xGetMaxScale(POS_tdstCompletePosition *_hMatrix)
+{
+
+	MTH_tdxReal xRet;
+	MTH_tdxReal xL1,xL2,xL3;
+
+	if ( _hMatrix->ulType <= POS_C_ulRotationMatrixFlag )
+		return MTH_C_ONE;
+
+	xL1 = MTH3D_M_xSqrVector(&_hMatrix->stTransformMatrix.stCol_0);
+	xL2 = MTH3D_M_xSqrVector(&_hMatrix->stTransformMatrix.stCol_1);
+	xL3 = MTH3D_M_xSqrVector(&_hMatrix->stTransformMatrix.stCol_2);
+	xRet = MTH_M_xMax(xL1, xL2);
+	xRet = MTH_M_xMax(xRet, xL3);
+	xRet = MTH_M_xSqrt(xRet);
+	return xRet;
 }
 
 void POS_fn_vQuatToMat(MTH3D_tdstMatrix *_p_stMatrix,

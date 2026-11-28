@@ -5,6 +5,14 @@
 
 extern void __cdecl fn_vReinitAIWithFlags(AI_tdstMind *p_stMind, unsigned long eObjIniType);
 
+void __cdecl AI_pc_fn_vReinitAIInTree(HIE_tdstSuperObject *p_stSO);
+
+void __cdecl AI_pc_fn_vReinitAIInDynamicWorlds(void)
+{
+    AI_pc_fn_vReinitAIInTree(gp_stDynamicWorld);
+    AI_pc_fn_vReinitAIInTree(gp_stInactiveDynamicWorld);
+}
+
 void __cdecl AI_pc_fn_vReinitAIInTree(HIE_tdstSuperObject *p_stSO)
 {
     if (p_stSO->ulTypeOfLinkedObject == 2)
@@ -32,10 +40,4 @@ void __cdecl AI_pc_fn_vReinitAIInTree(HIE_tdstSuperObject *p_stSO)
             AI_pc_fn_vReinitAIInTree(p_stChild);
         }
     }
-}
-
-void __cdecl AI_pc_fn_vReinitAIInDynamicWorlds(void)
-{
-    AI_pc_fn_vReinitAIInTree(gp_stDynamicWorld);
-    AI_pc_fn_vReinitAIInTree(gp_stInactiveDynamicWorld);
 }

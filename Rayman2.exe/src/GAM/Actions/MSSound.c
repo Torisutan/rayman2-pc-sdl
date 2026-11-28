@@ -8,22 +8,6 @@ struct tdstMSSound_
 
 };
 
-/* 0x00415930 */
-int __cdecl fn_bRetRollOffFactor(long _lObj, struct _RollOffParam *_p_stRolloff)
-{
-    MS_tdxHandleToMSSound hMSSound;
-
-    if (!_lObj || _lObj == SND_C_OBJET_FANTOME)
-        return FALSE;
-
-    hMSSound = M_GetMSHandle((HIE_tdstSuperObject *)_lObj, MSSound);
-    if (!hMSSound)
-        return FALSE;
-    _p_stRolloff->rDistSatur      = hMSSound->stRollOff.rDistSatur;
-    _p_stRolloff->rDistBackGround = hMSSound->stRollOff.rDistBackGround;
-    return TRUE;
-}
-
 /* 0x0042DB20 */
 void __cdecl fn_vMSSoundSetSaturationDistance(MS_tdxHandleToMSSound h_MSSound, long xSaturationDistance)
 {
@@ -50,30 +34,10 @@ long __cdecl fn_xMSSoundGetBackGroundDistance(MS_tdxHandleToMSSound h_MSSound)
 extern unsigned long __cdecl GAM_pc_fn_ulGetHolderSize8(void);
 extern void *__cdecl fnp_vGameMallocInHLM(unsigned int ulSize);
 
-/* 0x00415760 */
-void *__cdecl fn_h_MSSoundRealAlloc(void)
-{
-    return fnp_vGameMallocInHLM((unsigned int)GAM_pc_fn_ulGetHolderSize8());
-}
-
 extern unsigned char __cdecl SAI_fn_bInsertLongInTable(void *_p_vValue, unsigned short _eFlags);
 extern unsigned char __cdecl SAI_fn_bRemoveValueFromTable(void *_p_vValue, unsigned short _eFlags);
 
 #define C_Sound_SAIInitFlags ((unsigned short)0x0032)
-
-/* 0x00415960 */
-void __cdecl fn_vMSSoundInitValueSAI(MS_tdxHandleToMSSound h_MSSound)
-{
-    SAI_fn_bInsertLongInTable((void *)&h_MSSound->stRollOff.rDistSatur, C_Sound_SAIInitFlags);
-    SAI_fn_bInsertLongInTable((void *)&h_MSSound->stRollOff.rDistBackGround, C_Sound_SAIInitFlags);
-}
-
-/* 0x00415980 */
-void __cdecl fn_vMSSoundFreeInitValueSAI(MS_tdxHandleToMSSound h_MSSound)
-{
-    SAI_fn_bRemoveValueFromTable((void *)&h_MSSound->stRollOff.rDistSatur, C_Sound_SAIInitFlags);
-    SAI_fn_bRemoveValueFromTable((void *)&h_MSSound->stRollOff.rDistBackGround, C_Sound_SAIInitFlags);
-}
 
 #define E_uwGameMiniStructObjectNull        ((unsigned short)0xE)
 #define E_uwGameMiniStructAllocAlreadyAlloc ((unsigned short)0xD)
@@ -87,6 +51,11 @@ extern void ERM_fn_vUpdateLastError(unsigned short uwStartOfWarningsId,
                                     unsigned char  ucOpenInfoWindow,
                                     unsigned char  ucStopForDebug,
                                     char          *szPersonalMsg);
+
+extern void __cdecl fn_vGameFreeInHLM(void *p_vObject);
+
+void *__cdecl fn_h_MSSoundRealAlloc(void);
+void __cdecl fn_vMSSoundInitValueSAI(MS_tdxHandleToMSSound h_MSSound);
 
 /* 0x004156E0 */
 void __cdecl fn_vMSSoundAlloc(struct tdstEngineObject_ *p_stObject)
@@ -111,7 +80,13 @@ void __cdecl fn_vMSSoundAlloc(struct tdstEngineObject_ *p_stObject)
     fn_vMSSoundInitValueSAI(p_stObject->h_MSSound);
 }
 
-extern void __cdecl fn_vGameFreeInHLM(void *p_vObject);
+/* 0x00415760 */
+void *__cdecl fn_h_MSSoundRealAlloc(void)
+{
+    return fnp_vGameMallocInHLM((unsigned int)GAM_pc_fn_ulGetHolderSize8());
+}
+
+void __cdecl fn_vMSSoundFreeInitValueSAI(MS_tdxHandleToMSSound h_MSSound);
 
 /* 0x00415770 */
 void __cdecl fn_vMSSoundFree(struct tdstEngineObject_ *p_stObject)
@@ -143,10 +118,7 @@ void __cdecl fn_vMSSoundFree(struct tdstEngineObject_ *p_stObject)
 #define OTI_LoadSavedGame   3
 #define OTI_PlayerDead      4
 
-void __cdecl fn_vMSSoundSavedValueSAI(void *h_MSSound)
-{
-    (void)h_MSSound;
-}
+void __cdecl fn_vMSSoundSavedValueSAI(void *h_MSSound);
 
 /* 0x00415800 */
 void __cdecl fn_vMSSoundInit(struct tdstEngineObject_ *p_stObject, int eObjectInit)
@@ -186,14 +158,6 @@ void __cdecl fn_vMSSoundInit(struct tdstEngineObject_ *p_stObject, int eObjectIn
     }
 }
 
-/* 0x00415900 */
-void __cdecl fn_vMSSoundCopyClone(struct tdstEngineObject_ *p_stObjectDest, struct tdstEngineObject_ *p_stObjectSrc)
-{
-    memcpy(p_stObjectDest->h_MSSound,
-           p_stObjectSrc->h_MSSound,
-           GAM_pc_fn_ulGetHolderSize8());
-}
-
 /* 0x00415890 */
 void __cdecl fn_vMSSoundDesinit(struct tdstEngineObject_ *p_stObject, int eObjectInit)
 {
@@ -213,4 +177,47 @@ void __cdecl fn_vMSSoundDesinit(struct tdstEngineObject_ *p_stObject, int eObjec
                                 E_uwGameMiniStructNull,
                                 -1, 0xff, 0xff, NULL);
     }
+}
+
+/* 0x00415900 */
+void __cdecl fn_vMSSoundCopyClone(struct tdstEngineObject_ *p_stObjectDest, struct tdstEngineObject_ *p_stObjectSrc)
+{
+    memcpy(p_stObjectDest->h_MSSound,
+           p_stObjectSrc->h_MSSound,
+           GAM_pc_fn_ulGetHolderSize8());
+}
+
+/* 0x00415930 */
+int __cdecl fn_bRetRollOffFactor(long _lObj, struct _RollOffParam *_p_stRolloff)
+{
+    MS_tdxHandleToMSSound hMSSound;
+
+    if (!_lObj || _lObj == SND_C_OBJET_FANTOME)
+        return FALSE;
+
+    hMSSound = M_GetMSHandle((HIE_tdstSuperObject *)_lObj, MSSound);
+    if (!hMSSound)
+        return FALSE;
+    _p_stRolloff->rDistSatur      = hMSSound->stRollOff.rDistSatur;
+    _p_stRolloff->rDistBackGround = hMSSound->stRollOff.rDistBackGround;
+    return TRUE;
+}
+
+/* 0x00415960 */
+void __cdecl fn_vMSSoundInitValueSAI(MS_tdxHandleToMSSound h_MSSound)
+{
+    SAI_fn_bInsertLongInTable((void *)&h_MSSound->stRollOff.rDistSatur, C_Sound_SAIInitFlags);
+    SAI_fn_bInsertLongInTable((void *)&h_MSSound->stRollOff.rDistBackGround, C_Sound_SAIInitFlags);
+}
+
+/* 0x00415980 */
+void __cdecl fn_vMSSoundFreeInitValueSAI(MS_tdxHandleToMSSound h_MSSound)
+{
+    SAI_fn_bRemoveValueFromTable((void *)&h_MSSound->stRollOff.rDistSatur, C_Sound_SAIInitFlags);
+    SAI_fn_bRemoveValueFromTable((void *)&h_MSSound->stRollOff.rDistBackGround, C_Sound_SAIInitFlags);
+}
+
+void __cdecl fn_vMSSoundSavedValueSAI(void *h_MSSound)
+{
+    (void)h_MSSound;
 }

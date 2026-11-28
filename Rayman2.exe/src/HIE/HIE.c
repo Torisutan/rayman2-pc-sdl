@@ -24,21 +24,10 @@ void *HIE_g_a_hMatrixStack_backing[1 + HIE_C_lMaxMatrixInStack];
 #define HIE_g_a_hMatrixStackCurrent (HIE_g_a_hMatrixStack_backing)
 #define HIE_g_a_hMatrixStack        (HIE_g_a_hMatrixStack_backing + 1)
 
-void HIE_fn_vSetSuperObjectExcluLight(HIE_tdstSuperObject *_hSprObj,
-                                      unsigned char _bExcluLight)
-{
-    if (_bExcluLight != 0)
-    {
-        _hSprObj->ulFlags |= HIE_C_Flag_ExcluLight;
-    }
-    else
-    {
-        _hSprObj->ulFlags &= ~HIE_C_Flag_ExcluLight;
-    }
-}
-
 /* 0x00413790 */
 unsigned char __cdecl fn_ucStdGameCheckValidity(struct HIE_tdstSuperObject *_h_SprObj);
+
+extern POS_tdstCompletePosition *g_p_stCurrentInCamCoordsMatrix;   /* 0x00514D64 */
 
 void HIE_fn_vInitMatrixStack(void)
 {
@@ -49,6 +38,17 @@ void HIE_fn_vInitMatrixStack(void)
     HIE_g_lNbMatrixInStack++;
     HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[HIE_g_lNbMatrixInStack];
     HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
+}
+
+ACP_tdxBool HIE_fn_bLoadIdentity(void)
+{
+    if (HIE_g_lNbMatrixInStack == HIE_C_lMaxMatrixInStack)
+        return 0;
+    HIE_g_a_hMatrixStack[HIE_g_lNbMatrixInStack] = HIE_g_a_hMatrixStack[0];
+    HIE_g_lNbMatrixInStack++;
+    HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[HIE_g_lNbMatrixInStack];
+    HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
+    return 1;
 }
 
 ACP_tdxBool HIE_fn_bPopMatrix(void)
@@ -77,19 +77,6 @@ ACP_tdxBool HIE_fn_bStoreMatrix(void *hMatrix)
     HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
     return 1;
 }
-
-ACP_tdxBool HIE_fn_bLoadIdentity(void)
-{
-    if (HIE_g_lNbMatrixInStack == HIE_C_lMaxMatrixInStack)
-        return 0;
-    HIE_g_a_hMatrixStack[HIE_g_lNbMatrixInStack] = HIE_g_a_hMatrixStack[0];
-    HIE_g_lNbMatrixInStack++;
-    HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[HIE_g_lNbMatrixInStack];
-    HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
-    return 1;
-}
-
-extern POS_tdstCompletePosition *g_p_stCurrentInCamCoordsMatrix;   /* 0x00514D64 */
 #include "GLD/GLD_Pub.h"
 #include "GLI/Vpt3D.h"
 
@@ -126,45 +113,123 @@ ACP_tdxBool HIE_fn_bPopOnCameraMatrixStack(void)
     return 1;
 }
 
-void HIE_fn_vPushOnCameraMatrixStack(HIE_tdstSuperObject *_hSprObj)
+void HIE_fn_vSetSuperObjectObjectAndType(HIE_tdstSuperObject *_hSprObj,
+                                         void *_hObj,
+                                         unsigned long _ulType)
 {
-    HIE_fn_bPushOnCameraMatrixStack(_hSprObj->hLocalMatrix);
-}
+    unsigned long ulType = 1;
 
-/* 0x0045BFF0 */
-void HIE_fn_vPopMatrix(void)
-{
-    HIE_fn_bPopMatrix();
-}
-
-/* 0x0045C020 */
-void HIE_fn_vPopOnCameraMatrixStack(void)
-{
-    HIE_fn_bPopOnCameraMatrixStack();
-}
-
-static __inline ACP_tdxBool HIE_fn_bIsGlobalMatrixValid(HIE_tdstSuperObject *_hSprObj)
-{
-    long lFrame;
-
-    lFrame = _hSprObj->lLastComputeFrame;
-    return (ACP_tdxBool)(lFrame == HIE_gs_lCurrentFrame || lFrame == HIE_C_lCounterNotValid);
-}
-
-void HIE_fn_vPushMatrix(HIE_tdstSuperObject *hSprObj)
-{
-    if (HIE_fn_bIsGlobalMatrixValid(hSprObj))
+    if (_hObj != NULL)
     {
-        HIE_fn_bStoreMatrix(hSprObj->hGlobalMatrix);
+        ulType = _ulType;
+    }
+
+    _hSprObj->ulTypeOfLinkedObject = ulType;
+    _hSprObj->hLinkedObject.p_Void = _hObj;
+}
+
+HIE_tdstSuperObject * HIE_fn_hGetElementFormFixViewport(short xIndex)
+{
+    if (xIndex < HIE_g_xFixIndex)
+    {
+        return HIE_gd_hFixSPO[xIndex];
+    }
+
+    return NULL;
+}
+
+void HIE_fn_SO_vSetSuperimposedFlag(HIE_tdstSuperObject *_hSO)
+{
+    if ((_hSO->ulFlags & HIE_C_Flag_Superimposed) == HIE_C_Flag_Superimposed)
+    {
+        return;
+    }
+
+    _hSO->ulFlags |= (HIE_C_Flag_Superimposed | HIE_C_Flag_NotPickable);
+
+    if (HIE_g_xFixIndex < HIE_C_MaxNumberOfSPOInTheFix)
+    {
+        HIE_gd_hFixSPO[HIE_g_xFixIndex] = _hSO;
+        HIE_g_xFixIndex++;
+    }
+}
+
+void HIE_fn_SO_vClearSuperimposedFlag(HIE_tdstSuperObject *_hSO)
+{
+    short xIndex;
+
+    if ((_hSO->ulFlags & HIE_C_Flag_Superimposed) != HIE_C_Flag_Superimposed)
+    {
+        return;
+    }
+
+    _hSO->ulFlags &= ~(HIE_C_Flag_Superimposed | HIE_C_Flag_NotPickable);
+
+    if (HIE_g_xFixIndex == 0)
+    {
+        return;
+    }
+
+    for (xIndex = 0; xIndex < HIE_C_MaxNumberOfSPOInTheFix; xIndex++)
+    {
+        if (HIE_gd_hFixSPO[xIndex] == _hSO)
+        {
+            HIE_g_xFixIndex--;
+            if (HIE_g_xFixIndex != 0)
+            {
+                HIE_gd_hFixSPO[xIndex] = HIE_gd_hFixSPO[HIE_g_xFixIndex];
+            }
+            HIE_gd_hFixSPO[HIE_g_xFixIndex] = NULL;
+            break;
+        }
+    }
+}
+
+void HIE_fn_SO_SwitchSuperImposedTab(long lParam)
+{
+    int i;
+
+    if (lParam != 0)
+    {
+        if (HIE_g_xFixIndex != 0)
+        {
+            for (i = 0; i < HIE_g_xFixIndex; i++)
+            {
+                HIE_gd_hFixSPOSave[HIE_g_xFixIndexSave++] = HIE_gd_hFixSPO[i];
+                HIE_gd_ucContextOfSPOSave[i] = HIE_g_ucContext;
+            }
+            HIE_g_xFixIndex = 0;
+        }
+        HIE_g_ucContext++;
+        return;
+    }
+
+    HIE_g_ucContext--;
+    if (HIE_g_xFixIndexSave != 0)
+    {
+        HIE_g_xFixIndex = 0;
+        for (; (HIE_g_xFixIndexSave > 0) &&
+               (HIE_gd_ucContextOfSPOSave[HIE_g_xFixIndexSave - 1] == HIE_g_ucContext);
+             HIE_g_xFixIndexSave--)
+        {
+            if (fn_ucStdGameCheckValidity((struct HIE_tdstSuperObject *)HIE_gd_hFixSPOSave[HIE_g_xFixIndexSave - 1]) != 0)
+            {
+                HIE_gd_hFixSPO[HIE_g_xFixIndex++] = HIE_gd_hFixSPOSave[HIE_g_xFixIndexSave - 1];
+            }
+        }
+    }
+}
+
+void HIE_fn_vSetSuperObjectExcluLight(HIE_tdstSuperObject *_hSprObj,
+                                      unsigned char _bExcluLight)
+{
+    if (_bExcluLight != 0)
+    {
+        _hSprObj->ulFlags |= HIE_C_Flag_ExcluLight;
     }
     else
     {
-        POS_fn_vMulMatrixMatrix(
-            (POS_tdstCompletePosition *)hSprObj->hGlobalMatrix,
-            (POS_tdstCompletePosition *)HIE_g_a_hMatrixStack[HIE_g_lNbMatrixInStack - 1],
-            (POS_tdstCompletePosition *)hSprObj->hLocalMatrix);
-        HIE_fn_bStoreMatrix(hSprObj->hGlobalMatrix);
-        HIE_fn_vValidateGlobalMatrix(hSprObj);
+        _hSprObj->ulFlags &= ~HIE_C_Flag_ExcluLight;
     }
 }
 
@@ -238,21 +303,6 @@ void HIE_fn_vPseudoIsolate(HIE_tdstSuperObject *_hSprObj)
     _hSprObj->p_stNextBrother = p_stNextBrother;
 }
 
-void HIE_fn_vSetSuperObjectObjectAndType(HIE_tdstSuperObject *_hSprObj,
-                                         void *_hObj,
-                                         unsigned long _ulType)
-{
-    unsigned long ulType = 1;
-
-    if (_hObj != NULL)
-    {
-        ulType = _ulType;
-    }
-
-    _hSprObj->ulTypeOfLinkedObject = ulType;
-    _hSprObj->hLinkedObject.p_Void = _hObj;
-}
-
 HIE_tdstSuperObject *HIE_fn_p_stCreateSuperObjectTab(long _lSize)
 {
 
@@ -287,10 +337,7 @@ HIE_tdstSuperObject *HIE_fn_p_stCreateSuperObjectTab(long _lSize)
     return p_stNewSuperObjectTab;
 }
 
-unsigned char __cdecl HIE_fn_bIsSuperObjectValid(HIE_tdstSuperObject *_hSprObj)
-{
-    return (unsigned char)(_hSprObj != (HIE_tdstSuperObject *)0);
-}
+unsigned char __cdecl HIE_fn_bIsSuperObjectValid(HIE_tdstSuperObject *_hSprObj);
 
 HIE_tdstSuperObject * HIE_fn_hForceGetSuperObjectNextBrother(HIE_tdstSuperObject *_hSprObj)
 {
@@ -306,24 +353,6 @@ HIE_tdstSuperObject * HIE_fn_hForceGetSuperObjectPrevBrother(HIE_tdstSuperObject
         return _hSprObj->p_stPrevBrother;
     else
         return _hSprObj;
-}
-
-HIE_tdstSuperObject * HIE_fn_hGetElementFormFixViewport(short xIndex)
-{
-    if (xIndex < HIE_g_xFixIndex)
-    {
-        return HIE_gd_hFixSPO[xIndex];
-    }
-
-    return NULL;
-}
-
-void HIE_fn_vInitGlobalMatrixFrameCounter(long lValue)
-{
-    if (lValue != HIE_C_lCounterNotValid)
-        HIE_gs_lCurrentFrame = lValue;
-    else
-        HIE_gs_lCurrentFrame = lValue + 1;
 }
 
 void HIE_fn_vInvalidateAllGlobalMatrices(void)
@@ -351,6 +380,50 @@ void HIE_fn_vInvalidateOneGlobalMatrix(HIE_tdstSuperObject *_hSprObj)
     {
         _hSprObj->lLastComputeFrame = -2;
     }
+}
+
+void HIE_fn_vInitGlobalMatrixFrameCounter(long lValue)
+{
+    if (lValue != HIE_C_lCounterNotValid)
+        HIE_gs_lCurrentFrame = lValue;
+    else
+        HIE_gs_lCurrentFrame = lValue + 1;
+}
+
+static __inline ACP_tdxBool HIE_fn_bIsGlobalMatrixValid(HIE_tdstSuperObject *_hSprObj);
+
+void HIE_fn_vPushMatrix(HIE_tdstSuperObject *hSprObj)
+{
+    if (HIE_fn_bIsGlobalMatrixValid(hSprObj))
+    {
+        HIE_fn_bStoreMatrix(hSprObj->hGlobalMatrix);
+    }
+    else
+    {
+        POS_fn_vMulMatrixMatrix(
+            (POS_tdstCompletePosition *)hSprObj->hGlobalMatrix,
+            (POS_tdstCompletePosition *)HIE_g_a_hMatrixStack[HIE_g_lNbMatrixInStack - 1],
+            (POS_tdstCompletePosition *)hSprObj->hLocalMatrix);
+        HIE_fn_bStoreMatrix(hSprObj->hGlobalMatrix);
+        HIE_fn_vValidateGlobalMatrix(hSprObj);
+    }
+}
+
+/* 0x0045BFF0 */
+void HIE_fn_vPopMatrix(void)
+{
+    HIE_fn_bPopMatrix();
+}
+
+void HIE_fn_vPushOnCameraMatrixStack(HIE_tdstSuperObject *_hSprObj)
+{
+    HIE_fn_bPushOnCameraMatrixStack(_hSprObj->hLocalMatrix);
+}
+
+/* 0x0045C020 */
+void HIE_fn_vPopOnCameraMatrixStack(void)
+{
+    HIE_fn_bPopOnCameraMatrixStack();
 }
 
 void HIE_fn_vComputeNewRelativeMatrix(HIE_tdstSuperObject *_hSprObj)
@@ -465,53 +538,6 @@ void HIE_fn_vInvalidateHierarchy(HIE_tdstSuperObject *_hSprObj)
     }
 }
 
-void HIE_fn_SO_vSetSuperimposedFlag(HIE_tdstSuperObject *_hSO)
-{
-    if ((_hSO->ulFlags & HIE_C_Flag_Superimposed) == HIE_C_Flag_Superimposed)
-    {
-        return;
-    }
-
-    _hSO->ulFlags |= (HIE_C_Flag_Superimposed | HIE_C_Flag_NotPickable);
-
-    if (HIE_g_xFixIndex < HIE_C_MaxNumberOfSPOInTheFix)
-    {
-        HIE_gd_hFixSPO[HIE_g_xFixIndex] = _hSO;
-        HIE_g_xFixIndex++;
-    }
-}
-
-void HIE_fn_SO_vClearSuperimposedFlag(HIE_tdstSuperObject *_hSO)
-{
-    short xIndex;
-
-    if ((_hSO->ulFlags & HIE_C_Flag_Superimposed) != HIE_C_Flag_Superimposed)
-    {
-        return;
-    }
-
-    _hSO->ulFlags &= ~(HIE_C_Flag_Superimposed | HIE_C_Flag_NotPickable);
-
-    if (HIE_g_xFixIndex == 0)
-    {
-        return;
-    }
-
-    for (xIndex = 0; xIndex < HIE_C_MaxNumberOfSPOInTheFix; xIndex++)
-    {
-        if (HIE_gd_hFixSPO[xIndex] == _hSO)
-        {
-            HIE_g_xFixIndex--;
-            if (HIE_g_xFixIndex != 0)
-            {
-                HIE_gd_hFixSPO[xIndex] = HIE_gd_hFixSPO[HIE_g_xFixIndex];
-            }
-            HIE_gd_hFixSPO[HIE_g_xFixIndex] = NULL;
-            break;
-        }
-    }
-}
-
 void HIE_fn_vSetMagnetModification(HIE_tdstSuperObject *_hSprObj, unsigned char _xModified)
 {
     if (_xModified != 0)
@@ -525,37 +551,15 @@ unsigned char HIE_fn_bGetMagnetModification(HIE_tdstSuperObject *_hSprObj)
     return (_hSprObj->ulFlags & HIE_C_Flag_MagnetModification) != 0;
 }
 
-void HIE_fn_SO_SwitchSuperImposedTab(long lParam)
+static __inline ACP_tdxBool HIE_fn_bIsGlobalMatrixValid(HIE_tdstSuperObject *_hSprObj)
 {
-    int i;
+    long lFrame;
 
-    if (lParam != 0)
-    {
-        if (HIE_g_xFixIndex != 0)
-        {
-            for (i = 0; i < HIE_g_xFixIndex; i++)
-            {
-                HIE_gd_hFixSPOSave[HIE_g_xFixIndexSave++] = HIE_gd_hFixSPO[i];
-                HIE_gd_ucContextOfSPOSave[i] = HIE_g_ucContext;
-            }
-            HIE_g_xFixIndex = 0;
-        }
-        HIE_g_ucContext++;
-        return;
-    }
+    lFrame = _hSprObj->lLastComputeFrame;
+    return (ACP_tdxBool)(lFrame == HIE_gs_lCurrentFrame || lFrame == HIE_C_lCounterNotValid);
+}
 
-    HIE_g_ucContext--;
-    if (HIE_g_xFixIndexSave != 0)
-    {
-        HIE_g_xFixIndex = 0;
-        for (; (HIE_g_xFixIndexSave > 0) &&
-               (HIE_gd_ucContextOfSPOSave[HIE_g_xFixIndexSave - 1] == HIE_g_ucContext);
-             HIE_g_xFixIndexSave--)
-        {
-            if (fn_ucStdGameCheckValidity((struct HIE_tdstSuperObject *)HIE_gd_hFixSPOSave[HIE_g_xFixIndexSave - 1]) != 0)
-            {
-                HIE_gd_hFixSPO[HIE_g_xFixIndex++] = HIE_gd_hFixSPOSave[HIE_g_xFixIndexSave - 1];
-            }
-        }
-    }
+unsigned char __cdecl HIE_fn_bIsSuperObjectValid(HIE_tdstSuperObject *_hSprObj)
+{
+    return (unsigned char)(_hSprObj != (HIE_tdstSuperObject *)0);
 }

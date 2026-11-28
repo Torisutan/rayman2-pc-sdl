@@ -120,91 +120,6 @@ void __cdecl COL_fn_vUseEnlargeSphere(COL_tdstGVForCollision *p_stGV)
     }
 }
 
-void __cdecl COL_fn_vCollideStaticSphereWithStaticSphere(COL_tdstGVForCollision *p_stGV)
-{
-    MTH_tdxReal xRadiusSum;
-
-    p_stGV->p_stStaticCenter = p_stGV->p_stStaticGeomObj->d_stListOfPoints + p_stGV->p_stStaticIndexedSphere->xCenterPoint;
-
-    xRadiusSum = MTH_M_xAdd(p_stGV->xDynamicRadius, p_stGV->p_stStaticIndexedSphere->xRadius);
-
-    if (INT_fn_bGetInclusionPointInSphere(&p_stGV->stDinST0Point, p_stGV->p_stStaticCenter, xRadiusSum))
-    {
-
-        MTH3D_tdstVector stMovementVector;
-
-        MTH3D_M_vNegVector(&stMovementVector, &p_stGV->stDinST01Vector);
-
-        COL_fn_vUseInitialSphere(p_stGV);
-        xRadiusSum = MTH_M_xAdd(p_stGV->xDynamicRadius, p_stGV->p_stStaticIndexedSphere->xRadius);
-
-        if (INT_fn_bGetInclusionPointInSphere(&p_stGV->stDinST1Point, p_stGV->p_stStaticCenter, xRadiusSum))
-        {
-
-            MTH3D_tdstVector stCenterToCenter;
-            MTH3D_tdstVector stTempNormal;
-            MTH3D_tdstVector stTempHit;
-            MTH3D_tdstVector stTempDistance;
-            MTH3D_tdstVector stEndPosition;
-
-            MTH3D_M_vSubVector(&stCenterToCenter, &p_stGV->stDinST0Point, p_stGV->p_stStaticCenter);
-            POS_fn_vMulMatrixVector(&stCenterToCenter, p_stGV->p_stStaticGeomObjMatrix, &stCenterToCenter);
-            MTH3D_M_vNormalizeVector(&stTempNormal, &stCenterToCenter);
-
-            POS_fn_vMulMatrixVertex(&stTempHit, p_stGV->p_stStaticGeomObjMatrix, p_stGV->p_stStaticCenter);
-            MTH3D_M_vMulAddVector(&stTempHit, p_stGV->p_stStaticIndexedSphere->xRadius, &stTempNormal, &stTempHit);
-
-            /* 0x0049D0C4 */
-            MTH3D_M_vMulScalarVector(&stTempDistance, MTH_M_xSub(xRadiusSum, (MTH_tdxReal)-0.001f), &stTempNormal);
-            MTH3D_M_vSubVector(&stTempDistance, &stTempDistance, &stCenterToCenter);
-
-            POS_fn_vMulMatrixVector(&stMovementVector, p_stGV->p_stStaticGeomObjMatrix, &stMovementVector);
-            POS_fn_vMulMatrixVertex(&stEndPosition, p_stGV->p_stStaticGeomObjMatrix, &p_stGV->stDinST0Point);
-
-            COL_fn_vAddInStaticCollisionTable(MTH_C_MinusONE, &stTempDistance, &stTempHit, &stTempNormal,
-                                              p_stGV->hDynamicMaterial, p_stGV->hStaticMaterial,
-                                              COL_C_xSphereEntity, COL_C_xSphereEntity,
-                                              p_stGV->p_vParameter1, p_stGV->sParameter2,
-                                              &stMovementVector, p_stGV->p_stDynamicIndexedSphere->xRadius, &stEndPosition);
-        }
-        else
-        {
-
-            MTH_tdxReal      xT;
-            MTH3D_tdstVector stHit;
-            MTH3D_tdstVector stNormal;
-
-            MTH3D_tdstVector stTempHit;
-            MTH3D_tdstVector stTempNormal;
-            MTH3D_tdstVector stTempDistance;
-            MTH3D_tdstVector stEndPosition;
-
-            POS_fn_vMulMatrixVertex(&stEndPosition, p_stGV->p_stStaticGeomObjMatrix, &p_stGV->stDinST0Point);
-
-            if (INT_fn_bIntersectSegmentWithSphere(&p_stGV->stDinST1Point, &stMovementVector,
-                                                   p_stGV->p_stStaticCenter, xRadiusSum, &xT, &stHit, &stNormal))
-            {
-
-                MTH3D_M_vLinearInterpolVector(&stHit, &stHit, p_stGV->p_stStaticCenter,
-                                              MTH_M_xDiv(p_stGV->xDynamicRadius, xRadiusSum));
-                POS_fn_vMulMatrixVertex(&stTempHit, p_stGV->p_stStaticGeomObjMatrix, &stHit);
-
-                MTH3D_M_vMulMatrixVector(&stTempNormal, &p_stGV->p_stStaticGeomObjMatrix->stRotationMatrix, &stNormal);
-
-                MTH3D_M_vNullVector(&stTempDistance);
-
-                POS_fn_vMulMatrixVector(&stMovementVector, p_stGV->p_stStaticGeomObjMatrix, &stMovementVector);
-
-                COL_fn_vAddInStaticCollisionTable(xT, &stTempDistance, &stTempHit, &stTempNormal,
-                                                  p_stGV->hDynamicMaterial, p_stGV->hStaticMaterial,
-                                                  COL_C_xSphereEntity, COL_C_xSphereEntity,
-                                                  p_stGV->p_vParameter1, p_stGV->sParameter2,
-                                                  &stMovementVector, p_stGV->p_stDynamicIndexedSphere->xRadius, &stEndPosition);
-            }
-        }
-    }
-}
-
 /* 0x00499440 */
 ACP_tdxBool __cdecl
 COL_fn_bCollideStaticSphereWithStaticIndexedTriangle(COL_tdstGVForCollision *p_stGV,
@@ -330,37 +245,7 @@ COL_fn_bCollideStaticSphereWithStaticIndexedTriangle(COL_tdstGVForCollision *p_s
     return FALSE;
 }
 
-/* 0x0049A0E0 */
-void COL_fn_vCollideStaticElementSpheresWithStaticElementSpheres ( COL_tdstGVForCollision *p_stGV )
-{
-
-  for ( p_stGV->xDynamicIndexedSphereIndex = 0 ; p_stGV->xDynamicIndexedSphereIndex < p_stGV->p_stDynamicElementSpheres->xNbSpheres ; p_stGV->xDynamicIndexedSphereIndex++ )
-  {
-
-    p_stGV->p_stDynamicIndexedSphere = p_stGV->p_stDynamicElementSpheres->d_stListOfSpheres + p_stGV->xDynamicIndexedSphereIndex;
-
-    p_stGV->p_stDynamicCenter = p_stGV->p_stDynamicGeomObj->d_stListOfPoints + p_stGV->p_stDynamicIndexedSphere->xCenterPoint;
-
-    p_stGV->xDynamicRadius = MTH_M_xDiv ( p_stGV->p_stDynamicIndexedSphere->xRadius, p_stGV->xStaticScale );
-
-    POS_fn_vMulMatrixVertex ( &p_stGV->stDinST0Point, &p_stGV->stD2ST0TransformMatrix, p_stGV->p_stDynamicCenter );
-
-    POS_fn_vMulMatrixVertex ( &p_stGV->stDinST1Point, &p_stGV->stD2ST1TransformMatrix, p_stGV->p_stDynamicCenter );
-    MTH3D_M_vSubVector ( &p_stGV->stDinST01Vector, &p_stGV->stDinST1Point, &p_stGV->stDinST0Point );
-
-    COL_fn_vEnlargeSphereIfNecessary (p_stGV);
-
-    for ( p_stGV->xStaticIndexedSphereIndex = 0 ; p_stGV->xStaticIndexedSphereIndex < p_stGV->p_stStaticElementSpheres->xNbSpheres ; p_stGV->xStaticIndexedSphereIndex++ )
-    {
-
-      p_stGV->p_stStaticIndexedSphere = p_stGV->p_stStaticElementSpheres->d_stListOfSpheres + p_stGV->xStaticIndexedSphereIndex;
-
-      p_stGV->hDynamicMaterial = p_stGV->p_stDynamicIndexedSphere->hMaterial;
-      p_stGV->hStaticMaterial = p_stGV->p_stStaticIndexedSphere->hMaterial;
-      COL_fn_vCollideStaticSphereWithStaticSphere ( p_stGV );
-    }
-  }
-}
+void __cdecl COL_fn_vCollideStaticSphereWithStaticSphere(COL_tdstGVForCollision *p_stGV);
 
 /* 0x00499A80 */
 void COL_fn_vCollideStaticElementSpheresWithStaticElementIndexedTriangles ( COL_tdstGVForCollision *p_stGV )
@@ -404,6 +289,123 @@ void COL_fn_vCollideStaticElementSpheresWithStaticElementIndexedTriangles ( COL_
 
 			}
         }
+    }
+  }
+}
+
+void __cdecl COL_fn_vCollideStaticSphereWithStaticSphere(COL_tdstGVForCollision *p_stGV)
+{
+    MTH_tdxReal xRadiusSum;
+
+    p_stGV->p_stStaticCenter = p_stGV->p_stStaticGeomObj->d_stListOfPoints + p_stGV->p_stStaticIndexedSphere->xCenterPoint;
+
+    xRadiusSum = MTH_M_xAdd(p_stGV->xDynamicRadius, p_stGV->p_stStaticIndexedSphere->xRadius);
+
+    if (INT_fn_bGetInclusionPointInSphere(&p_stGV->stDinST0Point, p_stGV->p_stStaticCenter, xRadiusSum))
+    {
+
+        MTH3D_tdstVector stMovementVector;
+
+        MTH3D_M_vNegVector(&stMovementVector, &p_stGV->stDinST01Vector);
+
+        COL_fn_vUseInitialSphere(p_stGV);
+        xRadiusSum = MTH_M_xAdd(p_stGV->xDynamicRadius, p_stGV->p_stStaticIndexedSphere->xRadius);
+
+        if (INT_fn_bGetInclusionPointInSphere(&p_stGV->stDinST1Point, p_stGV->p_stStaticCenter, xRadiusSum))
+        {
+
+            MTH3D_tdstVector stCenterToCenter;
+            MTH3D_tdstVector stTempNormal;
+            MTH3D_tdstVector stTempHit;
+            MTH3D_tdstVector stTempDistance;
+            MTH3D_tdstVector stEndPosition;
+
+            MTH3D_M_vSubVector(&stCenterToCenter, &p_stGV->stDinST0Point, p_stGV->p_stStaticCenter);
+            POS_fn_vMulMatrixVector(&stCenterToCenter, p_stGV->p_stStaticGeomObjMatrix, &stCenterToCenter);
+            MTH3D_M_vNormalizeVector(&stTempNormal, &stCenterToCenter);
+
+            POS_fn_vMulMatrixVertex(&stTempHit, p_stGV->p_stStaticGeomObjMatrix, p_stGV->p_stStaticCenter);
+            MTH3D_M_vMulAddVector(&stTempHit, p_stGV->p_stStaticIndexedSphere->xRadius, &stTempNormal, &stTempHit);
+
+            /* 0x0049D0C4 */
+            MTH3D_M_vMulScalarVector(&stTempDistance, MTH_M_xSub(xRadiusSum, (MTH_tdxReal)-0.001f), &stTempNormal);
+            MTH3D_M_vSubVector(&stTempDistance, &stTempDistance, &stCenterToCenter);
+
+            POS_fn_vMulMatrixVector(&stMovementVector, p_stGV->p_stStaticGeomObjMatrix, &stMovementVector);
+            POS_fn_vMulMatrixVertex(&stEndPosition, p_stGV->p_stStaticGeomObjMatrix, &p_stGV->stDinST0Point);
+
+            COL_fn_vAddInStaticCollisionTable(MTH_C_MinusONE, &stTempDistance, &stTempHit, &stTempNormal,
+                                              p_stGV->hDynamicMaterial, p_stGV->hStaticMaterial,
+                                              COL_C_xSphereEntity, COL_C_xSphereEntity,
+                                              p_stGV->p_vParameter1, p_stGV->sParameter2,
+                                              &stMovementVector, p_stGV->p_stDynamicIndexedSphere->xRadius, &stEndPosition);
+        }
+        else
+        {
+
+            MTH_tdxReal      xT;
+            MTH3D_tdstVector stHit;
+            MTH3D_tdstVector stNormal;
+
+            MTH3D_tdstVector stTempHit;
+            MTH3D_tdstVector stTempNormal;
+            MTH3D_tdstVector stTempDistance;
+            MTH3D_tdstVector stEndPosition;
+
+            POS_fn_vMulMatrixVertex(&stEndPosition, p_stGV->p_stStaticGeomObjMatrix, &p_stGV->stDinST0Point);
+
+            if (INT_fn_bIntersectSegmentWithSphere(&p_stGV->stDinST1Point, &stMovementVector,
+                                                   p_stGV->p_stStaticCenter, xRadiusSum, &xT, &stHit, &stNormal))
+            {
+
+                MTH3D_M_vLinearInterpolVector(&stHit, &stHit, p_stGV->p_stStaticCenter,
+                                              MTH_M_xDiv(p_stGV->xDynamicRadius, xRadiusSum));
+                POS_fn_vMulMatrixVertex(&stTempHit, p_stGV->p_stStaticGeomObjMatrix, &stHit);
+
+                MTH3D_M_vMulMatrixVector(&stTempNormal, &p_stGV->p_stStaticGeomObjMatrix->stRotationMatrix, &stNormal);
+
+                MTH3D_M_vNullVector(&stTempDistance);
+
+                POS_fn_vMulMatrixVector(&stMovementVector, p_stGV->p_stStaticGeomObjMatrix, &stMovementVector);
+
+                COL_fn_vAddInStaticCollisionTable(xT, &stTempDistance, &stTempHit, &stTempNormal,
+                                                  p_stGV->hDynamicMaterial, p_stGV->hStaticMaterial,
+                                                  COL_C_xSphereEntity, COL_C_xSphereEntity,
+                                                  p_stGV->p_vParameter1, p_stGV->sParameter2,
+                                                  &stMovementVector, p_stGV->p_stDynamicIndexedSphere->xRadius, &stEndPosition);
+            }
+        }
+    }
+}
+
+/* 0x0049A0E0 */
+void COL_fn_vCollideStaticElementSpheresWithStaticElementSpheres ( COL_tdstGVForCollision *p_stGV )
+{
+
+  for ( p_stGV->xDynamicIndexedSphereIndex = 0 ; p_stGV->xDynamicIndexedSphereIndex < p_stGV->p_stDynamicElementSpheres->xNbSpheres ; p_stGV->xDynamicIndexedSphereIndex++ )
+  {
+
+    p_stGV->p_stDynamicIndexedSphere = p_stGV->p_stDynamicElementSpheres->d_stListOfSpheres + p_stGV->xDynamicIndexedSphereIndex;
+
+    p_stGV->p_stDynamicCenter = p_stGV->p_stDynamicGeomObj->d_stListOfPoints + p_stGV->p_stDynamicIndexedSphere->xCenterPoint;
+
+    p_stGV->xDynamicRadius = MTH_M_xDiv ( p_stGV->p_stDynamicIndexedSphere->xRadius, p_stGV->xStaticScale );
+
+    POS_fn_vMulMatrixVertex ( &p_stGV->stDinST0Point, &p_stGV->stD2ST0TransformMatrix, p_stGV->p_stDynamicCenter );
+
+    POS_fn_vMulMatrixVertex ( &p_stGV->stDinST1Point, &p_stGV->stD2ST1TransformMatrix, p_stGV->p_stDynamicCenter );
+    MTH3D_M_vSubVector ( &p_stGV->stDinST01Vector, &p_stGV->stDinST1Point, &p_stGV->stDinST0Point );
+
+    COL_fn_vEnlargeSphereIfNecessary (p_stGV);
+
+    for ( p_stGV->xStaticIndexedSphereIndex = 0 ; p_stGV->xStaticIndexedSphereIndex < p_stGV->p_stStaticElementSpheres->xNbSpheres ; p_stGV->xStaticIndexedSphereIndex++ )
+    {
+
+      p_stGV->p_stStaticIndexedSphere = p_stGV->p_stStaticElementSpheres->d_stListOfSpheres + p_stGV->xStaticIndexedSphereIndex;
+
+      p_stGV->hDynamicMaterial = p_stGV->p_stDynamicIndexedSphere->hMaterial;
+      p_stGV->hStaticMaterial = p_stGV->p_stStaticIndexedSphere->hMaterial;
+      COL_fn_vCollideStaticSphereWithStaticSphere ( p_stGV );
     }
   }
 }

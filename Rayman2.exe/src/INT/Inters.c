@@ -6,37 +6,6 @@
 #include "COL/Inters.h"
 #include "COL/Futil.h"
 
-unsigned long
-INT_fn_ulGetPositionPointWithBox(MTH3D_tdstVector *p_stPoint,
-                                 MTH3D_tdstVector *p_stMinPoint,
-                                 MTH3D_tdstVector *p_stMaxPoint)
-{
-    unsigned long ulOutCode = COL_C_ulNullMask;
-
-    if (MTH_M_bLess(p_stPoint->xX,
-                    p_stMinPoint->xX))
-        ulOutCode |= COL_C_ulXMinMask;
-    else if (MTH_M_bGreater(p_stPoint->xX,
-                            p_stMaxPoint->xX))
-        ulOutCode |= COL_C_ulXMaxMask;
-
-    if (MTH_M_bLess(MTH3D_M_xGetYofVector(p_stPoint),
-                    MTH3D_M_xGetYofVector(p_stMinPoint)))
-        ulOutCode |= COL_C_ulYMinMask;
-    else if (MTH_M_bGreater(MTH3D_M_xGetYofVector(p_stPoint),
-                            MTH3D_M_xGetYofVector(p_stMaxPoint)))
-        ulOutCode |= COL_C_ulYMaxMask;
-
-    if (MTH_M_bLess(MTH3D_M_xGetZofVector(p_stPoint),
-                    MTH3D_M_xGetZofVector(p_stMinPoint)))
-        ulOutCode |= COL_C_ulZMinMask;
-    else if (MTH_M_bGreater(MTH3D_M_xGetZofVector(p_stPoint),
-                            MTH3D_M_xGetZofVector(p_stMaxPoint)))
-        ulOutCode |= COL_C_ulZMaxMask;
-
-    return ulOutCode;
-}
-
 /* 0x00490160 */
 ACP_tdxBool
 INT_fn_bIntersectBoxWithBox(MTH3D_tdstVector *p_stMinPoint1,
@@ -98,26 +67,35 @@ INT_fn_bIntersectSphereWithSphere(MTH3D_tdstVector *p_stCenter1,
                              MTH_M_xSqr(MTH_M_xAdd(xRadius1, xRadius2)) );
 }
 
-/* 0x00490510 */
-ACP_tdxBool
-INT_fn_bGetInclusionPointInBox(MTH3D_tdstVector *p_stPoint,
-                               MTH3D_tdstVector *p_stMinPoint,
-                               MTH3D_tdstVector *p_stMaxPoint)
+unsigned long
+INT_fn_ulGetPositionPointWithBox(MTH3D_tdstVector *p_stPoint,
+                                 MTH3D_tdstVector *p_stMinPoint,
+                                 MTH3D_tdstVector *p_stMaxPoint)
 {
-    if (MTH_M_bLess(MTH3D_M_xGetXofVector(p_stPoint), MTH3D_M_xGetXofVector(p_stMinPoint)))
-        return FALSE;
-    if (MTH_M_bGreater(MTH3D_M_xGetXofVector(p_stPoint), MTH3D_M_xGetXofVector(p_stMaxPoint)))
-        return FALSE;
-    if (MTH_M_bLess(MTH3D_M_xGetYofVector(p_stPoint), MTH3D_M_xGetYofVector(p_stMinPoint)))
-        return FALSE;
-    if (MTH_M_bGreater(MTH3D_M_xGetYofVector(p_stPoint), MTH3D_M_xGetYofVector(p_stMaxPoint)))
-        return FALSE;
-    if (MTH_M_bLess(MTH3D_M_xGetZofVector(p_stPoint), MTH3D_M_xGetZofVector(p_stMinPoint)))
-        return FALSE;
-    if (MTH_M_bGreater(MTH3D_M_xGetZofVector(p_stPoint), MTH3D_M_xGetZofVector(p_stMaxPoint)))
-        return FALSE;
+    unsigned long ulOutCode = COL_C_ulNullMask;
 
-    return TRUE;
+    if (MTH_M_bLess(p_stPoint->xX,
+                    p_stMinPoint->xX))
+        ulOutCode |= COL_C_ulXMinMask;
+    else if (MTH_M_bGreater(p_stPoint->xX,
+                            p_stMaxPoint->xX))
+        ulOutCode |= COL_C_ulXMaxMask;
+
+    if (MTH_M_bLess(MTH3D_M_xGetYofVector(p_stPoint),
+                    MTH3D_M_xGetYofVector(p_stMinPoint)))
+        ulOutCode |= COL_C_ulYMinMask;
+    else if (MTH_M_bGreater(MTH3D_M_xGetYofVector(p_stPoint),
+                            MTH3D_M_xGetYofVector(p_stMaxPoint)))
+        ulOutCode |= COL_C_ulYMaxMask;
+
+    if (MTH_M_bLess(MTH3D_M_xGetZofVector(p_stPoint),
+                    MTH3D_M_xGetZofVector(p_stMinPoint)))
+        ulOutCode |= COL_C_ulZMinMask;
+    else if (MTH_M_bGreater(MTH3D_M_xGetZofVector(p_stPoint),
+                            MTH3D_M_xGetZofVector(p_stMaxPoint)))
+        ulOutCode |= COL_C_ulZMaxMask;
+
+    return ulOutCode;
 }
 
 /* 0x004903F0 */
@@ -164,6 +142,28 @@ INT_fn_bInXZRange(MTH3D_tdstVector *p_stPoint,
     if (MTH_M_bLess(MTH3D_M_xGetXofVector(p_stPoint), MTH3D_M_xGetXofVector(p_stMinPoint)))
         return FALSE;
     if (MTH_M_bGreater(MTH3D_M_xGetXofVector(p_stPoint), MTH3D_M_xGetXofVector(p_stMaxPoint)))
+        return FALSE;
+    if (MTH_M_bLess(MTH3D_M_xGetZofVector(p_stPoint), MTH3D_M_xGetZofVector(p_stMinPoint)))
+        return FALSE;
+    if (MTH_M_bGreater(MTH3D_M_xGetZofVector(p_stPoint), MTH3D_M_xGetZofVector(p_stMaxPoint)))
+        return FALSE;
+
+    return TRUE;
+}
+
+/* 0x00490510 */
+ACP_tdxBool
+INT_fn_bGetInclusionPointInBox(MTH3D_tdstVector *p_stPoint,
+                               MTH3D_tdstVector *p_stMinPoint,
+                               MTH3D_tdstVector *p_stMaxPoint)
+{
+    if (MTH_M_bLess(MTH3D_M_xGetXofVector(p_stPoint), MTH3D_M_xGetXofVector(p_stMinPoint)))
+        return FALSE;
+    if (MTH_M_bGreater(MTH3D_M_xGetXofVector(p_stPoint), MTH3D_M_xGetXofVector(p_stMaxPoint)))
+        return FALSE;
+    if (MTH_M_bLess(MTH3D_M_xGetYofVector(p_stPoint), MTH3D_M_xGetYofVector(p_stMinPoint)))
+        return FALSE;
+    if (MTH_M_bGreater(MTH3D_M_xGetYofVector(p_stPoint), MTH3D_M_xGetYofVector(p_stMaxPoint)))
         return FALSE;
     if (MTH_M_bLess(MTH3D_M_xGetZofVector(p_stPoint), MTH3D_M_xGetZofVector(p_stMinPoint)))
         return FALSE;
@@ -232,6 +232,63 @@ INT_fn_bFastRejectIntersectSegmentWithSphere(MTH3D_tdstVector *p_stVertex1,
     }
 
     return TRUE;
+}
+
+/* 0x00491810 */
+ACP_tdxBool
+INT_fn_bIntersectSegmentWithSphere(MTH3D_tdstVector *p_stVertex1,
+                                   MTH3D_tdstVector *p_stVect12,
+                                   MTH3D_tdstVector *p_stSphereCenter,
+                                   MTH_tdxReal       xSphereRadius,
+                                   MTH_tdxReal      *p_xT,
+                                   MTH3D_tdstVector *p_stHit,
+                                   MTH3D_tdstVector *p_stNormal)
+{
+    MTH3D_tdstVector stVectS1;
+    MTH_tdxReal      xA, xB, xC, xT1, xT2, xT, xInvR;
+
+    if (!INT_fn_bFastRejectIntersectSegmentWithSphere(p_stVertex1, p_stVect12,
+                                                      p_stSphereCenter, xSphereRadius))
+        return FALSE;
+
+    MTH3D_M_vSubVector(&stVectS1, p_stVertex1, p_stSphereCenter);
+    xA = MTH3D_M_xSqrVector(p_stVect12);
+    xB = MTH3D_M_xDotProductVector(p_stVect12, &stVectS1);
+    xB = MTH_M_xAdd(xB, xB);
+    xC = MTH_M_xSub(MTH3D_M_xSqrVector(&stVectS1), MTH_M_xSqr(xSphereRadius));
+
+    switch (INT_fn_xTrinomeResolution(xA, xB, xC, &xT1, &xT2))
+    {
+    case INT_C_xTwoSolutions:
+        xT = MTH_M_xMin(xT1, xT2);
+        if (MTH_M_bGreaterEqual(xT, MTH_C_ZERO) && MTH_M_bLessEqual(xT, MTH_C_ONE))
+        {
+            *p_xT = xT;
+            MTH3D_M_vMulAddVector(p_stHit, xT, p_stVect12, p_stVertex1);
+            MTH3D_M_vSubVector(p_stNormal, p_stHit, p_stSphereCenter);
+            xInvR = MTH_M_xInv(xSphereRadius);
+            MTH3D_M_vMulScalarVector(p_stNormal, xInvR, p_stNormal);
+            return TRUE;
+        }
+        return FALSE;
+
+    case INT_C_xOneSolution:
+        if (MTH_M_bGreaterEqual(xT1, MTH_C_ZERO) && MTH_M_bLessEqual(xT1, MTH_C_ONE))
+        {
+            *p_xT = xT1;
+            MTH3D_M_vMulAddVector(p_stHit, xT1, p_stVect12, p_stVertex1);
+            MTH3D_M_vSubVector(p_stNormal, p_stHit, p_stSphereCenter);
+            xInvR = MTH_M_xInv(xSphereRadius);
+            MTH3D_M_vMulScalarVector(p_stNormal, xInvR, p_stNormal);
+            return TRUE;
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return FALSE;
 }
 
 /* 0x00491D50 */
@@ -342,172 +399,8 @@ INT_fn_bIntersectSegmentWithCylinder(MTH3D_tdstVector *p_stVertex1,
     return FALSE;
 }
 
-/* 0x00491810 */
-ACP_tdxBool
-INT_fn_bIntersectSegmentWithSphere(MTH3D_tdstVector *p_stVertex1,
-                                   MTH3D_tdstVector *p_stVect12,
-                                   MTH3D_tdstVector *p_stSphereCenter,
-                                   MTH_tdxReal       xSphereRadius,
-                                   MTH_tdxReal      *p_xT,
-                                   MTH3D_tdstVector *p_stHit,
-                                   MTH3D_tdstVector *p_stNormal)
-{
-    MTH3D_tdstVector stVectS1;
-    MTH_tdxReal      xA, xB, xC, xT1, xT2, xT, xInvR;
-
-    if (!INT_fn_bFastRejectIntersectSegmentWithSphere(p_stVertex1, p_stVect12,
-                                                      p_stSphereCenter, xSphereRadius))
-        return FALSE;
-
-    MTH3D_M_vSubVector(&stVectS1, p_stVertex1, p_stSphereCenter);
-    xA = MTH3D_M_xSqrVector(p_stVect12);
-    xB = MTH3D_M_xDotProductVector(p_stVect12, &stVectS1);
-    xB = MTH_M_xAdd(xB, xB);
-    xC = MTH_M_xSub(MTH3D_M_xSqrVector(&stVectS1), MTH_M_xSqr(xSphereRadius));
-
-    switch (INT_fn_xTrinomeResolution(xA, xB, xC, &xT1, &xT2))
-    {
-    case INT_C_xTwoSolutions:
-        xT = MTH_M_xMin(xT1, xT2);
-        if (MTH_M_bGreaterEqual(xT, MTH_C_ZERO) && MTH_M_bLessEqual(xT, MTH_C_ONE))
-        {
-            *p_xT = xT;
-            MTH3D_M_vMulAddVector(p_stHit, xT, p_stVect12, p_stVertex1);
-            MTH3D_M_vSubVector(p_stNormal, p_stHit, p_stSphereCenter);
-            xInvR = MTH_M_xInv(xSphereRadius);
-            MTH3D_M_vMulScalarVector(p_stNormal, xInvR, p_stNormal);
-            return TRUE;
-        }
-        return FALSE;
-
-    case INT_C_xOneSolution:
-        if (MTH_M_bGreaterEqual(xT1, MTH_C_ZERO) && MTH_M_bLessEqual(xT1, MTH_C_ONE))
-        {
-            *p_xT = xT1;
-            MTH3D_M_vMulAddVector(p_stHit, xT1, p_stVect12, p_stVertex1);
-            MTH3D_M_vSubVector(p_stNormal, p_stHit, p_stSphereCenter);
-            xInvR = MTH_M_xInv(xSphereRadius);
-            MTH3D_M_vMulScalarVector(p_stNormal, xInvR, p_stNormal);
-            return TRUE;
-        }
-        break;
-
-    default:
-        break;
-    }
-
-    return FALSE;
-}
-
 #define M_GetCoord(p_stVect,Num) \
 	*( ((MTH_tdxReal*)p_stVect) + Num)
-
-static unsigned char ucPlaneCrossingdetect(MTH3D_tdstVector	*p_stVertex1,
-										   MTH3D_tdstVector	*p_stVect12,
-										   MTH3D_tdstVector	*p_stMinPoint,
-										   MTH3D_tdstVector	*p_stMaxPoint,
-										   MTH_tdxReal			xT,
-										   char				cFace)
-
-{
-	unsigned long idx1,idx2;
-	MTH_tdxReal xTmp;
-
-	switch (cFace)
-	{
-	case 'X':
-		idx1 = 1;
-		idx2 = 2;
-		break;
-	case 'Y':
-		idx1 = 0;
-		idx2 = 2;
-		break;
-	case 'Z':
-		idx1 = 0;
-		idx2 = 1;
-		break;
-	default:
-		break;
-	}
-
-	xTmp = MTH_M_xMulAdd (M_GetCoord(p_stVect12,idx1), xT, M_GetCoord(p_stVertex1,idx1));
-	if (MTH_M_bGreaterZero(M_GetCoord(p_stVect12,idx1)))
-	{
-
-		if (MTH_M_bGreater (xTmp,M_GetCoord(p_stMaxPoint,idx1)) )
-			return 0;
-
-		if (MTH_M_bGreaterEqual(xTmp,M_GetCoord(p_stMinPoint,idx1)) )
-		{
-
-			xTmp = MTH_M_xAdd (M_GetCoord(p_stVertex1,idx2), MTH_M_xMul(M_GetCoord(p_stVect12,idx2), xT));
-			if (MTH_M_bGreaterZero(M_GetCoord(p_stVect12,idx2)))
-			{
-
-				if (MTH_M_bGreater (xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
-					return 0;
-
-				if (MTH_M_bGreaterEqual(xTmp,M_GetCoord(p_stMinPoint,idx2)) )
-				{
-					return 1;
-				}
-
-			}
-			else
-			{
-
-				if (MTH_M_bLess (xTmp,M_GetCoord(p_stMinPoint,idx2)) )
-					return 0;
-
-				if (MTH_M_bLessEqual(xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
-				{
-					return 1;
-				}
-
-			}
-		}
-
-	}
-	else
-	{
-
-		if (MTH_M_bLess (xTmp,M_GetCoord(p_stMinPoint,idx1)) )
-			return 0;
-
-		if (MTH_M_bLessEqual(xTmp,M_GetCoord(p_stMaxPoint,idx1)) )
-		{
-
-			xTmp = MTH_M_xAdd (M_GetCoord(p_stVertex1,idx2), MTH_M_xMul(M_GetCoord(p_stVect12,idx2), xT));
-			if (MTH_M_bGreaterZero(M_GetCoord(p_stVect12,idx2)))
-			{
-
-				if (MTH_M_bGreater (xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
-					return 0;
-
-				if (MTH_M_bGreaterEqual(xTmp,M_GetCoord(p_stMinPoint,idx2)) )
-				{
-					return 1;
-				}
-
-			}
-			else
-			{
-
-				if (MTH_M_bLess (xTmp,M_GetCoord(p_stMinPoint,idx2)) )
-					return 0;
-
-				if (MTH_M_bLessEqual(xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
-				{
-					return 1;
-				}
-
-			}
-		}
-
-	}
-	return 2;
-}
 
 #define COL_C_xXMin 0
 #define COL_C_xXMax 1
@@ -614,6 +507,8 @@ INT_fn_bIntersectSegmentWithBox(MTH3D_tdstVector *p_stVertex1,
 
     return FALSE;
 }
+
+static unsigned char ucPlaneCrossingdetect(MTH3D_tdstVector *p_stVertex1, MTH3D_tdstVector *p_stVect12, MTH3D_tdstVector *p_stMinPoint, MTH3D_tdstVector *p_stMaxPoint, MTH_tdxReal xT, char cFace);
 
 ACP_tdxBool
 INT_fn_bDetectIntersectSegmentWithBox(MTH3D_tdstVector *p_stVertex1,
@@ -729,6 +624,113 @@ INT_fn_bDetectIntersectSegmentWithBox(MTH3D_tdstVector *p_stVertex1,
     return FALSE;
 }
 
+static unsigned char ucPlaneCrossingdetect(MTH3D_tdstVector	*p_stVertex1,
+										   MTH3D_tdstVector	*p_stVect12,
+										   MTH3D_tdstVector	*p_stMinPoint,
+										   MTH3D_tdstVector	*p_stMaxPoint,
+										   MTH_tdxReal			xT,
+										   char				cFace)
+
+{
+	unsigned long idx1,idx2;
+	MTH_tdxReal xTmp;
+
+	switch (cFace)
+	{
+	case 'X':
+		idx1 = 1;
+		idx2 = 2;
+		break;
+	case 'Y':
+		idx1 = 0;
+		idx2 = 2;
+		break;
+	case 'Z':
+		idx1 = 0;
+		idx2 = 1;
+		break;
+	default:
+		break;
+	}
+
+	xTmp = MTH_M_xMulAdd (M_GetCoord(p_stVect12,idx1), xT, M_GetCoord(p_stVertex1,idx1));
+	if (MTH_M_bGreaterZero(M_GetCoord(p_stVect12,idx1)))
+	{
+
+		if (MTH_M_bGreater (xTmp,M_GetCoord(p_stMaxPoint,idx1)) )
+			return 0;
+
+		if (MTH_M_bGreaterEqual(xTmp,M_GetCoord(p_stMinPoint,idx1)) )
+		{
+
+			xTmp = MTH_M_xAdd (M_GetCoord(p_stVertex1,idx2), MTH_M_xMul(M_GetCoord(p_stVect12,idx2), xT));
+			if (MTH_M_bGreaterZero(M_GetCoord(p_stVect12,idx2)))
+			{
+
+				if (MTH_M_bGreater (xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
+					return 0;
+
+				if (MTH_M_bGreaterEqual(xTmp,M_GetCoord(p_stMinPoint,idx2)) )
+				{
+					return 1;
+				}
+
+			}
+			else
+			{
+
+				if (MTH_M_bLess (xTmp,M_GetCoord(p_stMinPoint,idx2)) )
+					return 0;
+
+				if (MTH_M_bLessEqual(xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
+				{
+					return 1;
+				}
+
+			}
+		}
+
+	}
+	else
+	{
+
+		if (MTH_M_bLess (xTmp,M_GetCoord(p_stMinPoint,idx1)) )
+			return 0;
+
+		if (MTH_M_bLessEqual(xTmp,M_GetCoord(p_stMaxPoint,idx1)) )
+		{
+
+			xTmp = MTH_M_xAdd (M_GetCoord(p_stVertex1,idx2), MTH_M_xMul(M_GetCoord(p_stVect12,idx2), xT));
+			if (MTH_M_bGreaterZero(M_GetCoord(p_stVect12,idx2)))
+			{
+
+				if (MTH_M_bGreater (xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
+					return 0;
+
+				if (MTH_M_bGreaterEqual(xTmp,M_GetCoord(p_stMinPoint,idx2)) )
+				{
+					return 1;
+				}
+
+			}
+			else
+			{
+
+				if (MTH_M_bLess (xTmp,M_GetCoord(p_stMinPoint,idx2)) )
+					return 0;
+
+				if (MTH_M_bLessEqual(xTmp,M_GetCoord(p_stMaxPoint,idx2)) )
+				{
+					return 1;
+				}
+
+			}
+		}
+
+	}
+	return 2;
+}
+
 ACP_tdxBool
 INT_fn_bDetectIntersectSegmentWithSphere(MTH3D_tdstVector *p_stVertexA,
                                          MTH3D_tdstVector *p_stVectAB,
@@ -812,48 +814,6 @@ INT_fn_bDetectIntersectSegmentWithSphere(MTH3D_tdstVector *p_stVertexA,
 #define FUT_M_xMinValue3(A, B, C) \
     ((((A) < (B)) && ((A) < (C))) ? (A) : (((B) < (C)) ? (B) : (C)))
 
-/* 0x00490FA0 */
-static ACP_tdxBool
-INT_fn_bFastRejectIntersectSegmentWithTriangle(MTH3D_tdstVector *p_stVertexA,
-                                               MTH3D_tdstVector *p_stVectAB,
-                                               MTH3D_tdstVector *p_stVertex1,
-                                               MTH3D_tdstVector *p_stVertex2,
-                                               MTH3D_tdstVector *p_stVertex3)
-{
-    MTH_tdxReal      xMin;
-    MTH_tdxReal      xMax;
-    MTH3D_tdstVector stVertexB;
-    ACP_tdxBool      bGreaterZero;
-
-    MTH3D_M_vAddVector(&stVertexB, p_stVertexA, p_stVectAB);
-
-    bGreaterZero = MTH_M_bGreaterZero(p_stVectAB->xX);
-    xMin = bGreaterZero ? p_stVertexA->xX : stVertexB.xX;
-    xMax = FUT_M_xMaxValue3(p_stVertex1->xX, p_stVertex2->xX, p_stVertex3->xX);
-    if (MTH_M_bLess(xMax, xMin)) return FALSE;
-    xMax = bGreaterZero ? stVertexB.xX : p_stVertexA->xX;
-    xMin = FUT_M_xMinValue3(p_stVertex1->xX, p_stVertex2->xX, p_stVertex3->xX);
-    if (MTH_M_bLess(xMax, xMin)) return FALSE;
-
-    bGreaterZero = MTH_M_bGreaterZero(p_stVectAB->xY);
-    xMin = bGreaterZero ? p_stVertexA->xY : stVertexB.xY;
-    xMax = FUT_M_xMaxValue3(p_stVertex1->xY, p_stVertex2->xY, p_stVertex3->xY);
-    if (MTH_M_bLess(xMax, xMin)) return FALSE;
-    xMax = bGreaterZero ? stVertexB.xY : p_stVertexA->xY;
-    xMin = FUT_M_xMinValue3(p_stVertex1->xY, p_stVertex2->xY, p_stVertex3->xY);
-    if (MTH_M_bLess(xMax, xMin)) return FALSE;
-
-    bGreaterZero = MTH_M_bGreaterZero(p_stVectAB->xZ);
-    xMin = bGreaterZero ? p_stVertexA->xZ : stVertexB.xZ;
-    xMax = FUT_M_xMaxValue3(p_stVertex1->xZ, p_stVertex2->xZ, p_stVertex3->xZ);
-    if (MTH_M_bLess(xMax, xMin)) return FALSE;
-    xMax = bGreaterZero ? stVertexB.xZ : p_stVertexA->xZ;
-    xMin = FUT_M_xMinValue3(p_stVertex1->xZ, p_stVertex2->xZ, p_stVertex3->xZ);
-    if (MTH_M_bLess(xMax, xMin)) return FALSE;
-
-    return TRUE;
-}
-
 /* 0x00490CD0 */
 ACP_tdxBool
 INT_fn_bGetPointInTriangle(MTH3D_tdstVector *p_stPoint,
@@ -898,6 +858,48 @@ INT_fn_bGetPointInTriangle(MTH3D_tdstVector *p_stPoint,
         xDet = MTH3D_M_xDetZXVector(&stVectP2, &stVectP0);
         return FUT_M_bSameSign(xDet, p_stNormal->xY);
     }
+}
+
+/* 0x00490FA0 */
+static ACP_tdxBool
+INT_fn_bFastRejectIntersectSegmentWithTriangle(MTH3D_tdstVector *p_stVertexA,
+                                               MTH3D_tdstVector *p_stVectAB,
+                                               MTH3D_tdstVector *p_stVertex1,
+                                               MTH3D_tdstVector *p_stVertex2,
+                                               MTH3D_tdstVector *p_stVertex3)
+{
+    MTH_tdxReal      xMin;
+    MTH_tdxReal      xMax;
+    MTH3D_tdstVector stVertexB;
+    ACP_tdxBool      bGreaterZero;
+
+    MTH3D_M_vAddVector(&stVertexB, p_stVertexA, p_stVectAB);
+
+    bGreaterZero = MTH_M_bGreaterZero(p_stVectAB->xX);
+    xMin = bGreaterZero ? p_stVertexA->xX : stVertexB.xX;
+    xMax = FUT_M_xMaxValue3(p_stVertex1->xX, p_stVertex2->xX, p_stVertex3->xX);
+    if (MTH_M_bLess(xMax, xMin)) return FALSE;
+    xMax = bGreaterZero ? stVertexB.xX : p_stVertexA->xX;
+    xMin = FUT_M_xMinValue3(p_stVertex1->xX, p_stVertex2->xX, p_stVertex3->xX);
+    if (MTH_M_bLess(xMax, xMin)) return FALSE;
+
+    bGreaterZero = MTH_M_bGreaterZero(p_stVectAB->xY);
+    xMin = bGreaterZero ? p_stVertexA->xY : stVertexB.xY;
+    xMax = FUT_M_xMaxValue3(p_stVertex1->xY, p_stVertex2->xY, p_stVertex3->xY);
+    if (MTH_M_bLess(xMax, xMin)) return FALSE;
+    xMax = bGreaterZero ? stVertexB.xY : p_stVertexA->xY;
+    xMin = FUT_M_xMinValue3(p_stVertex1->xY, p_stVertex2->xY, p_stVertex3->xY);
+    if (MTH_M_bLess(xMax, xMin)) return FALSE;
+
+    bGreaterZero = MTH_M_bGreaterZero(p_stVectAB->xZ);
+    xMin = bGreaterZero ? p_stVertexA->xZ : stVertexB.xZ;
+    xMax = FUT_M_xMaxValue3(p_stVertex1->xZ, p_stVertex2->xZ, p_stVertex3->xZ);
+    if (MTH_M_bLess(xMax, xMin)) return FALSE;
+    xMax = bGreaterZero ? stVertexB.xZ : p_stVertexA->xZ;
+    xMin = FUT_M_xMinValue3(p_stVertex1->xZ, p_stVertex2->xZ, p_stVertex3->xZ);
+    if (MTH_M_bLess(xMax, xMin)) return FALSE;
+
+    return TRUE;
 }
 
 /* 0x00491380 */
@@ -1003,6 +1005,26 @@ ACP_tdxBool INT_fn_bIntersectSegmentWithTriangle ( MTH3D_tdstVector *p_stVertexA
 	}
 }
 
+MTH_tdxReal INT_fn_xDistancePointToLine ( MTH3D_tdstVector *p_stPoint, MTH3D_tdstVector *p_stVertexA, MTH3D_tdstVector *p_stVectAB, MTH_tdxReal *p_xT, MTH3D_tdstVector *p_stHit );
+
+ACP_tdxBool INT_fn_bGetInclusionPointInCone ( MTH3D_tdstVector *p_stPoint,
+                                              MTH3D_tdstVector *p_stTopPoint,
+                                              MTH3D_tdstVector *p_stBasePoint,
+                                              MTH_tdxReal xBaseRadius )
+{
+  MTH_tdxReal xT;
+  MTH3D_tdstVector stHit;
+  MTH_tdxReal xDist;
+
+  MTH3D_tdstVector	stTopBaseVector;
+
+  MTH3D_M_vSubVector(&stTopBaseVector, p_stBasePoint, p_stTopPoint);
+  xDist = INT_fn_xDistancePointToLine ( p_stPoint, p_stTopPoint, &stTopBaseVector,
+                                        &xT, &stHit );
+
+  return ( ( MTH_M_bInUnitEqual ( xT ) ) && ( MTH_M_bLessEqual ( xDist, MTH_M_xMul ( xT, xBaseRadius ) ) ) );
+}
+
 MTH_tdxReal INT_fn_xDistancePointToLine ( MTH3D_tdstVector *p_stPoint,
                                           MTH3D_tdstVector *p_stVertexA,
                                           MTH3D_tdstVector *p_stVectAB,
@@ -1029,24 +1051,6 @@ MTH_tdxReal INT_fn_xDistancePointToLine ( MTH3D_tdstVector *p_stPoint,
 
   return MTH3D_M_xVectorGap ( p_stHit, p_stPoint );
 
-}
-
-ACP_tdxBool INT_fn_bGetInclusionPointInCone ( MTH3D_tdstVector *p_stPoint,
-                                              MTH3D_tdstVector *p_stTopPoint,
-                                              MTH3D_tdstVector *p_stBasePoint,
-                                              MTH_tdxReal xBaseRadius )
-{
-  MTH_tdxReal xT;
-  MTH3D_tdstVector stHit;
-  MTH_tdxReal xDist;
-
-  MTH3D_tdstVector	stTopBaseVector;
-
-  MTH3D_M_vSubVector(&stTopBaseVector, p_stBasePoint, p_stTopPoint);
-  xDist = INT_fn_xDistancePointToLine ( p_stPoint, p_stTopPoint, &stTopBaseVector,
-                                        &xT, &stHit );
-
-  return ( ( MTH_M_bInUnitEqual ( xT ) ) && ( MTH_M_bLessEqual ( xDist, MTH_M_xMul ( xT, xBaseRadius ) ) ) );
 }
 
 #pragma optimize("", on)

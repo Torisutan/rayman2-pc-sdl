@@ -7,25 +7,49 @@ void __cdecl GLI_pc_fn_vSetLodOfAllTextures(void);     /* 0x00426940 */
 void __cdecl GLI_pc_fn_vDownLoadAllTextures(int bReload); /* 0x00426a00 */
 long __cdecl GLI_pc_fn_lReduceTexturesToVramBudget(void); /* 0x0042d270 */
 
-void __cdecl GLI_vComputeTextures(void)
-{
-    GLI_pc_fn_vUnLoadTexturesViaSlot();       /* 0x004269a0 */
-    FUN_0042c780();
-    GLI_pc_fn_lReduceTexturesToVramBudget(); /* 0x0042d270 */
-    GLI_pc_fn_vSetLodOfAllTextures();        /* 0x00426940 */
-    GLI_pc_fn_vDownLoadAllTextures(0);       /* 0x00426a00 */
-}
-
-void __cdecl GLI_vReloadTextures(void)
-{
-    GLI_pc_fn_vDownLoadAllTextures(1);        /* 0x00426a00 */
-}
-
 extern long GLI_pc_g_lTexturesMemMode;
 
-long __cdecl FUN_00424fd0(void)
+/* 0x00426940 */
+extern unsigned long GLI_gs_aDEFTableOfTextureMemoryChannels[1024];
+extern struct GLI_tdstTexture *GLI_gs_aDEFTableOfTextureAlreadyRead[1024];
+
+unsigned long GLI_g_ul503d58;
+
+void __cdecl GLI_pc_fn_vFree(void **ppUser);
+void __cdecl FIL_fn_vFreeGlobalHandleToFileInConcatFile(void);
+extern void *GLI_gs_p_ConvertBufferMipMapping;   /* 0x00503d50 */
+
+extern void *GLI_DRV_g_vUnLoadTextures;
+
+unsigned long __cdecl GLI_pc_fn_vTrackMaxTextureBytes(void);
+void *__cdecl GLI_pc_fn_p_vAlloc(unsigned long ulSize);
+extern long (__cdecl *GLI_g_pfn_SetCommonData)(char const *, void *);
+
+/* 0x00426A00 */
+extern void *GLI_DRV_g_vDownLoadTextures;
+extern unsigned long GLI_g_ulNumberOfLoadedTexture;
+void __cdecl FIL_fn_vInitGlobalHandleToFileInConcatFile(void);
+long __cdecl FUN_00424fd0(void);
+
+void __cdecl GLI_pc_fn_vReleaseTextureSlotsOfKey(unsigned long ulKey);
+
+#include "GLI/devinfo.h"
+unsigned char __cdecl fn_bMicroGetActivationFlag(void *hTexture);
+int __cdecl GLI_pc_fn_lHalveTextureWidth(void *hTexture);
+int __cdecl GLI_pc_fn_lHalveTextureHeight(void *hTexture);
+int __cdecl GLI_pc_fn_lHalveTextureMipBoth(void *hTexture);
+
+void __cdecl GLI_pc_fn_vUnloadTexturesOfKey(unsigned long ulKey);
+
+void __cdecl GLI_pc_fn_vUnloadTexturesOfKeyWrapper(unsigned long ulKey)
 {
-    return GLI_pc_g_lTexturesMemMode;
+    GLI_pc_fn_vUnloadTexturesOfKey(ulKey);
+}
+
+void __cdecl GLI_pc_fn_vUnloadTexturesOfKey(unsigned long ulKey)
+{
+    GLI_pc_fn_vUnLoadTexturesViaSlot();
+    GLI_pc_fn_vReleaseTextureSlotsOfKey(ulKey);
 }
 
 long __cdecl FUN_00425010(long lSize)
@@ -68,10 +92,6 @@ void __cdecl GLI_pc_fn_vSetTextureLodFromMinSide(GLI_tdstTexture *p_stTexture)
     }
 }
 
-/* 0x00426940 */
-extern unsigned long GLI_gs_aDEFTableOfTextureMemoryChannels[1024];
-extern struct GLI_tdstTexture *GLI_gs_aDEFTableOfTextureAlreadyRead[1024];
-
 void __cdecl GLI_pc_fn_vSetLodOfAllTextures(void)
 {
     long lIdx;
@@ -86,29 +106,19 @@ void __cdecl GLI_pc_fn_vSetLodOfAllTextures(void)
     } while (lIdx < 1024);
 }
 
-unsigned long GLI_g_ul503d58;
-
-void __cdecl GLI_pc_fn_vFree(void **ppUser);
-void __cdecl FIL_fn_vFreeGlobalHandleToFileInConcatFile(void);
-extern void *GLI_gs_p_ConvertBufferMipMapping;   /* 0x00503d50 */
-
-void __cdecl FUN_004269e0(void)
+void __cdecl GLI_vComputeTextures(void)
 {
-    if (GLI_g_ul503d58 != 0)
-        GLI_pc_fn_vFree(&GLI_gs_p_ConvertBufferMipMapping);
-    FIL_fn_vFreeGlobalHandleToFileInConcatFile();
+    GLI_pc_fn_vUnLoadTexturesViaSlot();       /* 0x004269a0 */
+    FUN_0042c780();
+    GLI_pc_fn_lReduceTexturesToVramBudget(); /* 0x0042d270 */
+    GLI_pc_fn_vSetLodOfAllTextures();        /* 0x00426940 */
+    GLI_pc_fn_vDownLoadAllTextures(0);       /* 0x00426a00 */
 }
-
-extern void *GLI_DRV_g_vUnLoadTextures;
 
 void __cdecl GLI_pc_fn_vUnLoadTexturesViaSlot(void)
 {
     ((void (__cdecl *)(void))GLI_DRV_g_vUnLoadTextures)();
 }
-
-unsigned long __cdecl GLI_pc_fn_vTrackMaxTextureBytes(void);
-void *__cdecl GLI_pc_fn_p_vAlloc(unsigned long ulSize);
-extern long (__cdecl *GLI_g_pfn_SetCommonData)(char const *, void *);
 
 void __cdecl GLI_pc_fn_vAllocConvertBufferMipMapping(void)
 {
@@ -119,11 +129,12 @@ void __cdecl GLI_pc_fn_vAllocConvertBufferMipMapping(void)
     }
 }
 
-/* 0x00426A00 */
-extern void *GLI_DRV_g_vDownLoadTextures;
-extern unsigned long GLI_g_ulNumberOfLoadedTexture;
-void __cdecl FIL_fn_vInitGlobalHandleToFileInConcatFile(void);
-long __cdecl FUN_00424fd0(void);
+void __cdecl FUN_004269e0(void)
+{
+    if (GLI_g_ul503d58 != 0)
+        GLI_pc_fn_vFree(&GLI_gs_p_ConvertBufferMipMapping);
+    FIL_fn_vFreeGlobalHandleToFileInConcatFile();
+}
 
 void __cdecl GLI_pc_fn_vDownLoadAllTextures(int bReload)
 {
@@ -135,24 +146,10 @@ void __cdecl GLI_pc_fn_vDownLoadAllTextures(int bReload)
     FIL_fn_vFreeGlobalHandleToFileInConcatFile();
 }
 
-void __cdecl GLI_pc_fn_vReleaseTextureSlotsOfKey(unsigned long ulKey);
-
-void __cdecl GLI_pc_fn_vUnloadTexturesOfKey(unsigned long ulKey)
+void __cdecl GLI_vReloadTextures(void)
 {
-    GLI_pc_fn_vUnLoadTexturesViaSlot();
-    GLI_pc_fn_vReleaseTextureSlotsOfKey(ulKey);
+    GLI_pc_fn_vDownLoadAllTextures(1);        /* 0x00426a00 */
 }
-
-void __cdecl GLI_pc_fn_vUnloadTexturesOfKeyWrapper(unsigned long ulKey)
-{
-    GLI_pc_fn_vUnloadTexturesOfKey(ulKey);
-}
-
-#include "GLI/devinfo.h"
-unsigned char __cdecl fn_bMicroGetActivationFlag(void *hTexture);
-int __cdecl GLI_pc_fn_lHalveTextureWidth(void *hTexture);
-int __cdecl GLI_pc_fn_lHalveTextureHeight(void *hTexture);
-int __cdecl GLI_pc_fn_lHalveTextureMipBoth(void *hTexture);
 
 long __cdecl GLI_pc_fn_lReduceTexturesToVramBudget(void)
 {

@@ -20,48 +20,61 @@ extern char *__cdecl FUN_004928c0(void);
         ERM_fn_vUpdateLastError(8, g_ucSAIModuleId, 0, 7, -1, 0xff, 0xff, (char *)0); \
     }
 
-/* 0x0044ad70 */
-static void fn_vResetBitstream(void)
+unsigned char __cdecl SAI_fn_ucSaveAllGameTableValues( SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags);
+
+/* 0x00449ec0 */
+unsigned char __cdecl SAI_fn_ucLevelSaveValues(char *_szFileName)
 {
-    SAI_g_ucBitstreamByte  = 0;
-    SAI_g_ucBitstreamCount = 0;
+    return SAI_fn_ucSaveAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
+                                           SAI_eLevelSaveTableValue | SAI_eLevelSaveCurrentValue);
 }
 
-/* 0x0044ad80 */
-static void __cdecl fn_vFlushBitstream(FILE *p_File)
+unsigned char __cdecl SAI_fn_ucLoadAllGameTableValues( SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags);
+
+/* 0x00449ee0 */
+unsigned char __cdecl SAI_fn_ucLoadPlayerValues(char *_szFileName)
 {
-    if (SAI_g_ucBitstreamCount != 0)
+    return SAI_fn_ucLoadAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
+                                           SAI_ePlayerSaveTableValue | SAI_ePlayerSaveCurrentValue);
+}
+
+static void fn_vResetBitstream(void);
+static void __cdecl fn_vFlushBitstream(FILE *p_File);
+static unsigned char __cdecl fn_ucSaveGameTableValue(SAI_tdxHandleToListEntry hListEntry, FILE *p_File);
+
+/* 0x0044a650 */
+unsigned char __cdecl SAI_fn_ucSaveAllGameTableValues(
+    SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags)
+{
+    SAI_tdxHandleToListEntry hListEntry = p_stInternalStructure->p_stFirstEntry;
+    unsigned char            bReturn    = SAI_TRUE;
+    FILE                    *p_File;
+    char                     szTmpPath[260];
+
+    sprintf(szTmpPath, "%s/TT.tmp", FUN_004928c0());
+    DeleteFileA(szTmpPath);
+    FIL_fn_bValidatePath(".", _p_cFileName);
+
+    p_File = fopen(szTmpPath, "wb");
+    if (p_File != NULL)
     {
-        fwrite(&SAI_g_ucBitstreamByte, 1, 1, p_File);
-        SAI_g_ucBitstreamByte  = 0;
-        SAI_g_ucBitstreamCount = 0;
-    }
-}
-
-/* 0x0044acd0 */
-static void __cdecl fn_vWriteBit(unsigned char ucValue, unsigned char ucBitPos, FILE *p_File)
-{
-    SAI_g_ucBitstreamByte |= (unsigned char)(((ucValue >> ucBitPos) & 1) << SAI_g_ucBitstreamCount);
-    SAI_g_ucBitstreamCount++;
-    if (SAI_g_ucBitstreamCount > 7)
+        fn_vResetBitstream();
+        for (; hListEntry != NULL; hListEntry = hListEntry->p_stNextEntry)
+        {
+            if ((hListEntry->eFlags & _eFlags) != 0)
+                fn_ucSaveGameTableValue(hListEntry, p_File);
+        }
         fn_vFlushBitstream(p_File);
-}
-
-/* 0x0044ad20 */
-static unsigned char __cdecl fn_uReadBit(FILE *p_File)
-{
-    unsigned long ulBit;
-
-    if (SAI_g_ucBitstreamCount == 0 || SAI_g_ucBitstreamCount > 7)
-    {
-        if (fread(&SAI_g_ucBitstreamByte, 1, 1, p_File) == 0)
-            return 0xff;
-        SAI_g_ucBitstreamCount = 0;
+        fclose(p_File);
+        FUN_0048d2c0(szTmpPath, _p_cFileName, 2);
     }
-    ulBit = ((unsigned long)SAI_g_ucBitstreamByte >> SAI_g_ucBitstreamCount) & 1;
-    SAI_g_ucBitstreamCount++;
-    return (unsigned char)ulBit;
+    else
+        bReturn = SAI_FALSE;
+    DeleteFileA(szTmpPath);
+    return bReturn;
 }
+
+static void __cdecl fn_vWriteBit(unsigned char ucValue, unsigned char ucBitPos, FILE *p_File);
 
 /* 0x0044a730 */
 static unsigned char __cdecl fn_ucSaveGameTableValue(SAI_tdxHandleToListEntry hListEntry, FILE *p_File)
@@ -152,6 +165,8 @@ static unsigned char __cdecl fn_ucSaveGameTableValue(SAI_tdxHandleToListEntry hL
     return bReturn;
 }
 
+static unsigned char __cdecl fn_uReadBit(FILE *p_File);
+
 /* 0x0044aaf0 */
 static unsigned char __cdecl fn_ucLoadGameTableValue(SAI_tdxHandleToListEntry hListEntry, FILE *p_File)
 {
@@ -192,38 +207,6 @@ static unsigned char __cdecl fn_ucLoadGameTableValue(SAI_tdxHandleToListEntry hL
     return bReturn;
 }
 
-/* 0x0044a650 */
-unsigned char __cdecl SAI_fn_ucSaveAllGameTableValues(
-    SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags)
-{
-    SAI_tdxHandleToListEntry hListEntry = p_stInternalStructure->p_stFirstEntry;
-    unsigned char            bReturn    = SAI_TRUE;
-    FILE                    *p_File;
-    char                     szTmpPath[260];
-
-    sprintf(szTmpPath, "%s/TT.tmp", FUN_004928c0());
-    DeleteFileA(szTmpPath);
-    FIL_fn_bValidatePath(".", _p_cFileName);
-
-    p_File = fopen(szTmpPath, "wb");
-    if (p_File != NULL)
-    {
-        fn_vResetBitstream();
-        for (; hListEntry != NULL; hListEntry = hListEntry->p_stNextEntry)
-        {
-            if ((hListEntry->eFlags & _eFlags) != 0)
-                fn_ucSaveGameTableValue(hListEntry, p_File);
-        }
-        fn_vFlushBitstream(p_File);
-        fclose(p_File);
-        FUN_0048d2c0(szTmpPath, _p_cFileName, 2);
-    }
-    else
-        bReturn = SAI_FALSE;
-    DeleteFileA(szTmpPath);
-    return bReturn;
-}
-
 /* 0x0044ac10 */
 unsigned char __cdecl SAI_fn_ucLoadAllGameTableValues(
     SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags)
@@ -252,23 +235,45 @@ unsigned char __cdecl SAI_fn_ucLoadAllGameTableValues(
     return bReturn;
 }
 
-/* 0x00449ea0 */
-unsigned char __cdecl SAI_fn_ucPlayerSaveValues(char *_szFileName)
+/* 0x0044acd0 */
+static void __cdecl fn_vWriteBit(unsigned char ucValue, unsigned char ucBitPos, FILE *p_File)
 {
-    return SAI_fn_ucSaveAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
-                                           SAI_ePlayerSaveTableValue | SAI_ePlayerSaveCurrentValue);
+    SAI_g_ucBitstreamByte |= (unsigned char)(((ucValue >> ucBitPos) & 1) << SAI_g_ucBitstreamCount);
+    SAI_g_ucBitstreamCount++;
+    if (SAI_g_ucBitstreamCount > 7)
+        fn_vFlushBitstream(p_File);
 }
 
-/* 0x00449ec0 */
-unsigned char __cdecl SAI_fn_ucLevelSaveValues(char *_szFileName)
+/* 0x0044ad20 */
+static unsigned char __cdecl fn_uReadBit(FILE *p_File)
 {
-    return SAI_fn_ucSaveAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
-                                           SAI_eLevelSaveTableValue | SAI_eLevelSaveCurrentValue);
+    unsigned long ulBit;
+
+    if (SAI_g_ucBitstreamCount == 0 || SAI_g_ucBitstreamCount > 7)
+    {
+        if (fread(&SAI_g_ucBitstreamByte, 1, 1, p_File) == 0)
+            return 0xff;
+        SAI_g_ucBitstreamCount = 0;
+    }
+    ulBit = ((unsigned long)SAI_g_ucBitstreamByte >> SAI_g_ucBitstreamCount) & 1;
+    SAI_g_ucBitstreamCount++;
+    return (unsigned char)ulBit;
 }
 
-/* 0x00449ee0 */
-unsigned char __cdecl SAI_fn_ucLoadPlayerValues(char *_szFileName)
+/* 0x0044ad70 */
+static void fn_vResetBitstream(void)
 {
-    return SAI_fn_ucLoadAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
-                                           SAI_ePlayerSaveTableValue | SAI_ePlayerSaveCurrentValue);
+    SAI_g_ucBitstreamByte  = 0;
+    SAI_g_ucBitstreamCount = 0;
+}
+
+/* 0x0044ad80 */
+static void __cdecl fn_vFlushBitstream(FILE *p_File)
+{
+    if (SAI_g_ucBitstreamCount != 0)
+    {
+        fwrite(&SAI_g_ucBitstreamByte, 1, 1, p_File);
+        SAI_g_ucBitstreamByte  = 0;
+        SAI_g_ucBitstreamCount = 0;
+    }
 }

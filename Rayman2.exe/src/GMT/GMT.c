@@ -69,30 +69,7 @@ ACP_tdxBool __cdecl GMT_fn_xMultipleTestCollideIdentifierFromGameMaterial(GMT_td
     return GMT_fn_xMultipleTestCollideIdentifier(hCollideMat, _xType);
 }
 
-/* 0x0042DDD0 */
-GMT_tdxMask __cdecl GMT_fn_hGetCollideMaterialIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat)
-{
-    return GMT_M_wGetCollideMaterialIdentifier(_hCollideMat);
-}
-
-/* 0x0042DDE0 */
-ACP_tdxBool __cdecl GMT_fn_xTestCollideMaterialTypeOfIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat,
-                                                                unsigned short _uwType)
-{
-    unsigned short uwMask;
-    unsigned short uwIdentifier;
-
-    uwMask = 0x0001;
-    uwMask = (unsigned short)(uwMask << _uwType);
-
-    uwIdentifier = (unsigned short)GMT_fn_hGetCollideMaterialIdentifier(_hCollideMat);
-    uwMask = (unsigned short)(uwMask & uwIdentifier);
-
-    if (uwMask == 0)
-        return FALSE;
-    else
-        return TRUE;
-}
+GMT_tdxMask __cdecl GMT_fn_hGetCollideMaterialIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat);
 
 /* 0x0042DE00 */
 ACP_tdxBool __cdecl GMT_fn_xMultipleTestCollideIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat,
@@ -235,6 +212,31 @@ void __cdecl GMT_fn_vDestroyFor3DOS(GMT_tdxHandleToGameMaterial _hOld)
                                        0xff,
                                        (char *)0);
     }
+}
+
+/* 0x0042DDD0 */
+GMT_tdxMask __cdecl GMT_fn_hGetCollideMaterialIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat)
+{
+    return GMT_M_wGetCollideMaterialIdentifier(_hCollideMat);
+}
+
+/* 0x0042DDE0 */
+ACP_tdxBool __cdecl GMT_fn_xTestCollideMaterialTypeOfIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat,
+                                                                unsigned short _uwType)
+{
+    unsigned short uwMask;
+    unsigned short uwIdentifier;
+
+    uwMask = 0x0001;
+    uwMask = (unsigned short)(uwMask << _uwType);
+
+    uwIdentifier = (unsigned short)GMT_fn_hGetCollideMaterialIdentifier(_hCollideMat);
+    uwMask = (unsigned short)(uwMask & uwIdentifier);
+
+    if (uwMask == 0)
+        return FALSE;
+    else
+        return TRUE;
 }
 
 /* 0x0042DE20 */

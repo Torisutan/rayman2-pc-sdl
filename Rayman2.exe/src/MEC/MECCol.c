@@ -250,6 +250,35 @@ void __cdecl MEC_fn_vCrashAnalysis (DNM_tdstDynamics *p_stDynamic, long lObstacl
 			DNM_M_vDynamicsSetCrash(p_stDynamic,TRUE);
 }
 
+void __cdecl MEC_fn_vReportCollideActor (HIE_tdstSuperObject *hCollideSupObj, DNM_tdstMecObstacle *p_stCollideObstacle)
+{
+	DNM_tdstDynamics* p_stDynamic;
+	DNM_tdstObstacle* p_stObstacle;
+	MTH3D_tdstVector stVector;
+	HIE_tdstSuperObject *hSupObj;
+
+	hSupObj = (HIE_tdstSuperObject *)DNM_M_p_stObstacleGetObject (p_stCollideObstacle);
+
+	if (hSupObj == NULL) return;
+	hSupObj = MEC_fn_hGetFatherActor (hSupObj);
+
+	p_stDynamic= fn_p_stDynamGetDynamicsSO (hSupObj);
+	if (!p_stDynamic) return;
+
+	if (!DNM_M_bDynamicsIsCollisionReport(p_stDynamic)) return;
+
+	DNM_M_ulReportAddSurfaceState (DNM_M_p_stDynamicsGetReport(p_stDynamic),C_WOT_ulForceMobile);
+
+	p_stObstacle = DNM_M_p_stReportGetCharacter ( DNM_M_p_stDynamicsGetReport(p_stDynamic) );
+	DNM_M_xObstacleSetRate (p_stObstacle,0);
+	MTH3D_M_vNegVector (&stVector,DNM_M_p_stObstacleGetNorm(p_stCollideObstacle));
+	DNM_M_ObstacleSetNorm (p_stObstacle,&stVector);
+	DNM_M_ObstacleSetContact (p_stObstacle,DNM_M_p_stObstacleGetContact(p_stCollideObstacle));
+	DNM_M_p_stObstacleSetObject (p_stObstacle,hCollideSupObj);
+	DNM_M_vObstacleSetCollidedMaterial (p_stObstacle,DNM_M_hObstacleGetMyMaterial(p_stCollideObstacle));
+	DNM_M_vObstacleSetMyMaterial (p_stObstacle,DNM_M_hObstacleGetCollidedMaterial(p_stCollideObstacle));
+}
+
 void __cdecl MEC_fn_vReportCollision (DNM_tdstDynamics *p_stDynamic, HIE_tdstSuperObject *hSupObj,
                                       long lNbObstacle, DNM_tdstMecObstacle *a_stObstacle, long lObstacle)
 {
@@ -424,35 +453,6 @@ void __cdecl MEC_fn_vReportCollision (DNM_tdstDynamics *p_stDynamic, HIE_tdstSup
 
 	if (bCeil)
 		DNM_M_ulReportAddSurfaceState (&g_stReport,C_WOT_ulCeiling);
-}
-
-void __cdecl MEC_fn_vReportCollideActor (HIE_tdstSuperObject *hCollideSupObj, DNM_tdstMecObstacle *p_stCollideObstacle)
-{
-	DNM_tdstDynamics* p_stDynamic;
-	DNM_tdstObstacle* p_stObstacle;
-	MTH3D_tdstVector stVector;
-	HIE_tdstSuperObject *hSupObj;
-
-	hSupObj = (HIE_tdstSuperObject *)DNM_M_p_stObstacleGetObject (p_stCollideObstacle);
-
-	if (hSupObj == NULL) return;
-	hSupObj = MEC_fn_hGetFatherActor (hSupObj);
-
-	p_stDynamic= fn_p_stDynamGetDynamicsSO (hSupObj);
-	if (!p_stDynamic) return;
-
-	if (!DNM_M_bDynamicsIsCollisionReport(p_stDynamic)) return;
-
-	DNM_M_ulReportAddSurfaceState (DNM_M_p_stDynamicsGetReport(p_stDynamic),C_WOT_ulForceMobile);
-
-	p_stObstacle = DNM_M_p_stReportGetCharacter ( DNM_M_p_stDynamicsGetReport(p_stDynamic) );
-	DNM_M_xObstacleSetRate (p_stObstacle,0);
-	MTH3D_M_vNegVector (&stVector,DNM_M_p_stObstacleGetNorm(p_stCollideObstacle));
-	DNM_M_ObstacleSetNorm (p_stObstacle,&stVector);
-	DNM_M_ObstacleSetContact (p_stObstacle,DNM_M_p_stObstacleGetContact(p_stCollideObstacle));
-	DNM_M_p_stObstacleSetObject (p_stObstacle,hCollideSupObj);
-	DNM_M_vObstacleSetCollidedMaterial (p_stObstacle,DNM_M_hObstacleGetMyMaterial(p_stCollideObstacle));
-	DNM_M_vObstacleSetMyMaterial (p_stObstacle,DNM_M_hObstacleGetCollidedMaterial(p_stCollideObstacle));
 }
 
 ACP_tdxBool __cdecl MEC_fn_vComputeAdjustVector (MTH3D_tdstVector *p_stAdjustVector, DNM_tdstDynamics *p_stDynamic,

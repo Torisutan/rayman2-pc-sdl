@@ -75,6 +75,23 @@ ACP_tdxBool fn_bDetectIntersectSegmentWithBoundingSphere(
 	return INT_fn_bDetectIntersectSegmentWithSphere (_p_stVertexA, _p_stVectAB, &stGlobalSphereCenter, xScaledRadius);
 }
 
+static short fn_xIntersectSegmentWithRepositioningSuperObject( MTH3D_tdstVector *p_stVertexA, MTH3D_tdstVector *p_stVectAB, HIE_tdstSuperObject *_hSprObj, HIE_tdstPickInfo *p_stPickInfo, short *p_xNbPickInfo);
+
+short HIE_bIntersectSegmentWithSuperObject(
+    MTH3D_tdstVector    *p_stVertexA,
+    MTH3D_tdstVector    *p_stVectAB,
+    HIE_tdstSuperObject *hSprObj,
+    HIE_tdstPickInfo    *p_stPickInfo)
+{
+    short xNbPickInfo = 0, xReturnValue;
+
+    HIE_fn_bLoadIdentity();
+    xReturnValue = fn_xIntersectSegmentWithRepositioningSuperObject(
+        p_stVertexA, p_stVectAB, hSprObj, p_stPickInfo, &xNbPickInfo);
+    HIE_fn_bPopMatrix();
+    return xReturnValue;
+}
+
 static short fn_xIntersectSegmentWithRepositioningSuperObject(
     MTH3D_tdstVector    *p_stVertexA,
     MTH3D_tdstVector    *p_stVectAB,
@@ -215,21 +232,6 @@ static short fn_xIntersectSegmentWithRepositioningSuperObject(
 
     HIE_fn_vPopMatrix();
     return *p_xNbPickInfo;
-}
-
-short HIE_bIntersectSegmentWithSuperObject(
-    MTH3D_tdstVector    *p_stVertexA,
-    MTH3D_tdstVector    *p_stVectAB,
-    HIE_tdstSuperObject *hSprObj,
-    HIE_tdstPickInfo    *p_stPickInfo)
-{
-    short xNbPickInfo = 0, xReturnValue;
-
-    HIE_fn_bLoadIdentity();
-    xReturnValue = fn_xIntersectSegmentWithRepositioningSuperObject(
-        p_stVertexA, p_stVectAB, hSprObj, p_stPickInfo, &xNbPickInfo);
-    HIE_fn_bPopMatrix();
-    return xReturnValue;
 }
 
 #pragma optimize("y", off)

@@ -40,21 +40,6 @@ typedef struct Mmg_tdstBlockHeaderWithoutFree {
 
 typedef unsigned long Mmg_unitAlloc;
 
-/* 0x00442650 */
-void __cdecl Mmg_fn_vDeleteBlock(
-    unsigned char ucBlockId,
-    unsigned char ucModuleId,
-    void         *p_stMyBlocksInfo)
-{
-    Mmg_tdstBlockInfoPriv_PC *p_stMyBlockInfo =
-        (Mmg_tdstBlockInfoPriv_PC *)p_stMyBlocksInfo + ucBlockId;
-
-    (void)ucModuleId;
-
-    CPA_FREE(p_stMyBlockInfo->p_cBeginBlock);
-    p_stMyBlockInfo->p_cBeginBlock = (char *)C_p_cBlockNotValidKey;
-}
-
 /* 0x00442420 */
 void __cdecl Mmg_fn_vInitSpecificBlock(
     unsigned char  _ucBlockId,
@@ -211,29 +196,19 @@ void __cdecl Mmg_fn_vFreeBlock(
     }
 }
 
-void __cdecl Mmg_fn_v_StopMmg(unsigned char ucModuleId)
+/* 0x00442650 */
+void __cdecl Mmg_fn_vDeleteBlock(
+    unsigned char ucBlockId,
+    unsigned char ucModuleId,
+    void         *p_stMyBlocksInfo)
 {
-    unsigned char ucI;
+    Mmg_tdstBlockInfoPriv_PC *p_stMyBlockInfo =
+        (Mmg_tdstBlockInfoPriv_PC *)p_stMyBlocksInfo + ucBlockId;
 
-    if (g_a_p_stMmgModuleBlocksInfo[ucModuleId] != NULL) {
+    (void)ucModuleId;
 
-        for (ucI = 0; ucI < g_a_ucBlocksNbInModule[ucModuleId]; ucI++) {
-
-            if (((Mmg_tdstBlockInfoPriv_PC *)g_a_p_stMmgModuleBlocksInfo[ucModuleId])[ucI].p_cBeginBlock != C_p_cBlockNotValidKey) {
-
-                Mmg_fn_vDeleteBlock(ucI, ucModuleId, g_a_p_stMmgModuleBlocksInfo[ucModuleId]);
-            }
-        }
-
-        CPA_FREE(g_a_p_stMmgModuleBlocksInfo[ucModuleId]);
-        g_a_p_stMmgModuleBlocksInfo[ucModuleId] = NULL;
-    }
-}
-
-void __cdecl Mmg_fn_vReleaseChannelId(unsigned char ucChannelId)
-{
-    /* 0x50B1E4 */
-    MMG_M_p_TabChannelInfo[ucChannelId].ucGroupId = C_ucMmgInvalidGroup;
+    CPA_FREE(p_stMyBlockInfo->p_cBeginBlock);
+    p_stMyBlockInfo->p_cBeginBlock = (char *)C_p_cBlockNotValidKey;
 }
 
 void __cdecl Mmg_fn_vTestMallocIntegrityAt(void *p_vMemBlock)
@@ -252,6 +227,31 @@ void *__cdecl Mmg_fn_p_vGiveTheBeginingAddress(unsigned short uwModuleBlockId)
 	unsigned char ucBlockId = uwModuleBlockId & 0xFF;
 
 	return (((tdstBlockInfo *)g_a_p_stMmgModuleBlocksInfo[ucModuleId])[ucBlockId].p_cBeginBlock);
+}
+
+void __cdecl Mmg_fn_vReleaseChannelId(unsigned char ucChannelId)
+{
+    /* 0x50B1E4 */
+    MMG_M_p_TabChannelInfo[ucChannelId].ucGroupId = C_ucMmgInvalidGroup;
+}
+
+void __cdecl Mmg_fn_v_StopMmg(unsigned char ucModuleId)
+{
+    unsigned char ucI;
+
+    if (g_a_p_stMmgModuleBlocksInfo[ucModuleId] != NULL) {
+
+        for (ucI = 0; ucI < g_a_ucBlocksNbInModule[ucModuleId]; ucI++) {
+
+            if (((Mmg_tdstBlockInfoPriv_PC *)g_a_p_stMmgModuleBlocksInfo[ucModuleId])[ucI].p_cBeginBlock != C_p_cBlockNotValidKey) {
+
+                Mmg_fn_vDeleteBlock(ucI, ucModuleId, g_a_p_stMmgModuleBlocksInfo[ucModuleId]);
+            }
+        }
+
+        CPA_FREE(g_a_p_stMmgModuleBlocksInfo[ucModuleId]);
+        g_a_p_stMmgModuleBlocksInfo[ucModuleId] = NULL;
+    }
 }
 
 /* 0x00404540 */

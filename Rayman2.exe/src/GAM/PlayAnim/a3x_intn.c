@@ -220,3 +220,152 @@ void __cdecl fn_v_InterpolBetweenKeys(tdstKeyFrame *_p_stKey1, tdstKeyFrame *_p_
         }
     }
 }
+tdstA3dGENERAL *__cdecl fn_p_GetA3dGENERAL(unsigned short uwNumOfA3dGENERAL, unsigned long ulFrameNumber);
+tdstA3dGENERAL *__cdecl fn_p_GetA3dGENERAL(unsigned short uwNumOfA3dGENERAL, unsigned long ulFrameNumber);
+#include "GAM/PlayAnim.h"
+tdstA3dGENERAL *__cdecl fn_p_GetA3dGENERAL(unsigned short uwNumOfA3dGENERAL, unsigned long ulFrameNumber);
+#include "TMP/TmpMem.h"
+
+/* 0x0041A400 */
+void __cdecl fn_vUpdateFrame(HIE_tdstSuperObject *_p_stSuperObject, tdstFrame3d *_p_stFrame,
+                             tdstAnim3d *_p_stAnim3d, unsigned short _uwFrame)
+{
+    tdstA3dGENERAL  *p_stCurrentA3dGENERAL;
+    tdstOnlyFrame   *p_stCurrentOnlyFrame;
+    tdstA3dChannel  *p_stCurrentChannel;
+    tdstElement3d   *p_stCurrentElement3d;
+    unsigned short   uwT_NTTO;
+    unsigned short   uwCnt1;
+    unsigned short   uwCorrectedFrame;
+
+    unsigned short   uwNumOfA3dGENERAL;
+
+    (void)_p_stSuperObject;
+    uwNumOfA3dGENERAL = _p_stAnim3d->uwNumOfA3dGENERAL;
+
+    if (_uwFrame >= _p_stAnim3d->uwNumberOfFrames)
+        return;
+
+    if (_p_stFrame->p_stAnim == _p_stAnim3d && _p_stFrame->uwFrameNumber == _uwFrame)
+        return;
+
+    _p_stFrame->p_stAnim = _p_stAnim3d;
+    _p_stFrame->uwFrameNumber = _uwFrame;
+    _p_stFrame->ucMatrixUpdated = FALSE;
+
+    p_stCurrentA3dGENERAL = fn_p_GetA3dGENERAL(uwNumOfA3dGENERAL, _uwFrame);
+    uwCorrectedFrame = (unsigned short)(_uwFrame - p_stCurrentA3dGENERAL->uwStartFrame);
+
+    p_stCurrentChannel = &p_stChannels[p_stCurrentA3dGENERAL->uwNumOfFirstChannel];
+    p_stCurrentOnlyFrame = &p_stOnlyFrames[p_stCurrentA3dGENERAL->uwNumOfFirstOnlyFrame + uwCorrectedFrame];
+    uwT_NTTO = p_stCurrentOnlyFrame->uwNumOfSavedFrame;
+
+    if (p_stCurrentOnlyFrame->uwNumOfAngularSpeedQuat == SEB_Invalid)
+    {
+        if (_p_stFrame->p_stAngularSpeedMatrix != NULL)
+            TMP_fn_vFree(&_p_stFrame->p_stAngularSpeedMatrix);
+        _p_stFrame->p_stAngularSpeedMatrix = NULL;
+    }
+    else
+    {
+        float a4_xQuat[4];
+        if (_p_stFrame->p_stAngularSpeedMatrix == NULL)
+            _p_stFrame->p_stAngularSpeedMatrix = TMP_M_p_Malloc(0x24);
+        fn_v_ExpandQuat(a4_xQuat,
+            &p_stAngularSpeedQuats[p_stCurrentOnlyFrame->uwNumOfAngularSpeedQuat * 4]);
+        fn_v_QuatToMatrix((float (*)[3])_p_stFrame->p_stAngularSpeedMatrix, a4_xQuat);
+    }
+
+    if (p_stCurrentOnlyFrame->uwNumOfSpeedVector == SEB_Invalid)
+        _p_stFrame->p_stLinearSpeedVector = NULL;
+    else
+        _p_stFrame->p_stLinearSpeedVector = &p_stSpeedVectors[p_stCurrentOnlyFrame->uwNumOfSpeedVector];
+
+    if (p_stCurrentOnlyFrame->uwHierarchyNbCouples == 0)
+        _p_stFrame->stHierarchy.d_stCouples = NULL;
+    else
+        _p_stFrame->stHierarchy.d_stCouples = &p_stHierarchies[p_stCurrentOnlyFrame->uwNumOfFirstHierarchyCouple];
+    _p_stFrame->stHierarchy.ulNbOfCouples = p_stCurrentOnlyFrame->uwHierarchyNbCouples;
+
+    p_stCurrentElement3d = _p_stFrame->p_stArrayOfElts3d;
+    for (uwCnt1 = 0; uwCnt1 < p_stCurrentA3dGENERAL->uwNumberOfChannels; uwCnt1++)
+    {
+        tdstA3dFrame *p_stCurrentFrame = &p_stFrames[p_stCurrentChannel->uwNumOfFirstFrame + uwT_NTTO];
+
+        if (p_stCurrentFrame->uwNumOfNTTO != (unsigned short)0xFFFF)
+        {
+            tdstNTTO *p_stTheNTTO = &p_stNTTO[p_stCurrentFrame->uwNumOfNTTO];
+            p_stCurrentElement3d->wElement = p_stTheNTTO->ucNumberInTable;
+            p_stCurrentElement3d->ucChannelNumber = (unsigned char)p_stCurrentChannel->uwChannelNumber;
+            p_stCurrentElement3d->bf1ActiveStatus = TRUE;
+            p_stCurrentElement3d->eTypeOfElement = (unsigned char)(p_stTheNTTO->uwTypeOfObject & 0x00FF);
+            p_stCurrentElement3d->ucTransparency = p_stTheNTTO->ucTransparency;
+        }
+        else
+        {
+
+            p_stCurrentElement3d->wElement = 0x7FFF;
+            p_stCurrentElement3d->ucChannelNumber = (unsigned char)p_stCurrentChannel->uwChannelNumber;
+            p_stCurrentElement3d->bf1ActiveStatus = TRUE;
+            p_stCurrentElement3d->eTypeOfElement = TE_EmptyObject;
+            p_stCurrentElement3d->ucTransparency = 0;
+        }
+
+        p_stCurrentChannel++;
+        p_stCurrentElement3d++;
+    }
+}
+
+MTH3D_tdstVector *__cdecl fn_p_stGetLinearSpeedVector(tdstAnim3d *_p_stAnim3d, unsigned short _uwFrame)
+{
+    unsigned short uwNumOfA3dGENERAL;
+    tdstA3dGENERAL *p_stCurrentA3dGENERAL;
+    tdstOnlyFrame *p_stCurrentOnlyFrame;
+
+    if (_uwFrame >= _p_stAnim3d->uwNumberOfFrames)
+        return NULL;
+
+    uwNumOfA3dGENERAL = _p_stAnim3d->uwNumOfA3dGENERAL;
+    p_stCurrentA3dGENERAL = fn_p_GetA3dGENERAL(uwNumOfA3dGENERAL, _uwFrame);
+
+    _uwFrame -= p_stCurrentA3dGENERAL->uwStartFrame;
+
+    p_stCurrentOnlyFrame = &p_stOnlyFrames[p_stCurrentA3dGENERAL->uwNumOfFirstOnlyFrame + _uwFrame];
+
+    if (p_stCurrentOnlyFrame->uwNumOfSpeedVector == SEB_Invalid)
+        return NULL;
+    return &p_stSpeedVectors[p_stCurrentOnlyFrame->uwNumOfSpeedVector];
+}
+
+MTH3D_tdstMatrix *__cdecl fn_p_stGetAngularSpeedMatrix(tdstAnim3d *_p_stAnim3d, unsigned short _uwFrame,
+                                                       MTH3D_tdstMatrix *p_stMatrix)
+{
+    unsigned short uwNumOfA3dGENERAL;
+    tdstA3dGENERAL *p_stCurrentA3dGENERAL;
+    tdstOnlyFrame *p_stCurrentOnlyFrame;
+
+    if (_uwFrame >= _p_stAnim3d->uwNumberOfFrames)
+        return NULL;
+
+    uwNumOfA3dGENERAL = _p_stAnim3d->uwNumOfA3dGENERAL;
+    p_stCurrentA3dGENERAL = fn_p_GetA3dGENERAL(uwNumOfA3dGENERAL, _uwFrame);
+
+    _uwFrame -= p_stCurrentA3dGENERAL->uwStartFrame;
+
+    p_stCurrentOnlyFrame = &p_stOnlyFrames[p_stCurrentA3dGENERAL->uwNumOfFirstOnlyFrame + _uwFrame];
+
+    if (p_stCurrentOnlyFrame->uwNumOfAngularSpeedQuat == SEB_Invalid)
+    {
+        return NULL;
+    }
+    else
+    {
+        float a4_xQuatOri[4];
+
+        fn_v_ExpandQuat(a4_xQuatOri, &p_stAngularSpeedQuats[p_stCurrentOnlyFrame->uwNumOfAngularSpeedQuat * 4]);
+
+        fn_v_QuatToMatrix((float (*)[3])(p_stMatrix), a4_xQuatOri);
+
+        return p_stMatrix;
+    }
+}

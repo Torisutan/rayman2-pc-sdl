@@ -202,33 +202,6 @@ void fn_vFillDynamicHierarchy(HIE_tdstSuperObject *_hSOCurrentSector, ACP_tdxBoo
     }
 }
 
-void fn_vDesinitInactivePerso()
-{
-	HIE_tdxHandleToSuperObject hCharacter,hChild;
-
-	for (hCharacter = gp_stInactiveDynamicWorld->p_stFirstChild; hCharacter != NULL; hCharacter = hCharacter->p_stNextBrother)
-	{
-		if (M_ObjectIsActive((struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hCharacter)))
-		{
-			if( fn_ucStandardGameGetPlatFormType(M_GetMSHandle(hCharacter,StandardGame))!=0 )
-			{
-				for (hChild = hCharacter->p_stFirstChild; hChild != NULL; hChild = hChild->p_stNextBrother)
-				{
-					if (hChild->ulTypeOfLinkedObject == HIE_C_ulActor)
-					{
-						PLA_fn_vDesInitAllChildOfCharacter(hChild,(struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hChild));
-						M_UnactivateObject((struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hChild));
-						SND_fn_vKillObjectSound2((long)hChild,GAM_g_lSoundObjectTypeAnim);
-					}
-				}
-			}
-			PLA_fn_vDesInitAllChildOfCharacter(hCharacter,(struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hCharacter));
-			M_UnactivateObject((struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hCharacter));
-			SND_fn_vKillObjectSound2((long)hCharacter,GAM_g_lSoundObjectTypeAnim);
-		}
-	}
-}
-
 void fn_vClearDynamicHierarchy(HIE_tdstSuperObject *_hSOCurrentSector)
 {
     HIE_tdstSuperObject *hCharacter;
@@ -274,6 +247,33 @@ void fn_vClearDynamicHierarchy(HIE_tdstSuperObject *_hSOCurrentSector)
             ((SECT_tdxHandleOfSectorObject)hChildSector->hLinkedObject.p_Void)->cCounter = cCounter;
         }
     }
+}
+
+void fn_vDesinitInactivePerso()
+{
+	HIE_tdxHandleToSuperObject hCharacter,hChild;
+
+	for (hCharacter = gp_stInactiveDynamicWorld->p_stFirstChild; hCharacter != NULL; hCharacter = hCharacter->p_stNextBrother)
+	{
+		if (M_ObjectIsActive((struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hCharacter)))
+		{
+			if( fn_ucStandardGameGetPlatFormType(M_GetMSHandle(hCharacter,StandardGame))!=0 )
+			{
+				for (hChild = hCharacter->p_stFirstChild; hChild != NULL; hChild = hChild->p_stNextBrother)
+				{
+					if (hChild->ulTypeOfLinkedObject == HIE_C_ulActor)
+					{
+						PLA_fn_vDesInitAllChildOfCharacter(hChild,(struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hChild));
+						M_UnactivateObject((struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hChild));
+						SND_fn_vKillObjectSound2((long)hChild,GAM_g_lSoundObjectTypeAnim);
+					}
+				}
+			}
+			PLA_fn_vDesInitAllChildOfCharacter(hCharacter,(struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hCharacter));
+			M_UnactivateObject((struct tdstEngineObject_*)HIE_fn_hGetSuperObjectObject(hCharacter));
+			SND_fn_vKillObjectSound2((long)hCharacter,GAM_g_lSoundObjectTypeAnim);
+		}
+	}
 }
 
 void *__cdecl fn_h_SectInfoGetCurrentSector(void *h_SectInfo);   /* 0x00419B90 */
@@ -948,39 +948,6 @@ void fn_vDisplayAll(void)
 #define GAM_g_r_stFixViewportAttr   (*(struct GLD_tdstViewportAttributes_ *)GAM_g_stEngineStructure.stFixViewportAttr)
 
 extern void __cdecl GEO_fn_vComputeCameraParametersForCulling(void *, float);
-void fn_vDisplayFix(void)
-{
-
-    /* 0x00460670 */
-    int bEnabledWrite;
-
-    if (GAM_g_ucRefreshUi)
-        GLI_RefreshUiSurfaceUnsynchronized(GAM_pc_g_szUiSurfaceName);
-
-    GLI_ClearZBufferRegion(GAM_g_r_stFixViewportAttr.dwLeftInPixForClip, GAM_g_r_stFixViewportAttr.dwRightInPixForClip,
-                           GAM_g_r_stFixViewportAttr.dwTopInPixForClip, GAM_g_r_stFixViewportAttr.dwBottomInPixForClip);
-
-    GLI_xClearViewingList();
-
-    if (GLD_bRequestWriteToViewport(GAM_g_hDevice3D, GAM_g_hGLDFixViewport,
-                                    GAM_g_p_stFixViewportAttr, (unsigned long *)&bEnabledWrite) == 0)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0x2a, -1, 0xff, 0xff, NULL);
-    }
-
-    GEO_fn_vComputeCameraParametersForCulling(GAM_g_p_stFixViewportAttr, 0.0f);
-
-    HIE_fn_bSendSPOToFixViewport(GAM_g_p_stFixViewportAttr, GAM_g_ulDisplayMode);
-    AGO_vDisplayGAUGES(GAM_g_p_stFixViewportAttr);
-    GLI_xSendListToViewport((unsigned long)GAM_g_p_stFixViewportAttr);
-
-    if (GLD_bWriteToViewportFinished(GAM_g_hDevice3D, GAM_g_hGLDFixViewport) == 0)
-    {
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0x2b, -1, 0xff, 0xff, NULL);
-    }
-}
 
 void __cdecl fn_vMakeCharacterReact(HIE_tdstSuperObject *p_stSuperObj)
 {
@@ -1017,19 +984,43 @@ void __cdecl fn_vMakeCharacterReact(HIE_tdstSuperObject *p_stSuperObj)
         }
     }
 }
+void fn_vDisplayFix(void)
+{
+
+    /* 0x00460670 */
+    int bEnabledWrite;
+
+    if (GAM_g_ucRefreshUi)
+        GLI_RefreshUiSurfaceUnsynchronized(GAM_pc_g_szUiSurfaceName);
+
+    GLI_ClearZBufferRegion(GAM_g_r_stFixViewportAttr.dwLeftInPixForClip, GAM_g_r_stFixViewportAttr.dwRightInPixForClip,
+                           GAM_g_r_stFixViewportAttr.dwTopInPixForClip, GAM_g_r_stFixViewportAttr.dwBottomInPixForClip);
+
+    GLI_xClearViewingList();
+
+    if (GLD_bRequestWriteToViewport(GAM_g_hDevice3D, GAM_g_hGLDFixViewport,
+                                    GAM_g_p_stFixViewportAttr, (unsigned long *)&bEnabledWrite) == 0)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0x2a, -1, 0xff, 0xff, NULL);
+    }
+
+    GEO_fn_vComputeCameraParametersForCulling(GAM_g_p_stFixViewportAttr, 0.0f);
+
+    HIE_fn_bSendSPOToFixViewport(GAM_g_p_stFixViewportAttr, GAM_g_ulDisplayMode);
+    AGO_vDisplayGAUGES(GAM_g_p_stFixViewportAttr);
+    GLI_xSendListToViewport((unsigned long)GAM_g_p_stFixViewportAttr);
+
+    if (GLD_bWriteToViewportFinished(GAM_g_hDevice3D, GAM_g_hGLDFixViewport) == 0)
+    {
+        ERM_fn_vClearLastError(0);
+        ERM_fn_vUpdateLastError(0x30, g_ucGameModuleId, 0, 0x2b, -1, 0xff, 0xff, NULL);
+    }
+}
 
 #define GAM_M_GetEngineObjectOfActor(p_stSuperObject) \
     ((((p_stSuperObject)->ulTypeOfLinkedObject) != HIE_C_ulActor) ? NULL : \
      ((struct tdstEngineObject_ *)(HIE_fn_hGetSuperObjectObject(p_stSuperObject))))
-
-unsigned char __cdecl GAM_fn_bIsCharacterActive(HIE_tdstSuperObject *hSuperObj)
-{
-    return (unsigned char)
-           ( ((HIE_fn_hGetSuperObjectFather(hSuperObj)==gp_stDynamicWorld) ||
-              (HIE_fn_hGetSuperObjectFather(HIE_fn_hGetSuperObjectFather(hSuperObj))==gp_stDynamicWorld))
-             && (fn_bf1StandardGameGetIsActive(GAM_M_GetEngineObjectOfActor(hSuperObj)->h_StandardGame)==1)
-           );
-}
 
 static long GAM_fn_lGetNbPersoActivableInSector(HIE_tdstSuperObject *hSector)
 {
@@ -1065,4 +1056,13 @@ long __cdecl GAM_fn_lGetNbPersoActive(void)
     }
 
     return lNbPerso;
+}
+
+unsigned char __cdecl GAM_fn_bIsCharacterActive(HIE_tdstSuperObject *hSuperObj)
+{
+    return (unsigned char)
+           ( ((HIE_fn_hGetSuperObjectFather(hSuperObj)==gp_stDynamicWorld) ||
+              (HIE_fn_hGetSuperObjectFather(HIE_fn_hGetSuperObjectFather(hSuperObj))==gp_stDynamicWorld))
+             && (fn_bf1StandardGameGetIsActive(GAM_M_GetEngineObjectOfActor(hSuperObj)->h_StandardGame)==1)
+           );
 }

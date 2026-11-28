@@ -10,117 +10,29 @@
  ],
  "link_order": [
   {
-   "src": "src/AGO/AGO.c",
+   "src": "src/GAM/GAM_init.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AGO/AGO_globals.c",
+   "src": "src/GAM/pc_winmain.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/AICond.c",
+   "src": "src/GLI/Init_Gli.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/ERM/CpaError.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/AIKeyWord.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/AIOper.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/AITools.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/AI_Proto.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/AI_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ActMain.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ActParam.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ActTable.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/Action.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/CAM_Act.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/CAM_Base.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/CAM_Fnct.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/CAM_Proc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/CAM_Tool.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/CAM_Vis.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ConvAct.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ConvFunc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ConvProc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/ConvVar.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/DsgMem.c",
+   "src": "src/GAM/GAM_engine.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -130,57 +42,153 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/FuncRay2.c",
+   "src": "src/GAM/GAM_levelload.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/Functio1.c",
+   "src": "src/MMG/MMG_module.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/Function.c",
+   "src": "src/GAM/Basic.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/Intell.c",
+   "src": "src/GLI/GLD.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/Init_Gli_helpers.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Objinit.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/List.c",
+   "src": "src/GAM/GAM_GameEng.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/MGT_Proc.c",
+   "src": "src/GAM/pc_anim_stacks.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/Operator.c",
+   "src": "src/FON/FON.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/Procedure.c",
+   "src": "src/GAM/ZeMem.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/StrIntel.c",
+   "src": "src/GAM/Actions/MSlight.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/WParc.c",
+   "src": "src/GAM/Family.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/WPgraphe.c",
+   "src": "src/GAM/ObjType.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/GAM_save_slot.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/misc_trivial.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/TextFrmt.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Micros.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/ToolCam.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Always.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/effect.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/ZdxStuff.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/PlayAnim/PlayAnim.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Actions/MS_Micro.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/ia_dnm.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Actions/SectInfo.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Actions/Brain.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/DNM/DNM.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Actions/Dynam.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Actions/StdGame.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -192,114 +200,17 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/pc_ReinitAITree.c",
+   "src": "src/IPT/IPT_Anal.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/ALW/ALW_globals.c",
+   "src": "src/GAM/Actions/cineinfo.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/COL/Box.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/COL.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/COL_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/CollGO.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/CollGOCo.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/CollGOUt.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/CsEltEdg.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/CsSphElt.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/OctreeGO.c",
-   "flags": [
-    "none"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/DNM/DNM.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/DNM/DNM_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/ERM/CpaError.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/FIL/File.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/FON/FON.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/FON/FON_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/3dData.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/AnimFx.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/Brain.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/CollSet.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/Dynam.c",
+   "src": "src/GAM/Actions/MSPrtSrc.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -309,7 +220,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/Actions/MSPrtSrc.c",
+   "src": "src/GAM/Actions/AnimFx.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -324,37 +235,17 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/Actions/MS_Micro.c",
+   "src": "src/GAM/Actions/CollSet.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/Actions/MSlight.c",
+   "src": "src/GAM/Actions/3dData.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/Actions/SectInfo.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/StdGame.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Actions/cineinfo.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/PlayAnim/Anim.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/PlayAnim/PlayAnim.c",
+   "src": "src/HIE/HieDraw.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -366,32 +257,22 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/PlayAnim/a3x_intn.c",
+   "src": "src/MTH/MTH_matrix_outofline.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/PlayAnim/playevts.c",
+   "src": "src/GAM/fonmem.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/ObjsTbls.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
    "src": "src/GAM/STRUCTUR/State.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Always.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Basic.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Caps.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -406,132 +287,27 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/Family.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/GAM_GameEng.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/GAM/GAM_alwact.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/GAM_engine.c",
+   "src": "src/GAM/PlayAnim/a3x_intn.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/GAM_globals.c",
+   "src": "src/GAM/PlayAnim/playevts.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/GAM_init.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/GAM_levelload.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/GAM_save_slot.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/HitPts.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Micros.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/ObjType.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/Objinit.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/ObjsTbls.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/TextFrmt.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/ToolCam.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/ZdxStuff.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/ZeMem.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/effect.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/fonmem.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/ia_dnm.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/pc_anim_stacks.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/pc_text_render.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GAM/pc_winmain.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GEO/Element.c",
+   "src": "src/POS/POS.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
    "src": "src/GEO/GEO.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GEO/GEO_globals.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -546,7 +322,12 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/AdjustCamera.c",
+   "src": "src/GEO/Element.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/texture_lifecycle.c",
    "flags": [
     "G6"
    ],
@@ -558,13 +339,6 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/Cache.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/GLI/Camera.c",
    "flags": [
     "G6"
@@ -572,88 +346,21 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/CdFileLoader.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/DisplayFrame.c",
+   "src": "src/GLI/Proj.c",
    "flags": [
     "G6"
    ],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/GLD.c",
+   "src": "src/GLI/AdjustCamera.c",
    "flags": [
     "G6"
    ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/GLI_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/GlobalAlpha.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Init_Gli.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Init_Gli_helpers.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Light.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Material.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/MatrixStack.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Memory.c",
-   "flags": [],
    "toolchain": "vc5sp3"
   },
   {
    "src": "src/GLI/Object.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Path.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Proj.c",
    "flags": [
     "G6"
    ],
@@ -667,7 +374,77 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/GLI/light_fog.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/pc_magic_mirror.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/Material.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/GLI/Texture.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/Cache.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/texture_mipmap.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/Light.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/pc_light_pipeline.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/u_Draw.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/DisplayFrame.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/GlobalAlpha.c",
    "flags": [
     "G6"
    ],
@@ -688,81 +465,12 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/cpu_timer.c",
+   "src": "src/GLI/MatrixStack.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/geometric_helpers.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/int64_arithmetic.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/light_fog.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/misc_trivial.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/pc_light_pipeline.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/pc_magic_mirror.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/texture_lifecycle.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/texture_mipmap.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/timer_sub2.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/u_Draw.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/ui_reset_redraw.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/ui_state.c",
+   "src": "src/GLI/Path.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -772,74 +480,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/HIE/HIE.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/HIE/HIE_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/HIE/HieDraw.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/HIE/HieMtStk.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/HIE/HiePick.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/HIE/HieSpObj.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/INO/INO.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/INO/INO_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/INT/Inters.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/INT/IntersGO.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/IPO/IPO.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/IPT/IPT_Anal.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/IPT/IPT_Hist.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/IPT/IPT_Kwan.c",
+   "src": "src/COL/COL.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -851,12 +492,24 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/IPT/IPT_Kwan.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/IPT/IPT_Save.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/IPT/IPT_globals.c",
+   "src": "src/IPT/IPT_Hist.c",
+   "flags": [
+    "G6"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MEC/MECBase.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -866,17 +519,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MEC/MECBase.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MEC/MECBhv.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MEC/MECCol.c",
+   "src": "src/MEC/MECTools.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -886,17 +529,17 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/MEC/MECBhv.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/MEC/MECPfm.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MEC/MECTools.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MEC/hidcard.c",
+   "src": "src/MEC/MECCol.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -906,32 +549,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MGT/MGT_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/MGT/MGT_pending.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/MMG_alloc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/MMG_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/MMG_init.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/MMG_module.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -941,22 +559,12 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/MMG/MMG_alloc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/MMG/MMG_pubaccess.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/SNA.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/SNA_reloc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/pc_protect.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -971,47 +579,17 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MTH/MTH_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MTH/MTH_matrix_outofline.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/PCS/PhysColl.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/PIC/Picking.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/POS/POS.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/PO/PhObjs.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/PRT/PointPrt.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/PRT/PrtMeca.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
    "src": "src/PRT/PrtSrc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/PRT/PointPrt.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -1026,22 +604,12 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/MMG/MMG_init.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/RND/RND.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/RND/RND_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/SAI/SAI_Codec.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/SAI/SAI_Priv.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -1056,17 +624,22 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SAI/SAI_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/SAI/SAI_main.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/SAI/SAI_Priv.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/SCT/Sectdraw.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/SCT/Sector.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -1078,7 +651,17 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SCT/Sector.c",
+   "src": "src/GAM/pc_text_render.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MMG/SNA_reloc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MMG/SNA.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -1090,12 +673,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SND/SND_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/SND/SndThrd.c",
+   "src": "src/SND/sndldbin.c",
    "flags": [
     "MD"
    ],
@@ -1109,7 +687,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SND/sndldbin.c",
+   "src": "src/SND/SndThrd.c",
    "flags": [
     "MD"
    ],
@@ -1135,14 +713,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SND/sndrndom.c",
-   "flags": [
-    "MD"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/SND/sndseq.c",
+   "src": "src/SND/sndtheme.c",
    "flags": [
     "MD"
    ],
@@ -1156,6 +727,13 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/SND/sndrndom.c",
+   "flags": [
+    "MD"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/SND/sndswtch.c",
    "flags": [
     "MD"
@@ -1163,7 +741,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SND/sndtheme.c",
+   "src": "src/SND/sndseq.c",
    "flags": [
     "MD"
    ],
@@ -1177,12 +755,434 @@
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/HIE/HieMtStk.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/HIE/HIE.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/SPO/SPO.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
+   "src": "src/HIE/HieSpObj.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/HIE/HiePick.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/Memory.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/int64_arithmetic.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/cpu_timer.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
    "src": "src/TMR/TMR.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/timer_sub2.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/ui_state.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/CdFileLoader.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/ui_reset_redraw.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AGO/AGO.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/AI_Proto.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MMG/pc_protect.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/Procedure.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/CAM_Tool.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/Functio1.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/FuncRay2.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/Function.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/pc_ReinitAITree.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/CAM_Proc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/WPgraphe.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/Intell.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/StrIntel.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/Action.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ConvVar.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/DsgMem.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/AIOper.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/Operator.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ConvProc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ActTable.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/AITools.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/List.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/CAM_Base.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/CAM_Vis.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ConvFunc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/WParc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ConvAct.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ActParam.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/AICond.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/MGT_Proc.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/CAM_Fnct.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/AIKeyWord.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/CAM_Act.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/ActMain.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/SAI/SAI_Codec.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/OctreeGO.c",
+   "flags": [
+    "none"
+   ],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/INT/IntersGO.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/CollGOCo.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/INT/Inters.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/geometric_helpers.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/FIL/File.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/HitPts.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/Caps.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/PlayAnim/Anim.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/INO/INO.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/PIC/Picking.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/CollGO.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/CollGOUt.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/CsSphElt.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/CsEltEdg.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AGO/AGO_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/AI/AI_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/ALW/ALW_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/Box.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/COL/COL_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/DNM/DNM_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/FON/FON_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GAM/GAM_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GEO/GEO_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/GLI/GLI_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/HIE/HIE_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/INO/INO_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/IPO/IPO.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/IPT/IPT_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MEC/hidcard.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MGT/MGT_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MMG/MMG_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/MTH/MTH_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/PCS/PhysColl.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/PO/PhObjs.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/RND/RND_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/SAI/SAI_globals.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/SND/SND_globals.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },

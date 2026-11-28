@@ -20,29 +20,7 @@ void POS_fn_vGetTransformMatrix(POS_tdstCompletePosition *_hMatrix,
 void POS_fn_vGetTranslationVector(POS_tdstCompletePosition *_hMatrix,
                                   MTH3D_tdstVector *_p_stTrs);
 
-void GLI_pc_vTransformPointsByObject(long lCount, float *p_xSrc, float *p_xDst, void *p_stObj)
-{
-    MTH3D_tdstVector stI;
-    MTH3D_tdstVector stJ;
-    MTH3D_tdstVector stK;
-    MTH3D_tdstVector stT;
-    float *p_xDstEnd;
-    float *p_xDstCur;
-
-    POS_fn_vGetTransformMatrix((POS_tdstCompletePosition *)p_stObj, &stI, &stJ, &stK);
-    POS_fn_vGetTranslationVector((POS_tdstCompletePosition *)p_stObj, &stT);
-
-    p_xDstEnd = p_xDst + lCount * 4;
-    p_xDstCur = p_xDst;
-    for (; p_xDstCur < p_xDstEnd; p_xDstCur = p_xDstCur + 4)
-    {
-
-        p_xDstCur[0] = p_xSrc[1] * stJ.xX + p_xSrc[0] * stI.xX + p_xSrc[2] * stK.xX + stT.xX;
-        p_xDstCur[1] = p_xSrc[1] * stJ.xY + p_xSrc[0] * stI.xY + p_xSrc[2] * stK.xY + stT.xY;
-        p_xDstCur[2] = p_xSrc[1] * stJ.xZ + p_xSrc[0] * stI.xZ + p_xSrc[2] * stK.xZ + stT.xZ;
-        p_xSrc = p_xSrc + 3;
-    }
-}
+void GLI_pc_vTransformPointsByObject(long lCount, float *p_xSrc, float *p_xDst, void *p_stObj);
 
 void GLI_vDisplayWorldTriangle(struct GLD_tdstViewportAttributes_ *p_stViewport,
                                float c[3][3],
@@ -89,6 +67,30 @@ void GLI_vDisplayWorldTriangle(struct GLD_tdstViewportAttributes_ *p_stViewport,
                                          GLI_BIG_GLOBALS);
 
     GLI_BIG_GLOBALS->lHierachDrawMask = lSavedDrawMode;
+}
+
+void GLI_pc_vTransformPointsByObject(long lCount, float *p_xSrc, float *p_xDst, void *p_stObj)
+{
+    MTH3D_tdstVector stI;
+    MTH3D_tdstVector stJ;
+    MTH3D_tdstVector stK;
+    MTH3D_tdstVector stT;
+    float *p_xDstEnd;
+    float *p_xDstCur;
+
+    POS_fn_vGetTransformMatrix((POS_tdstCompletePosition *)p_stObj, &stI, &stJ, &stK);
+    POS_fn_vGetTranslationVector((POS_tdstCompletePosition *)p_stObj, &stT);
+
+    p_xDstEnd = p_xDst + lCount * 4;
+    p_xDstCur = p_xDst;
+    for (; p_xDstCur < p_xDstEnd; p_xDstCur = p_xDstCur + 4)
+    {
+
+        p_xDstCur[0] = p_xSrc[1] * stJ.xX + p_xSrc[0] * stI.xX + p_xSrc[2] * stK.xX + stT.xX;
+        p_xDstCur[1] = p_xSrc[1] * stJ.xY + p_xSrc[0] * stI.xY + p_xSrc[2] * stK.xY + stT.xY;
+        p_xDstCur[2] = p_xSrc[1] * stJ.xZ + p_xSrc[0] * stI.xZ + p_xSrc[2] * stK.xZ + stT.xZ;
+        p_xSrc = p_xSrc + 3;
+    }
 }
 
 /* 0x00424860 */

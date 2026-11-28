@@ -14,47 +14,6 @@
 extern void *__cdecl fn_h_CollSetRealAlloc(void);
 extern void  __cdecl fn_vCollSetInitValueSAI(void *hCollSet);
 
-/* 0x00417460 */
-void __cdecl fn_vCollSetAlloc(HIE_tdstEngineObject *engineObject)
-{
-    struct tdstEngineObject_ *pEngObj = (struct tdstEngineObject_ *)engineObject;
-    void *hCollSet;
-
-    if (engineObject == NULL) {
-
-        ERM_fn_vClearLastError((unsigned long)engineObject);
-        ERM_fn_vUpdateLastError(0x30u, g_ucGameModuleId,
-            (unsigned long)engineObject, 0x0eu, -1,
-            0xff, 0xff, (char *)engineObject);
-    }
-
-    if (pEngObj->h_CollSet != NULL) {
-
-        ERM_fn_vClearLastError(0);
-        ERM_fn_vUpdateLastError(0x30u, g_ucGameModuleId,
-            0, 0x0du, -1, 0xff, 0xff, (char *)0);
-    }
-
-    hCollSet = fn_h_CollSetRealAlloc();
-    pEngObj->h_CollSet = hCollSet;
-    fn_vCollSetInitValueSAI(hCollSet);
-}
-
-/* 0x00417450 */
-int __cdecl fn_ulCollSetSizeOf(void)
-{
-    return 0x68;
-}
-
-void __cdecl fn_vCollSetCopyClone(HIE_tdstEngineObject *pDest,
-                                      HIE_tdstEngineObject *pSrc)
-{
-
-    memcpy(((struct tdstEngineObject_ *)pDest)->h_CollSet,
-           ((struct tdstEngineObject_ *)pSrc)->h_CollSet,
-           (long)fn_ulCollSetSizeOf() - sizeof(struct stColliderInfo_));
-}
-
 /* 0x494811 */
 typedef int           (__cdecl *tMakeOneObjFromManyZdx)(unsigned int ucType, void *hChar);
 typedef void          (__cdecl *tStaticCollTree)(void *hChar, void *hSector, int hZdm,
@@ -159,97 +118,21 @@ for                                                        \
     _i>0;                                                  \
     _i--,(_hCollList)=SECT_fn_hGetNextCollisionNodeInCollisionList(_hCollList)  \
 )
-
-/* 0x004948A0 */
-void __cdecl COL_fn_vStaticCollisionWithPartOfTreeForSector(HIE_tdstSuperObject *_p_stEngineObj,
-                                                            HIE_tdstSuperObject *_p_stSuperObj,
-                                                            ACP_tdxHandleOfObject _p_stDynamicGeoColl,
-                                                            POS_tdstCompletePosition *_p_stStartMatrix,
-                                                            POS_tdstCompletePosition *_p_stEndMatrix)
-{
-  unsigned long p;
-  HIE_tdstSuperObject *pChild;
-  void *p_stStaticGeoColl;
-  void *hPhysicalObject;
-  void *hPhyCollSet;
-  GEO_tdxHandleToBoundingSphere hBoundingVolumeCharacter = NULL;
-  GEO_tdxHandleToParallelBox hParallelBoxStatic = NULL;
-  GEO_tdxHandleToBoundingSphere hBoundingSphereStatic = NULL;
-  void *hBoundingVolumeStatic;
-  long lType;
-
-  if (HIE_fn_SO_bIsNotPickable(_p_stSuperObj))
-  {
-      return;
-  }
-
-  hBoundingVolumeCharacter = HIE_fn_hGetSuperObjectBoundingVolume(_p_stEngineObj);
-  if (HIE_fn_SO_bHasABoxBoundingVolume(_p_stSuperObj))
-  {
-      hParallelBoxStatic = (GEO_tdxHandleToParallelBox)HIE_fn_hGetSuperObjectBoundingVolume(_p_stSuperObj);
-      hBoundingVolumeStatic = (void *)hParallelBoxStatic;
-  }
-  else
-  {
-      hBoundingSphereStatic = (GEO_tdxHandleToBoundingSphere)HIE_fn_hGetSuperObjectBoundingVolume(_p_stSuperObj);
-      hBoundingVolumeStatic = (void *)hBoundingSphereStatic;
-  }
-
-  if (hBoundingVolumeCharacter && hBoundingVolumeStatic)
-  {
-      if (! COL_fn_bDetectCollisionStaticGeomObjWithStaticGeomObj(hBoundingVolumeCharacter, _p_stEndMatrix,
-                 hBoundingVolumeStatic, HIE_fn_hGetSuperObjectGlobalMatrix(_p_stSuperObj),
-                 (ACP_tdxBool) HIE_fn_SO_bHasNoTransformationMatrix(_p_stSuperObj),
-                 (ACP_tdxBool) HIE_fn_SO_bHasZoomInsteadOfScale(_p_stEngineObj),
-                 (ACP_tdxBool) HIE_fn_SO_bHasABoxBoundingVolume(_p_stSuperObj)))
-      {
-          if (HIE_fn_SO_bCheckChildren(_p_stSuperObj))
-          {
-              HIE_M_ForEachChildOf(_p_stSuperObj, pChild, p)
-              {
-                  COL_fn_vStaticCollisionWithPartOfTreeForSector(_p_stEngineObj, pChild, _p_stDynamicGeoColl, _p_stStartMatrix, _p_stEndMatrix);
-              }
-              return;
-          }
-          else
-              return;
-      }
-  }
-
-  lType = HIE_fn_ulGetSuperObjectType(_p_stSuperObj);
-
-  if (lType & (HIE_C_ulIPO | HIE_C_ulIPO_Mirror))
-  {
-      hPhysicalObject = IPO_fn_hGetPhysicalObject(HIE_fn_hGetSuperObjectObject(_p_stSuperObj));
-      hPhyCollSet = PO_fn_hGetCollideSet(hPhysicalObject);
-      if (hPhyCollSet)
-      {
-          p_stStaticGeoColl = PCS_fn_hGetZdrGeoObjOfPhysicalCollSet(hPhyCollSet);
-          COL_fn_vCollideStaticGeomObj1WithStaticGeomObj2(_p_stDynamicGeoColl, _p_stStartMatrix, _p_stEndMatrix,
-              (ACP_tdxHandleOfObject)p_stStaticGeoColl, HIE_fn_hGetSuperObjectGlobalMatrix(_p_stSuperObj),
-              (void *) _p_stSuperObj, COL_PC_C_wStaticObject,
-              (ACP_tdxBool) HIE_fn_SO_bHasNoTransformationMatrix(_p_stSuperObj),
-              (ACP_tdxBool) HIE_fn_SO_bHasZoomInsteadOfScale(_p_stEngineObj));
-      }
-  }
-
-  HIE_M_ForEachChildOf(_p_stSuperObj, pChild, p)
-  {
-      COL_fn_vStaticCollisionWithPartOfTreeForSector(_p_stEngineObj, pChild, _p_stDynamicGeoColl, _p_stStartMatrix, _p_stEndMatrix);
-  }
-}
 extern char __cdecl SECT_fn_bIsThisSectorVirtual(void *_hSprObjSector);
-
-/* 0x00494270 */
-static ACP_tdxBool fn_bIsGeometricObjectValidForCollision(ACP_tdxHandleOfObject _hGeoObj)
-{
-    return (ACP_tdxBool)(GEO_xGetGeometricObjectNumberOfPoints(_hGeoObj) >= 1);
-}
 
 #define C_ucTypeZdd  0u
 #define C_ucTypeZdm  1u
 #define C_ucTypeZde  2u
 #define C_ucTypeZdr  3u
+
+extern unsigned long  __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);  /* 0x413700 */
+extern unsigned char  __cdecl fn_ucIsAnAlwaysObject(void *p_stEngineObject);     /* 0x40BC60 */
+
+/* 0x0042DE30 */
+void *PO_fn_hGetCollideSet(void *_hPhysicalObject)
+{
+    return ((PO_tdstPhysicalObject *)_hPhysicalObject)->_hCollideSet;
+}
 
 ACP_tdxHandleOfObject PCS_fn_hGetGeoObjOfPhysicalCollSet(unsigned char ucZoneType,
                                                          tdstPhysicalCollSet *_hPhyCollSet)
@@ -264,10 +147,10 @@ ACP_tdxHandleOfObject PCS_fn_hGetGeoObjOfPhysicalCollSet(unsigned char ucZoneTyp
     }
 }
 
-/* 0x0042DE30 */
-void *PO_fn_hGetCollideSet(void *_hPhysicalObject)
+/* 0x00494270 */
+static ACP_tdxBool fn_bIsGeometricObjectValidForCollision(ACP_tdxHandleOfObject _hGeoObj)
 {
-    return ((PO_tdstPhysicalObject *)_hPhysicalObject)->_hCollideSet;
+    return (ACP_tdxBool)(GEO_xGetGeometricObjectNumberOfPoints(_hGeoObj) >= 1);
 }
 
 /* 0x004943C0 */
@@ -297,12 +180,7 @@ static void fn_vCollideStaticCharacterWithStaticPhysicals(
     }
 }
 
-extern unsigned long  __cdecl fn_ulStandardGameGetCustomBitsSO(void *hSupObj);  /* 0x413700 */
-extern unsigned char  __cdecl fn_ucIsAnAlwaysObject(void *p_stEngineObject);     /* 0x40BC60 */
-
 #define COL_PC_C_ulCustomBit_Projectile  0x00000008u
-#define COL_PC_HIE_C_ulPO                0x00000008u
-#define COL_PC_HIE_C_Flag_ulHidden       0x00000002u
 
 /* 0x00494420 */
 static void fn_vNewTestStaticCollideFor2Characters(HIE_tdstSuperObject *hCharacter,
@@ -456,6 +334,8 @@ static void fn_vNewTestStaticCollideFor2Characters(HIE_tdstSuperObject *hCharact
     }
 }
 
+void __cdecl COL_fn_vStaticCollisionWithPartOfTreeForSector(HIE_tdstSuperObject *_p_stEngineObj, HIE_tdstSuperObject *_p_stSuperObj, ACP_tdxHandleOfObject _p_stDynamicGeoColl, POS_tdstCompletePosition *_p_stStartMatrix, POS_tdstCompletePosition *_p_stEndMatrix);
+
 void __cdecl COL_fn_vNewStaticCollisionForCharacter(HIE_tdstSuperObject *_hCharacter,
                                                    HIE_tdstSuperObject *_hSector,
                                                    POS_tdstCompletePosition *_p_stStartMatrix,
@@ -576,3 +456,84 @@ void __cdecl COL_fn_vNewStaticCollisionForCharacter(HIE_tdstSuperObject *_hChara
     return;
 
 }
+
+/* 0x004948A0 */
+void __cdecl COL_fn_vStaticCollisionWithPartOfTreeForSector(HIE_tdstSuperObject *_p_stEngineObj,
+                                                            HIE_tdstSuperObject *_p_stSuperObj,
+                                                            ACP_tdxHandleOfObject _p_stDynamicGeoColl,
+                                                            POS_tdstCompletePosition *_p_stStartMatrix,
+                                                            POS_tdstCompletePosition *_p_stEndMatrix)
+{
+  unsigned long p;
+  HIE_tdstSuperObject *pChild;
+  void *p_stStaticGeoColl;
+  void *hPhysicalObject;
+  void *hPhyCollSet;
+  GEO_tdxHandleToBoundingSphere hBoundingVolumeCharacter = NULL;
+  GEO_tdxHandleToParallelBox hParallelBoxStatic = NULL;
+  GEO_tdxHandleToBoundingSphere hBoundingSphereStatic = NULL;
+  void *hBoundingVolumeStatic;
+  long lType;
+
+  if (HIE_fn_SO_bIsNotPickable(_p_stSuperObj))
+  {
+      return;
+  }
+
+  hBoundingVolumeCharacter = HIE_fn_hGetSuperObjectBoundingVolume(_p_stEngineObj);
+  if (HIE_fn_SO_bHasABoxBoundingVolume(_p_stSuperObj))
+  {
+      hParallelBoxStatic = (GEO_tdxHandleToParallelBox)HIE_fn_hGetSuperObjectBoundingVolume(_p_stSuperObj);
+      hBoundingVolumeStatic = (void *)hParallelBoxStatic;
+  }
+  else
+  {
+      hBoundingSphereStatic = (GEO_tdxHandleToBoundingSphere)HIE_fn_hGetSuperObjectBoundingVolume(_p_stSuperObj);
+      hBoundingVolumeStatic = (void *)hBoundingSphereStatic;
+  }
+
+  if (hBoundingVolumeCharacter && hBoundingVolumeStatic)
+  {
+      if (! COL_fn_bDetectCollisionStaticGeomObjWithStaticGeomObj(hBoundingVolumeCharacter, _p_stEndMatrix,
+                 hBoundingVolumeStatic, HIE_fn_hGetSuperObjectGlobalMatrix(_p_stSuperObj),
+                 (ACP_tdxBool) HIE_fn_SO_bHasNoTransformationMatrix(_p_stSuperObj),
+                 (ACP_tdxBool) HIE_fn_SO_bHasZoomInsteadOfScale(_p_stEngineObj),
+                 (ACP_tdxBool) HIE_fn_SO_bHasABoxBoundingVolume(_p_stSuperObj)))
+      {
+          if (HIE_fn_SO_bCheckChildren(_p_stSuperObj))
+          {
+              HIE_M_ForEachChildOf(_p_stSuperObj, pChild, p)
+              {
+                  COL_fn_vStaticCollisionWithPartOfTreeForSector(_p_stEngineObj, pChild, _p_stDynamicGeoColl, _p_stStartMatrix, _p_stEndMatrix);
+              }
+              return;
+          }
+          else
+              return;
+      }
+  }
+
+  lType = HIE_fn_ulGetSuperObjectType(_p_stSuperObj);
+
+  if (lType & (HIE_C_ulIPO | HIE_C_ulIPO_Mirror))
+  {
+      hPhysicalObject = IPO_fn_hGetPhysicalObject(HIE_fn_hGetSuperObjectObject(_p_stSuperObj));
+      hPhyCollSet = PO_fn_hGetCollideSet(hPhysicalObject);
+      if (hPhyCollSet)
+      {
+          p_stStaticGeoColl = PCS_fn_hGetZdrGeoObjOfPhysicalCollSet(hPhyCollSet);
+          COL_fn_vCollideStaticGeomObj1WithStaticGeomObj2(_p_stDynamicGeoColl, _p_stStartMatrix, _p_stEndMatrix,
+              (ACP_tdxHandleOfObject)p_stStaticGeoColl, HIE_fn_hGetSuperObjectGlobalMatrix(_p_stSuperObj),
+              (void *) _p_stSuperObj, COL_PC_C_wStaticObject,
+              (ACP_tdxBool) HIE_fn_SO_bHasNoTransformationMatrix(_p_stSuperObj),
+              (ACP_tdxBool) HIE_fn_SO_bHasZoomInsteadOfScale(_p_stEngineObj));
+      }
+  }
+
+  HIE_M_ForEachChildOf(_p_stSuperObj, pChild, p)
+  {
+      COL_fn_vStaticCollisionWithPartOfTreeForSector(_p_stEngineObj, pChild, _p_stDynamicGeoColl, _p_stStartMatrix, _p_stEndMatrix);
+  }
+}
+#define COL_PC_HIE_C_ulPO                0x00000008u
+#define COL_PC_HIE_C_Flag_ulHidden       0x00000002u

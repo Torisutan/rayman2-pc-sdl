@@ -32,26 +32,6 @@ unsigned long __fastcall GLI_pc_fn_ulClassifyLightVsSphere(struct GLI_tdstLight_
     return ulResult;
 }
 
-unsigned long __fastcall GLI_pc_fn_ulTestLightRangeVsSphere(struct GLI_tdstLight_ *p_stLight,
-                                                           GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobals)
-{
-    MTH3D_tdstVector stTrs;
-    float            xDist;
-
-    if (p_stGlobals->stRadiusOfCurrentBoundingSphere == 0.0f) {
-        return 1UL;
-    }
-    POS_fn_vGetTranslationVector(&p_stLight->stMatrix, &stTrs);
-    /* 0x427B5B */
-    MTH3D_M_vSubVector(&stTrs, &stTrs, &p_stGlobals->stCenterOfCurrentBoundingSphere);
-    xDist = MTH_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stTrs));
-
-    if (xDist < p_stLight->xFar + p_stGlobals->stRadiusOfCurrentBoundingSphere) {
-        return 1UL;
-    }
-    return 0UL;
-}
-
 void __cdecl GLI_pc_fn_vAccumulateLightColor(struct GLI_tdstLight_ *p_stLight, void *p_vUnused, float *p_xAccum)
 {
     unsigned char ucMode = p_stLight->ucIsAlpha;
@@ -277,29 +257,6 @@ MTH3D_tdstVector GLI_pc_g_stLocalOrigin;              /* 0x004A7290 */
 #include "MTH/MTH_fopt.h"
 #define GLI_pc_xFastInvSqrt  MTH_fn_fInvSquareRootOpt
 
-/* 0x004A729C */
-void __cdecl GLI_pc_fn_vBlendLightColorRGBA(void)
-{
-    GLI_pc_g_pxAccumCursor[0] = GLI_pc_g_pxLightColour[0] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[0];
-    GLI_pc_g_pxAccumCursor[1] = GLI_pc_g_pxLightColour[1] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[1];
-    GLI_pc_g_pxAccumCursor[2] = GLI_pc_g_pxLightColour[2] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[2];
-    GLI_pc_g_pxAccumCursor[3] = GLI_pc_g_pxLightColour[3] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[3];
-}
-
-void __cdecl GLI_pc_fn_vBlendLightColorRGB(void)
-{
-    GLI_pc_g_pxAccumCursor[0] = GLI_pc_g_pxLightColour[0] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[0];
-    GLI_pc_g_pxAccumCursor[1] = GLI_pc_g_pxLightColour[1] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[1];
-    GLI_pc_g_pxAccumCursor[2] = GLI_pc_g_pxLightColour[2] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[2];
-}
-
-void __cdecl GLI_pc_fn_vBlendLightAlpha(void)
-{
-    float *p_xColour = GLI_pc_g_pxLightColour;
-    float *p_xAccum  = GLI_pc_g_pxAccumCursor;
-    p_xAccum[3] = p_xColour[3] * GLI_pc_g_xLightFactor + p_xAccum[3];
-}
-
 void __cdecl GLI_pc_fn_vAccumulateLightNormalGated(struct GLI_tdstLight_ *p_stLight, GEO_tdstGeometricObject *p_stVtxBlk,
                                                    unsigned long ulUnused, GLI_tdstInternalGlobalValuesFor3dEngine *p_stEngine)
 {
@@ -431,6 +388,12 @@ void __cdecl GLI_pc_fn_vAccumulateLightScaledNormalGated(struct GLI_tdstLight_ *
     }
 }
 
+void __cdecl GLI_pc_fn_vBlendLightColorRGBA(void);
+
+void __cdecl GLI_pc_fn_vBlendLightColorRGB(void);
+
+void __cdecl GLI_pc_fn_vBlendLightAlpha(void);
+
 void __cdecl GLI_pc_fn_vDispatchLightAccumulation(struct GLI_tdstLight_ *p_stLight, GEO_tdstGeometricObject *p_stVtxBlk,
                                                   float *p_xOut, GLI_tdstInternalGlobalValuesFor3dEngine *p_stEngine)
 {
@@ -466,6 +429,49 @@ void __cdecl GLI_pc_fn_vDispatchLightAccumulation(struct GLI_tdstLight_ *p_stLig
                            &GLI_pc_g_stLocalOrigin);
         GLI_pc_fn_vAccumulateLightScaledNormalGated(p_stLight, p_stVtxBlk, (unsigned long)p_xOut, p_stEngine);
     }
+}
+
+/* 0x004A729C */
+void __cdecl GLI_pc_fn_vBlendLightColorRGBA(void)
+{
+    GLI_pc_g_pxAccumCursor[0] = GLI_pc_g_pxLightColour[0] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[0];
+    GLI_pc_g_pxAccumCursor[1] = GLI_pc_g_pxLightColour[1] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[1];
+    GLI_pc_g_pxAccumCursor[2] = GLI_pc_g_pxLightColour[2] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[2];
+    GLI_pc_g_pxAccumCursor[3] = GLI_pc_g_pxLightColour[3] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[3];
+}
+
+void __cdecl GLI_pc_fn_vBlendLightColorRGB(void)
+{
+    GLI_pc_g_pxAccumCursor[0] = GLI_pc_g_pxLightColour[0] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[0];
+    GLI_pc_g_pxAccumCursor[1] = GLI_pc_g_pxLightColour[1] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[1];
+    GLI_pc_g_pxAccumCursor[2] = GLI_pc_g_pxLightColour[2] * GLI_pc_g_xLightFactor + GLI_pc_g_pxAccumCursor[2];
+}
+
+void __cdecl GLI_pc_fn_vBlendLightAlpha(void)
+{
+    float *p_xColour = GLI_pc_g_pxLightColour;
+    float *p_xAccum  = GLI_pc_g_pxAccumCursor;
+    p_xAccum[3] = p_xColour[3] * GLI_pc_g_xLightFactor + p_xAccum[3];
+}
+
+unsigned long __fastcall GLI_pc_fn_ulTestLightRangeVsSphere(struct GLI_tdstLight_ *p_stLight,
+                                                           GLI_tdstInternalGlobalValuesFor3dEngine *p_stGlobals)
+{
+    MTH3D_tdstVector stTrs;
+    float            xDist;
+
+    if (p_stGlobals->stRadiusOfCurrentBoundingSphere == 0.0f) {
+        return 1UL;
+    }
+    POS_fn_vGetTranslationVector(&p_stLight->stMatrix, &stTrs);
+    /* 0x427B5B */
+    MTH3D_M_vSubVector(&stTrs, &stTrs, &p_stGlobals->stCenterOfCurrentBoundingSphere);
+    xDist = MTH_fn_fSquareRootOpt(MTH3D_M_xSqrVector(&stTrs));
+
+    if (xDist < p_stLight->xFar + p_stGlobals->stRadiusOfCurrentBoundingSphere) {
+        return 1UL;
+    }
+    return 0UL;
 }
 
 void __cdecl GLI_pc_fn_vDotVertexArrayWithVector(long lNbOfValues, GLI_tdstAligned3DVector *p_stSrc,

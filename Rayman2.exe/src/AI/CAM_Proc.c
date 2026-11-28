@@ -153,231 +153,6 @@ void CAM_fn_vChangeAVectorParameter
 #include "AI/WPWayPt.h"
 #include "GAM/MSWay.h"
 
-/* 0x0047EF80 */
-AI_tdstNodeInterpret *__cdecl CAM_fn_p_stForceMovingOnRail(HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
-{
-
-	HIE_tdstSuperObject			*hCamera;
-    MS_tdxHandleToCineinfo		hCineinfo;
- 	CAM_tdstUpdateCamera		stStruct;
-	long						lCurrentIndex;
-	long						lNbWp;
-	WP_tdhWayPoint				hWayPoint;
-	WP_tdhWayPoint				hNextWayPoint =  NULL;
-	WP_tdhWayPoint				hPreviousWayPoint = NULL;
-	WP_tdhWayPoint				hOldPreviousWayPoint = NULL;
-	MS_tdxHandleToMSWay			h_MSWay;
-	MTH3D_tdstVector			stTargetPosition;
-	MTH3D_tdstVector			stWpPosition;
-	MTH3D_tdstVector			stPreviousWpPosition;
-	MTH3D_tdstVector			stOldPreviousWpPosition;
-	MTH3D_tdstVector			stNextWpPosition;
-	MTH3D_tdstVector			stWantedPosition;
-
-	MTH_tdxReal					xDistMin, xDistMax, xDistCurrent, xDistWanted = 0;
-	MTH_tdxReal					xDist1, xDist2, xDist3;
-	char						cCas = 0;
-	ACP_tdxBool					bWantedPositionIsAlreadyComputed = FALSE;
-	long						eProcedureId = M_eProcedureIdInterpret(p_stTree-1);
-
-	static long					lSens = 1;   /* 0x004A410C */
-
-	fn_vGetUltraOperatorPerso(fn_ucGetProcedureUltraOperator(eProcedureId),p_SuperObjPerso,&hCamera);
-
-	hCineinfo = M_GetMSHandle(hCamera, Cineinfo);
-
-	h_MSWay = M_GetMSHandle(hCamera, MSWay);
-	if ( h_MSWay == NULL)
-	    return (p_stTree);
-
-	CAM_fn_vSetCineinfoWorkFromCurrent(hCineinfo);
-	CAM_fn_vInitCameraStructure(hCamera, &stStruct);
-
-	 xDistMin = hCineinfo->hWork->xDistMin;
-	 xDistMax = hCineinfo->hWork->xDistMax;
-
-	 if (MTH_M_bEqual(xDistMin, xDistMax))
-		cCas = 1;
-
- 	POS_fn_vGetTranslationVector(HIE_fn_hGetSuperObjectMatrix(hCineinfo->hWork->hSuperObjectTargeted), &stTargetPosition);
-
-	xDistCurrent = MTH3D_M_xVectorGap(&stStruct.stCurrentCameraPos, &stTargetPosition);
-
-	if (cCas)
-	{
-		if (!MTH_M_bEqualWithEpsilon(xDistMin, xDistCurrent, MTH_M_xConstFloatToReal(0.1f)))
-			xDistWanted = xDistMin;
-		else
-		{	MTH3D_M_vCopyVector(&stWantedPosition, &stStruct.stCurrentCameraPos);
-			bWantedPositionIsAlreadyComputed = TRUE;
-		}
-	}
-	else
-	{
-		if (MTH_M_bLess(xDistCurrent, xDistMin))
-			xDistWanted = xDistMin;
-		else
-		{
-			if (MTH_M_bGreater(xDistCurrent, xDistMax))
-				xDistWanted = xDistMax;
-			else
-			{	MTH3D_M_vCopyVector(&stWantedPosition, &stStruct.stCurrentCameraPos);
-				xDistWanted = xDistMax;
-				bWantedPositionIsAlreadyComputed = TRUE;
-			}
-		}
-	}
-
-	MTH3D_M_vCopyVector(&stWantedPosition, &stStruct.stCurrentCameraPos);
-	if (!bWantedPositionIsAlreadyComputed)
-	{
-		CAM_fn_vComputeReferencePoint(&stStruct);
-
-		lCurrentIndex = MSWay_fn_lGetCurrentIndexInPath(h_MSWay);
-		hWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex);
-
-		lNbWp = MSWay_fn_lGetNumberWayPointInPath(h_MSWay);
-
-		WP_fnv_WayPoint_GetVertex(hWayPoint, &stWpPosition);
-
-		if (CAM_fn_bEqualVectorWithEpsilon(&stWpPosition, &stStruct.stCurrentCameraPos, WP_fnx_WayPoint_GetRadius(hWayPoint)))
-
-		{
-			hPreviousWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex-1);
-			if (hPreviousWayPoint)
-				WP_fnv_WayPoint_GetVertex(hPreviousWayPoint, &stOldPreviousWpPosition);
-			else
-				MTH3D_M_vCopyVector(&stOldPreviousWpPosition, &stWpPosition);
-
-			hWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex+1);
-			MTH3D_M_vCopyVector(&stPreviousWpPosition, &stWpPosition);
-
-			if (hWayPoint)
-				WP_fnv_WayPoint_GetVertex(hWayPoint, &stWpPosition);
-
-			xDist1= Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stOldPreviousWpPosition);
-
-			xDist2 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stWpPosition);
-
-			if (xDist1 <= xDist2)
-			{
-				lSens = -1;
-				MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, -1);
-
-				Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stPreviousWpPosition, &stOldPreviousWpPosition,xDistWanted);
-			}
-			else
-			{
-
-				lSens = 1;
-				MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, 1);
-				Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stWpPosition,&stPreviousWpPosition,xDistWanted);
-			}
-		}
-
-		else
-		{
-
-			hPreviousWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex-lSens);
-			if (hPreviousWayPoint)
-				WP_fnv_WayPoint_GetVertex(hPreviousWayPoint, &stPreviousWpPosition);
-			else
-			{
-				hPreviousWayPoint = hWayPoint;
-				MTH3D_M_vCopyVector(&stPreviousWpPosition, &stWpPosition);
-			}
-
-			xDist1 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stWpPosition);
-
-			hOldPreviousWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex - (2*lSens));
-			if (hOldPreviousWayPoint)
-				WP_fnv_WayPoint_GetVertex(hOldPreviousWayPoint, &stOldPreviousWpPosition);
-			else
-			{
-				hOldPreviousWayPoint = hPreviousWayPoint;
-				MTH3D_M_vCopyVector(&stOldPreviousWpPosition, &stPreviousWpPosition);
-			}
-
-			xDist2 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stOldPreviousWpPosition);
-
-			hNextWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex+lSens);
-			if (hNextWayPoint)
-			{
-				WP_fnv_WayPoint_GetVertex(hNextWayPoint, &stNextWpPosition);
-			}
-			else
-			{
-				hNextWayPoint = hWayPoint;
-				MTH3D_M_vCopyVector(&stNextWpPosition, &stWpPosition);
-			}
-
-			xDist3 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stNextWpPosition, &stWpPosition);
-
-			if (xDist3 <= xDist1)
-			{
-				if (xDist3 <= xDist2)
-				{
-					MTH3D_M_vCopyVector(&stWantedPosition, &stWpPosition);
-				}
-				else
-				{
-					if (xDist1 <= xDist2)
-					{
-						Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stWpPosition,&stPreviousWpPosition,xDistWanted);
-					}
-					else
-					{
-						if (CAM_fn_bEqualVectorWithEpsilon(&stPreviousWpPosition, &stStruct.stCurrentCameraPos, WP_fnx_WayPoint_GetRadius(hPreviousWayPoint)))
-						{
-							Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stPreviousWpPosition,&stOldPreviousWpPosition,xDistWanted);
-							lSens = -lSens;
-							MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, lSens);
-						}
-						else
-						{
-							MTH3D_M_vCopyVector(&stWantedPosition, &stPreviousWpPosition);
-						}
-					}
-				}
-			}
-			else
-			{
-				if (xDist1 <= xDist2)
-				{
-					Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stWpPosition,&stPreviousWpPosition,xDistWanted);
-				}
-				else
-				{
-					if (CAM_fn_bEqualVectorWithEpsilon(&stPreviousWpPosition, &stStruct.stCurrentCameraPos, WP_fnx_WayPoint_GetRadius(hPreviousWayPoint)))
-					{
-						lSens = -lSens;
-						MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, lSens);
-						Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stPreviousWpPosition,&stOldPreviousWpPosition,xDistWanted);
-					}
-					else
-					{
-						MTH3D_M_vCopyVector(&stWantedPosition, &stPreviousWpPosition);
-					}
-				}
-			}
-		}
-	}
-
-	MTH3D_M_vCopyVector(&hCineinfo->stForcePosition, &stWantedPosition);
-	CAM_fn_vSetResetInternalFlag
-	(
-		hCineinfo,
-		&(hCineinfo->hCurrent->uwIAFlags),
-		&(hCineinfo->hVisibility->uwIAFlags),
-		&(hCineinfo->hWork->uwIAFlags),
-		1,
-		1,
-		C_IAFlags_PositionIsAlreadyComputed
-	);
-
-    return (p_stTree);
-}
-
 #define eProc_Cam_ResetDNMFlags                     0x1e1
 #define eProc_Cam_SetFlagNoLinearParsing            0x1e2
 #define eProc_Cam_SetFlagNoLinearInertia            0x1e3
@@ -615,4 +390,261 @@ AI_tdstNodeInterpret *__cdecl CAM_fn_p_stChangeConstants(HIE_tdstSuperObject *p_
 		return p_stTree;
 	}
 	return p_stTree;
+}
+
+/* 0x0047EBD0 */
+AI_tdstNodeInterpret *__cdecl CAM_fn_p_stConstants(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
+{
+    unsigned long procId = (unsigned long)M_eProcedureIdInterpret(p_stTree-1);
+    (void)p_SuperObjPerso;
+
+    switch (procId)
+    {
+    case 0x1ec:
+        CAM_memcpy(&CAM_g_stCopyCameraConstants, &CAM_g_stCameraConstants, sizeof(CAM_tdstCameraConstants));
+        break;
+    case 0x1ed:
+        CAM_memcpy(&CAM_g_stCameraConstants, &CAM_g_stCopyCameraConstants, sizeof(CAM_tdstCameraConstants));
+        break;
+    default:
+        break;
+    }
+    return p_stTree;
+}
+
+/* 0x0047EF80 */
+AI_tdstNodeInterpret *__cdecl CAM_fn_p_stForceMovingOnRail(HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
+{
+
+	HIE_tdstSuperObject			*hCamera;
+    MS_tdxHandleToCineinfo		hCineinfo;
+ 	CAM_tdstUpdateCamera		stStruct;
+	long						lCurrentIndex;
+	long						lNbWp;
+	WP_tdhWayPoint				hWayPoint;
+	WP_tdhWayPoint				hNextWayPoint =  NULL;
+	WP_tdhWayPoint				hPreviousWayPoint = NULL;
+	WP_tdhWayPoint				hOldPreviousWayPoint = NULL;
+	MS_tdxHandleToMSWay			h_MSWay;
+	MTH3D_tdstVector			stTargetPosition;
+	MTH3D_tdstVector			stWpPosition;
+	MTH3D_tdstVector			stPreviousWpPosition;
+	MTH3D_tdstVector			stOldPreviousWpPosition;
+	MTH3D_tdstVector			stNextWpPosition;
+	MTH3D_tdstVector			stWantedPosition;
+
+	MTH_tdxReal					xDistMin, xDistMax, xDistCurrent, xDistWanted = 0;
+	MTH_tdxReal					xDist1, xDist2, xDist3;
+	char						cCas = 0;
+	ACP_tdxBool					bWantedPositionIsAlreadyComputed = FALSE;
+	long						eProcedureId = M_eProcedureIdInterpret(p_stTree-1);
+
+	static long					lSens = 1;   /* 0x004A410C */
+
+	fn_vGetUltraOperatorPerso(fn_ucGetProcedureUltraOperator(eProcedureId),p_SuperObjPerso,&hCamera);
+
+	hCineinfo = M_GetMSHandle(hCamera, Cineinfo);
+
+	h_MSWay = M_GetMSHandle(hCamera, MSWay);
+	if ( h_MSWay == NULL)
+	    return (p_stTree);
+
+	CAM_fn_vSetCineinfoWorkFromCurrent(hCineinfo);
+	CAM_fn_vInitCameraStructure(hCamera, &stStruct);
+
+	 xDistMin = hCineinfo->hWork->xDistMin;
+	 xDistMax = hCineinfo->hWork->xDistMax;
+
+	 if (MTH_M_bEqual(xDistMin, xDistMax))
+		cCas = 1;
+
+ 	POS_fn_vGetTranslationVector(HIE_fn_hGetSuperObjectMatrix(hCineinfo->hWork->hSuperObjectTargeted), &stTargetPosition);
+
+	xDistCurrent = MTH3D_M_xVectorGap(&stStruct.stCurrentCameraPos, &stTargetPosition);
+
+	if (cCas)
+	{
+		if (!MTH_M_bEqualWithEpsilon(xDistMin, xDistCurrent, MTH_M_xConstFloatToReal(0.1f)))
+			xDistWanted = xDistMin;
+		else
+		{	MTH3D_M_vCopyVector(&stWantedPosition, &stStruct.stCurrentCameraPos);
+			bWantedPositionIsAlreadyComputed = TRUE;
+		}
+	}
+	else
+	{
+		if (MTH_M_bLess(xDistCurrent, xDistMin))
+			xDistWanted = xDistMin;
+		else
+		{
+			if (MTH_M_bGreater(xDistCurrent, xDistMax))
+				xDistWanted = xDistMax;
+			else
+			{	MTH3D_M_vCopyVector(&stWantedPosition, &stStruct.stCurrentCameraPos);
+				xDistWanted = xDistMax;
+				bWantedPositionIsAlreadyComputed = TRUE;
+			}
+		}
+	}
+
+	MTH3D_M_vCopyVector(&stWantedPosition, &stStruct.stCurrentCameraPos);
+	if (!bWantedPositionIsAlreadyComputed)
+	{
+		CAM_fn_vComputeReferencePoint(&stStruct);
+
+		lCurrentIndex = MSWay_fn_lGetCurrentIndexInPath(h_MSWay);
+		hWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex);
+
+		lNbWp = MSWay_fn_lGetNumberWayPointInPath(h_MSWay);
+
+		WP_fnv_WayPoint_GetVertex(hWayPoint, &stWpPosition);
+
+		if (CAM_fn_bEqualVectorWithEpsilon(&stWpPosition, &stStruct.stCurrentCameraPos, WP_fnx_WayPoint_GetRadius(hWayPoint)))
+
+		{
+			hPreviousWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex-1);
+			if (hPreviousWayPoint)
+				WP_fnv_WayPoint_GetVertex(hPreviousWayPoint, &stOldPreviousWpPosition);
+			else
+				MTH3D_M_vCopyVector(&stOldPreviousWpPosition, &stWpPosition);
+
+			hWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex+1);
+			MTH3D_M_vCopyVector(&stPreviousWpPosition, &stWpPosition);
+
+			if (hWayPoint)
+				WP_fnv_WayPoint_GetVertex(hWayPoint, &stWpPosition);
+
+			xDist1= Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stOldPreviousWpPosition);
+
+			xDist2 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stWpPosition);
+
+			if (xDist1 <= xDist2)
+			{
+				lSens = -1;
+				MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, -1);
+
+				Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stPreviousWpPosition, &stOldPreviousWpPosition,xDistWanted);
+			}
+			else
+			{
+
+				lSens = 1;
+				MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, 1);
+				Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stWpPosition,&stPreviousWpPosition,xDistWanted);
+			}
+		}
+
+		else
+		{
+
+			hPreviousWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex-lSens);
+			if (hPreviousWayPoint)
+				WP_fnv_WayPoint_GetVertex(hPreviousWayPoint, &stPreviousWpPosition);
+			else
+			{
+				hPreviousWayPoint = hWayPoint;
+				MTH3D_M_vCopyVector(&stPreviousWpPosition, &stWpPosition);
+			}
+
+			xDist1 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stWpPosition);
+
+			hOldPreviousWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex - (2*lSens));
+			if (hOldPreviousWayPoint)
+				WP_fnv_WayPoint_GetVertex(hOldPreviousWayPoint, &stOldPreviousWpPosition);
+			else
+			{
+				hOldPreviousWayPoint = hPreviousWayPoint;
+				MTH3D_M_vCopyVector(&stOldPreviousWpPosition, &stPreviousWpPosition);
+			}
+
+			xDist2 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stPreviousWpPosition, &stOldPreviousWpPosition);
+
+			hNextWayPoint = MSWay_fn_hGetWayPointOfPath (h_MSWay,lCurrentIndex+lSens);
+			if (hNextWayPoint)
+			{
+				WP_fnv_WayPoint_GetVertex(hNextWayPoint, &stNextWpPosition);
+			}
+			else
+			{
+				hNextWayPoint = hWayPoint;
+				MTH3D_M_vCopyVector(&stNextWpPosition, &stWpPosition);
+			}
+
+			xDist3 = Cam_fn_xComputeProjectionRail(&stStruct.stTargetedPersoPos, &stNextWpPosition, &stWpPosition);
+
+			if (xDist3 <= xDist1)
+			{
+				if (xDist3 <= xDist2)
+				{
+					MTH3D_M_vCopyVector(&stWantedPosition, &stWpPosition);
+				}
+				else
+				{
+					if (xDist1 <= xDist2)
+					{
+						Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stWpPosition,&stPreviousWpPosition,xDistWanted);
+					}
+					else
+					{
+						if (CAM_fn_bEqualVectorWithEpsilon(&stPreviousWpPosition, &stStruct.stCurrentCameraPos, WP_fnx_WayPoint_GetRadius(hPreviousWayPoint)))
+						{
+							Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stPreviousWpPosition,&stOldPreviousWpPosition,xDistWanted);
+							lSens = -lSens;
+							MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, lSens);
+						}
+						else
+						{
+							MTH3D_M_vCopyVector(&stWantedPosition, &stPreviousWpPosition);
+						}
+					}
+				}
+			}
+			else
+			{
+				if (xDist1 <= xDist2)
+				{
+					Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stWpPosition,&stPreviousWpPosition,xDistWanted);
+				}
+				else
+				{
+					if (CAM_fn_bEqualVectorWithEpsilon(&stPreviousWpPosition, &stStruct.stCurrentCameraPos, WP_fnx_WayPoint_GetRadius(hPreviousWayPoint)))
+					{
+						lSens = -lSens;
+						MSWay_fn_lIncrementCurrentIndexInPath(h_MSWay, lSens);
+						Cam_fn_vComputeMovingOnRail(&stStruct,&stWantedPosition,&stPreviousWpPosition,&stOldPreviousWpPosition,xDistWanted);
+					}
+					else
+					{
+						MTH3D_M_vCopyVector(&stWantedPosition, &stPreviousWpPosition);
+					}
+				}
+			}
+		}
+	}
+
+	MTH3D_M_vCopyVector(&hCineinfo->stForcePosition, &stWantedPosition);
+	CAM_fn_vSetResetInternalFlag
+	(
+		hCineinfo,
+		&(hCineinfo->hCurrent->uwIAFlags),
+		&(hCineinfo->hVisibility->uwIAFlags),
+		&(hCineinfo->hWork->uwIAFlags),
+		1,
+		1,
+		C_IAFlags_PositionIsAlreadyComputed
+	);
+
+    return (p_stTree);
+}
+
+/* 0x0047F560 */
+AI_tdstNodeInterpret *__cdecl CAM_fn_p_stCameraMode(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
+{
+    AI_tdstGetSetParam    stParam;
+    AI_tdstNodeInterpret *p_stNext = fn_p_stEvalTree(p_SuperObjPerso, p_stTree, &stParam);
+
+    GAM_g_stEngineStructure.cCameraMode = stParam.uParam.cValue;
+    return p_stNext;
 }
