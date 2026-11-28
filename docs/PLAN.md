@@ -790,9 +790,10 @@ consoles' one-file-many-branches rule. Consoles: open decision "Console renderer
    `#ifndef`) and `u_types.h` (the Windows names the engine keeps, one branch per target). Fork:
    - `Rayman2.exe/include/cpa_std.h`: the original's switch with a `LINUX` branch beside the console
      and PC branches: `TMR/Specif/u_define.h`, `LDR/Specif/u_types.h`, then the C headers as on PC.
-     The decomp adds the original's text and its include in `ERM/CpaError.h` (order M39); the fork's
-     file then merges to upstream's text plus the `LINUX` branch, and `CpaError.h`'s console fence
-     gets `LINUX`.
+     The original's text and its console include in `ERM/CpaError.h` come from the decomp (order
+     M39, private d055f23f, merged 930a213); the fork adds the `LINUX` branch here and `LINUX` to
+     `CpaError.h`'s console fence. After that merge (the decomp's file layout step: 222 exe files)
+     pass 1 is 194 failing files, 1.076 sites (27 fatal `windows.h`), pass 2 30 files, 229 sites.
    - `TMR/Specif/u_define.h`, `LDR/Specif/u_types.h`: the original's names and places, one branch per
      target; a new target adds its branch there (and to `cpa_std.h`). `u_define.h`: `__cdecl`,
      `__stdcall`, `__fastcall`, `__declspec(x)` empty. `u_types.h`: `__int64` as `long long` (a macro:

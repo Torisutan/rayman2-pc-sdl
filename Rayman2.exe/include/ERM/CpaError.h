@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <stdlib.h>
 
-#if defined(U64) || defined(NITRO)
+#if defined(U64) || defined(NITRO) || defined(LINUX)
 #include "cpa_std.h"
 #endif
 
