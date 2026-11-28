@@ -2,6 +2,10 @@
 #define RAYMAN2_GAM_MSMAG_H
 
 #define MAGNETOFF                   0
+#define MAGNETON                    1
+#define MAGNETGROWING               2
+#define MAGNETRECOVERING            3
+
 #define MAGNET_STRENGTH_MODIFIED    1
 #define MAGNET_NEARFAR_MODIFIED     2
 #define MAGNET_POSITION_MODIFIED    4

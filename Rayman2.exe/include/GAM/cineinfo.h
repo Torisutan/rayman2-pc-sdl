@@ -46,6 +46,8 @@ extern CAM_tdstCameraConstants CAM_g_stCopyCameraConstants;   /* 0x004FF6E0 */
 #define C_VolIAFlags_InitJustCopiedInCurrent     0x02
 #define C_VolIAFlags_CameraNotMove               0x04
 #define C_PerIAFlags_VisibilityCopied            0x02
+#define C_PerIAFlags_ShowInfo                    0x01
+#define C_PerIAFlags_ConstraintMoveVisFailure    0x08
 
 struct tdstInternalStructurCineinfo_
 {

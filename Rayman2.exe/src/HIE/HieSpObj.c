@@ -18,16 +18,11 @@ unsigned char HIE_gd_ucContextOfSPOSave[HIE_C_MaxNumberOfSPOInTheFix];
 /* 0x00514EA0 */
 long HIE_gs_lCurrentFrame;
 
-#define HIE_g_hCurrentMatrixMirror GLI_g_p_stCurrentMatrix
-
 void *HIE_g_a_hMatrixStack_backing[1 + HIE_C_lMaxMatrixInStack];
-#define HIE_g_a_hMatrixStackCurrent (HIE_g_a_hMatrixStack_backing)
 #define HIE_g_a_hMatrixStack        (HIE_g_a_hMatrixStack_backing + 1)
 
 /* 0x00413790 */
 unsigned char __cdecl fn_ucStdGameCheckValidity(struct HIE_tdstSuperObject *_h_SprObj);
-
-extern POS_tdstCompletePosition *g_p_stCurrentInCamCoordsMatrix;   /* 0x00514D64 */
 
 #include "SPO/SPO_types.h"
 #include "HIE/HIE_types.h"
@@ -43,93 +38,12 @@ extern POS_tdstCompletePosition *g_p_stCurrentInCamCoordsMatrix;   /* 0x00514D64
 #include <stdlib.h>
 #include <string.h>
 
-void HIE_fn_vInitMatrixStack(void)
-{
-
-    POS_tdstCompletePosition *h_BottomMatrix = (POS_tdstCompletePosition *)HIE_g_a_hMatrixStack[0];
-    HIE_g_lNbMatrixInStack = 0;
-    POS_fn_vSetIdentityMatrix(h_BottomMatrix);
-    HIE_g_lNbMatrixInStack++;
-    HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[HIE_g_lNbMatrixInStack];
-    HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
-}
 #include "GLD/GLD_Pub.h"
 #include "GLI/Vpt3D.h"
 
 unsigned char __cdecl HIE_fn_bIsSuperObjectValid(HIE_tdstSuperObject *_hSprObj);
 
 static __inline ACP_tdxBool HIE_fn_bIsGlobalMatrixValid(HIE_tdstSuperObject *_hSprObj);
-
-ACP_tdxBool HIE_fn_bLoadIdentity(void)
-{
-    if (HIE_g_lNbMatrixInStack == HIE_C_lMaxMatrixInStack)
-        return 0;
-    HIE_g_a_hMatrixStack[HIE_g_lNbMatrixInStack] = HIE_g_a_hMatrixStack[0];
-    HIE_g_lNbMatrixInStack++;
-    HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[HIE_g_lNbMatrixInStack];
-    HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
-    return 1;
-}
-
-ACP_tdxBool HIE_fn_bPopMatrix(void)
-{
-    if (HIE_g_lNbMatrixInStack == 0)
-    {
-        return 0;
-    }
-
-    HIE_g_lNbMatrixInStack--;
-    HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[HIE_g_lNbMatrixInStack];
-    HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
-
-    return 1;
-}
-
-ACP_tdxBool HIE_fn_bStoreMatrix(void *hMatrix)
-{
-    long lNb = HIE_g_lNbMatrixInStack;
-    if (lNb == HIE_C_lMaxMatrixInStack)
-        return 0;
-    HIE_g_a_hMatrixStack[lNb] = hMatrix;
-    lNb++;
-    HIE_g_lNbMatrixInStack = lNb;
-    HIE_g_hCurrentMatrix = HIE_g_a_hMatrixStackCurrent[lNb];
-    HIE_g_hCurrentMatrixMirror = HIE_g_hCurrentMatrix;
-    return 1;
-}
-
-int HIE_fn_bInitCameraMatrixStack(void *_hVpt)
-{
-    HIE_g_lNbMatrixInCameraStack = 0;
-
-    memcpy(&HIE_g_a_stCameraMatrixStack[0], &((( GLI_tdstSpecificAttributesFor3D *)((struct GLD_tdstViewportAttributes_ *)_hVpt)->p_vSpecificToXD)->p_stCam)->stMatrix, sizeof(POS_tdstCompletePosition));
-    HIE_g_lNbMatrixInCameraStack++;
-    HIE_g_p_stCurrentInCamCoordsMatrix = &HIE_g_a_stCameraMatrixStack[HIE_g_lNbMatrixInCameraStack - 1];
-    return 1;
-}
-
-ACP_tdxBool HIE_fn_bPushOnCameraMatrixStack(void *_hMatrix)
-{
-    if (HIE_g_lNbMatrixInCameraStack == 0 || HIE_g_lNbMatrixInCameraStack == HIE_C_lMaxMatrixInStack)
-        return 0;
-    POS_fn_vMulMatrixMatrix(
-        &HIE_g_a_stCameraMatrixStack[HIE_g_lNbMatrixInCameraStack],
-        &HIE_g_a_stCameraMatrixStack[HIE_g_lNbMatrixInCameraStack - 1],
-        (POS_tdstCompletePosition *)_hMatrix);
-    HIE_g_lNbMatrixInCameraStack++;
-    HIE_g_p_stCurrentInCamCoordsMatrix = &HIE_g_a_stCameraMatrixStack[HIE_g_lNbMatrixInCameraStack - 1];
-    return 1;
-}
-
-ACP_tdxBool HIE_fn_bPopOnCameraMatrixStack(void)
-{
-    if (HIE_g_lNbMatrixInCameraStack == 0)
-        return 0;
-    HIE_g_lNbMatrixInCameraStack--;
-    HIE_g_p_stCurrentInCamCoordsMatrix =
-        &HIE_g_a_stCameraMatrixStack[HIE_g_lNbMatrixInCameraStack - 1];
-    return 1;
-}
 
 void HIE_fn_vSetSuperObjectObjectAndType(HIE_tdstSuperObject *_hSprObj,
                                          void *_hObj,

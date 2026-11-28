@@ -15318,49 +15318,49 @@
 {
 "addr": "0x0045B760",
 "name": "HIE_fn_vInitMatrixStack",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B7A0",
 "name": "HIE_fn_bLoadIdentity",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B7E0",
 "name": "HIE_fn_bPopMatrix",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 38,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B810",
 "name": "HIE_fn_bStoreMatrix",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 50,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B850",
 "name": "HIE_fn_bInitCameraMatrixStack",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 59,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B890",
 "name": "HIE_fn_bPushOnCameraMatrixStack",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 81,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B8F0",
 "name": "HIE_fn_bPopOnCameraMatrixStack",
-"src": "src/HIE/HieSpObj.c",
+"src": "src/HIE/HieMtStk.c",
 "len": 39,
 "verdict": "EXACT"
 },
@@ -18531,7 +18531,7 @@
 {
 "addr": "0x0047DA40",
 "name": "CAM_fn_p_stUpdatePosition",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 410,
 "verdict": "EXACT"
 },
@@ -18539,8 +18539,8 @@
 "addr": "0x0047DBE0",
 "name": "CAM_fn_vChangeARealParameter",
 "src": "src/AI/CAM_Proc.c",
-"len": 138,
-"verdict": "MISMATCH"
+"len": 141,
+"verdict": "EXACT"
 },
 {
 "addr": "0x0047DC70",
@@ -18559,56 +18559,56 @@
 {
 "addr": "0x0047DDE0",
 "name": "CAM_fn_p_stChangeVectorParameter",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 200,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047DEB0",
 "name": "CAM_fn_p_stChangeRealParameter",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 844,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E200",
 "name": "CAM_fn_p_stChangeTgtPerso",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 221,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E2E0",
 "name": "CAM_fn_p_stChangeSecondTgtPerso",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 275,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E400",
 "name": "CAM_fn_p_stChangeChannel",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 191,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E4C0",
 "name": "CAM_fn_p_stActivate",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 124,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E540",
 "name": "CAM_fn_p_stAssociateViewport",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 292,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E670",
 "name": "CAM_fn_p_stSetIAFlags",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 436,
 "verdict": "EXACT"
 },
@@ -18622,7 +18622,7 @@
 {
 "addr": "0x0047EA00",
 "name": "CAM_fn_p_stShowInfo",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 100,
 "verdict": "EXACT"
 },
@@ -18643,28 +18643,28 @@
 {
 "addr": "0x0047EC20",
 "name": "CAM_fn_p_stSetForce",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 364,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047ED90",
 "name": "CAM_fn_p_stReset",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 59,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047EDD0",
 "name": "CAM_fn_p_stForceBestPos",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 335,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047EF20",
 "name": "CAM_fn_p_stForceNormalState",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/CAM_Proc.c",
 "len": 82,
 "verdict": "EXACT"
 },
@@ -20526,14 +20526,14 @@
 {
 "addr": "0x00488260",
 "name": "MGT_fn_p_stDeactiveMagnet",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/MGT_Proc.c",
 "len": 93,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004882C0",
 "name": "MGT_fn_p_stSetParam",
-"src": "src/AI/Procedur.c",
+"src": "src/AI/MGT_Proc.c",
 "len": 228,
 "verdict": "EXACT"
 },

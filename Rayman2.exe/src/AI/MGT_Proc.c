@@ -25,6 +25,74 @@ AI_tdstNodeInterpret *__cdecl MGT_fn_p_stActiveMagnet(
     MGT_fn_vAddObjectToMagnetList(p_SuperObjPerso);
     return p_stTree;
 }
+#include "AI/AI_Erm.h"
+
+/* 0x00488260 */
+AI_tdstNodeInterpret *__cdecl MGT_fn_p_stDeactiveMagnet(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
+{
+
+    HIE_tdstSuperObject    *hNewSuperObjPerso;
+    MS_tdxHandleToMSMagnet  hMagnet;
+    long                    eProcedureId = M_eProcedureIdInterpret(p_stTree-1);
+
+    fn_vGetUltraOperatorPerso(fn_ucGetProcedureUltraOperator(eProcedureId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    hMagnet = M_GetMSHandle(hNewSuperObjPerso, MSMagnet);
+
+    if (hMagnet)
+    {
+        if ((fn_lMSMagnetGetStatus(hMagnet) == MAGNETGROWING) || (fn_lMSMagnetGetStatus(hMagnet) == MAGNETON))
+            fn_vMSMagnetSetStatus(hMagnet, MAGNETRECOVERING);
+    }
+    return p_stTree;
+}
+
+/* 0x004882C0 */
+AI_tdstNodeInterpret *__cdecl MGT_fn_p_stSetParam(
+    HIE_tdstSuperObject *p_SuperObjPerso, AI_tdstNodeInterpret *p_stTree)
+{
+
+    HIE_tdstSuperObject    *hNewSuperObjPerso;
+    MS_tdxHandleToMSMagnet  hMagnet;
+    MTH_tdxReal             xValue;
+    unsigned long           ulDuration;
+    long                    eProcedureId = M_eProcedureIdInterpret(p_stTree-1);
+    AI_tdstGetSetParam      stValue;
+
+    fn_vGetUltraOperatorPerso(fn_ucGetProcedureUltraOperator(eProcedureId), p_SuperObjPerso, &hNewSuperObjPerso);
+
+    hMagnet = M_GetMSHandle(hNewSuperObjPerso, MSMagnet);
+
+    if( hMagnet )
+    {
+        M_EvalNextParameter( &stValue );
+
+        switch(eProcedureId)
+        {
+        case 0x32:
+            xValue = M_GetSetParam_xValue(&stValue);
+            fn_vMSMagnetSetStrength(hMagnet,xValue);
+            break;
+        case 0x33:
+            xValue = M_GetSetParam_xValue(&stValue);
+            fn_vMSMagnetSetFar(hMagnet,xValue);
+            break;
+        case 0x34:
+            xValue = M_GetSetParam_xValue(&stValue);
+            fn_vMSMagnetSetNear(hMagnet,xValue);
+            break;
+        case 0x35:
+            ulDuration = M_GetSetParam_lValue(&stValue);
+            fn_vMSMagnetSetDuration(hMagnet, ulDuration);
+            break;
+        default:
+            M_AIFatalError(E_uwAIFatalNotValidProcedure);
+            break;
+        }
+    }
+    return p_stTree;
+}
 
 /* 0x004883B0 */
 AI_tdstNodeInterpret *__cdecl MGT_fn_p_stGetInfo(
