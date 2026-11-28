@@ -849,6 +849,20 @@ consoles' one-file-many-branches rule. Consoles: open decision "Console renderer
      inline definition without an external symbol (warning in `MTH_fopt.c`: static `m` in a
      non-static inline function); a call not inlined would not link. Needs the target's `INLINE`
      form (or `-fgnu89-inline`), decided with the CMake branch.
+   **Unfenced asm and `ui64`, 28.11.2026.** `AI/FuncRay2.c` `fn_p_stGetCPUCounter` (`rdtsc`) and
+   `MMG/SNA.c` `SNA_pc_bOpenFile`'s `__asm int 3` take a branch beside the asm on the targets
+   without x86 inline assembly (fence `WIN64 || LINUX || OSX || PSP || WIIU`, as
+   `SND_pc_fn_vProbeCpu`): the counter in the original's form, `TMR_fn_ulFastGetInternalCounter`
+   (new `TMR/Specif/counter.h`; defined in `TMR/sdl_timer.c`, and in `GLI/timer_sub2.c` for a
+   non-SDL build of those targets), no debugger stop (the original's `Erm_M_StopForDebug` without
+   the error window). `app/regress.c` builds its FNV constants from 32-bit halves. No
+   all-inputs check applies (a clock read, a trap). The `ui64` literals of the upstream files
+   (`GLI/Texture.c`, `AI/Procedur.c`, `GLI/RasterDefaults.c`) and the unused `GLI/Texture.c`
+   `gli_ftol_truncate` (a copy of the CRT `_ftol`, the last asm in that file) are ordered from the
+   decomp (M41, byte-neutral). Measured: suite identical to `base_modern` and `base_noasm` (which
+   compiles the new branches); Linux pass 1 43 -> 37 sites, pass 2 28 -> 26 files, 232 -> 220
+   sites. Seen on the way: `build-clang` fails at HEAD in `ERM/CpaError.c` (`SAI/SAI.h`:
+   conflicting types for `SAI_fn_p_vGetTableValuePointerOf`), not caused by this step.
 
 **Platform macros (decided 2026-11-24).** Modelled on the original engine's three kinds: target
 macros named after the platform (`U64`, `NITRO`, `WIN32`), a group macro derived from them
