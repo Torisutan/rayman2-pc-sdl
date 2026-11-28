@@ -820,11 +820,7 @@ static void HIE_pc_fn_vStepWrappingCounter(HIE_tdstSuperObject *hSprObj)
     }
 }
 
-/* 0x00418960 */
-char __cdecl FUN_00418960(void)
-{
-    return 1;
-}
+char __cdecl FUN_00418960(void);
 
 POS_tdstCompletePosition *HIE_hRetrieveCurrentMatrix(void)
 {

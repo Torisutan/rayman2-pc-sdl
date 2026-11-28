@@ -187,21 +187,6 @@ void __cdecl GLI_pc_fn_vWriteIniString(const char *szSection, const char *szKey,
     FIL_pc_M_bWriteProfileString(szSection, szKey, szValue, acPath);
 }
 
-/* 0x00409c80 */
-void __cdecl FUN_00409c80(void)
-{
-    long lTicks = GLI_pc_g_lTickBudget;   /* 0x004a7218 */
-    __int64 i64Ticks;
-    __int64 i64Tps;
-    volatile float fTicksAsFloat;
-
-    i64Ticks = (__int64)(unsigned __int64)(unsigned long)lTicks;
-    fTicksAsFloat = (float)i64Ticks;
-    i64Tps = (__int64)(unsigned __int64)(unsigned long)fn_ulTimerTickPerSecond(1);   /* 0x0045e8a0 */
-
-    GAM_g_xFrameLength = (float)(fTicksAsFloat / (double)i64Tps);
-}
-
 static const char GLI_HELP_szDllFmt_storage[]      = "dll/%s%s.dll";
 static const char GLI_HELP_szDllSuffix_storage[]   = "vf";
 static const char GLI_HELP_szErrTitle_storage[]    = "%s setup error";

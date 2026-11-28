@@ -87,3 +87,17 @@ unsigned char __cdecl SAI_fn_ucPlayerSaveValues(char *_szFileName)
     return SAI_fn_ucSaveAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
                                            SAI_ePlayerSaveTableValue | SAI_ePlayerSaveCurrentValue);
 }
+
+/* 0x00449ec0 */
+unsigned char __cdecl SAI_fn_ucLevelSaveValues(char *_szFileName)
+{
+    return SAI_fn_ucSaveAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
+                                           SAI_eLevelSaveTableValue | SAI_eLevelSaveCurrentValue);
+}
+
+/* 0x00449ee0 */
+unsigned char __cdecl SAI_fn_ucLoadPlayerValues(char *_szFileName)
+{
+    return SAI_fn_ucLoadAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
+                                           SAI_ePlayerSaveTableValue | SAI_ePlayerSaveCurrentValue);
+}

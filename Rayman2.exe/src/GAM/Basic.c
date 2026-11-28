@@ -428,6 +428,22 @@ void fn_vFirstInitEngineClock(void)
     ulTimerFreq        = fn_ulTimerTickPerSecond(1); /* 0x0045E8A0 */
     GAM_g_ulTimerScale = ulTimerFreq / 1000;
 }
+#include "GLI/GLI_globals.h"
+
+/* 0x00409c80 */
+void __cdecl FUN_00409c80(void)
+{
+    long lTicks = GLI_pc_g_lTickBudget;   /* 0x004a7218 */
+    __int64 i64Ticks;
+    __int64 i64Tps;
+    volatile float fTicksAsFloat;
+
+    i64Ticks = (__int64)(unsigned __int64)(unsigned long)lTicks;
+    fTicksAsFloat = (float)i64Ticks;
+    i64Tps = (__int64)(unsigned __int64)(unsigned long)fn_ulTimerTickPerSecond(1);   /* 0x0045e8a0 */
+
+    GAM_g_xFrameLength = (float)(fTicksAsFloat / (double)i64Tps);
+}
 
 unsigned long fn_ulDetermineUsefulDT(void)
 {

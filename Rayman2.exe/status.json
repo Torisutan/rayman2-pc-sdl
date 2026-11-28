@@ -471,133 +471,133 @@
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vKillSupervisaterDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vSetSupervisaterActiveDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vRefreshSupervisaterDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vDesInitRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vDesInitMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vReleaseDriverMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vRestoreDriverMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vSynchroMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vDesInitCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vReleaseDriverCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vRestoreDriverCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vSynchroCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vDesInitSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vReleaseDriverSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vRestoreDriverSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vForceReleaseDriverSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vForceRestoreDriverSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vSetupTargetSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00403290",
 "name": "SND_pc_fn_vSynchroSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1,
 "verdict": "EXACT"
 },
@@ -653,7 +653,7 @@
 {
 "addr": "0x00404540",
 "name": "FUN_00404540",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 5,
 "verdict": "EXACT"
 },
@@ -814,8 +814,8 @@
 {
 "addr": "0x00404E70",
 "name": "fn_vChangeViewPortPercent",
-"src": "src/GLI/GLD.c",
-"len": 407,
+"src": "src/GLI/DevVpt.c",
+"len": 432,
 "verdict": "MISMATCH"
 },
 {
@@ -1010,7 +1010,7 @@
 {
 "addr": "0x004062A0",
 "name": "fn_vKillEngineObjectOrAlwaysByPointer",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 77,
 "verdict": "EXACT"
 },
@@ -1108,14 +1108,14 @@
 {
 "addr": "0x00407760",
 "name": "FUN_00407760",
-"src": "src/FON/FON.c",
+"src": "src/GAM/fontext.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00407790",
 "name": "FON_fn_vDesInitFonts",
-"src": "src/FON/FON.c",
+"src": "src/GAM/fontext.c",
 "len": 5,
 "verdict": "EXACT"
 },
@@ -1206,91 +1206,91 @@
 {
 "addr": "0x00407B20",
 "name": "GAM_pc_fn_vSetLoadFileName",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00407B50",
 "name": "fn_vSetCurrentGameOptionsFileName",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00407B80",
 "name": "fn_bSaveCurrentGameOptions",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 584,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00407DD0",
 "name": "fn_bLoadCurrentGameOptions",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 122,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00407E50",
 "name": "GAM_pc_fn_bLoadSaveStateFromLoadFile",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 14,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00407E60",
 "name": "fn_bLoadGameOptions",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 901,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004081D0",
 "name": "GAM_pc_fn_lGetSaveSlotId",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 38,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00408200",
 "name": "GAM_pc_fn_lCountSaveSlotDirs",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 142,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00408290",
 "name": "fn_lGetNbAvailableSlots",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 69,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004082E0",
 "name": "GAM_pc_fn_lEnsureDefaultSaveSlot",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 205,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004083B0",
 "name": "GAM_pc_fn_p_szGetSaveSlotNameScore",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 25,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004083D0",
 "name": "GAM_pc_fn_ulRemoveSaveSlotNode",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 131,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00408460",
 "name": "GAM_pc_fn_ucGrowSaveSlotList",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 121,
 "verdict": "MISMATCH"
 },
@@ -1472,7 +1472,7 @@
 {
 "addr": "0x00409C80",
 "name": "FUN_00409c80",
-"src": "src/GLI/Init_Gli_helpers.c",
+"src": "src/GAM/Basic.c",
 "len": 70,
 "verdict": "MISMATCH"
 },
@@ -1633,126 +1633,126 @@
 {
 "addr": "0x0040A5C0",
 "name": "fn_vTreatCharactersInSector",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 503,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0040A7C0",
 "name": "fn_vTreatDynamicHierarchy",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 585,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040AA10",
 "name": "fn_vTreatDynamicHierarchyOfPlatForms",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 379,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0040AB90",
 "name": "fn_vTreatCameraHierarchy",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 360,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0040AD00",
 "name": "fn_vSendBackGroundColor",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 151,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0040ADA0",
 "name": "GAM_fn_vEngine",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 660,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0040B040",
 "name": "fn_vReputCharacterSuperObjectAtTheWorld",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 31,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B060",
 "name": "fn_vRecurseDestructChildLink",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 118,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B0E0",
 "name": "fn_vDestructAllFatherSonLinks",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 105,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B150",
 "name": "fn_vDisplayAll",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 127,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B1D0",
 "name": "GAM_fn_lGetNbPersoActivableInSector",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 43,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B200",
 "name": "GAM_fn_lGetNbPersoActive",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B250",
 "name": "GAM_fn_bIsCharacterActive",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 57,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B290",
 "name": "fn_vClearDynamicHierarchy",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 372,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B410",
 "name": "fn_vDesinitInactivePerso",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 165,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B4C0",
 "name": "fn_vInsertActorInDynamicHierarchy",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 311,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0040B620",
 "name": "fn_vFillDynamicHierarchy",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 385,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0040B7B0",
 "name": "fn_vUpdateDynamicHierarchy",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 89,
 "verdict": "EXACT"
 },
@@ -1878,7 +1878,7 @@
 {
 "addr": "0x0040C2F0",
 "name": "fn_vKillAllAlwaysInNonActiveSectors",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 121,
 "verdict": "EXACT"
 },
@@ -2410,84 +2410,84 @@
 {
 "addr": "0x00410510",
 "name": "GAM_pc_fn_bCopyDirectoryTree",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 398,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004106A0",
 "name": "GAM_pc_fn_bDeleteDirectoryTree",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 450,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00410870",
 "name": "fn_bSaveGameInSlot",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 262,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00410980",
 "name": "GAM_pc_fn_bBuildSaveSlotPath",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 123,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00410A00",
 "name": "GAM_pc_fn_ucUpdateSaveSlotList",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 117,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00410A80",
 "name": "GAM_pc_fn_ucSortSaveSlotsByDate",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 430,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00410C50",
 "name": "GAM_pc_fn_lCompareSaveSlotDates",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 340,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00410DB0",
 "name": "GAM_pc_fn_szFormatSaveSlotDate",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 245,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00410EC0",
 "name": "GAM_pc_fn_ucIsSaveSlotPathValid",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 86,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00410F20",
 "name": "fn_bLoadGameFromSlot",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 203,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00410FF0",
 "name": "GAM_pc_fn_ucErasePrepSaveSlot",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 237,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004110E0",
 "name": "GAM_pc_fn_ulEraseSaveSlotDir",
-"src": "src/GAM/GAM_save_slot.c",
+"src": "src/GAM/GamOpt.c",
 "len": 161,
 "verdict": "MISMATCH"
 },
@@ -2725,7 +2725,7 @@
 {
 "addr": "0x00412230",
 "name": "fn_vMakeCharacterReact",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 113,
 "verdict": "EXACT"
 },
@@ -2844,7 +2844,7 @@
 {
 "addr": "0x00412BE0",
 "name": "fn_vDynamAlloc",
-"src": "src/DNM/DNM.c",
+"src": "src/GAM/Actions/Dynam.c",
 "len": 138,
 "verdict": "EXACT"
 },
@@ -2865,7 +2865,7 @@
 {
 "addr": "0x00412DF0",
 "name": "fn_v_DynamicFree",
-"src": "src/DNM/DNM.c",
+"src": "src/GAM/Actions/Dynam.c",
 "len": 146,
 "verdict": "EXACT"
 },
@@ -2893,7 +2893,7 @@
 {
 "addr": "0x00412FF0",
 "name": "fn_vDynamCopyClone",
-"src": "src/DNM/DNM.c",
+"src": "src/GAM/Actions/Dynam.c",
 "len": 265,
 "verdict": "EXACT"
 },
@@ -2907,7 +2907,7 @@
 {
 "addr": "0x00413110",
 "name": "fn_p_stDynamGetDynamicsSO",
-"src": "src/DNM/DNM.c",
+"src": "src/GAM/Actions/Dynam.c",
 "len": 30,
 "verdict": "EXACT"
 },
@@ -3068,14 +3068,14 @@
 {
 "addr": "0x004137A0",
 "name": "fnInvertPad",
-"src": "src/AI/pc_PadCheat.c",
+"src": "src/GAM/Input.c",
 "len": 27,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004137C0",
 "name": "fnRandomPad",
-"src": "src/AI/pc_PadCheat.c",
+"src": "src/GAM/Input.c",
 "len": 62,
 "verdict": "MISMATCH"
 },
@@ -3096,7 +3096,7 @@
 {
 "addr": "0x00413890",
 "name": "fn_vEngineReadInput",
-"src": "src/IPT/IPT_Anal.c",
+"src": "src/GAM/Input.c",
 "len": 20,
 "verdict": "EXACT"
 },
@@ -4818,7 +4818,7 @@
 {
 "addr": "0x00418960",
 "name": "FUN_00418960",
-"src": "src/HIE/HieDraw.c",
+"src": "src/GAM/Actions/3dData.c",
 "len": 3,
 "verdict": "EXACT"
 },
@@ -4867,42 +4867,42 @@
 {
 "addr": "0x00418BB0",
 "name": "fn_v_CopyQuat",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 31,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00418BD0",
 "name": "fn_v_MatrixByVector",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 107,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00418C40",
 "name": "fn_v_DiaByMatrix",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 97,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00418CB0",
 "name": "fn_v_MatrixByDia",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 97,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00418D20",
 "name": "fn_v_MultMatrix",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 303,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00418E50",
 "name": "fn_v_RotDiaInvRot",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 294,
 "verdict": "MISMATCH"
 },
@@ -4910,13 +4910,13 @@
 "addr": "0x00418F70",
 "name": "fn_v_QuatToMatrix",
 "src": "src/GAM/PlayAnim/a3x_int.c",
-"len": 291,
-"verdict": "MISMATCH"
+"len": 299,
+"verdict": "EXACT"
 },
 {
 "addr": "0x004190A0",
 "name": "fn_v_InterpolVect",
-"src": "src/MTH/MTH_matrix_outofline.c",
+"src": "src/GAM/PlayAnim/a3x_int.c",
 "len": 57,
 "verdict": "EXACT"
 },
@@ -4924,7 +4924,7 @@
 "addr": "0x004190E0",
 "name": "fn_v_InterpolQuatWithOmega",
 "src": "src/GAM/PlayAnim/a3x_int.c",
-"len": 491,
+"len": 513,
 "verdict": "MISMATCH"
 },
 {
@@ -4986,7 +4986,7 @@
 {
 "addr": "0x004194B0",
 "name": "GLI_lGetLightType",
-"src": "src/GLI/light_fog.c",
+"src": "src/GLI/Light.c",
 "len": 8,
 "verdict": "EXACT"
 },
@@ -5140,7 +5140,7 @@
 {
 "addr": "0x00419A30",
 "name": "fn_vDisplayFix",
-"src": "src/GAM/GAM_GameEng.c",
+"src": "src/GAM/GameEng.c",
 "len": 277,
 "verdict": "EXACT"
 },
@@ -5161,7 +5161,7 @@
 {
 "addr": "0x00419B90",
 "name": "fn_hGetCharacterInAlwaysActiveCharacterNode",
-"src": "src/GAM/GAM_alwact.c",
+"src": "src/GAM/AlwAct.c",
 "len": 7,
 "verdict": "EXACT"
 },
@@ -5182,7 +5182,7 @@
 {
 "addr": "0x00419BC0",
 "name": "fn_hGetFirstAlwaysActiveCharNode",
-"src": "src/GAM/GAM_alwact.c",
+"src": "src/GAM/AlwAct.c",
 "len": 6,
 "verdict": "EXACT"
 },
@@ -5301,21 +5301,21 @@
 {
 "addr": "0x0041B1B0",
 "name": "fn_vTurnMatrixX",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 271,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041B2C0",
 "name": "fn_vTurnMatrixY",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 271,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041B3D0",
 "name": "fn_vTurnMatrixZ",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 271,
 "verdict": "EXACT"
 },
@@ -5329,35 +5329,35 @@
 {
 "addr": "0x0041B4F0",
 "name": "GEO_pc_fn_vExtendBoxWithPointsAndSprites",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 700,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0041B7C0",
 "name": "GEO_xMergeSpheres",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 289,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041B8F0",
 "name": "GEO_xGrowSphereWithPoint",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 229,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041B9E0",
 "name": "GEO_xComputeSpriteRadius",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 65,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041BA30",
 "name": "GEO_xComputeObjectSphereBox",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 387,
 "verdict": "MISMATCH"
 },
@@ -5567,14 +5567,14 @@
 {
 "addr": "0x0041DAC0",
 "name": "GEO_bIsLookAt",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 8,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041DAD0",
 "name": "GEO_vTurnLookAt",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 392,
 "verdict": "MISMATCH"
 },
@@ -5812,70 +5812,70 @@
 {
 "addr": "0x0041EE20",
 "name": "GEO_xGetZFar",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 7,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041EE30",
 "name": "GEO_vSetZFar",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 10,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041EE40",
 "name": "GEO_xGetZFarTransparencyZone",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 7,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041EE50",
 "name": "GEO_vSetZFarTransparencyZone",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 43,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041EE80",
 "name": "GEO_xGetZFarTransparencyLevel",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 7,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041EE90",
 "name": "GEO_lMainCullingSphere",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 643,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0041F120",
 "name": "GEO_fn_vComputeCameraParametersForCulling",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 582,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041F370",
 "name": "GEO_lCullingSphere",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 75,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041F3C0",
 "name": "GEO_lCullingSphereNoMMM",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0041F3F0",
 "name": "GEO_lCullingBox",
-"src": "src/GEO/GEO.c",
+"src": "src/GEO/Culling.c",
 "len": 1705,
 "verdict": "MISMATCH"
 },
@@ -5903,112 +5903,112 @@
 {
 "addr": "0x00420340",
 "name": "GLD_pc_fn_vExitCallback",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 23,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420360",
 "name": "GLD_pc_bFirstTimeInit",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 153,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420400",
 "name": "GLD_bIsDeviceHandleValid",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420430",
 "name": "GLD_pGetViewport",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420450",
 "name": "GLD_pc_pGetDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 13,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420460",
 "name": "GLD_bClearDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 16,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420470",
 "name": "GLD_bClearDeviceWithChoice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 63,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004204B0",
 "name": "GLD_bClearViewportWithChoice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004204E0",
 "name": "GLD_bSetFullScreenModeForDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420520",
 "name": "GLD_bCreateDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 267,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00420630",
 "name": "GLD_pc_lFindFreeDeviceHandle",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 48,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420660",
 "name": "fn_vUpdateViewportSizesInPixels",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 547,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420890",
 "name": "GLD_bGetDeviceAttributes",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004208E0",
 "name": "GLD_bCreateViewport",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 343,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420A40",
 "name": "fn_bGetVPHandle",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 61,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420A80",
 "name": "GLD_bGetViewportAttributes",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 119,
 "verdict": "EXACT"
 },
@@ -6029,133 +6029,133 @@
 {
 "addr": "0x00420B20",
 "name": "GLD_bRequestWriteToViewport",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 129,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420BB0",
 "name": "GLD_bWriteToViewportFinished",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420BE0",
 "name": "GLD_bRequestWriteToViewport2D",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 211,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420CC0",
 "name": "GLD_bWriteToViewportFinished2D",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 84,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420D20",
 "name": "GLD_vSetFrameSynchro",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 106,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420D90",
 "name": "GLD_pc_fn_vRestartFrameTimer",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 121,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420E10",
 "name": "GLD_pc_lComputeWaitFrameForSmoothSynchro",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 165,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00420EC0",
 "name": "GLD_pc_vSimulateFlipSynchroWithoutVSync",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 138,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00420F50",
 "name": "GLD_bFlipDeviceWithSynchro",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 83,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00420FB0",
 "name": "GLD_bSetViewportPosition",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 154,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00421050",
 "name": "GLD_bDeleteViewport",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 184,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00421110",
 "name": "GLD_bDeleteDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 168,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004211C0",
 "name": "GLD_pc_bRecreateDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 317,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00421300",
 "name": "GLD_bSwapDeviceMode",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 144,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00421390",
 "name": "GLD_bSwapToWindowedMode",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 134,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00421420",
 "name": "GLD_fn_bChangeDeviceDisplayMode",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 421,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004215D0",
 "name": "GLD_bGiveSpecificAttributesToViewport",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 68,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00421620",
 "name": "GLD_bSetBackgroundColorForDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 15,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00421630",
 "name": "GLD_bReleaseViewportAndDevice",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 56,
 "verdict": "EXACT"
 },
@@ -6421,14 +6421,14 @@
 {
 "addr": "0x00422570",
 "name": "GLI_fn_vSetBrightness",
-"src": "src/GLI/Brightness.c",
+"src": "src/GLI/Init_Gli.c",
 "len": 63,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004225B0",
 "name": "GLI_fn_lGetBrightness",
-"src": "src/GLI/Brightness.c",
+"src": "src/GLI/Init_Gli.c",
 "len": 17,
 "verdict": "EXACT"
 },
@@ -6701,21 +6701,21 @@
 {
 "addr": "0x00424010",
 "name": "GLI_vSetFog2",
-"src": "src/GLI/light_fog.c",
+"src": "src/GLI/Light.c",
 "len": 361,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00424180",
 "name": "GLI_vFogOn",
-"src": "src/GLI/light_fog.c",
+"src": "src/GLI/Light.c",
 "len": 16,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00424190",
 "name": "GLI_vFogOff",
-"src": "src/GLI/light_fog.c",
+"src": "src/GLI/Light.c",
 "len": 39,
 "verdict": "EXACT"
 },
@@ -7002,7 +7002,7 @@
 {
 "addr": "0x00425AE0",
 "name": "GLI_pc_fn_vAverageDwordPairsOfRows",
-"src": "src/GLI/texture_mipmap.c",
+"src": "src/GLI/Texture.c",
 "len": 100,
 "verdict": "MISMATCH"
 },
@@ -7534,7 +7534,7 @@
 {
 "addr": "0x00429820",
 "name": "GLI_vDisplayFrame",
-"src": "src/GLI/DisplayFrame.c",
+"src": "src/GLI/u_Draw.c",
 "len": 109,
 "verdict": "EXACT"
 },
@@ -7576,14 +7576,14 @@
 {
 "addr": "0x0042A300",
 "name": "GLI_vSetGlobalAlpha",
-"src": "src/GLI/GlobalAlpha.c",
+"src": "src/GLI/Light.c",
 "len": 92,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042A360",
 "name": "GLI_fn_xGetGlobalAlpha",
-"src": "src/GLI/GlobalAlpha.c",
+"src": "src/GLI/Light.c",
 "len": 18,
 "verdict": "EXACT"
 },
@@ -7723,22 +7723,22 @@
 {
 "addr": "0x0042B320",
 "name": "GLD_pc_fn_vUnpackScanline16ToFloat",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 268,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042B430",
 "name": "GLD_pc_fn_vWriteScanlineRgb24",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 68,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042B480",
 "name": "GLI_pc_fn_vBlendScanlineRGB",
-"src": "src/GLI/GLD.c",
-"len": 553,
+"src": "src/GLI/DevVpt.c",
+"len": 548,
 "verdict": "MISMATCH"
 },
 {
@@ -7814,7 +7814,7 @@
 {
 "addr": "0x0042BD20",
 "name": "GLD_vGetFrontBufferIn24BitsAA",
-"src": "src/GLI/GLD.c",
+"src": "src/GLI/DevVpt.c",
 "len": 1169,
 "verdict": "MISMATCH"
 },
@@ -8024,35 +8024,35 @@
 {
 "addr": "0x0042DAA0",
 "name": "GMT_fn_vInitFor3DOS",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 35,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DAD0",
 "name": "GMT_fn_vInitGameMaterialErrorAndMemory",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 20,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DAF0",
 "name": "GMT_fn_hCreateGameMaterial",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 14,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DB00",
 "name": "GMT_fn_b_ulIsValid",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 24,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DB20",
 "name": "GMT_fn_vSetVisualMaterial",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 11,
 "verdict": "EXACT"
 },
@@ -8080,7 +8080,7 @@
 {
 "addr": "0x0042DB30",
 "name": "GMT_fn_hGetCollideMaterial",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 8,
 "verdict": "EXACT"
 },
@@ -8094,84 +8094,84 @@
 {
 "addr": "0x0042DB40",
 "name": "GMT_fn_xTestCollideIdentifierTypeOfGameMaterial",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 36,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DB70",
 "name": "GMT_fn_xMultipleTestCollideIdentifierFromGameMaterial",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DBB0",
 "name": "GMT_fn_hCreateFor3DOS",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 288,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DCD0",
 "name": "GMT_fn_vCopyFor3DOS",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 58,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DD10",
 "name": "GMT_fn_vDestroyFor3DOS",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 181,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DDD0",
 "name": "GMT_fn_hGetCollideMaterialIdentifier",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 9,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DDE0",
 "name": "GMT_fn_xTestCollideMaterialTypeOfIdentifier",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 31,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DE00",
 "name": "GMT_fn_xMultipleTestCollideIdentifier",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 30,
-"verdict": "EXACT"
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x0042DE20",
 "name": "GMT_fn_vResetEntireMask",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 10,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DE30",
 "name": "PO_fn_hGetCollideSet",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 8,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DE30",
 "name": "fn_hGetNextAlwaysActiveCharNode",
-"src": "src/GAM/GAM_alwact.c",
+"src": "src/GAM/AlwAct.c",
 "len": 8,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0042DE40",
 "name": "GMT_fn_vSetMechanicsMaterial",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 12,
 "verdict": "EXACT"
 },
@@ -8773,42 +8773,42 @@
 {
 "addr": "0x004329B0",
 "name": "MEC_vImposeRotationMatrix",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 211,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00432A90",
 "name": "MEC_vImposeRotationVector",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 113,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00432B10",
 "name": "MEC_vImposeRelativeRotation",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 535,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00432D30",
 "name": "MEC_vImposeTranslation",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 111,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00432DA0",
 "name": "MEC_vInitTranslation",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 179,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00432E60",
 "name": "MEC_fn_vImposeActorMatrix",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 123,
 "verdict": "EXACT"
 },
@@ -8836,105 +8836,105 @@
 {
 "addr": "0x00433210",
 "name": "MEC_fn_vUpdateSpeed",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 380,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00433390",
 "name": "CAM_fn_xComputeHorizontalAngle",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 558,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004335C0",
 "name": "CAM_fn_xComputeVerticalAngle",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 876,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00433930",
 "name": "DNM_fn_vDynamicsTakeCareOfLastMove",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 547,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00433B00",
 "name": "DNM_fn_vDynamicsCameraPositionParsing",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 451,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00433CD0",
 "name": "DNM_fn_xDynamicsCameraAngleParsing",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 159,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00433D70",
 "name": "DNM_p_stDynamicsCameraParsing",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 1587,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00434390",
 "name": "CAM_lHaveITakeSThgIntoTheMug",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 397,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00434520",
 "name": "CAM_fn_bVectorIsNull",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 119,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004345A0",
 "name": "MTH_bCompareVectors",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 95,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00434600",
 "name": "CAM_fn_cNormalHere",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 87,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00434660",
 "name": "DNM_p_stObstacleCameraObstacle",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 4054,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00435640",
 "name": "CAM_fn_vComputeCameraSystemAxis",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 741,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00435930",
 "name": "DNM_p_stDynamicsCameraUpdate",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 147,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004359D0",
 "name": "DNM_p_stDynamicsCameraMechanics",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 236,
 "verdict": "EXACT"
 },
@@ -8969,7 +8969,7 @@
 {
 "addr": "0x00435E10",
 "name": "DNM_fn_vDynamicsCopyClone",
-"src": "src/DNM/DNM.c",
+"src": "src/GAM/Actions/Dynam.c",
 "len": 100,
 "verdict": "EXACT"
 },
@@ -8990,7 +8990,7 @@
 {
 "addr": "0x00435E90",
 "name": "HIE_fn_bIsSuperObjectValid",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 12,
 "verdict": "EXACT"
 },
@@ -9130,7 +9130,7 @@
 {
 "addr": "0x00436E40",
 "name": "MEC_fn_vUpdateMatrix",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 108,
 "verdict": "EXACT"
 },
@@ -9431,7 +9431,7 @@
 {
 "addr": "0x0043E250",
 "name": "MEC_fn_vCancelTilt",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 250,
 "verdict": "MISMATCH"
 },
@@ -9557,21 +9557,21 @@
 {
 "addr": "0x004406B0",
 "name": "MTH_fn_vVectorPlaneProjection",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 213,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004407A0",
 "name": "MTH_p_stRotationComputeRotationWith2Vectors",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 495,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00440990",
 "name": "MTH_p_stRotationMulVector",
-"src": "src/MEC/MEC.c",
+"src": "src/MEC/DNMCame.c",
 "len": 331,
 "verdict": "MISMATCH"
 },
@@ -9823,280 +9823,280 @@
 {
 "addr": "0x004423B0",
 "name": "Mmg_fn_vWriteOverflowCheckKey",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 46,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004423E0",
 "name": "Mmg_fn_b_cIsItEqualToOverflowCheckKey",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 55,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442420",
 "name": "Mmg_fn_vInitSpecificBlock",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 428,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004425D0",
 "name": "Mmg_fn_vFreeBlock",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 128,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442650",
 "name": "Mmg_fn_vDeleteBlock",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442680",
 "name": "fn_p_vDynAlloc",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 182,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442740",
 "name": "fn_vDynFree",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442770",
 "name": "fn_p_vDynRealloc",
-"src": "src/MMG/MMG_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 217,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442850",
 "name": "fn_p_vStaAlloc",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 540,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442A70",
 "name": "fn_vStaFree",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 229,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00442B60",
 "name": "fn_p_vStaRealloc",
-"src": "src/MMG/MMG_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 1497,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00443120",
 "name": "fn_p_vGenAlloc",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 54,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443160",
 "name": "fn_vGenFree",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 54,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004431A0",
 "name": "fn_p_vGenRealloc",
-"src": "src/MMG/MMG_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 64,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004431E0",
 "name": "Mmg_fn_vWhereIs",
-"src": "src/MMG/MMG_pubaccess.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 156,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443280",
 "name": "Mmg_fn_p_vGiveTheBeginingAddress",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004432B0",
 "name": "Mmg_fn_ucGiveChannelId",
-"src": "src/MMG/MMG_pubaccess.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 133,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443340",
 "name": "Mmg_fn_vReleaseChannelId",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443360",
 "name": "Mmg_fn_v_SetModeAlloc",
-"src": "src/MMG/MMG_pool_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 81,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004433C0",
 "name": "Mmg_fn_vFirstInitMmgModule",
-"src": "src/MMG/MMG_pubaccess.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 86,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443420",
 "name": "Mmg_fn_vStopMmgModule",
-"src": "src/MMG/MMG_pubaccess.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 105,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443490",
 "name": "Mmg_fn_v_InitMmg",
-"src": "src/MMG/MMG_alloc.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004434E0",
 "name": "Mmg_fn_v_StopMmg",
-"src": "src/MMG/MMG_module.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 126,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443560",
 "name": "Mmg_fn_vGiveInformationBlock",
-"src": "src/MMG/MMG_pubaccess.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 58,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004435A0",
 "name": "Mmg_fn_vSaveInformationBlock",
-"src": "src/MMG/MMG_pubaccess.c",
+"src": "src/MMG/CpaMmg.c",
 "len": 58,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004435E0",
 "name": "MOR_fn_xPrepareMorph",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 637,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00443890",
 "name": "MOR_fn_xStopMorph",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 247,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443990",
 "name": "MOR_fn_xMorphing",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 577,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00443C00",
 "name": "MOR_fn_vMorphTo",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 306,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00443D60",
 "name": "MOR_fn_vCleanMorphTask",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 25,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443D80",
 "name": "GEO_fn_vMorphAddInMainLoop",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 325,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00443EF0",
 "name": "MOR_pc_fn_vCleanAllMorphTasks",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 61,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443F30",
 "name": "MOR_fn_bIsChannelMorphed",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 98,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00443FA0",
 "name": "MOR_fn_vRemoveAllMorphedObjects",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 135,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00444030",
 "name": "MOR_fn_bRemoveMorphedObjectFromHierarchy",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 92,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00444090",
 "name": "MOR_fn_hGetMorphedObject",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 18,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004440B0",
 "name": "MOR_fn_vDoMorph",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004440D0",
 "name": "MOR_fn_xCopyGeometricObjectForMorph",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 924,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004444A0",
 "name": "MOR_fn_vDeleteGeometricObject",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 119,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00444570",
 "name": "MOR_fn_vDeletePhysicalObject",
-"src": "src/MOR/MOR.c",
+"src": "src/MOR/u_morph.c",
 "len": 106,
 "verdict": "EXACT"
 },
@@ -10131,196 +10131,196 @@
 {
 "addr": "0x00444790",
 "name": "PCS_fn_hGetGeoObjOfPhysicalCollSet",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 72,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004447E0",
 "name": "POS_fn_vSetIdentityMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00444800",
 "name": "POS_fn_vMulMatrixVertex",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 404,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004449A0",
 "name": "POS_fn_vMulMatrixVector",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 276,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00444AC0",
 "name": "POS_fn_vRotateVector",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 180,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00444B80",
 "name": "POS_fn_vInvertIsoMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 465,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00444D60",
 "name": "POS_fn_vInvertMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 552,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00444F90",
 "name": "POS_fn_vNormalizeMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 407,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445130",
 "name": "POS_fn_vMulMatrixMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 871,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004454A0",
 "name": "POS_fn_vRotatePositionAroundAxis",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 966,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445870",
 "name": "POS_fn_vRotatePositionAroundAxisNoTranslation",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 866,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445BE0",
 "name": "POS_fn_vRotateX",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 132,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445C70",
 "name": "POS_fn_vRotateZ",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 132,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445D00",
 "name": "POS_fn_vSetRotationMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 505,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445F00",
 "name": "POS_fn_vGetRotationMatrixCol2",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445F20",
 "name": "POS_fn_vGetRotationMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 68,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445F70",
 "name": "POS_fn_vGetRotationVector",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 32,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00445F90",
 "name": "POS_fn_vSetScaleMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 618,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00446200",
 "name": "POS_fn_xGetXScale",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 69,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00446250",
 "name": "POS_fn_xGetYScale",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 69,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004462A0",
 "name": "POS_fn_vGetScaleMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 452,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00446470",
 "name": "POS_fn_vSetZoomMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 121,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004464F0",
 "name": "POS_fn_vGetTransformMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 68,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00446540",
 "name": "POS_fn_vSetTransformMatrix",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00446590",
 "name": "POS_fn_vSetTranslationVector",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004465C0",
 "name": "POS_fn_vGetTranslationVector",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004465E0",
 "name": "POS_fn_xGetMaxScale",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 203,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004466B0",
 "name": "POS_fn_vQuatToMat",
-"src": "src/POS/POS.c",
+"src": "src/POS/Position.c",
 "len": 297,
 "verdict": "EXACT"
 },
@@ -10572,49 +10572,49 @@
 {
 "addr": "0x00449A50",
 "name": "RND_fn_vFirstInitRandom",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 51,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449A90",
 "name": "RND_fn_hReserveANewHandleIndex",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 66,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449AE0",
 "name": "RND_fn_vComputeRandomTable",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 81,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449B40",
 "name": "RND_fn_vRemapRandomTable",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 158,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449BE0",
 "name": "RDN_fn_vSetRandomSeed",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 42,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449C10",
 "name": "RND_fn_lGetLongRandomValue",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 84,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449C70",
 "name": "RND_fn_xGetRealRandomValue",
-"src": "src/RND/RND.c",
+"src": "src/RND/RND_Main.c",
 "len": 90,
 "verdict": "EXACT"
 },
@@ -10698,14 +10698,14 @@
 {
 "addr": "0x00449EC0",
 "name": "SAI_fn_ucLevelSaveValues",
-"src": "src/SAI/SAI_Save.c",
+"src": "src/SAI/SAI_Pub.c",
 "len": 24,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00449EE0",
 "name": "SAI_fn_ucLoadPlayerValues",
-"src": "src/SAI/SAI_Save.c",
+"src": "src/SAI/SAI_Pub.c",
 "len": 24,
 "verdict": "EXACT"
 },
@@ -11545,532 +11545,532 @@
 {
 "addr": "0x00451440",
 "name": "SND_pc_fn_lGetTwicePlus25",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 10,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451450",
 "name": "SND_fn_vDisplayError",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 83,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004514B0",
 "name": "SND_fn_vDisplayErrorEx",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 18,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004514D0",
 "name": "SND_fn_vInitErrorSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 101,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451540",
 "name": "SND_fn_vUpdateLastError",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 91,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004515A0",
 "name": "_snd_assert",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 219,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451680",
 "name": "snd_erreur_init",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 108,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004516F0",
 "name": "SND_fn_iErreurInit",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 108,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451760",
 "name": "fnSetLastEventForSoundObjectType",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 43,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451790",
 "name": "SND_fn_pstGetLastEventForObjectTypeSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004517C0",
 "name": "fn_vResetVolumeForObject",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 155,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451860",
 "name": "fn_vChangeVolumeForType",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451880",
 "name": "fn_vChangeVolumeForObject",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 211,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451960",
 "name": "fn_lGetVolumeForType",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 24,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451980",
 "name": "fn_lGetVolumeForObject",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 66,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004519D0",
 "name": "GetMicroParam",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 218,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451AB0",
 "name": "pre_associe_sound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 57,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451AF0",
 "name": "erase_association",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 101,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451B60",
 "name": "associe_sound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 482,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451D50",
 "name": "get_association",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 98,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451DC0",
 "name": "stop_all_son_objet",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 93,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451E20",
 "name": "stop_un_son_objet",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 97,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451E90",
 "name": "stop_son_type_all",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 79,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451EE0",
 "name": "stop_son_all",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 68,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451F30",
 "name": "get_RollOff",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 73,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451F80",
 "name": "set_SwitchParam",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451FB0",
 "name": "SND_pc_fn_lCallTypeSubTableSlot6",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00451FE0",
 "name": "SND_pc_fn_stAddAxisCombinationToBase",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 178,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004520A0",
 "name": "fill_pre_filled_param",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1136,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452510",
 "name": "get_param_objet2",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 619,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452780",
 "name": "get_param_objet",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 78,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004527D0",
 "name": "fn_rGetDeTune",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 69,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452820",
 "name": "SND_pc_fn_vSetThreeRealsToOne",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 43,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452850",
 "name": "SND_pc_fn_vSetUnitVecX",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 23,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452870",
 "name": "SND_pc_fn_vSetUnitVecY",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452890",
 "name": "SND_pc_fn_vSetUnitVecZ",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004528B0",
 "name": "fn_rRetMicroSoundSndReal1Default",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004528C0",
 "name": "init_micro_fct",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 105,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452930",
 "name": "init_object_type",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452950",
 "name": "SND_pc_fn_vFreeObjectTypeTable",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 14,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452960",
 "name": "SND_pc_fn_vFreeVolumeLines",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 67,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004529B0",
 "name": "init_association",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 18,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004529D0",
 "name": "SND_fn_iInitSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 90,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452A30",
 "name": "SND_fn_vDesInitSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 95,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452A90",
 "name": "SND_fn_vSetDopplerFactorSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 27,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452AB0",
 "name": "fn_vRajAllVolumeForLine",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 180,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452B70",
 "name": "SND_fn_vSynchroSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 432,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452D20",
 "name": "SND_fn_lSendRequestSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 36,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00452D50",
 "name": "SND_fn_lSendRequestSoundIndexed",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 744,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453040",
 "name": "SND_fn_vKillObjectSound2",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 58,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453080",
 "name": "SND_fn_vKillAllObjectTypeSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004530C0",
 "name": "SND_fn_vKillAllObjectSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 65,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453110",
 "name": "SND_fn_lCreateMicroSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 181,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004531D0",
 "name": "SND_fn_vDestroyMicroSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 157,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453270",
 "name": "SND_fn_vDestroyAllMicroSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 177,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453330",
 "name": "SND_fn_vSetRetMicroSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 51,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453370",
 "name": "SND_fn_lAddVolumeLineSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 176,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453420",
 "name": "fn_vUpdateTypeObjectSoundInfos",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 125,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004534A0",
 "name": "SND_pc_fn_vCopyTypeSubTableDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004534D0",
 "name": "SND_fn_lAddObjectTypeSound2",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 254,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004535D0",
 "name": "SND_fn_vSetInfoForTypeSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453600",
 "name": "SND_fn_vGetInfoForObjectSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 73,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453650",
 "name": "SND_fn_vSetRollOffFunctionForTypeSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453680",
 "name": "SND_fn_lGetVolumeLineSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 17,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004536A0",
 "name": "SND_fn_vSetVolumeLineSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 35,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004536D0",
 "name": "SND_fn_vPauseSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453700",
 "name": "SND_fn_vResumeSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453730",
 "name": "SND_fn_bReleaseDriverSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453760",
 "name": "SND_fn_bRestoreDriverSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453790",
 "name": "SND_fn_vReleaseDriverSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004537A0",
 "name": "SND_fn_vRestoreDriverSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004537B0",
 "name": "SND_fn_vSetStereoSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 14,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004537C0",
 "name": "SND_fn_bGetStereoSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004537D0",
 "name": "SND_fn_bIsMusicPlayingSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004537E0",
 "name": "SND_fn_lGetSwitchIndice",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00453810",
 "name": "SND_fn_vChangeVolumeSound",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 53,
 "verdict": "EXACT"
 },
@@ -12525,112 +12525,112 @@
 {
 "addr": "0x00454F10",
 "name": "SND_fn_bCanFreeDataMPEG@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bNop0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bIsSupervisaterActiveDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_pstGetSelectedResourceDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bDoesSupervisaterSelectResourceDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bTestInitMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bCanFreeDataMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bTestInitCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bGetStereoSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bGetReverseStereoSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bTestInitSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bCanFreeDataSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_bCanSetupTargetSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_lGetNbVoiceOptimumSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_lGetNbVoiceWishedSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F30",
 "name": "SND_pc_fn_eGetMainFormatSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
@@ -12686,364 +12686,364 @@
 {
 "addr": "0x00454F40",
 "name": "SND_fn_lPlaySxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F80",
 "name": "SND_pc_fn_lPlayMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F80",
 "name": "SND_pc_fn_lPlayTransitionMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F80",
 "name": "SND_pc_fn_lPlayCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F80",
 "name": "SND_pc_fn_lPlaySxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F80",
 "name": "SND_pc_fn_lPlayTransitionExSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454F90",
 "name": "SND_fn_bSetParamSxd@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bTestFormatRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_lCreateBufferRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bLoadResScriptMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetParamMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetParamTransitionMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetNextTransitionMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bDoTransitionWithFadeMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bLoadResScriptCdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetParamCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetResourceStaticVolumeCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetResourceStaticVolumeMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetParamSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_lPushBufferExSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bLoadResScriptSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetParamTransitionSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetNextTransitionSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bDoTransitionWithFadeSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FC0",
 "name": "SND_pc_fn_bSetResourceStaticVolumeSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FD0",
 "name": "SND_fn_bTestIsPlayingSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bIsBufferFullDuplexRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bStartRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bIsWorkingRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bManageMsgForRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_iInitRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bIsResLoadedMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bTestIsPlayingMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_iInitMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetPosMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetLengthMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bTestIsPlayingCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_iInitCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetPosCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetLengthCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bTestIsPlayingSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_iInitSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_lCreateMicroSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_pvGetPtrBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_lGetPosBufferExSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_bIsResLoadedSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetPosSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetLengthSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00454FF0",
 "name": "SND_pc_fn_rGetPosBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455000",
 "name": "SND_fn_vStopSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455020",
 "name": "SND_fn_vPauseSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455040",
 "name": "SND_fn_vResumeSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
@@ -13057,1127 +13057,1127 @@
 {
 "addr": "0x00455060",
 "name": "SND_pc_fn_ucGetInstantVuMeterRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455060",
 "name": "SND_pc_fn_ucGetSoundVolumeSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455070",
 "name": "SND_fn_vSetStereoSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455090",
 "name": "SND_fn_bGetStereoSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004550B0",
 "name": "SND_fn_iInitSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004550D0",
 "name": "SND_fn_vDesInitSxd@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004550F0",
 "name": "SND_fn_vSetEffectSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455110",
 "name": "SND_fn_vSetDopplerFactorSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455130",
 "name": "SND_fn_lCreateMicroSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455150",
 "name": "SND_fn_vSetMicroParamSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vKillEventToObjectDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetPosObjectDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetPosMicroDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetVolumeLineDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetParVoiceSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vInitListesSxdVirtualDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetMicroParamSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetParamBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vGetTargetLabelSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vParam3Dto2DDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455180",
 "name": "SND_pc_fn_vSetNbVoiceWishedSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455190",
 "name": "SND_fn_vDestroyMicroSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004551B0",
 "name": "SND_fn_vSynchroSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004551D0",
 "name": "SND_pc_fn_lCreateNewBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004551E0",
 "name": "SND_pc_fn_lCreateNewBufferExSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 6,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004551F0",
 "name": "SND_pc_fn_vAddVoiceSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004551F0",
 "name": "SND_pc_fn_vConvertResDiskToMemSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455200",
 "name": "SND_fn_bLoadResBinarySxd@12",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455230",
 "name": "SND_pc_fn_lPushBufferToRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455230",
 "name": "SND_pc_fn_bLoadResBinaryMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455230",
 "name": "SND_pc_fn_bDoTransitionWithFadeMidi2Default",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455230",
 "name": "SND_pc_fn_bLoadResBinaryCdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455230",
 "name": "SND_pc_fn_bLoadResBinarySxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455230",
 "name": "SND_pc_fn_bDoTransitionWithFadeSxd2Default",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455240",
 "name": "SND_fn_vUnLoadResSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455260",
 "name": "SND_fn_rGetPosSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455280",
 "name": "SND_fn_lPlayTransitionExSxd@20",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004552C0",
 "name": "SND_fn_bSetParamTransitionSxd@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004552F0",
 "name": "SND_fn_bSetNextTransitionSxd@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455320",
 "name": "SND_fn_bDoTransitionWithFadeSxd@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455350",
 "name": "SND_fn_bDoTransitionWithFadeSxd2@12",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455380",
 "name": "SND_fn_vStopTransitionSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004553A0",
 "name": "SND_fn_vPauseTransitionSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004553C0",
 "name": "SND_fn_vResumeTransitionSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004553E0",
 "name": "SND_fn_vReleaseDriverSxd@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455400",
 "name": "SND_fn_vRestoreDriverSxd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455420",
 "name": "SND_fn_bCanFreeDataSample@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455440",
 "name": "SND_fn_vSetDefaultRollOffSxd@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455460",
 "name": "SND_pc_fn_bCheckVersionResourceCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 8,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455460",
 "name": "SND_pc_fn_bCheckVersionResourceMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 8,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455460",
 "name": "SND_pc_fn_bCheckVersionResourceSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 8,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455470",
 "name": "SND_fn_bSetResourceStaticVolumeSxd@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004554A0",
 "name": "SND_fn_iInitRecord@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004554C0",
 "name": "SND_fn_vDesInitRecord@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004554E0",
 "name": "SND_fn_bLoadResBinaryMidi@12",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455510",
 "name": "SND_fn_bSetParamMidi@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455540",
 "name": "SND_fn_bTestIsPlayingMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455560",
 "name": "SND_fn_iInitMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455580",
 "name": "SND_fn_lPlayMidi",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004555C0",
 "name": "SND_pc_fn_lPlayMidiWithFadeDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004555D0",
 "name": "SND_fn_vDesInitMidi@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004555F0",
 "name": "SND_fn_vPauseMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455610",
 "name": "SND_fn_vResumeMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455630",
 "name": "SND_fn_vStopMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455650",
 "name": "SND_fn_vUnLoadResMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455670",
 "name": "SND_fn_vReleaseDriverMidi",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455690",
 "name": "SND_fn_vRestoreDriverMidi",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004556B0",
 "name": "SND_fn_rGetPosMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004556D0",
 "name": "SND_fn_vSynchroMidi",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004556F0",
 "name": "SND_fn_lPlayTransitionMidi@20",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455730",
 "name": "SND_fn_bSetParamTransitionMidi@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455760",
 "name": "SND_fn_bSetNextTransitionMidi@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455790",
 "name": "SND_fn_vStopTransitionMidi@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004557B0",
 "name": "SND_fn_vResumeTransitionMidi",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004557D0",
 "name": "SND_fn_vPauseTransitionMidi",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004557F0",
 "name": "SND_fn_bDoTransitionWithFadeMidi@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455820",
 "name": "SND_fn_bDoTransitionWithFadeMidi2@12",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455850",
 "name": "SND_fn_bCanFreeDataMidi@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455870",
 "name": "SND_fn_bSetResourceStaticVolumeMidi@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004558A0",
 "name": "SND_fn_bLoadResBinaryCd@12",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004558D0",
 "name": "SND_fn_bSetParamCD@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455900",
 "name": "SND_fn_bTestIsPlayingCD@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455920",
 "name": "SND_fn_iInitCD@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455940",
 "name": "SND_pc_fn_lPlayCD",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455980",
 "name": "SND_fn_vDesInitCD@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004559A0",
 "name": "SND_fn_vPauseCD@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004559C0",
 "name": "SND_fn_vResumeCD@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004559E0",
 "name": "SND_fn_vStopCD@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455A00",
 "name": "SND_fn_vReleaseDriverCD@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455A20",
 "name": "SND_fn_vRestoreDriverCD",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455A40",
 "name": "SND_fn_rGetPosCD@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455A60",
 "name": "SND_fn_vSynchroCD",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455A80",
 "name": "SND_fn_bSetResourceStaticVolumeCD@8",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455AB0",
 "name": "SND_fn_vLaunchSupervisater@4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455AD0",
 "name": "SND_fn_vKillSupervisater@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455AF0",
 "name": "SND_fn_vSetSupervisaterActive@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455B10",
 "name": "SND_fn_vAddEventToObject",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 44,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455B40",
 "name": "SND_pc_fn_vAddEventToObjectDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455B50",
 "name": "SND_fn_vKillEventToObject",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455B80",
 "name": "SND_fn_vSetPosObject",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455BB0",
 "name": "SND_fn_vAddMicro",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455BD0",
 "name": "SND_fn_vKillMicro",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455BF0",
 "name": "SND_fn_vSetPosMicro",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455C20",
 "name": "SND_fn_vAddHistoric",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455C60",
 "name": "SND_pc_fn_vAddHistoricDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455C70",
 "name": "SND_fn_vKillVolumeLine",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455C90",
 "name": "SND_fn_vAddVolumeLine",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CB0",
 "name": "SND_fn_vSetVolumeLine",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vNopStd4",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vLaunchSupervisaterDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetProjectTitleForSuperVisaterDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vAddMicroDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vKillMicroDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vKillVolumeLineDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vAddVolumeLineDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vLoadBankDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vUnLoadBankDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vDelVoiceSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseVoiceSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeVoiceSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetProcessTimeSampleDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vRajListesSxdVirtual2Default",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vStopRecordDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vRemoveCallbackMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vStopMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vUnLoadResMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vStopTransitionMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeTransitionMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseTransitionMidiDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vRemoveCallbackCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vStopCDDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vRemoveCallbackSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vStopSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetSoundVolumeSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetStereoSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetReverseStereoSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetDopplerFactorSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetEffectSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vDestroyMicroSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vDeleteBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeBufferSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vUnLoadResSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vStopTransitionSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vPauseTransitionSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vResumeTransitionSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CE0",
 "name": "SND_pc_fn_vSetDefaultRollOffSxdDefault",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 3,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455CF0",
 "name": "SND_fn_bCanFreeDataADPCM@0",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455D10",
 "name": "SND_pc_fn_pfnGetDriverProc",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 109,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455D80",
 "name": "SND_pc_fn_vLoadCanFreeDataMPEG",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 61,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00455DC0",
 "name": "SND_pc_fn_vLoadSxdProcs",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 2361,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00456700",
 "name": "SND_pc_fn_vLoadRecordProcs",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 437,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004568C0",
 "name": "SND_pc_fn_vLoadMidiCdProcs",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1916,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00457040",
 "name": "SND_pc_fn_vLoadDbgProcs",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1066,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00457470",
 "name": "SND_pc_fn_vLoadCanFreeDataADPCM",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 61,
 "verdict": "EXACT"
 },
@@ -14674,42 +14674,42 @@
 {
 "addr": "0x004588B0",
 "name": "SND_pc_fn_hLoadDriverDll",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 681,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00458B60",
 "name": "SND_pc_fn_vLoadSxdDistances",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 326,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00458CB0",
 "name": "SND_pc_fn_vLoadDriversFromIni",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 1700,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00459360",
 "name": "SND_pc_fn_vFreeDriverDlls",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 81,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004593C0",
 "name": "SND_fn_bGetOptions",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 119,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00459440",
 "name": "SND_fn_vSetOptions",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
@@ -14996,7 +14996,7 @@
 {
 "addr": "0x0045A4F0",
 "name": "SND_pc_fn_iSetNodeByteStd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 19,
 "verdict": "EXACT"
 },
@@ -15094,7 +15094,7 @@
 {
 "addr": "0x0045AA50",
 "name": "SND_pc_fn_iSetSequenceNodeByte",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 17,
 "verdict": "EXACT"
 },
@@ -15262,42 +15262,42 @@
 {
 "addr": "0x0045B430",
 "name": "SND_pc_fn_vProbeCpu",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 96,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B490",
 "name": "SND_fn_bTestSnd_Pentium",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B4B0",
 "name": "SND_fn_bTestSnd_MMX",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B4F0",
 "name": "SND_fn_bTestSnd_WinMM",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 203,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B5C0",
 "name": "SND_fn_bTestSnd_Win32",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 58,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B600",
 "name": "SND_fn_bTestSnd_WinNT",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 57,
 "verdict": "EXACT"
 },
@@ -15318,112 +15318,112 @@
 {
 "addr": "0x0045B760",
 "name": "HIE_fn_vInitMatrixStack",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B7A0",
 "name": "HIE_fn_bLoadIdentity",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B7E0",
 "name": "HIE_fn_bPopMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 38,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B810",
 "name": "HIE_fn_bStoreMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 50,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B850",
 "name": "HIE_fn_bInitCameraMatrixStack",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 59,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B890",
 "name": "HIE_fn_bPushOnCameraMatrixStack",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 81,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B8F0",
 "name": "HIE_fn_bPopOnCameraMatrixStack",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B920",
 "name": "HIE_fn_vSetSuperObjectObjectAndType",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 27,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B940",
 "name": "SPO_ReinitSuperimposedArray",
-"src": "src/SPO/SPO.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 72,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B990",
 "name": "HIE_fn_hGetElementFormFixViewport",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 28,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B9B0",
 "name": "HIE_fn_SO_vSetSuperimposedFlag",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045B9F0",
 "name": "HIE_fn_SO_vClearSuperimposedFlag",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 105,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BA60",
 "name": "HIE_fn_SO_SwitchSuperImposedTab",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 261,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BB70",
 "name": "HIE_fn_vSetSuperObjectExcluLight",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 35,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BBA0",
 "name": "HIE_fn_vIsolate",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 86,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BC00",
 "name": "HIE_fn_vPseudoIsolate",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 92,
 "verdict": "EXACT"
 },
@@ -15437,21 +15437,21 @@
 {
 "addr": "0x0045BD30",
 "name": "HIE_fn_p_stCreateSuperObjectTab",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 383,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BEB0",
 "name": "HIE_fn_hForceGetSuperObjectNextBrother",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 27,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BED0",
 "name": "HIE_fn_hForceGetSuperObjectPrevBrother",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 27,
 "verdict": "EXACT"
 },
@@ -15465,98 +15465,98 @@
 {
 "addr": "0x0045BF10",
 "name": "HIE_fn_vInvalidateAllGlobalMatrices",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 27,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BF30",
 "name": "HIE_fn_vInvalidateOneGlobalMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 33,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BF60",
 "name": "HIE_fn_vInitGlobalMatrixFrameCounter",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 20,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BF80",
 "name": "HIE_fn_vPushMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 102,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045BFF0",
 "name": "HIE_fn_vPopMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C000",
 "name": "HIE_fn_vPushOnCameraMatrixStack",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 17,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C020",
 "name": "HIE_fn_vPopOnCameraMatrixStack",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C030",
 "name": "HIE_fn_vComputeNewRelativeMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 54,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C070",
 "name": "HIE_fn_vComputeNewRelativeScaleMatrix",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 14,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C080",
 "name": "HIE_fn_vChangeFather",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 233,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C170",
 "name": "HIE_fn_vRefreshHierarchy",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 44,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C1A0",
 "name": "HIE_fn_vInvalidateHierarchy",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 39,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C1D0",
 "name": "HIE_fn_vSetMagnetModification",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 29,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045C1F0",
 "name": "HIE_fn_bGetMagnetModification",
-"src": "src/HIE/HIE.c",
+"src": "src/HIE/HieSpObj.c",
 "len": 14,
 "verdict": "EXACT"
 },
@@ -15710,70 +15710,70 @@
 {
 "addr": "0x0045DD40",
 "name": "fn_vAddTimerValues",
-"src": "src/GLI/int64_arithmetic.c",
+"src": "src/TMR/Timer.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045DD70",
 "name": "fn_vSubTimerValues",
-"src": "src/GLI/int64_arithmetic.c",
+"src": "src/TMR/Timer.c",
 "len": 78,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0045DDC0",
 "name": "TMR_fn_wInitLibrary",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 174,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045DE70",
 "name": "TMR_fn_wCreateTimer",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 273,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045DF90",
 "name": "TMR_fn_wStartTimer",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 298,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E0C0",
 "name": "TMR_fn_wStopTimer",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 333,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E210",
 "name": "TMR_fn_wSetTimerValue",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 201,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E2E0",
 "name": "TMR_fn_wReadTimer",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 416,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E480",
 "name": "TMR_fn_wResetTimer",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 240,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E570",
 "name": "TMR_fn_wGetTimerFrequency",
-"src": "src/TMR/TMR.c",
+"src": "src/TMR/Timer.c",
 "len": 168,
 "verdict": "EXACT"
 },
@@ -15801,49 +15801,49 @@
 {
 "addr": "0x0045E8A0",
 "name": "fn_ulTimerTickPerSecond",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 91,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E900",
 "name": "fn_ulTimerEventTickPerSecond",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 33,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E930",
 "name": "fn_vTimerGetCounter",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 62,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E970",
 "name": "TMR_pc_fn_bHasCPUID",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 71,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E9C0",
 "name": "TMR_pc_fn_ulGetCPUSignature",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045E9E0",
 "name": "TMR_pc_fn_ulReadCpuVendorString",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 61,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0045EA20",
 "name": "TMR_pc_fn_bIsTscUsableForVendor",
-"src": "src/GLI/cpu_timer.c",
+"src": "src/TMR/U_timer.c",
 "len": 509,
 "verdict": "MISMATCH"
 },
@@ -16557,1029 +16557,1029 @@
 {
 "addr": "0x004675A0",
 "name": "fn_p_stMiscUltraProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 454,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467770",
 "name": "fn_p_stMiscNoProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 212,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467850",
 "name": "fn_p_stKillPersoAndClearVariableProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 281,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467970",
 "name": "fn_p_stMiscProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 752,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467C60",
 "name": "fn_p_stMiscMoreProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 137,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467CF0",
 "name": "fn_p_stDynamProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 156,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467D90",
 "name": "fn_p_stHitPointsProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 240,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467E80",
 "name": "fn_p_stSetHitPoints",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467EE0",
 "name": "fn_p_stAddHitPoints",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467F40",
 "name": "fn_p_stSubHitPoints",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00467FA0",
 "name": "fn_p_stHitPointsMaxProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 188,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468060",
 "name": "fn_p_stSetHitPointsMax",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004680C0",
 "name": "fn_p_stAddHitPointsMax",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468120",
 "name": "fn_p_stSubHitPointsMax",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468180",
 "name": "fn_p_stListZDDZDEProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 303,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004682B0",
 "name": "fn_p_stListProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 936,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468660",
 "name": "fn_p_stListEnsembleProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 202,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00468730",
 "name": "fn_p_stLinkTableProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 113,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004687B0",
 "name": "fn_p_stBuildObjectTableFromTableAndStringProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 435,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468970",
 "name": "fn_p_stModuleControlProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 308,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468AB0",
 "name": "fn_p_stSaveGameProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 89,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468B10",
 "name": "fn_p_stChangeActivationChannelProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 124,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00468B90",
 "name": "fn_p_stFogProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 780,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00468E90",
 "name": "fn_p_stPersoLightProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 848,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004691E0",
 "name": "fn_p_stSoundProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 240,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004692D0",
 "name": "fn_p_stParticleGeneratorProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 592,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469520",
 "name": "fn_p_stKeyboardProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 85,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469580",
 "name": "fn_p_stChangeComportIntelligenceProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 128,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469600",
 "name": "AI_v_InternalChangeComportProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 56,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469640",
 "name": "fn_p_stChangeComportReflexProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 128,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004696C0",
 "name": "fn_p_stChangeMyComportIntelligenceProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469710",
 "name": "fn_p_stChangeMyComportReflexProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 67,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469760",
 "name": "fn_p_stChangeMyComportIntelligenceAndReflexProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 103,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004697D0",
 "name": "fn_p_stTurnProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 200,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004698A0",
 "name": "fn_p_stCustomBitsProc",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 192,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00469960",
 "name": "fn_p_stStringProc",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 340,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469AC0",
 "name": "fn_p_stIntToText",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 108,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469B30",
 "name": "fn_p_stCollideCommunicationProc",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 315,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469C70",
 "name": "fn_vUpdateSuperObjectAfter3DChanges",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 61,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00469CB0",
 "name": "fn_p_st3DProc_ForReorientation",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 3040,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046A890",
 "name": "fn_p_stChangePersoHorizSighting",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 642,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046AB20",
 "name": "fn_p_st3DProc",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 4078,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046BB10",
 "name": "fn_p_stWorldMapProc",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 336,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046BC60",
 "name": "fn_p_stOptionChangerProc",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 216,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046BD40",
 "name": "fn_p_stChangeScreen",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 480,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046BF20",
 "name": "fn_p_stFixePositionPerso",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 180,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046BFE0",
 "name": "fn_p_stFixePositionZDx",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 492,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046C1D0",
 "name": "fn_p_SetMechanicOption",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 1132,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046C640",
 "name": "fn_p_stChangeLigthIntensity",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 205,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046C710",
 "name": "fn_p_SetMechanicRealParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 622,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046C980",
 "name": "fn_p_SetMechanic3RealParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 182,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046CA40",
 "name": "fn_p_SetMechanicVectorParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 388,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046CBD0",
 "name": "fn_p_SetMechanicSpeedVector",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 557,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046CE00",
 "name": "fn_p_SetMechanicSpeedReal",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 2714,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046D8A0",
 "name": "fn_SPO_p_stChangeFlag",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 113,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046D920",
 "name": "fn_p_stChangeActorSpoFlag",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 125,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046D9A0",
 "name": "fn_p_PlatformLink",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 169,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DA50",
 "name": "fn_p_HierFatherLink",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 432,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DC00",
 "name": "fn_p_SetMechanicListParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 213,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DCE0",
 "name": "fn_p_stResetLastCollisionActor",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 107,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DD50",
 "name": "fn_p_SetMechanic3Real",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 247,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DE50",
 "name": "fn_p_SetMechanicClimbSpeedLimit",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 71,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DEA0",
 "name": "fn_p_stShadow",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 262,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046DFB0",
 "name": "fn_p_stSetPrivilegeActivationZDx",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 456,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046E180",
 "name": "fn_p_stSetCollSetCollisionFlag",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 284,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046E2A0",
 "name": "fn_p_stSetComputationFrequency",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 190,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046E360",
 "name": "fn_p_stActivationZDR",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 94,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046E3C0",
 "name": "fn_p_LinkControl",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 138,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046E450",
 "name": "fn_p_stReadAnalogJoystickMario",
-"src": "src/AI/Procedure.c",
-"len": 4879,
+"src": "src/AI/Procedur.c",
+"len": 4877,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0046F830",
 "name": "fn_p_stSetAnalogJoystickAxes",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 616,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FAA0",
 "name": "fn_p_stInitKeyBoardDirections",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 142,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FB30",
 "name": "fn_p_stSetCenterPosition",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 143,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FBC0",
 "name": "fn_p_stSetMaximalValues",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 145,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FC60",
 "name": "fn_p_stSetBooleanInArray",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 272,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FD70",
 "name": "fn_p_stSetDefaultFormatCharacter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 105,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FDE0",
 "name": "fn_p_stSelectDriver",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 30,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FE00",
 "name": "fn_p_stSelectResolution",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FE40",
 "name": "fn_p_stChangeBrightness",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FE80",
 "name": "fn_p_stSetInStereoMode",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 54,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FEC0",
 "name": "AI_fn_p_stPcSetSoundGlobal",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 54,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FF00",
 "name": "fn_p_stSetaturationAndBackgroundDistance",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 132,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0046FF90",
 "name": "fn_p_stSaveCurrentSoundRequest",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 98,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470000",
 "name": "fn_p_stMiscProtectProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 563,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00470210",
 "name": "fn_p_stShellExecuteProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 94,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470270",
 "name": "fn_p_stTextSuperImposed",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004702A0",
 "name": "fn_p_stCode4ValideNomDuSlot",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 410,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00470450",
 "name": "fn_p_stCode4RestoreNomDuSlot",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 104,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004704C0",
 "name": "fn_p_stTextIntegerParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470510",
 "name": "fn_p_stTextRealParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470560",
 "name": "fn_p_stCode4FormateTexte",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 255,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470660",
 "name": "fn_p_stCode4ChangeCaractere",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 260,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470770",
 "name": "fn_p_stCode4AirPointsProcedures",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 312,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004708B0",
 "name": "fn_p_stCode4MagicPointsProcedures",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 284,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004709D0",
 "name": "fn_p_stSetLocalLight",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 327,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470B20",
 "name": "fn_p_stSetLight",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 348,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470C80",
 "name": "fn_p_stCapabilityProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 224,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470D60",
 "name": "fn_p_stReinitGraphProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470DA0",
 "name": "fn_p_stSetScrollSpeed",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 377,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00470F20",
 "name": "fn_p_stRLIProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 243,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471020",
 "name": "fn_p_stManageFrame",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 159,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004710C0",
 "name": "fn_p_stSPOSuperimpoed",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 688,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471370",
 "name": "fn_p_stSetSPOCoordinates",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 112,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004713E0",
 "name": "fn_p_stMiscProcOnTypeOfWP",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 276,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471500",
 "name": "fn_p_stTractionFactorProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 99,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471570",
 "name": "fn_p_stTurnToPosition",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 518,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471780",
 "name": "fn_p_stFreezeAnim",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 101,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004717F0",
 "name": "fn_p_stFixePositionFade",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 242,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004718F0",
 "name": "fni_CompareIntegerLess",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 30,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471910",
 "name": "fni_CompareIntegerGreater",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 30,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471930",
 "name": "fni_CompareFloatGreater",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 43,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471960",
 "name": "fni_CompareFloatLess",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 43,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471990",
 "name": "fn_p_stSortArray",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 189,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471A50",
 "name": "fn_p_stActiveJoystickAnal",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 57,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471A90",
 "name": "fn_p_stSetZDxSize",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 639,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471D10",
 "name": "fn_p_stSetSoundVolume",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 228,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471E00",
 "name": "fn_p_stSetDopplerEffect",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 60,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471E40",
 "name": "fn_p_stPauseSound",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 57,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00471E80",
 "name": "fn_p_stPlayDemo",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 288,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00471FB0",
 "name": "fn_p_stSetTooFarLimit",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 97,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472020",
 "name": "fn_p_stSetTransparencyZone",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 122,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004720A0",
 "name": "fn_p_stBaseFrequenceForMenu",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 49,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004720E0",
 "name": "fn_p_stSaveSinusEffectContext",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 32,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472100",
 "name": "fn_p_stTurnPersoProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 392,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472290",
 "name": "fn_p_stChangeActionProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 219,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472370",
 "name": "fn_p_stChangeActionRandomProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 130,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472400",
 "name": "fn_p_stDisplayProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 74,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472450",
 "name": "fn_p_stTransparenceProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 432,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472600",
 "name": "fn_p_stVisualGameMaterialProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 808,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472930",
 "name": "fn_p_stMenuAndVignetteProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 86,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472990",
 "name": "fn_p_st_FootPath_AddFootPrint",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 52,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004729D0",
 "name": "fn_p_st_FootPath_Clear",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 41,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472A00",
 "name": "fn_p_st_SinusEffect_SetFreq",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 118,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472A80",
 "name": "fn_p_st_SinusEffect_SetAmplitude",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 115,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472B00",
 "name": "fn_p_st_SinusEffect_SetRLIParams",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 151,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472BA0",
 "name": "fn_p_st_SinusEffect_SetState",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 156,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472C40",
 "name": "fn_p_st_SPO_SetDrawFlag",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 144,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472CD0",
 "name": "fn_p_st_SPO_SetEngineDisplayModeFlag",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 131,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472D60",
 "name": "fn_p_st_ACT_SetDrawFlag",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 183,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472E20",
 "name": "fn_p_stSkipLoop",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 102,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472E90",
 "name": "fn_p_stLoopKeyWord",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 97,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472F00",
 "name": "fn_p_stEndLoopKeyWord",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 47,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472F30",
 "name": "fn_p_stBreakKeyword",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 87,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472F90",
 "name": "fn_p_stNoneProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 5,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00472FA0",
 "name": "fn_p_stAGOProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 242,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004730A0",
 "name": "fn_p_stInGameMenuProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 54,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004730E0",
 "name": "AI_fn_p_stSetPcEngineFlags",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 204,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004731B0",
 "name": "fn_p_stJFFTXTProcedure",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 420,
 "verdict": "EXACT"
 },
@@ -18020,7 +18020,7 @@
 {
 "addr": "0x00479220",
 "name": "fn_xMaskOfObstacle",
-"src": "src/GMT/GMT.c",
+"src": "src/GMT/cpagmt.c",
 "len": 59,
 "verdict": "EXACT"
 },
@@ -18531,7 +18531,7 @@
 {
 "addr": "0x0047DA40",
 "name": "CAM_fn_p_stUpdatePosition",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 410,
 "verdict": "EXACT"
 },
@@ -18559,56 +18559,56 @@
 {
 "addr": "0x0047DDE0",
 "name": "CAM_fn_p_stChangeVectorParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 200,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047DEB0",
 "name": "CAM_fn_p_stChangeRealParameter",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 844,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E200",
 "name": "CAM_fn_p_stChangeTgtPerso",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 221,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E2E0",
 "name": "CAM_fn_p_stChangeSecondTgtPerso",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 275,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E400",
 "name": "CAM_fn_p_stChangeChannel",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 191,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E4C0",
 "name": "CAM_fn_p_stActivate",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 124,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E540",
 "name": "CAM_fn_p_stAssociateViewport",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 292,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047E670",
 "name": "CAM_fn_p_stSetIAFlags",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 436,
 "verdict": "EXACT"
 },
@@ -18622,7 +18622,7 @@
 {
 "addr": "0x0047EA00",
 "name": "CAM_fn_p_stShowInfo",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 100,
 "verdict": "EXACT"
 },
@@ -18643,28 +18643,28 @@
 {
 "addr": "0x0047EC20",
 "name": "CAM_fn_p_stSetForce",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 364,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047ED90",
 "name": "CAM_fn_p_stReset",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 59,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047EDD0",
 "name": "CAM_fn_p_stForceBestPos",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 335,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0047EF20",
 "name": "CAM_fn_p_stForceNormalState",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 82,
 "verdict": "EXACT"
 },
@@ -19245,133 +19245,133 @@
 {
 "addr": "0x00481260",
 "name": "fn_ulSizeOfDsgVar",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 200,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481330",
 "name": "fn_ucGetDsgVarFloat",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481350",
 "name": "fn_ucGetDsgVarPerso",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 79,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004813A0",
 "name": "fn_ucGetDsgVarSuperObject",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 25,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004813C0",
 "name": "fn_ucGetDsgVarVector",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004813F0",
 "name": "fn_ucGetDsgVarCaps",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481410",
 "name": "fn_ucGetDsgVarGraph",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481430",
 "name": "fn_ucGetDsgVarWayPoint",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481450",
 "name": "fn_ucGetDsgVarAction",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 25,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481470",
 "name": "fn_ucGetDsgVarComport",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 25,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481490",
 "name": "fn_ucGetDsgVarText",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004814B0",
 "name": "fn_ucGetDsgVarList",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 20,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004814D0",
 "name": "fn_ucGetDsgVarBoolean",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 23,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004814F0",
 "name": "fn_ucGetDsgVar0To255",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 24,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481510",
 "name": "fn_ucGetDsgVar_32768To32767",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 23,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481530",
 "name": "fn_ucGetDsgVar0To65535",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 25,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481550",
 "name": "fn_ucGetDsgVarInteger",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481570",
 "name": "fn_ucGetDsgVarGameMaterial",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 34,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004815A0",
 "name": "fn_ucGetDsgVarArray",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 80,
 "verdict": "EXACT"
 },
@@ -19392,70 +19392,70 @@
 {
 "addr": "0x00481660",
 "name": "fn_ucSetDsgVarFloat",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 32,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481680",
 "name": "fn_ucSetDsgVarPerso",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 44,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004816B0",
 "name": "fn_ucSetDsgVarVector",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 27,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004816D0",
 "name": "fn_ucSetDsgVarWayPoint",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 15,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004816E0",
 "name": "fn_ucSetDsgVarList",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 72,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481730",
 "name": "fn_ucSetDsgVarBoolean",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481750",
 "name": "fn_ucSetDsgVar_32768To32767",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 28,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481770",
 "name": "fn_ucSetDsgVarInteger",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 26,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481790",
 "name": "fn_ucSetDsgVarComport",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 18,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004817B0",
 "name": "fn_ucSetDsgVarArray",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 80,
 "verdict": "EXACT"
 },
@@ -19469,35 +19469,35 @@
 {
 "addr": "0x00481850",
 "name": "fn_p_fn_pGetDsgVarGetFunctionPtr",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 15,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481860",
 "name": "fn_p_fn_pGetDsgVarSetFunctionPtr",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 15,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481870",
 "name": "fn_GetDsgVarType",
-"src": "src/AI/ConvVar.c",
+"src": "src/AI/DsgMem.c",
 "len": 15,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481880",
 "name": "fn_p_stScalarOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 472,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x00481A60",
 "name": "fn_p_stVectorOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 420,
 "verdict": "EXACT"
 },
@@ -19511,35 +19511,35 @@
 {
 "addr": "0x00481C50",
 "name": "fn_p_stArrayOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 93,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481CB0",
 "name": "fn_vOperatorGetDsgVar",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481CE0",
 "name": "fn_p_stDotOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 142,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481D70",
 "name": "fn_vOperatorGetField",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00481DA0",
 "name": "fn_p_stVectorDotOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 79,
 "verdict": "EXACT"
 },
@@ -19553,42 +19553,42 @@
 {
 "addr": "0x00482420",
 "name": "fn_vOperatorSetDsgVar",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 37,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00482450",
 "name": "fn_vGetFieldOrDsgVarForAffectOperator",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 67,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004824A0",
 "name": "fn_vSetFieldOrDsgVarForAffectOperator",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 67,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004824F0",
 "name": "fn_vOperatorSetField",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 40,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00482520",
 "name": "fn_vSetVectorComponentForAffectOperator",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00482560",
 "name": "fn_vBuildVectorForAffectOperator",
-"src": "src/AI/DsgMem.c",
+"src": "src/AI/Operator.c",
 "len": 43,
 "verdict": "EXACT"
 },
@@ -19609,14 +19609,14 @@
 {
 "addr": "0x004825E0",
 "name": "fn_p_stUltraOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 59,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00482620",
 "name": "fn_p_stModelCastOperator",
-"src": "src/AI/AIOper.c",
+"src": "src/AI/Operator.c",
 "len": 94,
 "verdict": "EXACT"
 },
@@ -19644,14 +19644,14 @@
 {
 "addr": "0x004826E0",
 "name": "fn_ucIsRuleAndNodeInActionTable",
-"src": "src/AI/StrIntel.c",
+"src": "src/AI/ActTable.c",
 "len": 67,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00482730",
 "name": "fn_ucFindPlaceInActionTable",
-"src": "src/AI/StrIntel.c",
+"src": "src/AI/ActTable.c",
 "len": 45,
 "verdict": "EXACT"
 },
@@ -19693,7 +19693,7 @@
 {
 "addr": "0x00482940",
 "name": "fn_vInitActionTable",
-"src": "src/AI/StrIntel.c",
+"src": "src/AI/ActTable.c",
 "len": 79,
 "verdict": "EXACT"
 },
@@ -20491,28 +20491,28 @@
 {
 "addr": "0x00487FD0",
 "name": "fn_p_stPrepareMorph",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 213,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004880B0",
 "name": "fn_p_stStopMorph",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 79,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00488100",
 "name": "fn_p_stIsMorphing",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 90,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00488160",
 "name": "fn_p_stMorphing",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 192,
 "verdict": "EXACT"
 },
@@ -20526,14 +20526,14 @@
 {
 "addr": "0x00488260",
 "name": "MGT_fn_p_stDeactiveMagnet",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 93,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004882C0",
 "name": "MGT_fn_p_stSetParam",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 228,
 "verdict": "EXACT"
 },
@@ -20547,7 +20547,7 @@
 {
 "addr": "0x00488480",
 "name": "fn_p_stMagnetActivated",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 120,
 "verdict": "EXACT"
 },
@@ -20666,392 +20666,392 @@
 {
 "addr": "0x00488FF0",
 "name": "fn_p_stNoActionKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489010",
 "name": "fn_p_stMeKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 50,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489050",
 "name": "fn_p_stMainActorKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 51,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489090",
 "name": "fn_p_stNoSuperObjectKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004890B0",
 "name": "fn_p_stNobodyKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004890D0",
 "name": "fn_p_stNowhereKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004890F0",
 "name": "fn_p_stEmptyTextKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489110",
 "name": "fn_p_stCapsNullKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489130",
 "name": "fn_p_stNoGraphKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 22,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489150",
 "name": "fn_p_stThenKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 24,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489170",
 "name": "fn_p_stElseKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 18,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489190",
 "name": "fn_p_stSkipThenElseParameter",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004891D0",
 "name": "fn_p_stIfDebug",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489210",
 "name": "fn_p_stIfNotU64",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 53,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489250",
 "name": "fn_p_stIfKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 240,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489340",
 "name": "fn_p_stEngineGotoKeyWord",
-"src": "src/AI/AIKeyWord.c",
+"src": "src/AI/Keyword.c",
 "len": 402,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004894D0",
 "name": "AI_fn_p_stCameraCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 736,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004897B0",
 "name": "fn_bTestTypeOfGameMaterial",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 67,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489800",
 "name": "fn_bIsTypeOfGMT",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 38,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489830",
 "name": "fn_p_stComparisonCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 784,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489B40",
 "name": "fn_p_stBooleanCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 320,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489C80",
 "name": "fn_p_stButtonCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 216,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489D60",
 "name": "fn_p_stZDDCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 380,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00489EE0",
 "name": "fn_p_stZDECondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 1088,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0048A330",
 "name": "fn_p_stReportOnSurfaceCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 248,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048A430",
 "name": "fn_p_stReportThisPerso",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 185,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048A4F0",
 "name": "fn_p_stReportOnZDMSurfaceCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 512,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048A6F0",
 "name": "fn_p_stListCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 332,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048A840",
 "name": "fn_p_stTimeCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 88,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048A8A0",
 "name": "fn_p_stValidityCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 176,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048A950",
 "name": "fn_p_stMiscCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 668,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048ABF0",
 "name": "fn_bPerso1Point1IntersectPerso2Point2",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 231,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048ACE0",
 "name": "fn_p_stSectorCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 172,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048AD90",
 "name": "fn_p_stLightCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 118,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048AE10",
 "name": "fn_p_st_ActivationCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 79,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048AE60",
 "name": "fn_p_st_HandledCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 61,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048AEA0",
 "name": "fn_p_st_UserEvent_IsSet",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 217,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048AF80",
 "name": "fn_p_stAlw_IsMine",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 125,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B000",
 "name": "AI_fn_p_st_pc_ReportSurfaceMaterialCondition",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 192,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x0048B0C0",
 "name": "fn_p_stCustomBitsCond",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 203,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B190",
 "name": "fn_p_stCollisionWP",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 308,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B2D0",
 "name": "fn_p_stNullVector",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 170,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B380",
 "name": "fn_p_stMechanicOption",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 660,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B620",
 "name": "fn_p_stCheckAnimEnd",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 183,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B6E0",
 "name": "fn_p_stHierarchySon",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 186,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B7A0",
 "name": "fn_p_stCheckCapabilities",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 376,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B920",
 "name": "fn_p_stIsPersoActive",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 93,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048B980",
 "name": "AI_fn_p_stIsNotInCollisionWith",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 208,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BA50",
 "name": "AI_fn_p_stIsOfFamilyOrModel",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 188,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BB10",
 "name": "AI_fn_p_stIsJoypadConnected",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BB30",
 "name": "AI_fn_p_stIsKeyJustPressed",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BB50",
 "name": "AI_fn_p_stIsButtonPadJustPressed",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 21,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BB70",
 "name": "AI_fn_p_stIsInDemoMode",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 18,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BB90",
 "name": "fn_p_stIsInStereoMode",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 16,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BBA0",
 "name": "fn_p_stIsMusicPlaying",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 16,
 "verdict": "EXACT"
 },
 {
 "addr": "0x0048BBB0",
 "name": "AI_fn_p_stIsSharpnessMax",
-"src": "src/AI/AICond.c",
+"src": "src/AI/Cond.c",
 "len": 15,
 "verdict": "EXACT"
 },
@@ -21814,28 +21814,28 @@
 {
 "addr": "0x00492430",
 "name": "COL_fn_vMinMaxBox2VerticesBox",
-"src": "src/GLI/geometric_helpers.c",
+"src": "src/COL/Box.c",
 "len": 150,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004924D0",
 "name": "COL_fn_vComputeBoundingBoxOfSphere",
-"src": "src/GLI/geometric_helpers.c",
-"len": 71,
-"verdict": "EXACT"
+"src": "src/COL/Box.c",
+"len": 69,
+"verdict": "MISMATCH"
 },
 {
 "addr": "0x00492520",
 "name": "COL_fn_vComputeBoundingBoxOfSphereAndBox",
-"src": "src/GLI/geometric_helpers.c",
+"src": "src/COL/Box.c",
 "len": 185,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004925E0",
 "name": "COL_fn_bDetectCollisionBetweenTwoParallelBoxes",
-"src": "src/GLI/geometric_helpers.c",
+"src": "src/COL/Box.c",
 "len": 110,
 "verdict": "EXACT"
 },
@@ -22164,7 +22164,7 @@
 {
 "addr": "0x00494270",
 "name": "fn_bIsGeometricObjectValidForCollision",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 25,
 "verdict": "EXACT"
 },
@@ -22178,28 +22178,28 @@
 {
 "addr": "0x004943C0",
 "name": "fn_vCollideStaticCharacterWithStaticPhysicals",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 87,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00494420",
 "name": "fn_vNewTestStaticCollideFor2Characters",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 487,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00494610",
 "name": "COL_fn_vNewStaticCollisionForCharacter",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 649,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004948A0",
 "name": "COL_fn_vStaticCollisionWithPartOfTreeForSector",
-"src": "src/COL/COL.c",
+"src": "src/GAM/Collisio.c",
 "len": 252,
 "verdict": "EXACT"
 },
@@ -22332,7 +22332,7 @@
 {
 "addr": "0x00494C70",
 "name": "FON_fn_szGetTextPointerForHandle",
-"src": "src/FON/FON.c",
+"src": "src/GAM/fontext.c",
 "len": 60,
 "verdict": "EXACT"
 },
@@ -22668,84 +22668,84 @@
 {
 "addr": "0x00497260",
 "name": "AI_pc_fn_vLightWalkNode",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 291,
 "verdict": "MISMATCH"
 },
 {
 "addr": "0x004973A0",
 "name": "AI_pc_fn_vLightWalkSector",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 150,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497440",
 "name": "fn_vCalculeLumiereEffet",
-"src": "src/AI/Procedure.c",
+"src": "src/AI/Procedur.c",
 "len": 38,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497470",
 "name": "SND_fn_vInitMallocSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 196,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497540",
 "name": "SND_fn_vDesInitMallocSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 113,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004975C0",
 "name": "SND_fn_pvMallocSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 148,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497660",
 "name": "SND_fn_pvMallocSndEx",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 158,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497700",
 "name": "SND_fn_pvReAllocSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 150,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004977A0",
 "name": "SND_fn_pvReAllocSndEx",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 162,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497850",
 "name": "SND_fn_vFreeSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 146,
 "verdict": "EXACT"
 },
 {
 "addr": "0x004978F0",
 "name": "SND_fn_vFreeSndEx",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 159,
 "verdict": "EXACT"
 },
 {
 "addr": "0x00497990",
 "name": "SND_fn_vResizeMemoryBlockSnd",
-"src": "src/SND/SND.c",
+"src": "src/SND/sound3d.c",
 "len": 48,
 "verdict": "EXACT"
 },

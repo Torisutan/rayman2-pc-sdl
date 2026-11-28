@@ -22,21 +22,7 @@ extern char *__cdecl FUN_004928c0(void);
 
 unsigned char __cdecl SAI_fn_ucSaveAllGameTableValues( SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags);
 
-/* 0x00449ec0 */
-unsigned char __cdecl SAI_fn_ucLevelSaveValues(char *_szFileName)
-{
-    return SAI_fn_ucSaveAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
-                                           SAI_eLevelSaveTableValue | SAI_eLevelSaveCurrentValue);
-}
-
 unsigned char __cdecl SAI_fn_ucLoadAllGameTableValues( SAI_tdstInternalStructure *p_stInternalStructure, char *_p_cFileName, SAI_tdeFlags _eFlags);
-
-/* 0x00449ee0 */
-unsigned char __cdecl SAI_fn_ucLoadPlayerValues(char *_szFileName)
-{
-    return SAI_fn_ucLoadAllGameTableValues(SAI_g_p_stInternalStructure, _szFileName,
-                                           SAI_ePlayerSaveTableValue | SAI_ePlayerSaveCurrentValue);
-}
 
 static void fn_vResetBitstream(void);
 static void __cdecl fn_vFlushBitstream(FILE *p_File);

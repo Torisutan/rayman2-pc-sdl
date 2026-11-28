@@ -64,15 +64,6 @@ static long GAM_pc_g_lSnapShotCounter;
 #include "GAM/STRUCTUR/Engmode.h"
 
 void __cdecl IPT_fn_vReadInput(void);
-void __cdecl fn_vEngineReadInput(void)
-{
-	if (GAM_g_stEngineStructure.eInputMode==IM_Normal)
-	{
-		IPT_fn_vReadInput();
-		fn_vAnalyse3DOSSpecialInputActions();
-
-	}
-}
 
 /* 0x0041B110 */
 void __cdecl GAM_pc_fn_vTakeSnapShot(void)

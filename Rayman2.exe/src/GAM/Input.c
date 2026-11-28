@@ -22,6 +22,20 @@ void __cdecl fnRandomPad(void)
     AI_PAD_lCurXValue = (long)((double)AI_PAD_lCurXValue * xFactor);
     AI_PAD_lCurYValue = (long)((double)AI_PAD_lCurYValue * xFactor);
 }
+#include "GAM/GAM_types.h"
+#include "GAM/STRUCTUR/Engmode.h"
+void __cdecl IPT_fn_vReadInput(void);
+void __cdecl fn_vAnalyse3DOSSpecialInputActions(void);
+
+void __cdecl fn_vEngineReadInput(void)
+{
+	if (GAM_g_stEngineStructure.eInputMode==IM_Normal)
+	{
+		IPT_fn_vReadInput();
+		fn_vAnalyse3DOSSpecialInputActions();
+
+	}
+}
 
 /* 0x0049F9F0 */
 void (__cdecl *AI_pc_g_a2_pfnPadCheat[2])(void) =

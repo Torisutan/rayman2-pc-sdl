@@ -21,6 +21,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#endif /* U64 */
+#endif
 
-#endif /* __CPA_STD_H__ */
+#endif

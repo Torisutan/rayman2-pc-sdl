@@ -428,6 +428,12 @@ void __cdecl fn_v3dDataSetLightComputationFrequency(MS_tdxHandleTo3dData h_3dDat
         h_3dData->cLightCounter = 0;
 }
 
+/* 0x00418960 */
+char __cdecl FUN_00418960(void)
+{
+    return 1;
+}
+
 /* 0x00418970 */
 long __cdecl fn_b3dDataGetUserEventFlag(MS_tdxHandleTo3dData h_3dData, unsigned char _ucFlagIndex,
                                         MTH3D_tdstVector *_p_stPosition)

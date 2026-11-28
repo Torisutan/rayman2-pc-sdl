@@ -28,6 +28,52 @@ unsigned char __cdecl fn_ucIsRuleInActionTable(AI_tdstIntelligence *p_stIntellig
     return ucNbEntries;
 }
 
+/* 0x00482730 */
+unsigned char __cdecl fn_ucFindPlaceInActionTable(AI_tdstIntelligence *p_stIntelligence)
+{
+    unsigned char ucCurrentEntry;
+    unsigned char ucNbEntries = AI_M_ActionTableNbEntries(p_stIntelligence);
+
+    if (AI_M_ActionTableNbEntriesUsed(p_stIntelligence) < ucNbEntries)
+    {
+        AI_tdstActionTableEntry *p_stEntry = &AI_M_ActionTableEntryN(p_stIntelligence, 0);
+
+        for (ucCurrentEntry = 0; ucCurrentEntry < ucNbEntries; ucCurrentEntry++, p_stEntry++)
+        {
+            if (!p_stEntry->bUsed)
+                return ucCurrentEntry;
+        }
+    }
+    return ucNbEntries;
+}
+
+/* 0x004826E0 */
+unsigned char __cdecl fn_ucIsRuleAndNodeInActionTable(AI_tdstIntelligence *p_stIntelligence,
+                                                      unsigned char ucNumRule,
+                                                      AI_tdstNodeInterpret *p_stNode)
+{
+    unsigned char ucNbEntries = AI_M_ActionTableNbEntries(p_stIntelligence);
+
+    if (AI_M_IsActionTableUsed(p_stIntelligence))
+    {
+        unsigned char            ucCurrentEntry;
+        AI_tdstActionTableEntry *p_stEntry = &AI_M_ActionTableEntryN(p_stIntelligence, 0);
+
+        for (ucCurrentEntry = 0; ucCurrentEntry < ucNbEntries; ucCurrentEntry++, p_stEntry++)
+        {
+            if (p_stEntry->bUsed)
+            {
+                if (p_stEntry->ucNumRule == ucNumRule)
+                {
+                    if (p_stEntry->p_stNode == p_stNode)
+                        return ucCurrentEntry;
+                }
+            }
+        }
+    }
+    return ucNbEntries;
+}
+
 /* 0x00482760 */
 void __cdecl fn_vUseCurrentActionTableEntry(AI_tdstIntelligence *p_stIntelligence, unsigned char ucNRule,
                                             AI_tdstNodeInterpret *p_stNode)
@@ -115,6 +161,21 @@ void __cdecl fn_vUnuseAllRulesFromSchedule(AI_tdstIntelligence *p_stIntelligence
             }
         }
         AI_M_ActionTableNbEntriesUsed(p_stIntelligence) = ucNbEntries;
+    }
+}
+
+/* 0x00482940 */
+void __cdecl fn_vInitActionTable(AI_tdstIntelligence *p_stIntelligence)
+{
+    unsigned char ucNEntry;
+    unsigned char ucNbEntries;
+
+    AI_M_ActionTableNbEntriesUsed(p_stIntelligence) = 0;
+    AI_M_ActionTableCurrentEntry(p_stIntelligence) = 0;
+    ucNbEntries = AI_M_ActionTableNbEntries(p_stIntelligence);
+    for (ucNEntry = 0; ucNEntry < ucNbEntries; ucNEntry++)
+    {
+        fn_vInitActionTableEntry(p_stIntelligence, ucNEntry, 0, NULL, 0);
     }
 }
 

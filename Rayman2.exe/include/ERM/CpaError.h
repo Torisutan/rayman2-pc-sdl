@@ -3,6 +3,10 @@
 #include <windows.h>
 #include <stdlib.h>
 
+#if defined(U64) || defined(NITRO)
+#include "cpa_std.h"
+#endif
+
 #define C_szErmVersion  "ERM V5.1.0"
 #define C_szErmFullName "Error Manager"
 #define C_szErmDate     "SEP 06 1997"

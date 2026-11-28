@@ -47,7 +47,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MMG/MMG_module.c",
+   "src": "src/MMG/CpaMmg.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -57,7 +57,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/GLD.c",
+   "src": "src/GLI/DevVpt.c",
    "flags": [
     "G6"
    ],
@@ -76,7 +76,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/GAM_GameEng.c",
+   "src": "src/GAM/GameEng.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -86,7 +86,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/FON/FON.c",
+   "src": "src/GAM/fontext.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -111,7 +111,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/GAM_save_slot.c",
+   "src": "src/GAM/GamOpt.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -178,11 +178,6 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/DNM/DNM.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/GAM/Actions/Dynam.c",
    "flags": [],
    "toolchain": "vc5sp3"
@@ -193,7 +188,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/pc_PadCheat.c",
+   "src": "src/GAM/Input.c",
    "flags": [
     "G6"
    ],
@@ -251,13 +246,6 @@
   },
   {
    "src": "src/GAM/PlayAnim/a3x_int.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MTH/MTH_matrix_outofline.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -287,7 +275,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GAM/GAM_alwact.c",
+   "src": "src/GAM/AlwAct.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -302,12 +290,12 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/POS/POS.c",
+   "src": "src/POS/Position.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GEO/GEO.c",
+   "src": "src/GEO/Culling.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -331,11 +319,6 @@
    "flags": [
     "G6"
    ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/Brightness.c",
-   "flags": [],
    "toolchain": "vc5sp3"
   },
   {
@@ -374,7 +357,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/light_fog.c",
+   "src": "src/GLI/Light.c",
    "flags": [
     "G6"
    ],
@@ -416,13 +399,6 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/Light.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/GLI/pc_light_pipeline.c",
    "flags": [
     "G6"
@@ -431,20 +407,6 @@
   },
   {
    "src": "src/GLI/u_Draw.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/DisplayFrame.c",
-   "flags": [
-    "G6"
-   ],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/GLI/GlobalAlpha.c",
    "flags": [
     "G6"
    ],
@@ -475,12 +437,12 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GMT/GMT.c",
+   "src": "src/GMT/cpagmt.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/COL/COL.c",
+   "src": "src/GAM/Collisio.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -514,7 +476,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MEC/MEC.c",
+   "src": "src/MEC/DNMCame.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -554,22 +516,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/MMG/MMG_pool_alloc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/MMG_alloc.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MMG/MMG_pubaccess.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/MOR/MOR.c",
+   "src": "src/MOR/u_morph.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -609,17 +556,12 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/RND/RND.c",
+   "src": "src/RND/RND_Main.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
    "src": "src/SAI/SAI_Pub.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/SAI/SAI_Save.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -630,6 +572,11 @@
   },
   {
    "src": "src/SAI/SAI_Priv.c",
+   "flags": [],
+   "toolchain": "vc5sp3"
+  },
+  {
+   "src": "src/SAI/SAI_Save.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -666,7 +613,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/SND/SND.c",
+   "src": "src/SND/sound3d.c",
    "flags": [
     "MD"
    ],
@@ -760,16 +707,6 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/HIE/HIE.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/SPO/SPO.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/HIE/HieSpObj.c",
    "flags": [],
    "toolchain": "vc5sp3"
@@ -785,17 +722,12 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/int64_arithmetic.c",
+   "src": "src/TMR/Timer.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/cpu_timer.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/TMR/TMR.c",
+   "src": "src/TMR/U_timer.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -835,7 +767,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/Procedure.c",
+   "src": "src/AI/Procedur.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -890,17 +822,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/ConvVar.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
    "src": "src/AI/DsgMem.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/AI/AIOper.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -960,7 +882,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/AICond.c",
+   "src": "src/AI/Cond.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -975,7 +897,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/AI/AIKeyWord.c",
+   "src": "src/AI/Keyword.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -1017,7 +939,7 @@
    "toolchain": "vc5sp3"
   },
   {
-   "src": "src/GLI/geometric_helpers.c",
+   "src": "src/COL/Box.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },
@@ -1083,11 +1005,6 @@
   },
   {
    "src": "src/ALW/ALW_globals.c",
-   "flags": [],
-   "toolchain": "vc5sp3"
-  },
-  {
-   "src": "src/COL/Box.c",
    "flags": [],
    "toolchain": "vc5sp3"
   },

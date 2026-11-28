@@ -13,6 +13,54 @@ GMT_tdfn_hVirtualCreate GMT_p_fn_hVirtualCreate; /* 0x004B72B8 */
 GMT_tdfn_vVirtualDestroy GMT_p_fn_vVirtualDestroy; /* 0x004B72BC */
 GMT_tdfn_vVirtualCopy GMT_p_fn_vVirtualCopy; /* 0x004B72C0 */
 
+GMT_tdxMask __cdecl GMT_fn_hGetCollideMaterialIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat);
+
+/* 0x00424770 */
+extern void __cdecl GLI_xDuplicateMaterial(void **p_hDest, void *hSource);
+
+#include "MMG/MMG_alloc.h"
+#include "MMG/MMG_pubaccess.h"
+#include "GEO/GEO_globals.h"
+#include "GEO/GeoMem.h"
+
+#define ERM_fn_ucInitErrMsg_call     Erm_fn_ucInitErrMsg
+#define ERM_fn_uwCheckError_call     Erm_fn_uwCheckError
+#define ERM_fn_vClearLastError_call  ERM_fn_vClearLastError
+#define ERM_fn_vUpdateLastError_call ERM_fn_vUpdateLastError
+
+#define gmt_pal_ch        g_ucGEOModuleId        /* 0x0049FBBC */
+#define gmt_pal_mode      g_ucGEOMMemMallocMode  /* 0x0049FBC0 */
+#define gmt_pal_dbg_flag  GEO_g_bDynamicAllocation  /* 0x00501524 */
+
+#define gmt_pal_bounds_lo (MMG_g_p_GmtPalBlockInfo->p_cBeginBlock)
+#define gmt_pal_bounds_hi (MMG_g_p_GmtPalBlockInfo->p_cEndBlock)
+#define gmt_erm_diag_flag MMG_g_ucErmChannelId   /* 0x004A11C4 */
+
+/* 0x004A0CBC */
+unsigned char g_ucGmtModuleId = 0xFF;
+
+/* 0x0042DBB0 */
+extern void __cdecl DNM_fn_vInvalidateMatCharacteristics(DNM_tdxHandleToMecMatCharacteristics *_p_hMatCharacteristics);
+
+GMT_tdxHandleToGameMaterial __cdecl GMT_fn_hCreateFor3DOS(void);
+
+/* 0x0042DAA0 */
+void __cdecl GMT_fn_vInitFor3DOS(void)
+{
+    GMT_p_fn_hVirtualCreate = &GMT_fn_hCreateFor3DOS;
+    GMT_p_fn_vVirtualCopy   = &GMT_fn_vCopyFor3DOS;
+
+    GMT_p_fn_vVirtualDestroy = &GMT_fn_vDestroyFor3DOS;
+    GMT_fn_vInitGameMaterialErrorAndMemory();
+}
+
+/* 0x0042DAD0 */
+void __cdecl GMT_fn_vInitGameMaterialErrorAndMemory(void)
+{
+    if (g_ucGmtModuleId == C_ucModuleNotInitialized)
+        g_ucGmtModuleId = ERM_fn_ucInitErrMsg_call();
+}
+
 /* 0x0042DAF0 */
 GMT_tdxHandleToGameMaterial __cdecl GMT_fn_hCreateGameMaterial(void)
 {
@@ -69,50 +117,6 @@ ACP_tdxBool __cdecl GMT_fn_xMultipleTestCollideIdentifierFromGameMaterial(GMT_td
     return GMT_fn_xMultipleTestCollideIdentifier(hCollideMat, _xType);
 }
 
-GMT_tdxMask __cdecl GMT_fn_hGetCollideMaterialIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat);
-
-/* 0x0042DE00 */
-ACP_tdxBool __cdecl GMT_fn_xMultipleTestCollideIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat,
-                                                          GMT_tdxMask _xType)
-{
-    GMT_tdxMask xIdentifier;
-
-    xIdentifier = GMT_fn_hGetCollideMaterialIdentifier(_hCollideMat);
-    xIdentifier = (GMT_tdxMask)(xIdentifier & _xType);
-
-    if (xIdentifier == _xType)
-        return TRUE;
-    else
-        return FALSE;
-}
-
-/* 0x00424770 */
-extern void __cdecl GLI_xDuplicateMaterial(void **p_hDest, void *hSource);
-
-#include "MMG/MMG_alloc.h"
-#include "MMG/MMG_pubaccess.h"
-#include "GEO/GEO_globals.h"
-#include "GEO/GeoMem.h"
-
-#define ERM_fn_ucInitErrMsg_call     Erm_fn_ucInitErrMsg
-#define ERM_fn_uwCheckError_call     Erm_fn_uwCheckError
-#define ERM_fn_vClearLastError_call  ERM_fn_vClearLastError
-#define ERM_fn_vUpdateLastError_call ERM_fn_vUpdateLastError
-
-#define gmt_pal_ch        g_ucGEOModuleId        /* 0x0049FBBC */
-#define gmt_pal_mode      g_ucGEOMMemMallocMode  /* 0x0049FBC0 */
-#define gmt_pal_dbg_flag  GEO_g_bDynamicAllocation  /* 0x00501524 */
-
-#define gmt_pal_bounds_lo (MMG_g_p_GmtPalBlockInfo->p_cBeginBlock)
-#define gmt_pal_bounds_hi (MMG_g_p_GmtPalBlockInfo->p_cEndBlock)
-#define gmt_erm_diag_flag MMG_g_ucErmChannelId   /* 0x004A11C4 */
-
-/* 0x004A0CBC */
-unsigned char g_ucGmtModuleId = 0xFF;
-
-/* 0x0042DBB0 */
-extern void __cdecl DNM_fn_vInvalidateMatCharacteristics(DNM_tdxHandleToMecMatCharacteristics *_p_hMatCharacteristics);
-
 GMT_tdxHandleToGameMaterial __cdecl GMT_fn_hCreateFor3DOS(void)
 {
     GMT_tdxHandleToGameMaterial hNewGameMaterial;
@@ -131,40 +135,7 @@ GMT_tdxHandleToGameMaterial __cdecl GMT_fn_hCreateFor3DOS(void)
     return NULL;
 }
 
-/* 0x0042DAA0 */
-void __cdecl GMT_fn_vInitFor3DOS(void)
-{
-    GMT_p_fn_hVirtualCreate = &GMT_fn_hCreateFor3DOS;
-    GMT_p_fn_vVirtualCopy   = &GMT_fn_vCopyFor3DOS;
-
-    GMT_p_fn_vVirtualDestroy = &GMT_fn_vDestroyFor3DOS;
-    GMT_fn_vInitGameMaterialErrorAndMemory();
-}
-
-/* 0x0042DAD0 */
-void __cdecl GMT_fn_vInitGameMaterialErrorAndMemory(void)
-{
-    if (g_ucGmtModuleId == C_ucModuleNotInitialized)
-        g_ucGmtModuleId = ERM_fn_ucInitErrMsg_call();
-}
-
-/* 0x00419B90 */
-ACP_tdxHandleOfMaterial __cdecl GMT_fn_hGetVisualMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
-{
-    return GMT_M_hGetVisualMaterial(_hGameMat);
-}
-
-/* 0x0042DE30 */
-DNM_tdxHandleToMecMatCharacteristics __cdecl GMT_fn_hGetMechanicsMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
-{
-    return GMT_M_hGetMechanicsMaterial(_hGameMat);
-}
-
-/* 0x004194B0 */
-SND_tdxHandleToSoundMaterial __cdecl GMT_fn_hGetSoundMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
-{
-    return GMT_M_hGetSoundMaterial(_hGameMat);
-}
+ACP_tdxHandleOfMaterial __cdecl GMT_fn_hGetVisualMaterial(GMT_tdxHandleToGameMaterial _hGameMat);
 
 /* 0x0042DCD0 */
 void __cdecl GMT_fn_vCopyFor3DOS(GMT_tdxHandleToGameMaterial _hDst,
@@ -239,6 +210,21 @@ ACP_tdxBool __cdecl GMT_fn_xTestCollideMaterialTypeOfIdentifier(GMT_tdxHandleToC
         return TRUE;
 }
 
+/* 0x0042DE00 */
+ACP_tdxBool __cdecl GMT_fn_xMultipleTestCollideIdentifier(GMT_tdxHandleToCollideMaterial _hCollideMat,
+                                                          GMT_tdxMask _xType)
+{
+    GMT_tdxMask xIdentifier;
+
+    xIdentifier = GMT_fn_hGetCollideMaterialIdentifier(_hCollideMat);
+    xIdentifier = (GMT_tdxMask)(xIdentifier & _xType);
+
+    if (xIdentifier == _xType)
+        return TRUE;
+    else
+        return FALSE;
+}
+
 /* 0x0042DE20 */
 void __cdecl GMT_fn_vResetEntireMask(GMT_tdxMask *_p_xMask)
 {
@@ -250,6 +236,24 @@ void __cdecl GMT_fn_vSetMechanicsMaterial(GMT_tdxHandleToGameMaterial _hGameMat,
                                           DNM_tdxHandleToMecMatCharacteristics _hMechMat)
 {
     GMT_M_vSetMechanicsMaterial(_hGameMat, _hMechMat);
+}
+
+/* 0x00419B90 */
+ACP_tdxHandleOfMaterial __cdecl GMT_fn_hGetVisualMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
+{
+    return GMT_M_hGetVisualMaterial(_hGameMat);
+}
+
+/* 0x0042DE30 */
+DNM_tdxHandleToMecMatCharacteristics __cdecl GMT_fn_hGetMechanicsMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
+{
+    return GMT_M_hGetMechanicsMaterial(_hGameMat);
+}
+
+/* 0x004194B0 */
+SND_tdxHandleToSoundMaterial __cdecl GMT_fn_hGetSoundMaterial(GMT_tdxHandleToGameMaterial _hGameMat)
+{
+    return GMT_M_hGetSoundMaterial(_hGameMat);
 }
 
 #include "DNM/DNM_types.h"

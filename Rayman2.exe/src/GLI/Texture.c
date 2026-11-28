@@ -557,6 +557,30 @@ void __cdecl GLI_pc_fn_vColorKeyNeighborhoodPassA(uint32_t *pPixels,
     }
 }
 
+/* 0x00425ae0 */
+void __cdecl GLI_pc_fn_vAverageDwordPairsOfRows(unsigned long *p_ulSrc, long *p_lDst, int lSize, int lRowLen)
+{
+    int lRows;
+    int lCol;
+
+    lRows = lSize >> 1;
+    if (1 < lRows && 0 < lRows) {
+        do {
+            lCol = lRowLen;
+            if (0 < lRowLen) {
+                do {
+                    *p_lDst = (long)(((p_ulSrc[lRowLen] >> 1) & 0x7f7f7f7ful) + ((*p_ulSrc >> 1) & 0x7f7f7f7ful));
+                    p_lDst = p_lDst + 1;
+                    p_ulSrc = p_ulSrc + 1;
+                    lCol = lCol - 1;
+                } while (lCol != 0);
+            }
+            p_ulSrc = p_ulSrc + lRowLen;
+            lRows = lRows - 1;
+        } while (lRows != 0);
+    }
+}
+
 void __cdecl FIL_LoadGFLikeImageToRecord(void *hConcatFile, char *p_szPath, char *p_szFilename, FIL_tdstGF *pGF);
 
 void __cdecl GLI_pc_fn_vLoadTextureSourceA(void *p_stTexture, char *p_szFileName, uint32_t *pBuffer)
