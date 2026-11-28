@@ -719,6 +719,68 @@ consoles' one-file-many-branches rule. Consoles: open decision "Console renderer
    Order, one per session: gcc `-m32` compile-only pass; calling-convention form and the per-target
    types header; CMake Linux branch; GL driver loader through SDL (6f); case measurement on the
    data; a Linux regression runner, gated on its own baseline.
+   **gcc `-m32` compile-only pass, done 28.11.2026** (WSL2 Ubuntu 26.04.1, gcc 15.2, `-std=gnu17`;
+   SDL3 3.4.2 for i386 comes from the Ubuntu archive, `libsdl3-dev:i386`, no source build needed;
+   `tools/local/linux_check.py`, run in WSL). Files: the SDL gate's 234 exe files with `LINUX`
+   instead of `WIN32`, `USE_GLI_DX6` dropped and `R2_SND_LINKED`'s defines, plus the 11 linked
+   sound-driver files and the Linux renderer, the GliGL3 module as `GliGL3vf.dll/CMakeLists.txt`
+   lists it (its 4 `ogl_*.c` files and the 50 shared GliDX6vf files, `USE_GLI_GL USE_SDL`).
+   - As the sources are: 216 of 234 exe files fail, 2.629 error sites; 2.108 of them on a line with
+     `__cdecl` (gcc on Linux has no such keyword: `(__cdecl *)` function-pointer types in the AI
+     tables, `AI_types.h` alone 441), 30 `windows.h` includes stop their file (fatal); both sound
+     drivers stop at `#include "SND\snddef.h"` (backslash: `SNDinc.h`; also `SND\sndhandl.h`), 53 of
+     the 54 GliGL3 files at `windows.h` (`GliDX6vf.h`, `GliDX6vf_State.h`).
+   - With the MSVC keywords empty, empty SDK headers and backslash forwarders (measurement only):
+     105 exe files still fail, 341 sites, nearly all Win32 types (`DWORD` 59, `LONG` 34, `HWND` 31,
+     `HINSTANCE` 23, `HANDLE` 21, `BOOL` 17, `LARGE_INTEGER`, `HRESULT`, `HMODULE`, `RECT`, ... and
+     `INVALID_HANDLE_VALUE`, `MAX_PATH`, `FALSE`/`TRUE`) in the files the inventory names (saves,
+     loaders, `GLD`, `Init_Gli`, `TMR`, `SNA`, `MMG`, `sdl_main`, `regress`, `dinput_dx6.h` 40,
+     `GAM_pc.h` 23). Besides them: **`MTH/MTH_fopt.h` (via `MTH_flt.h`, every TU)**: its 14 asm
+     helpers are fenced only by `U64 || NITRO`, so under `LINUX` they reach gcc and swallow the rest
+     of each file (needs the `MTH_C_DEV` fence; skipped by its guard for this measurement); the
+     unfenced asm `AI/FuncRay2.c:474`, `GLI/Texture.c:39`, `MMG/SNA.c:173` (`SND/SND.c:2486` is
+     fenced now); `ui64` literals (`GLI/Texture.c` 13, `app/regress.c` 4, `RasterDefaults.c`,
+     `Procedure.c`); MSVC CRT forms `struct _stat` (`FIL/File.c`), `_findfirst`/`_A_SUBDIR`/
+     `_A_RDONLY`/`_S_IREAD`/`_S_IWRITE` (`GAM_save_slot.c`); `tlhelp32.h` (`MMG_init.c`),
+     `intrin.h` (`SNA.c`). Implicit (undeclared) calls: the inventory's Win32 list and CRT names
+     (`_stricmp` 10 files, `_access`, `_chdir`, `_itoa`, `_mkdir`, `_getcwd`, `_snprintf`,
+     `_strnicmp`, `_strupr`, `_open`/`_close`/`_filelength`/`_unlink`/`_chmod`/`_rmdir`, `alloca`).
+   - Sound drivers, past the backslash: Win32 types (`HWND`, `HANDLE`, `BOOL`, `HMODULE`,
+     `INVALID_HANDLE_VALUE`) and one real C error: `snd_pc.h` names `struct _SND_pc_tdstVirtualVoice`
+     first in prototypes (prototype scope; MSVC and clang-cl's MS mode take it as file scope), so
+     the 8 definitions in `sndvirt.c` conflict (needs a forward declaration before the prototypes).
+   - GliGL3: 169 sites, all Win32 / Direct3D 6 types the shared headers and `ogl_dev.c` /
+     `ogl_drv.c` name (`LONG` 50, `DWORD` 19, `HWND` 15, `BOOL` 10, `RECT`, `HRESULT`, `GUID`,
+     `WORD`) and their cascades, the 6f types header's job.
+   - The same pass with clang 21 (`--clang`, `--clang-ms`): plain clang on i386 takes `__cdecl` /
+     `__stdcall` (2 sites left, `GLI/timer_sub2.h` and its `__int64`); left are the `windows.h`
+     includes, `__int64` (`SAI_types.h`, `GLI/Object.c`), the asm (`MTH_fopt.h` 14,
+     `FuncRay2.c:474`). With `-fms-extensions`: as the sources are, only the 30 `windows.h`
+     includes and the two backslash includes stop files; the MSVC keywords, `__int64`, `ui64` and
+     every `__asm { }` block parse (syntax only; not assembled or run). Past the headers it leaves
+     the same rest as gcc minus the asm and `ui64`: Win32 types, the CRT forms, `snd_pc.h`. It
+     does not change the plan: the MTH asm is decided C on every target but 32-bit Windows (Platform
+     macros, `MTH_C_DEV`), x86_64 and arm64 can take no x86 asm, and `-fms-extensions` would let
+     MSVC-only forms into the Linux build unnoticed. gcc stays the strict check; clang without
+     `-fms-extensions` the second compiler.
+   - Fences, checked with `gcc -E -dM` per group: the exe and GliGL3 get `MTH_C_DEV` and
+     `OPTIMIZED_FOR_PC_FLOATS` (no `..._WITH_ASM`), no `FILE_MODE_C_WIN95`, no `WIN32`/`_MSC_VER`;
+     the macro set is what a Linux build would define (no fence was left off). The sources' fences
+     are not yet Linux-complete: the original SND fences test "not a console" for Windows, so they
+     hold on Linux too: `SND/SND.h` includes `windows.h` unconditionally, `SND/snddef.h` (exe and
+     driver copies) includes it and sets `SND_CALL WINAPI` under `!GAMECONSOLE || WIN95 || WIN32`,
+     and the drivers' `snddef.h` sets `FILE_MODE_C_WIN95` under `!GAMECONSOLE || GENERIC` (the
+     exe's copy has the fork's `!USE_SDL && !RAYMAN2_C_RUNTIME` fence, the driver copy not, so the
+     drivers take the Win32 file branch, `HANDLE tdhSndFile`). Every other platform test in the
+     trees (`WIN32` 19, `_MSC_VER` 6, `LINUX`/`OSX`/`WIN64`, `USE_SDL` 45) is already in the
+     platform form.
+   - Include case: every header path as spelled matches the case on disk (0 mismatches; checked
+     against the directory listings, since `/mnt/c` itself is case-insensitive).
+   Result for the next step: the calling-convention form (`__cdecl`/`__stdcall`/`__fastcall`/
+   `__declspec` as macros per target) and the per-target types header cover all but the list
+   above; that list (MTH_fopt.h fence, three asm blocks, `ui64`, the CRT forms, two SDK headers,
+   the backslash includes, the `snd_pc.h` forward declaration, the SND `windows.h` / `SND_CALL` /
+   driver `FILE_MODE_C_WIN95` fences) is the rest of the compile-only work.
 
 **Platform macros (decided 2026-11-24).** Modelled on the original engine's three kinds: target
 macros named after the platform (`U64`, `NITRO`, `WIN32`), a group macro derived from them
