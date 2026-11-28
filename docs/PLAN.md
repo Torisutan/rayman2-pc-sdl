@@ -781,6 +781,38 @@ consoles' one-file-many-branches rule. Consoles: open decision "Console renderer
    above; that list (MTH_fopt.h fence, three asm blocks, `ui64`, the CRT forms, two SDK headers,
    the backslash includes, the `snd_pc.h` forward declaration, the SND `windows.h` / `SND_CALL` /
    driver `FILE_MODE_C_WIN95` fences) is the rest of the compile-only work.
+   **Calling-convention form and target types header, done 28.11.2026.** As the original engine's
+   console targets: a target header defines the MSVC keywords empty under `#ifndef` (`__cdecl`,
+   `__stdcall`, `__fastcall`; here also `__declspec(x)`, and `__int64` as `long long`, a macro
+   because the shared code writes `unsigned __int64`) and declares the Windows names the original
+   keeps on every target, per target. New `Rayman2.exe/include/cpa_std.h`, branch `LINUX`:
+   `BYTE`, `CHAR`, `WORD`, `UINT`, `BOOL`, `LONG`, `DWORD`, `LPSTR`, `LPCSTR`, `LPVOID`, `WPARAM`,
+   `LPARAM`, `LRESULT`, `HANDLE`, `HWND`, `HINSTANCE` (handles pointer-sized), `RECT`, `POINT`,
+   `TRUE`/`FALSE`, with their 32-bit Windows widths and layouts (the names the original's console
+   types header declares that the shared code uses; `DWORD`/`LONG` are `long`, which the x86_64
+   decision revisits with the rest of the data). The decomp's headers have no common root (the
+   most common, `MTH/MTH_types.h`, reaches 163 of 234 exe files), so the build includes it first in
+   every file of a non-Windows target (`-include`; DEVIATIONS row 19); the CMake Linux branch adds
+   that for the exe and both driver kinds. Windows builds never include it: no Windows object
+   changes (no compiled file changed). `linux_check.py` passes `-include` already.
+   - Pass 1 (sources as they are): exe 216 -> 205 of 234 files fail, 2.629 -> 1.083 error sites.
+     What is left is the rest list's: the 30 `windows.h` includes (fatal) and the `MTH_fopt.h` asm
+     with the three unfenced asm blocks, whose cascades are the remaining errors on `__cdecl` lines
+     (385 "static declaration follows non-static": functions after an unclosed asm body). Sound
+     drivers and GliGL3 still stop at the backslash include and `windows.h`.
+   - Pass 2 (what those mask): exe 107 -> 32 files, 429 -> 222 sites (429 = step 2's 341 plus
+     upstream code merged since, e.g. `FuncRay2.c`'s asm now at line 2316); WAVMWBVR 8 -> 1 file
+     (`sndvirt.c`, the `snd_pc.h` forward declaration); APMmxBVR 3 files, 6 sites; GliGL3 169 -> 24
+     sites. The header causes no error (no conflict or redefinition). Names left, each for a module
+     branch rather than the types header (the original's console code does not declare them):
+     `LARGE_INTEGER` 10 (TMR: `fn_vTimerGetCounter`, `cpu_timer.h`, `sdl_timer.c`, `regress`; the
+     original's console timer takes `void *`), `HMODULE` 5 / `FARPROC` (driver loaders, `sdl_main`,
+     `sndadpcm_pc.h`), `WIN32_FIND_DATAA`, `INVALID_HANDLE_VALUE`, `FILE_ATTRIBUTE_DIRECTORY`,
+     `LPOVERLAPPED`, `LPDWORD`, `LPSECURITY_ATTRIBUTES`, `HGLOBAL` (saves, SNA), `MSG` (Win32
+     window procedure prototypes in `GAM/GAM_pc.h`), `GUID` / `MAX_PATH` (`INO/dinput_dx6.h`),
+     `GUID` / `HRESULT` / `LONG_PTR` / `STDMETHODCALLTYPE` (Direct3D 6 parts of the shared GliDX6vf
+     headers, 6f), `NULL` 4 (files without a C header), and the CRT forms.
+   Rest of the compile-only work: step 2's list plus those names.
 
 **Platform macros (decided 2026-11-24).** Modelled on the original engine's three kinds: target
 macros named after the platform (`U64`, `NITRO`, `WIN32`), a group macro derived from them
